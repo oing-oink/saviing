@@ -1,0 +1,14 @@
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "parent_pipeline"'
+      when: always
+    - when: never
+
+stages:
+  - start
+
+start:
+  stage: start
+  image: alpine:latest
+  script:
+    - echo "백엔드 파이프라인 시작"

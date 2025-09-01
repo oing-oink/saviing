@@ -1,0 +1,165 @@
+workflow:
+  rules:
+    # 최초 커밋/새로운 브랜치 분기인 경우 전체 파이프라인 스킵
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_NAME =~ /^develop-(fe|be)$/ && $CI_COMMIT_BEFORE_SHA == "0000000000000000000000000000000000000000"'
+      when: never
+    # 그 외의 경우 파이프라인 실행
+    - when: always
+
+stages:
+  - guard
+  - build
+
+# 가드 스테이지 - 프론트엔드/백엔드 브랜치 간 상호 영향 방지
+frontend-guard:
+  stage: guard
+  image:
+    name: alpine/git:latest
+    entrypoint: [""]
+  script: |
+    set -e
+    echo "Running frontend guard..."
+
+    if [ "$CI_PIPELINE_SOURCE" = "push" ]; then
+      if git merge-base --is-ancestor "$CI_COMMIT_BEFORE_SHA" "$CI_COMMIT_SHA"; then
+        DIFF_RANGE="$CI_COMMIT_BEFORE_SHA..$CI_COMMIT_SHA"
+      else
+        BASE=$(git merge-base "$CI_COMMIT_BEFORE_SHA" "$CI_COMMIT_SHA")
+        DIFF_RANGE="$BASE..$CI_COMMIT_SHA"
+      fi
+    else
+      TARGET="${CI_MERGE_REQUEST_TARGET_BRANCH_NAME:-develop-fe}"
+      BASE="${CI_MERGE_REQUEST_DIFF_BASE_SHA:-origin/$TARGET}"
+      git fetch --no-tags --depth=1 origin "$TARGET" || true
+      DIFF_RANGE="$BASE..$CI_COMMIT_SHA"
+    fi
+
+    echo "Diff range: $DIFF_RANGE"
+    CHANGED="$(git diff --name-only $DIFF_RANGE || true)"
+    echo ""
+
+    if echo "$CHANGED" | grep -q '^backend/'; then
+      echo "🔴 프론트엔드 브랜치에서 백엔드 파일 변경 감지"
+      echo "$CHANGED" | grep '^backend/' || true
+      exit 1
+    fi
+
+    echo "✅ 프론트엔드 가드 통과"
+  rules:
+    # develop-fe 브랜치에 일반 푸시가 발생한 경우
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_NAME == "develop-fe"'
+
+    # MR 대상 브랜치가 develop-fe인 경우
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "develop-fe"'
+    
+    # 기타 케이스 - 파이프라인 스킵
+    - when: never
+
+backend-guard:
+  stage: guard
+  image:
+    name: alpine/git:latest
+    entrypoint: [""]
+  script: |
+    set -e
+    echo "Running backend guard..."
+
+    if [ "$CI_PIPELINE_SOURCE" = "push" ]; then
+      if git merge-base --is-ancestor "$CI_COMMIT_BEFORE_SHA" "$CI_COMMIT_SHA"; then
+        DIFF_RANGE="$CI_COMMIT_BEFORE_SHA..$CI_COMMIT_SHA"
+      else
+        BASE=$(git merge-base "$CI_COMMIT_BEFORE_SHA" "$CI_COMMIT_SHA")
+        DIFF_RANGE="$BASE..$CI_COMMIT_SHA"
+      fi
+    else
+      TARGET="${CI_MERGE_REQUEST_TARGET_BRANCH_NAME:-develop-be}"
+      BASE="${CI_MERGE_REQUEST_DIFF_BASE_SHA:-origin/$TARGET}"
+      git fetch --no-tags --depth=1 origin "$TARGET" || true
+      DIFF_RANGE="$BASE..$CI_COMMIT_SHA"
+    fi
+
+    echo "Diff range: $DIFF_RANGE"
+    CHANGED=$(git diff --name-only $DIFF_RANGE || true)
+    echo ""
+
+    if echo "$CHANGED" | grep -q '^frontend/'; then
+      echo "🔴 백엔드 브랜치에서 프론트엔드 파일 변경 감지"
+      echo "$CHANGED" | grep '^frontend/' || true
+      exit 1
+    fi
+    echo "✅ 백엔드 가드 통과"
+  rules:
+    # develop-be 브랜치에 일반 푸시가 발생한 경우
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_NAME == "develop-be"'
+
+    # MR 대상 브랜치가 develop-be인 경우
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "develop-be"'
+    
+    # 기타 케이스 - 파이프라인 스킵
+    - when: never
+
+
+# 가드 성공시 백엔드 CI 트리거
+trigger-backend:
+  stage: build
+  trigger:
+    include:
+      - local: backend/.gitlab-ci.yml
+    strategy: depend
+  rules:
+    # develop-be 브랜치에 일반 푸시가 발생하고 변경사항이 있는 경우
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_NAME == "develop-be"'
+      changes: [ "backend/**/*" ]
+
+    # MR대상 브랜치가 develop-be이고, 변경사항이 있는 경우
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "develop-be"'
+      changes: [ "backend/**/*" ]
+
+# 가드 성공시 프론트엔드 CI 트리거
+trigger-frontend:
+  stage: build
+  trigger:
+    include:
+      - local: frontend/.gitlab-ci.yml
+    strategy: depend
+  rules:
+    # develop-fe 브랜치에 일반 푸시가 발생한 경우
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_NAME == "develop-fe"'
+      changes: [ "frontend/**/*" ]
+
+    # MR대상 브랜치가 develop-fe이고, 변경사항이 있는 경우
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "develop-fe"'
+      changes: [ "frontend/**/*" ]
+
+
+# 마스터 브랜치에서 백엔드 CI 트리거
+trigger-backend-master:
+  stage: build
+  trigger:
+    include:
+      - local: backend/.gitlab-ci.yml
+    strategy: depend
+  rules:
+    # master 브랜치에 일반 푸시가 발생한 경우
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_NAME == "master"'
+      changes: [ "backend/**/*" ]
+
+    # MR대상 브랜치가 master이고, 변경사항이 있는 경우
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
+      changes: [ "backend/**/*" ]
+
+# 마스터 브랜치에서 프론트엔드 CI 트리거
+trigger-frontend-master:
+  stage: build
+  trigger:
+    include:
+      - local: frontend/.gitlab-ci.yml
+    strategy: depend
+  rules:
+    # master 브랜치에 일반 푸시가 발생한 경우
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_NAME == "master"'
+      changes: [ "frontend/**/*" ]
+
+    # MR대상 브랜치가 master이고, 변경사항이 있는 경우
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
+      changes: [ "frontend/**/*" ]
