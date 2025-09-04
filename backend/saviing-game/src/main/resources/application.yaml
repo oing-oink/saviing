@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: game
+
+server:
+  port: 8081
