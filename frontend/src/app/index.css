@@ -110,6 +110,18 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* 게임 테마 */
+.game {
+  --primary: oklch(84.513% 0.11204 341.736);
+  --secondary: oklch(0.961 0.013 106.423);
+}
+
+/* 적금 테마 */
+.saving {
+  --primary: oklch(0.488 0.243 264.376);
+  --secondary: oklch(0.961 0.013 240);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
