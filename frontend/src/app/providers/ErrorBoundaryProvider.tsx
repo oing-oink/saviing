@@ -1,3 +1,4 @@
+// 전역으로 에러를 잡고 대체 UI를 보여주는 기능 공급
 import { ErrorBoundary } from "react-error-boundary";
 
 function ErrorFallback({ error, resetErrorBoundary }: any) {
