@@ -15,7 +15,7 @@ dist-ssr/
 
 # Logs
 *.log
-npm-debug.log*
+bun-debug.log*
 
 # TypeScript
 *.tsbuildinfo
