@@ -1,0 +1,24 @@
+server:
+  address: 127.0.0.1
+  port: 8080
+
+spring:
+    config:
+      import: ""
+
+    devtools:
+      livereload:
+        enabled: false
+      restart:
+        enabled: false
+
+    datasource:
+      url: jdbc:h2:mem:saviing-bank-inmem-db;DATABASE_TO_UPPER=FALSE;mode=mysql
+      username: sa
+      password:
+      driver-class-name: org.h2.Driver
+
+    h2:
+      console:
+        enabled: true
+        path: /h2-console

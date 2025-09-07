@@ -1,6 +1,16 @@
+server:
+  address: ${SERVER_HOST:127.0.0.1}
+  port: ${SERVER_PORT:8081}
+
 spring:
   application:
     name: game
+  config:
+    import:
+      - optional:file:../config/${spring.application.name}/.env[.properties]
 
-server:
-  port: 8081
+  devtools:
+    livereload:
+      enabled: true
+    restart:
+      enabled: true
