@@ -1,4 +1,6 @@
 import axios, { type AxiosRequestConfig } from "axios";
+import { router } from "@/app/router/routes";
+import { PAGE_PATH } from "../constants/path";
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -19,7 +21,7 @@ api.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err.response?.status === 401) {
-      window.location.href = "/login"; // 자동 로그아웃 예시
+      router.navigate(PAGE_PATH.LOGIN);
     }
     return Promise.reject(err);
   }
