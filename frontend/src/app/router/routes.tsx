@@ -4,11 +4,12 @@ import LoginPage from "@/pages/LoginPage";
 import SavingsPage from "@/pages/SavingsPage";
 import GamePage from "@/pages/GamePage";
 import NotFoundPage from "@/pages/NotFoundPage";
+import { PAGE_PATH } from "@/shared/constants/path";
 
 export const router = createBrowserRouter([
-  { path: "/", element: <HomePage /> },
-  { path: "/login", element: <LoginPage /> },
-  { path: "/savings", element: <SavingsPage /> },
-  { path: "/game", element: <GamePage /> },
-  { path: "*", element: <NotFoundPage /> },
+  { path: PAGE_PATH.HOME, element: <HomePage /> },
+  { path: PAGE_PATH.LOGIN, element: <LoginPage /> },
+  { path: PAGE_PATH.SAVINGS, element: <SavingsPage /> },
+  { path: PAGE_PATH.GAME, element: <GamePage /> },
+  { path: PAGE_PATH.NOT_FOUND, element: <NotFoundPage /> },
 ]);
