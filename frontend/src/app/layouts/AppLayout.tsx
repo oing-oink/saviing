@@ -11,8 +11,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     >
       <div
         className="
-          w-full max-w-[430px]          
+          w-full max-w-md         
           min-h-screen
+          mx-auto
+          safeArea
           bg-white                      
           shadow-md                      
           flex flex-col

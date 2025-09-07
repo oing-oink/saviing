@@ -122,6 +122,14 @@
   --secondary: oklch(0.961 0.013 240);
 }
 
+/* safeArea 유틸리티 */
+.safeArea {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
