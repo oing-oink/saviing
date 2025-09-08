@@ -1,10 +1,10 @@
 import { RouterProvider } from 'react-router-dom';
-import QueryProvider from './providers/QueryProvider';
-import ErrorBoundaryProvider from './providers/ErrorBoundaryProvider';
+import { QueryProvider } from './providers/QueryProvider';
+import { ErrorBoundaryProvider } from './providers/ErrorBoundaryProvider';
 import { router } from './router/routes';
-import AppLayout from './layouts/AppLayout';
+import { AppLayout } from './layouts/AppLayout';
 
-export default function App() {
+export const App = () => {
   return (
     <ErrorBoundaryProvider>
       <QueryProvider>
@@ -14,4 +14,4 @@ export default function App() {
       </QueryProvider>
     </ErrorBoundaryProvider>
   );
-}
+};

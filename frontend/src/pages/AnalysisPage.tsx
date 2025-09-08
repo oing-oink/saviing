@@ -1,3 +1,3 @@
-export default function AnalysisPage() {
+export const AnalysisPage = () => {
   return <div>AnalysisPage</div>;
-}
+};

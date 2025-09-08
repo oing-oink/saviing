@@ -9,11 +9,11 @@ import type { PropsWithChildren } from 'react';
  * @param children - 앱 전체를 감싸는 React children
  * @returns QueryClientProvider로 감싼 children
  */
-export default function QueryProvider({ children }: PropsWithChildren) {
+export const QueryProvider = ({ children }: PropsWithChildren) => {
   return (
     <QueryClientProvider client={queryClient}>
       {children}
       {process.env.NODE_ENV === 'development' && <ReactQueryDevtools />}
     </QueryClientProvider>
   );
-}
+};

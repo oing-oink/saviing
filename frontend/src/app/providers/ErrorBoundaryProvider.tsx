@@ -8,7 +8,7 @@ import { ErrorBoundary, type FallbackProps } from 'react-error-boundary';
  * @param resetErrorBoundary - 에러 상태를 초기화하는 함수
  * @returns 에러 메시지와 재시도 버튼을 렌더링
  */
-function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
+const ErrorFallback = ({ error, resetErrorBoundary }: FallbackProps) => {
   return (
     <div className="p-4 text-red-600">
       <h2>에러 발생</h2>
@@ -16,7 +16,7 @@ function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
       <button onClick={resetErrorBoundary}>다시 시도</button>
     </div>
   );
-}
+};
 
 /**
  * React 컴포넌트 렌더링 중 발생하는 에러를 잡고
@@ -25,8 +25,8 @@ function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
  * @param children - 앱 전체를 감싸는 React children
  * @returns ErrorBoundary로 감싼 children
  */
-export default function ErrorBoundaryProvider({ children }: PropsWithChildren) {
+export const ErrorBoundaryProvider = ({ children }: PropsWithChildren) => {
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>{children}</ErrorBoundary>
   );
-}
+};

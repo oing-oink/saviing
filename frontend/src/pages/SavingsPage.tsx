@@ -1,3 +1,3 @@
-export default function SavingsPage() {
+export const SavingsPage = () => {
   return <div>SavingsPage</div>;
-}
+};

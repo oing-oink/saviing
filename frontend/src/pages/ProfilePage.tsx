@@ -1,3 +1,3 @@
-export default function ProfilePage() {
+export const ProfilePage = () => {
   return <div>ProfilePage</div>;
-}
+};

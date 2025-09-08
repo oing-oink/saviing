@@ -1,3 +1,3 @@
-export default function GamePage() {
+export const GamePage = () => {
   return <div>GamePage</div>;
-}
+};
