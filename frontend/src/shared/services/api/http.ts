@@ -11,12 +11,12 @@ import type { ApiSuccessResponse } from "@/shared/types/api";
  * @param cfg - Axios 요청 설정
  * @returns ApiSuccessResponse<T>
  */
-async function request<T>(
+const request = async <T>(
   cfg: AxiosRequestConfig
-): Promise<ApiSuccessResponse<T>> {
+): Promise<ApiSuccessResponse<T>> => {
   const { data } = await api.request<ApiSuccessResponse<T>>(cfg);
   return data;
-}
+};
 
 /**
  * HTTP 메서드 래퍼
