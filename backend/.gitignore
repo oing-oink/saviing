@@ -340,6 +340,9 @@ gradle-app.setting
 
 # End of https://www.toptal.com/developers/gitignore/api/java,windows,macos,git,maven,eclipse,intellij,gradle,visualstudiocode
 
+### logs ###
+**/logs/
+
 ### Environment Variables ###
 **/.env
 .cursor/*

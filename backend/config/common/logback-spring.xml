@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- Spring Property 설정 -->
+    <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="app"/>
+
+    <!-- Console Appender - 개발환경용 (읽기 쉬운 형태) -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>[%cyan(${APP_NAME})] %d{yyyy-MM-dd HH:mm:ss} %highlight(%-5level) %magenta([%thread]) %cyan(%logger{36}) %yellow([traceId: %X{traceId:-NO_TRACE_ID}]) %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ERROR 전용 동기 콘솔 (항상 남김) -->
+    <appender name="ERROR_SYNC" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+        <encoder>
+            <pattern>[%cyan(${APP_NAME})] %d{yyyy-MM-dd HH:mm:ss} %highlight(%-5level) %magenta([%thread]) %cyan(%logger{36}) %yellow([traceId: %X{traceId:-NO_TRACE_ID}]) %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- JSON Console Appender -->
+    <appender name="JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <pattern>
+                    <pattern>{"service": "${APP_NAME}"}</pattern>
+                </pattern>
+                <timestamp/>
+                <logLevel/>
+                <pattern>
+                    <pattern>{"thread": "%thread"}</pattern>
+                </pattern>
+                <loggerName>
+                    <fieldName>logger</fieldName>
+                    <shortenedLoggerNameLength>36</shortenedLoggerNameLength>
+                </loggerName>
+                <mdc>
+                    <excludeMdcKeyName>traceId</excludeMdcKeyName>
+                </mdc>
+                <pattern>
+                    <pattern>{"traceId": "%X{traceId:-NO_TRACE}"}</pattern>
+                </pattern>
+                <message/>
+            </providers>
+        </encoder>
+    </appender>
+
+    <!-- 비동기 JSON 콘솔 (무블록 + 저레벨 조기 폐기) -->
+    <appender name="ASYNC_JSON_CONSOLE" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>8192</queueSize>
+        <discardingThreshold>1638</discardingThreshold> <!-- 대략 20% 남았을 때부터 TRACE/DEBUG 폐기 -->
+        <neverBlock>true</neverBlock>
+        <includeCallerData>false</includeCallerData>
+        <appender-ref ref="JSON_CONSOLE"/>
+    </appender>
+
+    <!-- JSON File Appender - 운영환경 전용 -->
+    <appender name="JSON_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/${APP_NAME}.json</file>
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <pattern>
+                    <pattern>{"service": "${APP_NAME}"}</pattern>
+                </pattern>
+                <timestamp>
+                    <fieldName>@timestamp</fieldName>
+                </timestamp>
+                <logLevel/>
+                <pattern>
+                    <pattern>{"thread": "%thread"}</pattern>
+                </pattern>
+                <loggerName>
+                    <fieldName>logger</fieldName>
+                    <shortenedLoggerNameLength>36</shortenedLoggerNameLength>
+                </loggerName>
+                <mdc>
+                    <excludeMdcKeyName>traceId</excludeMdcKeyName>
+                </mdc>
+                <pattern>
+                    <pattern>{"traceId": "%X{traceId:-NO_TRACE}"}</pattern>
+                </pattern>
+                <message/>
+            </providers>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>logs/${APP_NAME}.%d{yyyy-MM-dd}.%i.json</fileNamePattern>
+            <maxFileSize>100MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <!-- 비동기 JSON 파일 -->
+    <appender name="ASYNC_JSON_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>8192</queueSize>
+        <discardingThreshold>1638</discardingThreshold>
+        <neverBlock>true</neverBlock>
+        <includeCallerData>false</includeCallerData>
+        <maxFlushTime>3000</maxFlushTime>
+        <appender-ref ref="JSON_FILE"/>
+    </appender>
+
+    <!-- Profile별 설정 -->
+    <springProfile name="prod">
+        <root level="INFO">
+            <appender-ref ref="ASYNC_JSON_CONSOLE"/>
+            <appender-ref ref="ASYNC_JSON_FILE"/>
+            <appender-ref ref="ERROR_SYNC"/>
+        </root>
+    </springProfile>
+
+    <!-- 개발/기타 환경: 읽기 쉬운 콘솔 + ERROR 동기 -->
+    <springProfile name="!prod">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="ERROR_SYNC"/>
+        </root>
+    </springProfile>
+</configuration>

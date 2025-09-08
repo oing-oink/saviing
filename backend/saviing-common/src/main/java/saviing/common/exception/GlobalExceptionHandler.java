@@ -8,6 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import saviing.common.response.ErrorResult;
 
@@ -17,7 +18,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
     public ErrorResult handleBusinessException(BusinessException e) {
-        log.error("Business exception occurred: {}", e.getMessage(), e);
         ErrorCode errorCode = e.getErrorCode();
         
         return ErrorResult.of(errorCode, e.getMessage());
@@ -25,8 +25,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ErrorResult handleValidationException(MethodArgumentNotValidException e) {
-        log.error("Validation exception occurred: {}", e.getMessage(), e);
-        
         ErrorResult errorResult = ErrorResult.validationError(ErrorCode.INVALID_INPUT_VALUE);
         
         for (FieldError fieldError : e.getBindingResult().getFieldErrors()) {
@@ -42,8 +40,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BindException.class)
     public ErrorResult handleBindException(BindException e) {
-        log.error("Bind exception occurred: {}", e.getMessage(), e);
-        
         ErrorResult errorResult = ErrorResult.validationError(ErrorCode.INVALID_INPUT_VALUE);
         
         for (FieldError fieldError : e.getFieldErrors()) {
@@ -59,8 +55,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ErrorResult handleTypeMismatchException(MethodArgumentTypeMismatchException e) {
-        log.error("Type mismatch exception occurred: {}", e.getMessage(), e);
-        
         return ErrorResult.validationError(ErrorCode.INVALID_TYPE_VALUE)
             .addInvalidParam(
                 e.getName(),
@@ -71,21 +65,22 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ErrorResult handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
-        log.error("Http message not readable exception occurred: {}", e.getMessage(), e);
-        
         return ErrorResult.of(ErrorCode.INVALID_DATA_FORMAT);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ErrorResult handleIllegalArgumentException(IllegalArgumentException e) {
-        log.error("Illegal argument exception occurred: {}", e.getMessage(), e);
-        
         return ErrorResult.of(ErrorCode.INVALID_INPUT_VALUE, e.getMessage());
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ErrorResult handleNoResourceFoundException(NoResourceFoundException e) {
+        return ErrorResult.of(ErrorCode.ENDPOINT_NOT_FOUND);
     }
 
     @ExceptionHandler(Exception.class)
     public ErrorResult handleGeneralException(Exception e) {
-        log.error("Unexpected exception occurred: {}", e.getMessage(), e);
+        log.error("예상치 못한 오류: {}", e.getMessage(), e);
         
         return ErrorResult.of(ErrorCode.INTERNAL_SERVER_ERROR);
     }

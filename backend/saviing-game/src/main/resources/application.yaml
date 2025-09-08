@@ -4,7 +4,7 @@ server:
 
 spring:
   application:
-    name: game
+    name: GAME
   config:
     import:
       - optional:file:../config/${spring.application.name}/.env[.properties]
@@ -14,3 +14,8 @@ spring:
       enabled: true
     restart:
       enabled: true
+
+logging:
+  config: file:../config/common/logback-spring.xml
+  level:
+    saviing: DEBUG

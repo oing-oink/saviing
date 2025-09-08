@@ -1,3 +1,7 @@
+plugins {
+	id 'io.freefair.aspectj.post-compile-weaving' version '8.14.2'
+}
+
 bootJar {
 	enabled = false
 }
@@ -7,5 +11,9 @@ jar {
 }
 
 dependencies {
+	implementation "org.aspectj:aspectjrt:1.9.24"
+	aspect "org.aspectj:aspectjweaver:1.9.24"
+
+
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 }
