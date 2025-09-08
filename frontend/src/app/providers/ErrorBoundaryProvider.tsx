@@ -25,8 +25,10 @@ const ErrorFallback = ({ error, resetErrorBoundary }: FallbackProps) => {
  * @param children - 앱 전체를 감싸는 React children
  * @returns ErrorBoundary로 감싼 children
  */
-export const ErrorBoundaryProvider = ({ children }: PropsWithChildren) => {
+const ErrorBoundaryProvider = ({ children }: PropsWithChildren) => {
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>{children}</ErrorBoundary>
   );
 };
+
+export default ErrorBoundaryProvider;

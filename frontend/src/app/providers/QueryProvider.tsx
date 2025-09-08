@@ -9,7 +9,7 @@ import type { PropsWithChildren } from 'react';
  * @param children - 앱 전체를 감싸는 React children
  * @returns QueryClientProvider로 감싼 children
  */
-export const QueryProvider = ({ children }: PropsWithChildren) => {
+const QueryProvider = ({ children }: PropsWithChildren) => {
   return (
     <QueryClientProvider client={queryClient}>
       {children}
@@ -17,3 +17,5 @@ export const QueryProvider = ({ children }: PropsWithChildren) => {
     </QueryClientProvider>
   );
 };
+
+export default QueryProvider;

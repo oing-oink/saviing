@@ -1,9 +1,9 @@
 import { createBrowserRouter } from 'react-router-dom';
-import { HomePage } from '@/pages/HomePage';
-import { LoginPage } from '@/pages/LoginPage';
-import { SavingsPage } from '@/pages/SavingsPage';
-import { GamePage } from '@/pages/GamePage';
-import { NotFoundPage } from '@/pages/NotFoundPage';
+import HomePage from '@/pages/HomePage';
+import LoginPage from '@/pages/LoginPage';
+import SavingsPage from '@/pages/SavingsPage';
+import GamePage from '@/pages/GamePage';
+import NotFoundPage from '@/pages/NotFoundPage';
 import { PAGE_PATH } from '@/shared/constants/path';
 
 export const router = createBrowserRouter([
