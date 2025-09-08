@@ -1,6 +1,6 @@
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { queryClient } from '../query/client';
+import { queryClient } from '@/app/query/client';
 import type { PropsWithChildren } from 'react';
 
 /**
