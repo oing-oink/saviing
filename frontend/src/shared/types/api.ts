@@ -1,4 +1,4 @@
-import type { AxiosError } from "axios";
+import type { AxiosError } from 'axios';
 
 /**
  * API 성공 응답
@@ -46,7 +46,7 @@ export class ApiError extends Error {
    */
   constructor(err: AxiosError) {
     super(err.message);
-    this.name = "ApiError";
+    this.name = 'ApiError';
     this.axiosError = err;
 
     // 서버가 공통 에러 바디를 내려주면 타입 단정

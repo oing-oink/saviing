@@ -1,5 +1,5 @@
-import axios from "axios";
-import { onRequest, onResponseError } from "./interceptors";
+import axios from 'axios';
+import { onRequest, onResponseError } from './interceptors';
 
 /**
  * 공용 Axios 인스턴스
@@ -13,4 +13,4 @@ export const api = axios.create({
 
 // 인터셉터 연결
 api.interceptors.request.use(onRequest);
-api.interceptors.response.use((res) => res, onResponseError);
+api.interceptors.response.use(res => res, onResponseError);

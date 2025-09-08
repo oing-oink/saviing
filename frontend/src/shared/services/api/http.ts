@@ -1,6 +1,6 @@
-import type { AxiosRequestConfig } from "axios";
-import { api } from "./axiosClient";
-import type { ApiSuccessResponse } from "@/shared/types/api";
+import type { AxiosRequestConfig } from 'axios';
+import { api } from './axiosClient';
+import type { ApiSuccessResponse } from '@/shared/types/api';
 
 /**
  * 공통 요청 함수
@@ -12,7 +12,7 @@ import type { ApiSuccessResponse } from "@/shared/types/api";
  * @returns ApiSuccessResponse<T>
  */
 const request = async <T>(
-  cfg: AxiosRequestConfig
+  cfg: AxiosRequestConfig,
 ): Promise<ApiSuccessResponse<T>> => {
   const { data } = await api.request<ApiSuccessResponse<T>>(cfg);
   return data;
@@ -30,7 +30,7 @@ export const http = {
    * @param config - 추가 Axios 설정
    */
   get: <T>(url: string, config?: AxiosRequestConfig) =>
-    request<T>({ url, method: "GET", ...config }),
+    request<T>({ url, method: 'GET', ...config }),
 
   /**
    * POST 요청
@@ -40,7 +40,7 @@ export const http = {
    * @param config - 추가 Axios 설정
    */
   post: <T>(url: string, body?: unknown, config?: AxiosRequestConfig) =>
-    request<T>({ url, method: "POST", data: body, ...config }),
+    request<T>({ url, method: 'POST', data: body, ...config }),
 
   /**
    * PUT 요청
@@ -50,7 +50,7 @@ export const http = {
    * @param config - 추가 Axios 설정
    */
   put: <T>(url: string, body?: unknown, config?: AxiosRequestConfig) =>
-    request<T>({ url, method: "PUT", data: body, ...config }),
+    request<T>({ url, method: 'PUT', data: body, ...config }),
 
   /**
    * DELETE 요청
@@ -59,5 +59,5 @@ export const http = {
    * @param config - 추가 Axios 설정
    */
   delete: <T>(url: string, config?: AxiosRequestConfig) =>
-    request<T>({ url, method: "DELETE", ...config }),
+    request<T>({ url, method: 'DELETE', ...config }),
 };

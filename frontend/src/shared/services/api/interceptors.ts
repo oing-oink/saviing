@@ -1,7 +1,7 @@
-import type { AxiosError, InternalAxiosRequestConfig } from "axios";
-import { ApiError } from "@/shared/types/api";
-import { router } from "@/app/router/routes";
-import { PAGE_PATH } from "@/shared/constants/path";
+import type { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import { ApiError } from '@/shared/types/api';
+import { router } from '@/app/router/routes';
+import { PAGE_PATH } from '@/shared/constants/path';
 
 /**
  * 요청 인터셉터

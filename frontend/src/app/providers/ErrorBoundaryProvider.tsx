@@ -1,5 +1,5 @@
-import type { PropsWithChildren } from "react";
-import { ErrorBoundary, type FallbackProps } from "react-error-boundary";
+import type { PropsWithChildren } from 'react';
+import { ErrorBoundary, type FallbackProps } from 'react-error-boundary';
 
 /**
  * 에러 발생 시 사용자에게 보여줄 UI.
