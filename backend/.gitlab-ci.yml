@@ -18,5 +18,6 @@ build:
   stage: build
   image: gradle:8.14.3-jdk21
   script:
+    - cd backend
     - chmod +x ./gradlew
     - ./gradlew clean build --refresh-dependencies --no-build-cache --rerun-tasks
