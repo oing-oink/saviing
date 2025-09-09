@@ -1,0 +1,21 @@
+plugins {
+	id 'io.freefair.aspectj.post-compile-weaving' version '8.14.2'
+}
+
+bootJar {
+	enabled = false
+}
+
+jar {
+	enabled = true
+}
+
+dependencies {
+	implementation "org.aspectj:aspectjrt:1.9.24"
+	aspect "org.aspectj:aspectjweaver:1.9.24"
+
+	// Swagger
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.13'
+	
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+}

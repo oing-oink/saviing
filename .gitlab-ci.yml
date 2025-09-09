@@ -10,6 +10,23 @@ stages:
   - guard
   - build
 
+mr-nop:
+  stage: guard
+  image: alpine:latest
+  script: [ 'echo "문서/메타 변경 파이프라인 실행"' ]
+  rules:
+    # 1) MR일 때, 앱 소스 변경이 있으면 이 잡은 건너뜀
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      changes:
+        - backend/**/* 
+        - frontend/**/*
+      when: never
+    # 2) MR일 때, 위 조건에 안 걸리면(= 앱 소스 무변경) 실행
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: always
+    # 3) 그 외(푸시 등)는 실행 안 함
+    - when: never
+
 # 가드 스테이지 - 프론트엔드/백엔드 브랜치 간 상호 영향 방지
 frontend-guard:
   stage: guard

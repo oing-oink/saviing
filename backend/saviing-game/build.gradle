@@ -1,0 +1,16 @@
+bootJar {
+	enabled = true
+	mainClass = 'saviing.game.GameApplication'
+}
+
+jar {
+	enabled = false
+}
+
+dependencies {
+	implementation project(':saviing-common')
+	
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	runtimeOnly 'com.h2database:h2'
+	testImplementation 'org.springframework.security:spring-security-test'
+}

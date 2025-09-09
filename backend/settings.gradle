@@ -1,0 +1,5 @@
+rootProject.name = 'saviing'
+
+include 'saviing-common'
+include 'saviing-bank'
+include 'saviing-game'
