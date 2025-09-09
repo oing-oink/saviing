@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Production builds
+dist/
+dist-ssr/
+
+# Vite
+.vite/
+
+# Environment variables
+.env
+.env.local
+*.local
+
+# Logs
+*.log
+bun-debug.log*
+
+# TypeScript
+*.tsbuildinfo
+
+# IDE/Editor files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# claude
+.claude/
