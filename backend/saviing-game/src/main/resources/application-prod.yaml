@@ -2,9 +2,31 @@ server:
   address: ${SERVER_HOST:0.0.0.0}
   port: ${SERVER_PORT:8081}
 
+# API Documentation - Production
+api:
+  version: ${API_VERSION:v1.0}
+  versionPath: ${API_VERSION_PATH:v1}
+
 spring:
   devtools:
     livereload:
       enabled: false
     restart:
       enabled: false
+
+logging:
+  level:
+    root: INFO
+    saviing: INFO
+
+springdoc:
+  api-docs:
+    enabled: ${SWAGGER_ENABLED:false}
+  swagger-ui:
+    title: SAVIING ${spring.application.name} API (Production)
+    enabled: ${SWAGGER_UI_ENABLED:false}
+    try-it-out-enabled: false
+    supported-submit-methods: []
+  servers:
+    - url: https://api.game.saviing.life
+      description: Production Server

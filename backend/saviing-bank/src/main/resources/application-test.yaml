@@ -22,3 +22,10 @@ spring:
       console:
         enabled: true
         path: /h2-console
+
+# Swagger Configuration - Test (Disabled)
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
