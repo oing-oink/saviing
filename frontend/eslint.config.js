@@ -11,7 +11,9 @@ import filenames from 'eslint-plugin-filenames';
 import { globalIgnores } from 'eslint/config';
 
 export default tseslint.config([
+  // 전역 ignore
   globalIgnores(['dist', 'node_modules']),
+
   {
     files: ['**/*.{ts,tsx}'],
 
@@ -24,16 +26,18 @@ export default tseslint.config([
 
     plugins: {
       'no-relative-import-paths': noRelativeImportPaths,
-      react: reactPlugin,
-      import: importPlugin,
+      'react': reactPlugin,
+      'import': importPlugin,
       unicorn,
       filenames,
     },
 
     languageOptions: {
-      ecmaVersion: 2022,
+      ecmaVersion: 'latest',
       globals: globals.browser,
-      parserOptions: { ecmaFeatures: { jsx: true } },
+      parserOptions: {
+        ecmaFeatures: { jsx: true },
+      },
     },
 
     settings: {
@@ -41,21 +45,13 @@ export default tseslint.config([
     },
 
     rules: {
-      '@typescript-eslint/no-explicit-any': 'warn', // any 사용시 경고
+      // === TypeScript 컨벤션 ===
       '@typescript-eslint/consistent-type-imports': [
         'error',
         { prefer: 'type-imports' },
       ],
-      '@typescript-eslint/array-type': ['error', { default: 'array' }],
-      '@typescript-eslint/ban-types': [
-        'error',
-        {
-          types: {
-            React.FC: '일반 함수 컴포넌트로 정의하세요',
-            React.FunctionComponent: '일반 함수 컴포넌트를 사용하세요',
-          },
-        },
-      ],
+      '@typescript-eslint/array-type': ['error', { default: 'array' }], // string[] 선호
+      '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unused-vars': [
         'error',
         {
@@ -64,53 +60,47 @@ export default tseslint.config([
           ignoreRestSiblings: true,
         },
       ],
-      '@typescript-eslint/naming-convention': [
+      '@typescript-eslint/consistent-type-definitions': ['error', 'interface'], // 객체는 interface 권장
+      // React.FC 금지(문서 컨벤션 반영)
+      '@typescript-eslint/no-restricted-types': [
         'error',
-        { selector: 'typeLike', format: ['PascalCase'] },
         {
-          selector: 'variable',
-          format: ['camelCase', 'UPPER_CASE', 'PascalCase'],
-          leadingUnderscore: 'allow',
+          types: {
+            'React.FC': '일반 함수 컴포넌트로 정의하세요',
+            'React.FunctionComponent': '일반 함수 컴포넌트를 사용하세요',
+          },
         },
-        {
-          selector: 'variable',
-          modifiers: ['const'],
-          format: ['UPPER_CASE'],
-          filter: { regex: '^[A-Z0-9_]+$', match: false },
-        },
-        {
-          selector: 'variable',
-          types: ['boolean'],
-          format: ['camelCase'],
-          prefix: ['is', 'has', 'can'],
-        },
-        { selector: 'function', format: ['camelCase'] },
       ],
+      // 빈 함수 허용(문서: noop 허용)
+      '@typescript-eslint/no-empty-function': 'off',
 
+      // === React 컨벤션 ===
+      'react/function-component-definition': [
+        'error',
+        {
+          namedComponents: 'arrow-function',
+          unnamedComponents: 'arrow-function',
+        },
+      ], // 컴포넌트는 화살표 함수
       'react-hooks/exhaustive-deps': 'warn',
       'react-refresh/only-export-components': 'warn',
-      'react/jsx-pascal-case': ['error', { allowAllCaps: false, ignore: [] }],
+      'react/jsx-pascal-case': ['error', { allowAllCaps: false }],
 
+      // === Import/Export & 경로 ===
       'no-relative-import-paths/no-relative-import-paths': [
         'error',
-        { allowSameFolder: true }, // 같은 폴더는 허용
+        { allowSameFolder: true },
       ],
 
-      'import/no-default-export': 'error',
+      // === 일반 품질 규칙 ===
       'prefer-const': 'error',
       'no-var': 'error',
-      curly: ['error', 'all'],
+      'curly': ['error', 'all'],
       'prefer-arrow-callback': 'error',
-      'func-style': ['error', 'expression'],
+      'func-style': ['error', 'expression'], // 함수는 표현식(화살표 함수) 권장
       'no-implicit-coercion': 'error',
-      'no-warning-comments': [
-        'warn',
-        { terms: ['todo', 'fixme', 'bug'], location: 'start' },
-      ],
 
-      // 실무 편의상 off
-      'no-magic-numbers': 'off',
-
+      // enum 금지(문서: as const 객체 사용)
       'no-restricted-syntax': [
         'error',
         {
@@ -119,49 +109,28 @@ export default tseslint.config([
         },
       ],
 
-      'unicorn/filename-case': [
-        'error',
-        {
-          cases: {
-            camelCase: true,
-            pascalCase: true,
-          },
-        },
+      // TODO/FIXME 관리(문서)
+      'no-warning-comments': [
+        'warn',
+        { terms: ['todo', 'fixme', 'bug'], location: 'start' },
       ],
     },
+  },
 
-    overrides: [
-      {
-        files: ['src/**/components/**/*.{tsx,ts}'],
-        rules: {
-          'import/no-default-export': 'off',
-          'unicorn/filename-case': [
-            'error',
-            { cases: { pascalCase: true } },
-          ],
-        },
-      },
-      {
-        files: ['src/**/hooks/**/*.{ts,tsx}'],
-        rules: {
-          'filenames/match-regex': ['error', '^use[A-Z].*'],
-        },
-      },
-      {
-        files: ['**/*.types.ts'],
-        rules: {
-          'unicorn/filename-case': [
-            'error',
-            { cases: { camelCase: true } },
-          ],
-        },
-      },
-      {
-        files: ['src/**/pages/**/*.{tsx,ts}'],
-        rules: {
-          'import/no-default-export': 'off', // pages 디렉토리도 허용
-        },
-      },
-    ],
+  // === overrides ===
+  {
+    files: ['src/**/hooks/**/*.{ts,tsx}'],
+    rules: { 'filenames/match-regex': ['error', '^use[A-Z].*'] },
+  },
+
+  { files: ['**/*.types.ts'], rules: {} },
+
+  { files: ['src/vite-env.d.ts'], rules: {} },
+
+  {
+    files: ['src/shared/components/ui/**/*.{ts,tsx}'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
   },
 ]);
