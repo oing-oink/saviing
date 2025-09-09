@@ -22,13 +22,13 @@ default:
     policy: pull-push
   variables:
     BUN_INSTALL_CACHE_DIR: '$CI_PROJECT_DIR/.bun_cache'
-    VITE_API_BASE_URL: 'https://api.example.com' # 테스트용 하드코딩된 값
   before_script:
     - cd frontend
     - bun install --frozen-lockfile
 
 start:
   stage: start
+  image: alpine:latest
   before_script: []
   script:
     - echo "프론트엔드 파이프라인 시작"
