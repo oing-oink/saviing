@@ -112,14 +112,45 @@
 
 /* 게임 테마 */
 .game {
-  --primary: oklch(84.513% 0.11204 341.736);
-  --secondary: oklch(0.961 0.013 106.423);
+  --primary: oklch(0.9002 0.052 18.16);
+  --secondary: oklch(0.9852 0.0417 102.74);
+  --sky-bg: oklch(0.9321 0.0493 202.63);
+  --store-bg: oklch(0.9566 0.0155 27.28);
+
+  /* 라벨(level용) */
+  --level01: oklch(0.7552 0.1524 163.35);
+  --level02: oklch(0.7552 0.1524 199.35);
+  --level03: oklch(0.7552 0.1524 235.35);
+  --level04: oklch(0.7552 0.1524 271.35);
+  --level05: oklch(0.7552 0.1524 307.35);
+  --level06: oklch(0.7552 0.1524 343.35);
+  --level07: oklch(0.7552 0.1524 19.35);
+  --level08: oklch(0.7552 0.1524 55.35);
+  --level09: oklch(0.7552 0.1524 91.35);
+  --level10: oklch(0.7552 0.1524 127.35);
 }
 
-/* 적금 테마 */
+/* 금융 테마 */
 .saving {
-  --primary: oklch(0.488 0.243 264.376);
-  --secondary: oklch(0.961 0.013 240);
+  /* 푸른색 */
+  --bg: oklch(0.939 0.0326 295.32);
+  --primary: oklch(0.5181 0.2408 283.43);
+  --secondary: oklch(0.8 0.2408 283.43);
+  
+  /* 보라색 */
+  /* --bg: oklch(0.9279 0.0203 292.13);
+  --primary: oklch(0.51 0.1142 314.52);
+  --secondary: oklch(0.8 0.1142 314.52); */
+
+
+  --white: oklch(0.9919 0.003956 286.3273);
+  --gray: oklch(0.8853 0 0);
+  --dark-gray: oklch(0.619 0.0038 247.89);
+  
+  --success: oklch(0.6396 0.1308 143.33);
+  --fail: oklch(0.5452 0.172 27.72);
+  --warning-bg: oklch(0.9783 0.0135 78.26);
+  --warning-text: oklch(0.5294 0.1377 40.83);
 }
 
 /* safeArea 유틸리티 */
