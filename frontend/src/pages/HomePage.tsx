@@ -1,16 +1,18 @@
 import { Button } from '@/shared/components/ui/button';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const HomePage = () => {
+  const navigate = useNavigate();
+
   return (
     <div>
       <Button>Home</Button>
-      <Link
-        to="/colortest"
+      <button
+        onClick={() => navigate('/colortest')}
         className="block w-full rounded-lg bg-blue-500 p-2 text-center text-white"
       >
         Go to Color Test Page
-      </Link>
+      </button>
     </div>
   );
 };
