@@ -16,7 +16,7 @@ const Inventory = ({ items }: InventoryProps) => {
   const slots = useSlots(filteredItems);
 
   return (
-    <div className="fixed bottom-0 left-0 mx-auto w-full bg-white font-galmuri">
+    <div className="game fixed bottom-0 left-0 mx-auto w-full font-galmuri">
       {/* 탭 영역 */}
       <div className="flex border-b">
         {TABS.map(tab => (
@@ -25,8 +25,8 @@ const Inventory = ({ items }: InventoryProps) => {
             onClick={() => setActiveTab(tab)}
             className={`rounded-t-xl px-4 py-2 text-sm ${
               activeTab === tab
-                ? 'border-t border-r border-l bg-[#FFFCDC] font-semibold'
-                : 'bg-[#f5e9e9] text-gray-600'
+                ? 'border-t border-r border-l bg-secondary font-semibold'
+                : 'bg-primary text-gray-600'
             }`}
           >
             {tab}
@@ -35,7 +35,7 @@ const Inventory = ({ items }: InventoryProps) => {
       </div>
 
       {/* 인벤토리 슬롯 */}
-      <div className="max-h-80 overflow-y-auto bg-[#FFFCDC] px-4 pt-1 pb-5">
+      <div className="max-h-80 overflow-y-auto bg-secondary px-4 pt-1 pb-5">
         <div className="grid grid-cols-3 gap-1">
           {slots.map(slot => (
             <div
