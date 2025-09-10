@@ -15,7 +15,7 @@ const Coin = () => {
           alt="coin"
           className="h-full w-full object-contain object-bottom"
         />
-        <span className="absolute inset-0 flex items-end justify-end pr-2 pb-1 text-lg font-bold text-black">
+        <span className="absolute inset-0 flex items-end justify-end pr-2 pb-1 text-lg font-bold text-gray-600">
           {coinAmount}
         </span>
       </div>
@@ -27,7 +27,7 @@ const Coin = () => {
           alt="fish coin"
           className="h-full w-full object-contain object-bottom"
         />
-        <span className="absolute inset-0 flex items-end justify-end pr-2 pb-1 text-lg font-bold text-black">
+        <span className="absolute inset-0 flex items-end justify-end pr-2 pb-1 text-lg font-bold text-gray-600">
           {fishCoinAmount}
         </span>
       </div>
