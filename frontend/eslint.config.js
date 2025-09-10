@@ -12,7 +12,7 @@ import { globalIgnores } from 'eslint/config';
 
 export default tseslint.config([
   // 전역 ignore
-  globalIgnores(['dist', 'node_modules']),
+  globalIgnores(['dist', 'node_modules', 'src/shared/components/ui/**/*']),
 
   {
     files: ['**/*.{ts,tsx}'],
@@ -120,7 +120,7 @@ export default tseslint.config([
   // === overrides ===
   {
     files: ['src/**/hooks/**/*.{ts,tsx}'],
-    rules: { 'filenames/match-regex': ['error', '^use[A-Z].*'] },
+    rules: {},
   },
 
   { files: ['**/*.types.ts'], rules: {} },

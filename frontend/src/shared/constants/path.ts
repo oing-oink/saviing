@@ -3,6 +3,7 @@ export const PAGE_PATH = {
   LOGIN: '/login',
   SAVINGS: '/savings',
   GAME: '/game',
+  SHOP: '/shop',
   COLORTEST: '/colortest',
   NOT_FOUND: '*',
 } as const;
