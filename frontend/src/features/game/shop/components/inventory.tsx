@@ -1,6 +1,7 @@
 import type { Item } from '@/features/game/shop/types/item';
 import { useTabs } from '@/features/game/shop/hooks/useTabs';
 import { useSlots } from '@/features/game/shop/hooks/useSlots';
+import inventory_square from '@/assets/inventory_square.png';
 
 interface InventoryProps {
   items: Item[];
@@ -42,7 +43,7 @@ const Inventory = ({ items }: InventoryProps) => {
               className="relative -mb-5 flex aspect-square items-center justify-center"
             >
               <img
-                src="assets/inventory_square.png"
+                src={inventory_square}
                 alt="slot"
                 className="absolute inset-0 h-full w-full object-contain"
               />
