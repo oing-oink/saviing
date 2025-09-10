@@ -5,12 +5,14 @@ import InventoryHud from '@/features/game/shop/components/InventoryHud';
 
 const ShopPage = () => {
   return (
-    <div className="game min-h-screen w-full bg-store-bg font-galmuri">
+    <div className="game relative min-h-screen w-full bg-store-bg font-galmuri">
       <div className="px-3">
         <InventoryHud />
       </div>
       <img src={sampleRoom} alt="" className="mt-10" />
-      <Inventory items={mockInventoryItems} />
+      <div className="absolute inset-0">
+        <Inventory items={mockInventoryItems} />
+      </div>
     </div>
   );
 };
