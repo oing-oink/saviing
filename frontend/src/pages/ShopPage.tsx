@@ -9,7 +9,7 @@ const ShopPage = () => {
           {
             id: 1,
             name: 'sample',
-            image: 'mouse_item.png',
+            image: 'assets/mouse_item.png',
             category: '냥이',
           },
         ]}

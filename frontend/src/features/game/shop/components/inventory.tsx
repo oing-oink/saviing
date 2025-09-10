@@ -42,7 +42,7 @@ const Inventory = ({ items }: InventoryProps) => {
               className="relative -mb-5 flex aspect-square items-center justify-center"
             >
               <img
-                src="inventorySquare.png"
+                src="assets/inventory_square.png"
                 alt="slot"
                 className="absolute inset-0 h-full w-full object-contain"
               />
