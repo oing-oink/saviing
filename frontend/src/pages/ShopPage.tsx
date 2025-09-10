@@ -10,7 +10,7 @@ const ShopPage = () => {
         <InventoryHud />
       </div>
       <img src={sampleRoom} alt="" className="mt-10" />
-      <div className="absolute inset-0">
+      <div className="inset-0">
         <Inventory items={mockInventoryItems} />
       </div>
     </div>
