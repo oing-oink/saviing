@@ -13,6 +13,5 @@ export const router = createBrowserRouter([
   { path: PAGE_PATH.SAVINGS, element: <SavingsPage /> },
   { path: PAGE_PATH.GAME, element: <GamePage /> },
   { path: PAGE_PATH.NOT_FOUND, element: <NotFoundPage /> },
-
-  { path: '/colortest', element: <ColorTestPage /> },
+  { path: PAGE_PATH.COLORTEST, element: <ColorTestPage /> },
 ]);
