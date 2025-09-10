@@ -36,25 +36,25 @@ const Inventory = ({ items }: InventoryProps) => {
       {/* 인벤토리 슬롯 */}
       <div className="max-h-80 overflow-y-auto bg-[#FFFCDC] px-4 pt-1 pb-5">
         <div className="grid grid-cols-3 gap-1">
-        {slots.map((slot) => (
-          <div
-            key={slot.id}
-            className="relative -mb-5 flex aspect-square items-center justify-center"
-          >
-            <img
-              src="inventorySquare.png"
-              alt="slot"
-              className="absolute inset-0 h-full w-full object-contain"
-            />
-            {slot.item && (
+          {slots.map(slot => (
+            <div
+              key={slot.id}
+              className="relative -mb-5 flex aspect-square items-center justify-center"
+            >
               <img
-                src={slot.item.image}
-                alt={slot.item.name}
-                className="relative h-[70%] w-[70%] object-contain"
+                src="inventorySquare.png"
+                alt="slot"
+                className="absolute inset-0 h-full w-full object-contain"
               />
-            )}
-          </div>
-        ))}
+              {slot.item && (
+                <img
+                  src={slot.item.image}
+                  alt={slot.item.name}
+                  className="relative h-[70%] w-[70%] object-contain"
+                />
+              )}
+            </div>
+          ))}
         </div>
       </div>
     </div>

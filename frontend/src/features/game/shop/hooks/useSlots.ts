@@ -13,16 +13,16 @@ export interface Slot {
  * - 아이템이 부족하면 null로 빈칸 채움
  * - 아이템이 9개 이상이면 아이템 개수만큼 슬롯 생성
  */
-export function useSlots(items: Item[]): Slot[] {
+export const useSlots = (items: Item[]): Slot[] => {
   const slots: Slot[] = [];
   const slotCount = Math.max(MIN_SLOTS, items.length);
 
   for (let i = 0; i < slotCount; i++) {
     slots.push({
       id: `slot-${i}`,
-      item: items[i] ?? null
+      item: items[i] ?? null,
     });
   }
 
   return slots;
-}
+};
