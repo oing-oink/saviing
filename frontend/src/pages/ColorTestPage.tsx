@@ -1,5 +1,3 @@
-import React from 'react';
-
 const ColorTestPage = () => {
   return (
     <div className="space-y-4 p-4">
