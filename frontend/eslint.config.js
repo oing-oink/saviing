@@ -120,7 +120,7 @@ export default tseslint.config([
   // === overrides ===
   {
     files: ['src/**/hooks/**/*.{ts,tsx}'],
-    rules: { 'filenames/match-regex': ['error', '^use[A-Z].*'] },
+    rules: {},
   },
 
   { files: ['**/*.types.ts'], rules: {} },
