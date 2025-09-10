@@ -26,6 +26,7 @@ const ShopPage = () => {
             className="absolute pt-10"
             style={{ left: '2rem', top: '50%', transform: 'translateY(-50%)' }}
           >
+            {/*TODO: 실제 코인 보유량으로 전환 */}
             <span className="text-md font-bold text-white">1000</span>
           </div>
           <div
