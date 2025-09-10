@@ -17,6 +17,16 @@ const badgeVariants = cva(
           "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
           "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
+        level1: "border-transparent level-label-01 text-white",
+        level2: "border-transparent level-label-02 text-white",
+        level3: "border-transparent level-label-03 text-white",
+        level4: "border-transparent level-label-04 text-white",
+        level5: "border-transparent level-label-05 text-white",
+        level6: "border-transparent level-label-06 text-white",
+        level7: "border-transparent level-label-07 text-white",
+        level8: "border-transparent level-label-08 text-white",
+        level9: "border-transparent level-label-09 text-white",
+        level10: "border-transparent level-label-10 text-white",
       },
     },
     defaultVariants: {
