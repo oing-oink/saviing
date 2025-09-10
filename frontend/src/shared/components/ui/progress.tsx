@@ -24,7 +24,7 @@ function Progress({
         style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
       />
       {children && (
-        <div className="absolute inset-0 flex items-center justify-center text-xs font-medium text-white">
+        <div className="absolute inset-0 flex items-center justify-center text-xs font-medium text-black">
           {children}
         </div>
       )}
