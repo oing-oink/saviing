@@ -1,8 +1,18 @@
 import { Button } from '@/shared/components/ui/button';
+import { useNavigate } from 'react-router-dom';
+
 const HomePage = () => {
+  const navigate = useNavigate();
+
   return (
     <div>
-      <Button>Hello</Button>
+      <Button>Home</Button>
+      <button
+        onClick={() => navigate('/colortest')}
+        className="block w-full rounded-lg bg-blue-500 p-2 text-center text-white"
+      >
+        Go to Color Test Page
+      </button>
     </div>
   );
 };
