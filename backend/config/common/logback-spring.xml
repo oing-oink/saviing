@@ -102,6 +102,9 @@
         <appender-ref ref="JSON_FILE"/>
     </appender>
 
+    <!-- Spring Exception Handler ERROR 로그만 -->
+    <logger name="org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver" level="ERROR"/>
+
     <!-- Profile별 설정 -->
     <springProfile name="prod">
         <root level="INFO">

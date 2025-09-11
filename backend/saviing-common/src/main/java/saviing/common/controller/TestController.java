@@ -3,7 +3,7 @@ package saviing.common.controller;
 import org.springframework.web.bind.annotation.*;
 import saviing.common.response.ApiResult;
 import saviing.common.exception.BusinessException;
-import saviing.common.exception.ErrorCode;
+import saviing.common.exception.GlobalErrorCode;
 import saviing.common.annotation.ExecutionTime;
 import saviing.common.annotation.LogLevel;
 
@@ -66,7 +66,7 @@ public class TestController {
     // BusinessException 테스트
     @GetMapping("/business-error")
     public ApiResult<Void> testBusinessError() {
-        throw new BusinessException(ErrorCode.BANK_ACCOUNT_NOT_FOUND);
+        throw new BusinessException(GlobalErrorCode.INVALID_INPUT_VALUE);
     }
 
     // IllegalArgumentException 테스트
