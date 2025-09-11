@@ -9,7 +9,6 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PAGE_PATH } from '@/shared/constants/path';
 
-
 const DecoPage = () => {
   const navigate = useNavigate();
   const [showSaveModal, setShowSaveModal] = useState(false);
@@ -23,31 +22,31 @@ const DecoPage = () => {
   };
 
   return (
-    <div className="flex h-screen flex-col game bg-sky-bg font-galmuri overflow-hidden">
-      <div className='flex justify-between items-center p-4 mt-4'>
-        <img src={backButton} alt="Back"
+    <div className="game flex h-screen flex-col overflow-hidden bg-sky-bg font-galmuri">
+      <div className="mt-4 flex items-center justify-between p-4">
+        <img
+          src={backButton}
+          alt="Back"
           onClick={() => {
-              navigate(PAGE_PATH.GAME);
-            }}
-          className="w-10 h-10 cursor-pointer active:brightness-90 active:scale-95 
-          focus:outline-none focus:ring-1 focus:ring-primary focus:ring-opacity-50" 
+            navigate(PAGE_PATH.GAME);
+          }}
+          className="focus:ring-opacity-50 h-10 w-10 cursor-pointer focus:ring-1 focus:ring-primary focus:outline-none active:scale-95 active:brightness-90"
         />
-        <img src={storeButton} alt="Store"
+        <img
+          src={storeButton}
+          alt="Store"
           onClick={() => {
-              navigate(PAGE_PATH.SHOP);
-            }}
-          className="w-10 h-10 cursor-pointer active:brightness-90 active:scale-95 
-          focus:outline-none focus:ring-1 focus:ring-primary focus:ring-opacity-50" 
+            navigate(PAGE_PATH.SHOP);
+          }}
+          className="focus:ring-opacity-50 h-10 w-10 cursor-pointer focus:ring-1 focus:ring-primary focus:outline-none active:scale-95 active:brightness-90"
         />
       </div>
 
-      <div className="relative flex flex-1 justify-center mt-4 px-4">
+      <div className="relative mt-4 flex flex-1 justify-center px-4">
         <Room />
         <button
           onClick={handleSaveClick}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 transform 
-          rounded-lg bg-primary px-8 py-2 text-xl text-white tracking-widest font-bold shadow-lg 
-          active:brightness-90 active:scale-95 focus:outline-none focus:ring-1 focus:ring-primary focus:ring-opacity-50"
+          className="focus:ring-opacity-50 absolute bottom-8 left-1/2 -translate-x-1/2 transform rounded-lg bg-primary px-8 py-2 text-xl font-bold tracking-widest text-white shadow-lg focus:ring-1 focus:ring-primary focus:outline-none active:scale-95 active:brightness-90"
         >
           SAVE
         </button>
@@ -56,13 +55,16 @@ const DecoPage = () => {
       <div className="relative">
         <Inventory items={mockInventoryItems} />
 
-        <img src={floor1stButton} alt="Floor 1st" 
-          className="absolute top-[-14px] right-2 w-12 h-10 cursor-pointer active:brightness-90 active:scale-95 
-          focus:outline-none focus:ring-1 focus:ring-primary focus:ring-opacity-50" 
+        <img
+          src={floor1stButton}
+          alt="Floor 1st"
+          className="focus:ring-opacity-50 absolute top-[-14px] right-2 h-10 w-12 cursor-pointer focus:ring-1 focus:ring-primary focus:outline-none active:scale-95 active:brightness-90"
         />
       </div>
 
-      {showSaveModal && <SaveModal isOpen={showSaveModal} onClose={handleCloseModal} />}
+      {showSaveModal && (
+        <SaveModal isOpen={showSaveModal} onClose={handleCloseModal} />
+      )}
     </div>
   );
 };
