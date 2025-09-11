@@ -24,7 +24,7 @@ const GamePage = () => {
       </div>
 
       {isStatusCardOpen && (
-        <div className="absolute inset-0 z-50" onClick={closeStatusCard}>
+        <div className="absolute inset-0 z-50">
           <PetStatusCard />
         </div>
       )}

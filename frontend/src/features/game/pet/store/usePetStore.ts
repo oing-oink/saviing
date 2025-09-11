@@ -7,7 +7,6 @@ interface PetUIState {
   openStatusCard: () => void;
   closeStatusCard: () => void;
 
-  // 인벤토리 (임시로 유지, 추후 별도 API로 분리 예정)
   inventory: PetInventory;
 }
 
@@ -17,6 +16,6 @@ export const usePetStore = create<PetUIState>(set => ({
   openStatusCard: () => set({ isStatusCardOpen: true }),
   closeStatusCard: () => set({ isStatusCardOpen: false }),
 
-  // 임시 인벤토리 데이터 (추후 별도 관리)
+  // TODO: api 연결 후 수정 필요
   inventory: { feed: 3, toy: 2 },
 }));
