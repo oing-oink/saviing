@@ -1,5 +1,44 @@
+import backButton from '@/assets/game_button/backButton.png';
+import { PAGE_PATH } from '@/shared/constants/path';
+import { useNavigate } from 'react-router-dom';
+import catPaw from '@/assets/catPaw.png';
+import gachaMachine from '@/assets/gachaMachine.png';
+import coin from '@/assets/coin.png';
+
 const GachaPage = () => {
-  return <div className="game font-galmuri">Gacha Page</div>;
+  const navigate = useNavigate();
+  return (
+    <div className="game min-h-screen bg-store-bg font-galmuri">
+      {/* 상단 영역 */}
+      <div className="flex items-end justify-between px-6">
+        <button onClick={() => navigate(PAGE_PATH.SHOP)}>
+          <img className="w-8 pt-10" src={backButton} alt="" />
+        </button>
+        <div className="text-3xl text-red-400">GACHA</div>
+        <div className="px-4"></div>
+      </div>
+
+      <div className="flex justify-center pt-10">
+        <img src={gachaMachine} alt="" className="w-[60%]" />
+      </div>
+
+      <div className="flex flex-col items-center text-lg">
+        <div>재화를 넣으면</div>
+        <div>아이템이 나온다냥!</div>
+      </div>
+      <div className="flex flex-col items-center pt-5 text-sm">
+        <div>단, 어떤 아이템이 나올지는 랜덤이라옹</div>
+        <div>도전하겠냥?</div>
+      </div>
+
+      <div className="flex justify-center pt-9">
+        <img src={coin} alt="" className="w-[30%]" />
+      </div>
+      <div className="flex justify-center">
+        <img src={catPaw} alt="" className="w-[85%] pt-15" />
+      </div>
+    </div>
+  );
 };
 
 export default GachaPage;
