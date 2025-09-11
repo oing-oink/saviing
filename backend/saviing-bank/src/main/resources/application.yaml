@@ -45,3 +45,13 @@ springdoc:
       description: Local Development Server
     - url: https://api.bank-dev.saviing.life
       description: Development Server
+
+# Spring Boot Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: when-authorized
