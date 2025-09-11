@@ -14,17 +14,21 @@ const GamePage = () => {
       <img src={groom1} className="absolute top-100 left-2 h-40 w-80" />
       <img src={groom2} className="absolute top-170 left-64 h-30 w-50" />
 
-      <div className="px-3">
+      <div className="relative z-30 px-3">
         <PetHud />
       </div>
+      {isStatusCardOpen && (
+        <div className="absolute inset-0 z-10" onClick={closeStatusCard}></div>
+      )}
+
       <div className="flex flex-1 items-center justify-center">
-        <div className="z-10 cursor-pointer text-6xl" onClick={openStatusCard}>
+        <div className="z-30 cursor-pointer text-6xl" onClick={openStatusCard}>
           🐱
         </div>
       </div>
 
       {isStatusCardOpen && (
-        <div className="absolute inset-0 z-50">
+        <div className="z-30">
           <PetStatusCard />
         </div>
       )}
