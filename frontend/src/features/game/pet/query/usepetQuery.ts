@@ -1,14 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { getPet } from '@/features/game/pet/api/petApi';
 import type { PetData } from '@/features/game/pet/types/petTypes';
-
-/**
- * Pet 쿼리 키 팩토리
- */
-export const petKeys = {
-  all: ['pet'] as const,
-  detail: (petId: number) => [...petKeys.all, petId] as const,
-};
+import { petKeys } from './petKeys';
 
 /**
  * Pet 데이터 조회 쿼리 훅

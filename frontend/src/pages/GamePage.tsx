@@ -1,6 +1,6 @@
 import PetHud from '@/features/game/pet/components/PetHud';
 import PetStatusCard from '@/features/game/pet/components/PetStatusCard';
-import { usePetStore } from '@/features/game/pet/store/petStore';
+import { usePetStore } from '@/features/game/pet/store/usePetStore';
 import groom1 from '@/assets/game_bg/groom1.png';
 import groom2 from '@/assets/game_bg/groom2.png';
 
