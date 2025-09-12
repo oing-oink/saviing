@@ -27,11 +27,10 @@ public class CharacterDomainService {
      */
     public Character createCharacter(CustomerId customerId) {
         // 활성 캐릭터 중복 검사
-        if (characterRepository.findActiveCharacterByCustomerId(customerId).isPresent()) {
-            throw new DuplicateActiveCharacterException(customerId);
-        }
-        
-        return Character.create(customerId);
+        validateNoActiveCharacterExists(customerId);
+
+        // 새로운 캐릭터 생성
+        return createNewCharacter(customerId);
     }
     
     /**
@@ -42,15 +41,11 @@ public class CharacterDomainService {
      * @return 새로 생성된 캐릭터
      */
     public Character recreateCharacter(CustomerId customerId) {
-        // 기존 활성 캐릭터가 있다면 비활성화
-        characterRepository.findActiveCharacterByCustomerId(customerId)
-            .ifPresent(existingCharacter -> {
-                existingCharacter.deactivate();
-                characterRepository.save(existingCharacter);
-            });
+        // 기존 활성 캐릭터 비활성화
+        deactivateExistingActiveCharacter(customerId);
         
         // 새로운 캐릭터 생성
-        return Character.create(customerId);
+        return createNewCharacter(customerId);
     }
     
     /**
@@ -71,5 +66,40 @@ public class CharacterDomainService {
      */
     public boolean canCreateCharacter(CustomerId customerId) {
         return !hasActiveCharacter(customerId);
+    }
+    
+    /**
+     * 새로운 캐릭터를 생성합니다.
+     * 
+     * @param customerId 고객 ID
+     * @return 생성된 캐릭터
+     */
+    private Character createNewCharacter(CustomerId customerId) {
+        return Character.create(customerId);
+    }
+    
+    /**
+     * 기존 활성 캐릭터가 있다면 비활성화합니다.
+     * 
+     * @param customerId 고객 ID
+     */
+    private void deactivateExistingActiveCharacter(CustomerId customerId) {
+        characterRepository.findActiveCharacterByCustomerId(customerId)
+            .ifPresent(existingCharacter -> {
+                existingCharacter.deactivate();
+                characterRepository.save(existingCharacter);
+            });
+    }
+    
+    /**
+     * 활성 캐릭터가 존재하지 않는지 검증합니다.
+     * 
+     * @param customerId 고객 ID
+     * @throws DuplicateActiveCharacterException 이미 활성 캐릭터가 존재하는 경우
+     */
+    private void validateNoActiveCharacterExists(CustomerId customerId) {
+        if (hasActiveCharacter(customerId)) {
+            throw new DuplicateActiveCharacterException(customerId);
+        }
     }
 }

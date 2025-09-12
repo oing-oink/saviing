@@ -82,27 +82,13 @@ public class CharacterRepositoryImpl implements CharacterRepository {
 
     /**
      * 새로운 엔티티에 생성 시간을 설정합니다.
+     * JPA가 자동으로 타임스탬프를 설정하므로 엔티티를 그대로 반환합니다.
      * 
      * @param entity CharacterEntity
-     * @return 생성 시간이 설정된 CharacterEntity
+     * @return 입력받은 CharacterEntity (타임스탬프는 JPA가 자동 설정)
      */
     private CharacterEntity setCreationTime(CharacterEntity entity) {
-        LocalDateTime now = LocalDateTime.now();
-        return CharacterEntity.builder()
-            .characterId(entity.getCharacterId())
-            .customerId(entity.getCustomerId())
-            .accountId(entity.getAccountId())
-            .connectionStatus(entity.getConnectionStatus())
-            .connectionDate(entity.getConnectionDate())
-            .terminationReason(entity.getTerminationReason())
-            .terminatedAt(entity.getTerminatedAt())
-            .coin(entity.getCoin())
-            .fishCoin(entity.getFishCoin())
-            .roomCount(entity.getRoomCount())
-            .isActive(entity.getIsActive())
-            .deactivatedAt(entity.getDeactivatedAt())
-            .createdAt(now)
-            .updatedAt(now)
-            .build();
+        // JPA @PrePersist에서 자동으로 타임스탬프가 설정됨
+        return entity;
     }
 }

@@ -7,6 +7,8 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -110,7 +112,19 @@ public class CharacterEntity {
     }
 
     /**
-     * 엔티티 업데이트를 위한 메서드
+     * 엔티티의 필드값들을 업데이트합니다.
+     * 수정 시간은 자동으로 현재 시간으로 설정됩니다.
+     * 
+     * @param accountId 계좌 ID
+     * @param connectionStatus 연결 상태
+     * @param connectionDate 연결 시간
+     * @param terminationReason 해지 사유
+     * @param terminatedAt 해지 시간
+     * @param coin 코인 수량
+     * @param fishCoin 피쉬 코인 수량
+     * @param roomCount 방 수
+     * @param isActive 활성 상태
+     * @param deactivatedAt 비활성화 시간
      */
     public void updateEntity(
         Long accountId,
@@ -134,6 +148,23 @@ public class CharacterEntity {
         this.roomCount = roomCount;
         this.isActive = isActive;
         this.deactivatedAt = deactivatedAt;
+    }
+
+    /**
+     * 엔티티 저장 전 자동으로 호출되어 생성/수정 시간을 설정합니다.
+     */
+    @PrePersist
+    protected void onCreate() {
+        LocalDateTime now = LocalDateTime.now();
+        this.createdAt = now;
+        this.updatedAt = now;
+    }
+
+    /**
+     * 엔티티 수정 전 자동으로 호출되어 수정 시간을 업데이트합니다.
+     */
+    @PreUpdate
+    protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
 }
