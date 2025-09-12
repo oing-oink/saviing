@@ -8,25 +8,14 @@ const USE_MOCK = import.meta.env.MODE === 'development';
 /**
  * 펫 정보 조회 API
  */
-//TODO: API 붙이면 Mock 데이터 제거
 export const getPet = async (petId: number): Promise<PetData> => {
   if (USE_MOCK) {
     // Mock 데이터 사용
     const mockResponse = await mockGetPet();
-
-    if (!mockResponse.body) {
-      throw new Error('Pet data not found in mock response');
-    }
-
-    return mockResponse.body;
+    return mockResponse.body!;
   }
 
   // 실제 API 호출
   const response = await http.get<PetData>(`/v1/game/pets/${petId}`);
-
-  if (!response.body) {
-    throw new Error('Pet data not found in response');
-  }
-
-  return response.body;
+  return response.body!;
 };
