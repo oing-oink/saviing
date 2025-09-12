@@ -1,14 +1,12 @@
-import PetHud from '@/features/game/pet/components/PetHud';
+import PetHud from '@/features/game/shared/components/GameHeader';
 import PetStatusCard from '@/features/game/pet/components/PetStatusCard';
+import GameBackground from '@/features/game/shared/components/GameBackground';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
   PopoverAnchor,
 } from '@/shared/components/ui/popover';
-import Cloud from '@/features/game/shared/components/Cloud';
-import groom1 from '@/assets/game_bg/groom1.png';
-import groom2 from '@/assets/game_bg/groom2.png';
 
 const GamePage = () => {
   // TODO: API 연결 후 동적으로 관리
@@ -16,12 +14,7 @@ const GamePage = () => {
 
   return (
     <div className="game relative flex h-screen flex-col overflow-hidden font-galmuri">
-      <div className="absolute inset-0 bg-sky-bg">
-        <Cloud src={groom1} top={10} left={0} height={5} duration={30} />
-        <Cloud src={groom2} top={30} left={20} height={8} duration={65} />
-        <Cloud src={groom1} top={60} left={50} height={8} duration={40} />
-        <Cloud src={groom2} top={80} left={20} height={6} duration={25} />
-      </div>
+      <GameBackground />
 
       <div className="relative flex h-full flex-col">
         <div className="px-3">
