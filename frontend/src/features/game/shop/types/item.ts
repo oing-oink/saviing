@@ -3,6 +3,7 @@ export interface Item {
   name: string;
   image: string;
   category: Tab; // 탭/카테고리 타입 사용
+  description: string;
 }
 
 // 탭/카테고리 상수 및 타입
