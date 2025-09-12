@@ -15,7 +15,7 @@ const PetStatusCard = () => {
 
   if (isLoading) {
     return (
-      <Card className="flex min-h-64 items-center justify-center rounded-t-2xl p-5">
+      <Card className="mx-5 flex min-h-64 items-center justify-center rounded-t-2xl p-5">
         <div className="flex h-full items-center justify-center">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           <span className="ml-2 text-sm text-muted-foreground">
@@ -28,7 +28,7 @@ const PetStatusCard = () => {
 
   if (error || !petData) {
     return (
-      <Card className="flex min-h-64 items-center justify-center rounded-t-2xl p-5">
+      <Card className="mx-5 flex min-h-64 items-center justify-center rounded-t-2xl p-5">
         <div className="flex h-full items-center justify-center">
           <div className="text-red-500">데이터를 불러올 수 없습니다</div>
         </div>
@@ -37,7 +37,7 @@ const PetStatusCard = () => {
   }
 
   return (
-    <Card className="min-h-64 rounded-t-2xl p-5">
+    <Card className="mx-5 min-h-64 rounded-t-2xl p-5">
       <div className="flex items-center gap-3">
         <Badge className={`${levelClass}`}>Lv{petData.level}</Badge>
         <div>{petData.name}</div>
