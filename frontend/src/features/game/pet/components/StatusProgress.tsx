@@ -1,4 +1,5 @@
 import { Progress } from '@/shared/components/ui/progress';
+import { cn } from '@/lib/utils';
 
 interface StatusProgressProps {
   label: string;
@@ -18,7 +19,7 @@ const StatusProgress = ({
       <div className="text-sm">{label}</div>
       <Progress
         value={(value / maxValue) * 100}
-        className={`flex-1 ${className || ''}`}
+        className={cn('flex-1', className)}
       >
         {value}/{maxValue}
       </Progress>
