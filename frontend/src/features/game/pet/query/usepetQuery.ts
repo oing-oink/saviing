@@ -10,9 +10,5 @@ export const usePetQuery = (petId: number) => {
   return useQuery<PetData, Error>({
     queryKey: petKeys.detail(petId),
     queryFn: () => getPet(petId),
-    staleTime: 5 * 60 * 1000, // 5분간 fresh
-    gcTime: 10 * 60 * 1000, // 10분간 캐시 유지
-    retry: 2,
-    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 };

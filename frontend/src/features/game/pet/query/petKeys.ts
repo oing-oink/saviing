@@ -1,6 +1,5 @@
 /**
  * Pet 관련 React Query 쿼리 키를 생성하는 객체
- * ```
  */
 export const petKeys = {
   /**
