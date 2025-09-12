@@ -2,6 +2,7 @@ package saviing.game.character.infrastructure.persistence.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import saviing.game.character.domain.exception.CharacterNotFoundException;
 import saviing.game.character.domain.model.aggregate.Character;
 import saviing.game.character.domain.model.vo.CharacterId;
 import saviing.game.character.domain.model.vo.CustomerId;
@@ -41,7 +42,7 @@ public class CharacterRepositoryImpl implements CharacterRepository {
                 CharacterEntity savedEntity = jpaRepository.save(entity);
                 return mapper.toDomain(savedEntity);
             } else {
-                throw new IllegalArgumentException("업데이트할 캐릭터를 찾을 수 없습니다: " + character.getCharacterId().value());
+                throw new CharacterNotFoundException(character.getCharacterId().value());
             }
         }
     }

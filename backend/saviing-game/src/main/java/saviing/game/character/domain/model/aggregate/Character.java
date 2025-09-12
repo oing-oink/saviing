@@ -4,12 +4,23 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import saviing.game.character.domain.event.AccountConnectedEvent;
+import saviing.game.character.domain.event.AccountTerminatedEvent;
+import saviing.game.character.domain.event.CharacterCreatedEvent;
+import saviing.game.character.domain.event.CharacterDeactivatedEvent;
+import saviing.game.character.domain.event.DomainEvent;
+import saviing.game.character.domain.exception.InvalidAccountConnectionException;
+import saviing.game.character.domain.exception.InvalidCharacterStateException;
 import saviing.game.character.domain.model.vo.AccountConnection;
 import saviing.game.character.domain.model.vo.AccountTermination;
 import saviing.game.character.domain.model.vo.CharacterId;
 import saviing.game.character.domain.model.vo.CharacterLifecycle;
 import saviing.game.character.domain.model.vo.CustomerId;
 import saviing.game.character.domain.model.vo.GameStatus;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * 캐릭터 Aggregate Root
@@ -24,6 +35,8 @@ public class Character {
     private AccountConnection accountConnection;
     private GameStatus gameStatus;
     private CharacterLifecycle characterLifecycle;
+    
+    private final List<DomainEvent> domainEvents = new ArrayList<>();
 
     /**
      * Character 생성자 (Builder 패턴 사용)
@@ -58,12 +71,15 @@ public class Character {
      * @return 생성된 캐릭터
      */
     public static Character create(CustomerId customerId) {
-        return Character.builder()
+        Character character = Character.builder()
             .customerId(customerId)
             .accountConnection(AccountConnection.noAccount())
             .gameStatus(GameStatus.initialize())
             .characterLifecycle(CharacterLifecycle.createNew())
             .build();
+        
+        character.addDomainEvent(CharacterCreatedEvent.of(character.characterId, customerId));
+        return character;
     }
 
     /**
@@ -74,10 +90,10 @@ public class Character {
      */
     public void startConnectingAccount(Long accountId) {
         if (accountConnection.isConnected()) {
-            throw new IllegalStateException("계좌가 이미 연결되어 있습니다");
+            throw InvalidAccountConnectionException.accountAlreadyConnected();
         }
         if (accountConnection.isConnecting()) {
-            throw new IllegalStateException("계좌 연결이 이미 진행 중입니다");
+            throw InvalidAccountConnectionException.connectionInProgress();
         }
         
         this.accountConnection = AccountConnection.connecting(accountId);
@@ -92,11 +108,14 @@ public class Character {
      */
     public void completeAccountConnection(Long accountId) {
         if (!accountConnection.isConnecting()) {
-            throw new IllegalStateException("계좌 연결을 완료하려면 연결 중 상태여야 합니다");
+            throw InvalidAccountConnectionException.invalidConnectionState(
+                "계좌 연결을 완료하려면 연결 중 상태여야 합니다");
         }
         
         this.accountConnection = AccountConnection.connected(accountId);
         updateLifecycle();
+        
+        addDomainEvent(AccountConnectedEvent.of(this.characterId, this.customerId, accountId));
     }
 
     /**
@@ -108,12 +127,14 @@ public class Character {
      */
     public void handleAccountTerminated(String reason) {
         if (!accountConnection.isConnected()) {
-            throw new IllegalStateException("계좌 해지를 처리하려면 계좌가 연결되어 있어야 합니다");
+            throw InvalidAccountConnectionException.accountNotConnected();
         }
         
         AccountTermination termination = new AccountTermination(reason, java.time.LocalDateTime.now());
         this.accountConnection = AccountConnection.terminated(termination);
         updateLifecycle();
+        
+        addDomainEvent(AccountTerminatedEvent.of(this.characterId, this.customerId, reason));
     }
 
     /**
@@ -123,7 +144,8 @@ public class Character {
      */
     public void cancelConnection() {
         if (!accountConnection.isConnecting()) {
-            throw new IllegalStateException("연결 취소를 하려면 연결 중 상태여야 합니다");
+            throw InvalidAccountConnectionException.invalidConnectionState(
+                "연결 취소를 하려면 연겴 중 상태여야 합니다");
         }
         
         this.accountConnection = AccountConnection.noAccount();
@@ -138,7 +160,7 @@ public class Character {
      */
     public void addCoin(Integer amount) {
         if (amount <= 0) {
-            throw new IllegalArgumentException("수량은 양수여야 합니다");
+            throw InvalidCharacterStateException.invalidCoinAmount("코인 수량은 양수여야 합니다");
         }
         
         this.gameStatus = gameStatus.addCoin(amount);
@@ -153,7 +175,7 @@ public class Character {
      */
     public void addFishCoin(Integer amount) {
         if (amount <= 0) {
-            throw new IllegalArgumentException("수량은 양수여야 합니다");
+            throw InvalidCharacterStateException.invalidFishCoinAmount("피쉬 코인 수량은 양수여야 합니다");
         }
         
         this.gameStatus = gameStatus.addFishCoin(amount);
@@ -174,6 +196,8 @@ public class Character {
     public void deactivate() {
         this.gameStatus = gameStatus.deactivate();
         this.characterLifecycle = characterLifecycle.deactivate();
+        
+        addDomainEvent(CharacterDeactivatedEvent.of(this.characterId, this.customerId));
     }
 
     /**
@@ -243,6 +267,32 @@ public class Character {
      */
     private void updateLifecycle() {
         this.characterLifecycle = characterLifecycle.updateModified();
+    }
+
+    /**
+     * 발행된 도메인 이벤트 목록을 반환합니다.
+     * 
+     * @return 도메인 이벤트 목록 (읽기 전용)
+     */
+    public List<DomainEvent> getDomainEvents() {
+        return Collections.unmodifiableList(domainEvents);
+    }
+    
+    /**
+     * 도메인 이벤트를 모두 삭제합니다.
+     * 이벤트 발행 후 호출되어야 합니다.
+     */
+    public void clearDomainEvents() {
+        domainEvents.clear();
+    }
+    
+    /**
+     * 도메인 이벤트를 추가합니다.
+     * 
+     * @param event 추가할 도메인 이벤트
+     */
+    private void addDomainEvent(DomainEvent event) {
+        domainEvents.add(event);
     }
 
     /**
