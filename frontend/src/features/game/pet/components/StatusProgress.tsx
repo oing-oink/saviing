@@ -8,6 +8,11 @@ interface StatusProgressProps {
   className?: string;
 }
 
+/**
+ * 펫의 상태값을 프로그레스 바로 표시하는 컴포넌트
+ * 
+ * 포만감, 애정도, 경험치 등의 상태를 시각적으로 표현
+ */
 const StatusProgress = ({
   label,
   value,

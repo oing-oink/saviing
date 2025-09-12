@@ -8,6 +8,11 @@ import feed from '@/assets/game_pet/feed.png';
 import play from '@/assets/game_pet/play.png';
 import { Loader2 } from 'lucide-react';
 
+/**
+ * 펫의 상세 정보를 표시하는 상태 카드 컴포넌트
+ * 
+ * 펫의 레벨, 이름, 포만감, 애정도, 경험치와 아이템 인벤토리를 표시
+ */
 const PetStatusCard = () => {
   const { inventory } = usePetStore();
   //TODO: api 작성 후 petId로 수정

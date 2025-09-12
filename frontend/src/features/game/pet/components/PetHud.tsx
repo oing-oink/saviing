@@ -4,6 +4,11 @@ import storeButton from '@/assets/game_button/storeButton.png';
 import { useNavigate } from 'react-router-dom';
 import { PAGE_PATH } from '@/shared/constants/path';
 
+/**
+ * 게임 메인 페이지 상단바
+ *
+ * home 버튼 + 코인 + shop 버튼
+ */
 const PetHud = () => {
   const navigate = useNavigate();
   return (
