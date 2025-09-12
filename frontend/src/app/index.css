@@ -239,6 +239,16 @@
   font-weight: 400;
 }
 
+/* 구름 애니메이션 */
+@keyframes cloud-scroll {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
 @utility font-galmuri {
   font-family: 'Galmuri', monospace;
 }
