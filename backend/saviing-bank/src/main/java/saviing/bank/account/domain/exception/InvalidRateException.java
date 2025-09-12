@@ -3,11 +3,11 @@ package saviing.bank.account.domain.exception;
 public class InvalidRateException extends DomainException {
     
     public InvalidRateException(String message) {
-        super(AccountErrorCode.INVALID_RATE, message);
+        super(DomainErrorCode.INVALID_RATE, message);
     }
     
     public InvalidRateException(short basisPoints) {
-        super(AccountErrorCode.INVALID_RATE, 
+        super(DomainErrorCode.INVALID_RATE, 
             String.format("유효하지 않은 금리입니다: %d bp", basisPoints));
     }
     

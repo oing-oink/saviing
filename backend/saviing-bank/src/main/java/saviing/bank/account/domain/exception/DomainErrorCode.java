@@ -1,6 +1,6 @@
 package saviing.bank.account.domain.exception;
 
-public enum AccountErrorCode {
+public enum DomainErrorCode {
     
     // 잔액 관련 에러
     INSUFFICIENT_BALANCE("INSUFFICIENT_BALANCE", "잔액이 부족합니다"),
@@ -17,7 +17,7 @@ public enum AccountErrorCode {
     private final String code;
     private final String message;
     
-    AccountErrorCode(String code, String message) {
+    DomainErrorCode(String code, String message) {
         this.code = code;
         this.message = message;
     }
