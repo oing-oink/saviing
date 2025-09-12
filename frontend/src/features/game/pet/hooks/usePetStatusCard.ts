@@ -21,10 +21,9 @@ type LevelBadgeClass = (typeof levelBadgeMap)[keyof typeof levelBadgeMap];
 
 /**
  * 펫 상태 카드에서 사용하는 데이터와 UI 상태를 관리하는 훅
- * 
+ *
  * @param petId - 조회할 펫의 ID
  * @returns 펫 데이터, 로딩 상태, 에러 상태, 레벨 배지 클래스를 포함한 객체
-
  */
 export const usePetStatusCard = (petId: number) => {
   const { data, isLoading, error } = usePetQuery(petId);

@@ -14,7 +14,7 @@ interface PetStatusCardProps {
 
 /**
  * 펫의 상세 정보를 표시하는 상태 카드 컴포넌트
- * 
+ *
  * 펫의 레벨, 이름, 포만감, 애정도, 경험치와 아이템 인벤토리를 표시
  */
 const PetStatusCard = ({ petId }: PetStatusCardProps) => {
