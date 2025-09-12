@@ -43,8 +43,8 @@ public record GameStatus(
      * @throws IllegalArgumentException amount가 음수인 경우
      */
     public GameStatus addCoin(Integer amount) {
-        if (amount < 0) {
-            throw new IllegalArgumentException("수량은 음수일 수 없습니다");
+        if (amount <= 0) {
+            throw new IllegalArgumentException("코인 수량은 양수여야 합니다");
         }
         return new GameStatus(coin + amount, fishCoin, roomCount, isActive);
     }
@@ -57,8 +57,8 @@ public record GameStatus(
      * @throws IllegalArgumentException amount가 음수인 경우
      */
     public GameStatus addFishCoin(Integer amount) {
-        if (amount < 0) {
-            throw new IllegalArgumentException("수량은 음수일 수 없습니다");
+        if (amount <= 0) {
+            throw new IllegalArgumentException("피쉬 코인 수량은 양수여야 합니다");
         }
         return new GameStatus(coin, fishCoin + amount, roomCount, isActive);
     }

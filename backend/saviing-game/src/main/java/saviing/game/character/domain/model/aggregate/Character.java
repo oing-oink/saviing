@@ -145,7 +145,7 @@ public class Character {
     public void cancelConnection() {
         if (!accountConnection.isConnecting()) {
             throw InvalidAccountConnectionException.invalidConnectionState(
-                "연결 취소를 하려면 연겴 중 상태여야 합니다");
+                "연결 취소를 하려면 연결 중 상태여야 합니다");
         }
         
         this.accountConnection = AccountConnection.noAccount();
