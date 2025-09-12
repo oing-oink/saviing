@@ -11,6 +11,9 @@ import groom1 from '@/assets/game_bg/groom1.png';
 import groom2 from '@/assets/game_bg/groom2.png';
 
 const GamePage = () => {
+  // TODO: API 연결 후 동적으로 관리
+  const currentPetId = 1;
+
   return (
     <div className="game relative flex h-screen flex-col overflow-hidden font-galmuri">
       <div className="absolute inset-0 bg-sky-bg">
@@ -39,7 +42,7 @@ const GamePage = () => {
               sideOffset={24}
               className="w-screen max-w-sm p-0"
             >
-              <PetStatusCard />
+              <PetStatusCard petId={currentPetId} />
             </PopoverContent>
           </Popover>
         </div>
