@@ -13,13 +13,13 @@ public record CharacterLifecycle(
 ) {
     public CharacterLifecycle {
         if (createdAt == null) {
-            throw new IllegalArgumentException("Created at cannot be null");
+            throw new IllegalArgumentException("생성 시간은 null일 수 없습니다");
         }
         if (updatedAt == null) {
-            throw new IllegalArgumentException("Updated at cannot be null");
+            throw new IllegalArgumentException("수정 시간은 null일 수 없습니다");
         }
         if (updatedAt.isBefore(createdAt)) {
-            throw new IllegalArgumentException("Updated at cannot be before created at");
+            throw new IllegalArgumentException("수정 시간은 생성 시간보다 이전일 수 없습니다");
         }
     }
 

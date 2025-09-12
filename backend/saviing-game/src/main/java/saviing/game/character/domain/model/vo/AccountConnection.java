@@ -16,27 +16,27 @@ public record AccountConnection(
 ) {
     public AccountConnection {
         if (connectionStatus == null) {
-            throw new IllegalArgumentException("Connection status cannot be null");
+            throw new IllegalArgumentException("연결 상태는 null일 수 없습니다");
         }
         
         if (connectionStatus == ConnectionStatus.CONNECTED && accountId == null) {
-            throw new IllegalArgumentException("Account ID is required when status is CONNECTED");
+            throw new IllegalArgumentException("연결 상태가 CONNECTED일 때는 계좌 ID가 필요합니다");
         }
         
         if (connectionStatus == ConnectionStatus.CONNECTED && connectionDate == null) {
-            throw new IllegalArgumentException("Connection date is required when status is CONNECTED");
+            throw new IllegalArgumentException("연결 상태가 CONNECTED일 때는 연결 일시가 필요합니다");
         }
         
         if (connectionStatus == ConnectionStatus.CONNECTING && accountId == null) {
-            throw new IllegalArgumentException("Account ID is required when status is CONNECTING");
+            throw new IllegalArgumentException("연결 상태가 CONNECTING일 때는 계좌 ID가 필요합니다");
         }
         
         if (connectionStatus == ConnectionStatus.TERMINATED && terminationInfo == null) {
-            throw new IllegalArgumentException("Termination info is required when status is TERMINATED");
+            throw new IllegalArgumentException("연결 상태가 TERMINATED일 때는 해지 정보가 필요합니다");
         }
         
         if (connectionStatus != ConnectionStatus.TERMINATED && terminationInfo != null) {
-            throw new IllegalArgumentException("Termination info should only be present when status is TERMINATED");
+            throw new IllegalArgumentException("해지 정보는 연결 상태가 TERMINATED일 때만 존재해야 합니다");
         }
     }
 

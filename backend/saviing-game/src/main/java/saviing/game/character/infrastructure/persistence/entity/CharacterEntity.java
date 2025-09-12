@@ -13,7 +13,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import saviing.game.character.domain.model.enums.ConnectionStatus;
-import saviing.game.character.domain.model.enums.TerminationCategory;
 
 import java.time.LocalDateTime;
 
@@ -47,10 +46,6 @@ public class CharacterEntity {
     private LocalDateTime connectionDate;
 
     // Termination Info
-    @Enumerated(EnumType.STRING)
-    @Column(name = "termination_category", length = 30)
-    private TerminationCategory terminationCategory;
-
     @Column(name = "termination_reason", columnDefinition = "TEXT")
     private String terminationReason;
 
@@ -88,7 +83,6 @@ public class CharacterEntity {
         Long accountId,
         ConnectionStatus connectionStatus,
         LocalDateTime connectionDate,
-        TerminationCategory terminationCategory,
         String terminationReason,
         LocalDateTime terminatedAt,
         Integer coin,
@@ -104,7 +98,6 @@ public class CharacterEntity {
         this.accountId = accountId;
         this.connectionStatus = connectionStatus;
         this.connectionDate = connectionDate;
-        this.terminationCategory = terminationCategory;
         this.terminationReason = terminationReason;
         this.terminatedAt = terminatedAt;
         this.coin = coin;
@@ -123,7 +116,6 @@ public class CharacterEntity {
         Long accountId,
         ConnectionStatus connectionStatus,
         LocalDateTime connectionDate,
-        TerminationCategory terminationCategory,
         String terminationReason,
         LocalDateTime terminatedAt,
         Integer coin,
@@ -135,7 +127,6 @@ public class CharacterEntity {
         this.accountId = accountId;
         this.connectionStatus = connectionStatus;
         this.connectionDate = connectionDate;
-        this.terminationCategory = terminationCategory;
         this.terminationReason = terminationReason;
         this.terminatedAt = terminatedAt;
         this.coin = coin;

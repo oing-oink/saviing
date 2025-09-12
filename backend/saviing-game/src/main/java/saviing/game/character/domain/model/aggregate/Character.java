@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import saviing.game.character.domain.model.enums.TerminationCategory;
 import saviing.game.character.domain.model.vo.AccountConnection;
 import saviing.game.character.domain.model.vo.AccountTermination;
 import saviing.game.character.domain.model.vo.CharacterId;
@@ -26,6 +25,15 @@ public class Character {
     private GameStatus gameStatus;
     private CharacterLifecycle characterLifecycle;
 
+    /**
+     * Character 생성자 (Builder 패턴 사용)
+     * 
+     * @param characterId 캐릭터 식별자
+     * @param customerId 고객 식별자
+     * @param accountConnection 계좌 연결 정보
+     * @param gameStatus 게임 상태
+     * @param characterLifecycle 캐릭터 생명주기
+     */
     @Builder
     private Character(
         CharacterId characterId,
@@ -66,10 +74,10 @@ public class Character {
      */
     public void startConnectingAccount(Long accountId) {
         if (accountConnection.isConnected()) {
-            throw new IllegalStateException("Account is already connected");
+            throw new IllegalStateException("계좌가 이미 연결되어 있습니다");
         }
         if (accountConnection.isConnecting()) {
-            throw new IllegalStateException("Account connection is already in progress");
+            throw new IllegalStateException("계좌 연결이 이미 진행 중입니다");
         }
         
         this.accountConnection = AccountConnection.connecting(accountId);
@@ -84,7 +92,7 @@ public class Character {
      */
     public void completeAccountConnection(Long accountId) {
         if (!accountConnection.isConnecting()) {
-            throw new IllegalStateException("Account must be in connecting state to complete connection");
+            throw new IllegalStateException("계좌 연결을 완료하려면 연결 중 상태여야 합니다");
         }
         
         this.accountConnection = AccountConnection.connected(accountId);
@@ -92,40 +100,20 @@ public class Character {
     }
 
     /**
-     * 계좌을 해지합니다 (연결됨 -> 해지됨).
-     * 
-     * @param category 해지 분류
+     * 외부에서 전달받은 계좌 해지 정보를 처리합니다.
+     * 계좌 해지는 외부 도메인에서 처리되고, 그 결과를 이 메서드로 전달받습니다.
+     *
      * @param reason 해지 사유
      * @throws IllegalStateException 계좌가 연결되어 있지 않은 경우
      */
-    public void terminateAccount(TerminationCategory category, String reason) {
+    public void handleAccountTerminated(String reason) {
         if (!accountConnection.isConnected()) {
-            throw new IllegalStateException("Account must be connected to terminate");
+            throw new IllegalStateException("계좌 해지를 처리하려면 계좌가 연결되어 있어야 합니다");
         }
         
-        AccountTermination termination = new AccountTermination(category, reason, java.time.LocalDateTime.now());
+        AccountTermination termination = new AccountTermination(reason, java.time.LocalDateTime.now());
         this.accountConnection = AccountConnection.terminated(termination);
         updateLifecycle();
-    }
-
-    /**
-     * 고객 요청에 의해 계좌을 해지합니다.
-     * 
-     * @param reason 해지 사유
-     * @throws IllegalStateException 계좌가 연결되어 있지 않은 경우
-     */
-    public void terminateAccountByCustomerRequest(String reason) {
-        terminateAccount(TerminationCategory.CUSTOMER_REQUEST, reason);
-    }
-
-    /**
-     * 시스템 오류로 인해 계좌을 해지합니다.
-     * 
-     * @param reason 해지 사유
-     * @throws IllegalStateException 계좌가 연결되어 있지 않은 경우
-     */
-    public void terminateAccountBySystemError(String reason) {
-        terminateAccount(TerminationCategory.SYSTEM_ERROR, reason);
     }
 
     /**
@@ -135,7 +123,7 @@ public class Character {
      */
     public void cancelConnection() {
         if (!accountConnection.isConnecting()) {
-            throw new IllegalStateException("Account must be in connecting state to cancel");
+            throw new IllegalStateException("연결 취소를 하려면 연결 중 상태여야 합니다");
         }
         
         this.accountConnection = AccountConnection.noAccount();
@@ -150,7 +138,7 @@ public class Character {
      */
     public void addCoin(Integer amount) {
         if (amount <= 0) {
-            throw new IllegalArgumentException("Amount must be positive");
+            throw new IllegalArgumentException("수량은 양수여야 합니다");
         }
         
         this.gameStatus = gameStatus.addCoin(amount);
@@ -165,7 +153,7 @@ public class Character {
      */
     public void addFishCoin(Integer amount) {
         if (amount <= 0) {
-            throw new IllegalArgumentException("Amount must be positive");
+            throw new IllegalArgumentException("수량은 양수여야 합니다");
         }
         
         this.gameStatus = gameStatus.addFishCoin(amount);
@@ -235,10 +223,10 @@ public class Character {
     /**
      * 해지 정보를 반환합니다.
      * 
-     * @return 해지 정보 (Optional)
+     * @return 해지 정보
      */
-    public java.util.Optional<AccountTermination> getTerminationInfo() {
-        return java.util.Optional.ofNullable(accountConnection.terminationInfo());
+    public AccountTermination getTerminationInfo() {
+        return accountConnection.terminationInfo();
     }
 
     /**
@@ -250,22 +238,30 @@ public class Character {
         return gameStatus.isActive();
     }
 
+    /**
+     * 캐릭터 생명주기를 업데이트합니다 (수정 시간 갱신).
+     */
     private void updateLifecycle() {
         this.characterLifecycle = characterLifecycle.updateModified();
     }
 
+    /**
+     * 캐릭터 불변 조건을 검증합니다.
+     * 
+     * @throws IllegalArgumentException 필수 필드가 null인 경우
+     */
     private void validateInvariants() {
         if (customerId == null) {
-            throw new IllegalArgumentException("Customer ID cannot be null");
+            throw new IllegalArgumentException("고객 ID는 null일 수 없습니다");
         }
         if (accountConnection == null) {
-            throw new IllegalArgumentException("Account connection cannot be null");
+            throw new IllegalArgumentException("계좌 연결 정보는 null일 수 없습니다");
         }
         if (gameStatus == null) {
-            throw new IllegalArgumentException("Game status cannot be null");
+            throw new IllegalArgumentException("게임 상태는 null일 수 없습니다");
         }
         if (characterLifecycle == null) {
-            throw new IllegalArgumentException("Character lifecycle cannot be null");
+            throw new IllegalArgumentException("캐릭터 생명주기는 null일 수 없습니다");
         }
     }
 }

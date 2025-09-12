@@ -12,16 +12,16 @@ public record GameStatus(
 ) {
     public GameStatus {
         if (coin == null || coin < 0) {
-            throw new IllegalArgumentException("Coin must be non-negative");
+            throw new IllegalArgumentException("코인은 음수일 수 없습니다");
         }
         if (fishCoin == null || fishCoin < 0) {
-            throw new IllegalArgumentException("Fish coin must be non-negative");
+            throw new IllegalArgumentException("피쉬 코인은 음수일 수 없습니다");
         }
         if (roomCount == null || roomCount < 0) {
-            throw new IllegalArgumentException("Room count must be non-negative");
+            throw new IllegalArgumentException("방 수는 음수일 수 없습니다");
         }
         if (isActive == null) {
-            throw new IllegalArgumentException("Active status cannot be null");
+            throw new IllegalArgumentException("활성 상태는 null일 수 없습니다");
         }
     }
 
@@ -44,7 +44,7 @@ public record GameStatus(
      */
     public GameStatus addCoin(Integer amount) {
         if (amount < 0) {
-            throw new IllegalArgumentException("Amount must be non-negative");
+            throw new IllegalArgumentException("수량은 음수일 수 없습니다");
         }
         return new GameStatus(coin + amount, fishCoin, roomCount, isActive);
     }
@@ -58,7 +58,7 @@ public record GameStatus(
      */
     public GameStatus addFishCoin(Integer amount) {
         if (amount < 0) {
-            throw new IllegalArgumentException("Amount must be non-negative");
+            throw new IllegalArgumentException("수량은 음수일 수 없습니다");
         }
         return new GameStatus(coin, fishCoin + amount, roomCount, isActive);
     }

@@ -7,7 +7,7 @@ import saviing.game.character.domain.model.vo.CharacterId;
 import saviing.game.character.domain.model.vo.CustomerId;
 import saviing.game.character.infrastructure.persistence.entity.CharacterEntity;
 import saviing.game.character.infrastructure.persistence.mapper.CharacterEntityMapper;
-import saviing.game.character.repository.CharacterRepository;
+import saviing.game.character.domain.repository.CharacterRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -41,7 +41,7 @@ public class CharacterRepositoryImpl implements CharacterRepository {
                 CharacterEntity savedEntity = jpaRepository.save(entity);
                 return mapper.toDomain(savedEntity);
             } else {
-                throw new IllegalArgumentException("Character not found for update: " + character.getCharacterId().value());
+                throw new IllegalArgumentException("업데이트할 캐릭터를 찾을 수 없습니다: " + character.getCharacterId().value());
             }
         }
     }
@@ -93,7 +93,6 @@ public class CharacterRepositoryImpl implements CharacterRepository {
             .accountId(entity.getAccountId())
             .connectionStatus(entity.getConnectionStatus())
             .connectionDate(entity.getConnectionDate())
-            .terminationCategory(entity.getTerminationCategory())
             .terminationReason(entity.getTerminationReason())
             .terminatedAt(entity.getTerminatedAt())
             .coin(entity.getCoin())

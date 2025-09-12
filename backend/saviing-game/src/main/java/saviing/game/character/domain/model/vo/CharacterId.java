@@ -8,7 +8,7 @@ public record CharacterId(
 ) {
     public CharacterId {
         if (value == null || value <= 0) {
-            throw new IllegalArgumentException("Character ID must be positive");
+            throw new IllegalArgumentException("캐릭터 ID는 양수여야 합니다");
         }
     }
 

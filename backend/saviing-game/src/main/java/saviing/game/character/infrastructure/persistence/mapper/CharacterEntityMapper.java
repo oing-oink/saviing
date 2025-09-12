@@ -3,7 +3,6 @@ package saviing.game.character.infrastructure.persistence.mapper;
 import org.springframework.stereotype.Component;
 import saviing.game.character.domain.model.aggregate.Character;
 import saviing.game.character.domain.model.enums.ConnectionStatus;
-import saviing.game.character.domain.model.enums.TerminationCategory;
 import saviing.game.character.domain.model.vo.AccountConnection;
 import saviing.game.character.domain.model.vo.AccountTermination;
 import saviing.game.character.domain.model.vo.CharacterId;
@@ -57,7 +56,6 @@ public class CharacterEntityMapper {
             .accountId(character.getAccountConnection().accountId())
             .connectionStatus(character.getAccountConnection().connectionStatus())
             .connectionDate(character.getAccountConnection().connectionDate())
-            .terminationCategory(extractTerminationCategory(character.getAccountConnection()))
             .terminationReason(extractTerminationReason(character.getAccountConnection()))
             .terminatedAt(extractTerminatedAt(character.getAccountConnection()))
             .coin(character.getGameStatus().coin())
@@ -85,7 +83,6 @@ public class CharacterEntityMapper {
             character.getAccountConnection().accountId(),
             character.getAccountConnection().connectionStatus(),
             character.getAccountConnection().connectionDate(),
-            extractTerminationCategory(character.getAccountConnection()),
             extractTerminationReason(character.getAccountConnection()),
             extractTerminatedAt(character.getAccountConnection()),
             character.getGameStatus().coin(),
@@ -101,7 +98,6 @@ public class CharacterEntityMapper {
         
         if (entity.getConnectionStatus() == ConnectionStatus.TERMINATED) {
             termination = new AccountTermination(
-                entity.getTerminationCategory(),
                 entity.getTerminationReason(),
                 entity.getTerminatedAt()
             );
@@ -126,11 +122,6 @@ public class CharacterEntityMapper {
 
     private CharacterLifecycle mapCharacterLifecycle(CharacterEntity entity) {
         return new CharacterLifecycle(entity.getCreatedAt(), entity.getUpdatedAt(), entity.getDeactivatedAt());
-    }
-
-    private TerminationCategory extractTerminationCategory(AccountConnection accountConnection) {
-        return accountConnection.terminationInfo() != null ? 
-            accountConnection.terminationInfo().category() : null;
     }
 
     private String extractTerminationReason(AccountConnection accountConnection) {

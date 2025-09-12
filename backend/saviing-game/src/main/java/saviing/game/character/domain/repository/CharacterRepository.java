@@ -1,4 +1,4 @@
-package saviing.game.character.repository;
+package saviing.game.character.domain.repository;
 
 import saviing.game.character.domain.model.aggregate.Character;
 import saviing.game.character.domain.model.vo.CharacterId;
