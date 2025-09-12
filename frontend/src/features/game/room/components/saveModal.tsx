@@ -1,49 +1,63 @@
-import closeButton from '@/assets/game_button/closeButton.png';
+import {
+  Dialog,
+  DialogClose, // DialogClose를 import합니다.
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogOverlay,
+  DialogPortal,
+  DialogTitle,
+} from '@/shared/components/ui/dialog';
+import { Button } from '@/shared/components/ui/button';
+import closeButton from '@/assets/game_button/closeButton.png'; // 이미지 파일을 import합니다.
 
-export const SaveModal = ({
-  isOpen,
-  onClose,
-}: {
+interface SaveModalProps {
   isOpen: boolean;
   onClose: () => void;
-}) => {
-  if (!isOpen) {
-    return null;
-  }
+  onSave: () => void;
+}
 
+export const SaveModal = ({ isOpen, onClose, onSave }: SaveModalProps) => {
   return (
-    <div className="game fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* 오버레이 */}
-      <div
-        className="bg-gray fixed inset-0 backdrop-blur-sm"
-        onClick={onClose}
-      ></div>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogPortal>
+        <DialogOverlay className="!bg-transparent backdrop-blur-sm backdrop-brightness-110" />
+        <DialogContent
+          showCloseButton={false} // 기본 닫기 버튼 숨기기
+          className="game font-galmuri bg-secondary shadow-xl sm:max-w-lg h-[14rem] border-0 p-4"
+        >
+          <DialogClose 
+            className="absolute top-4 right-4 ring-offset-background transition-opacity">
+            <img src={closeButton} alt="close" className="h-7 w-7 border-none outline-none focus:ring-1 focus:ring-secondary focus:outline-none active:scale-95 active:brightness-90" />
+          </DialogClose>
 
-      {/* 모달창 */}
-      <div className="relative z-10 rounded-xl bg-secondary px-8 pt-4 pb-6 text-xl font-bold tracking-widest text-black shadow-lg">
-        <img
-          src={closeButton}
-          alt="Store"
-          onClick={onClose}
-          className="focus:ring-opacity-50 absolute top-4 right-4 h-7 w-7 cursor-pointer focus:ring-1 focus:ring-primary focus:outline-none active:scale-95 active:brightness-90"
-        />
-        <p className="m-8 mt-12 text-center">저장하시겠습니까?</p>
-        <div className="flex justify-center space-x-4">
-          <button
-            onClick={onClose}
-            className="focus:ring-opacity-50 flex-1 cursor-pointer rounded-md bg-primary px-6 py-2 text-lg font-bold tracking-widest text-white focus:ring-1 focus:ring-primary focus:outline-none active:scale-95 active:brightness-90"
-          >
-            CANCEL
-          </button>
-          <button
-            // onClick={저장 로직} // 실제로 저장 로직이 들어갈 부분
-            onClick={onClose}
-            className="focus:ring-opacity-50 flex-1 cursor-pointer rounded-md bg-primary px-6 py-2 text-lg font-bold tracking-widest text-white focus:ring-1 focus:ring-primary focus:outline-none active:scale-95 active:brightness-90"
-          >
-            SAVE
-          </button>
-        </div>
-      </div>
-    </div>
+          <DialogHeader>
+            <DialogTitle className="text-center text-2xl tracking-widest mt-12">
+              저장하시겠습니까?
+            </DialogTitle>
+            <DialogDescription className="text-center">
+              방의 현재 상태가 저장됩니다.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-row !justify-center gap-4 pb-0">
+            <Button
+              onClick={onClose}
+              className="w-24 text-lg tracking-widest bg-white text-primary
+              focus:ring-1 focus:ring-primary focus:outline-none active:scale-95 active:brightness-90"
+            >
+              CANCEL
+            </Button>
+            <Button 
+              onClick={onSave} 
+              className="w-24 text-lg tracking-widest text-white
+              focus:ring-1 focus:ring-primary focus:outline-none active:scale-95 active:brightness-90"
+            >
+              SAVE
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </DialogPortal>
+    </Dialog>
   );
 };

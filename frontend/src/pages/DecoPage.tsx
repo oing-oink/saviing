@@ -4,7 +4,7 @@ import { mockInventoryItems } from '@/features/game/shop/mocks/inventoryMockData
 import backButton from '@/assets/game_button/backButton.png';
 import storeButton from '@/assets/game_button/storeButton.png';
 import floor1stButton from '@/assets/game_button/floor1st.png';
-import { SaveModal } from '@/features/game/room/components/saveModal';
+import { SaveModal } from '@/features/game/room/components/SaveModal';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PAGE_PATH } from '@/shared/constants/path';
