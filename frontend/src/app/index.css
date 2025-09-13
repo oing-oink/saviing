@@ -127,6 +127,8 @@
 .game {
   --primary: oklch(0.9002 0.052 18.16);
   --secondary: oklch(0.9852 0.0417 102.74);
+  --white: oklch(0.9919 0.003956 286.3273);
+  --gray: oklch(0.8853 0 0);
   --sky-bg: oklch(0.9321 0.0493 202.63);
   --store-bg: oklch(0.9566 0.0155 27.28);
 

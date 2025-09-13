@@ -5,6 +5,7 @@ export const PAGE_PATH = {
   GAME: '/game',
   SHOP: '/shop',
   GACHA: '/gacha',
+  DECO: '/deco',
   COLORTEST: '/colortest',
   NOT_FOUND: '*',
 } as const;
