@@ -44,7 +44,7 @@ const ItemDetailModal = ({ item, isOpen, onClose }: ItemDetailModalProps) => {
               {item.description}
             </p>
             <div className="mt-5 mb-2 rounded-3xl border-2 border-level-05 bg-store-bg p-2 px-10 text-lg">
-              ♥ PREVIEW ♥
+              PREVIEW
             </div>
             <Coin />
           </div>
