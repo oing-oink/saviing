@@ -6,11 +6,11 @@ package saviing.game.character.domain.exception;
 public class InvalidCharacterStateException extends CharacterException {
     
     public InvalidCharacterStateException() {
-        super(CharacterErrorCode.INVALID_CHARACTER_STATE);
+        super(CharacterErrorCode.CHARACTER_INVALID_STATE);
     }
     
     public InvalidCharacterStateException(String message) {
-        super(CharacterErrorCode.INVALID_CHARACTER_STATE, message);
+        super(CharacterErrorCode.CHARACTER_INVALID_STATE, message);
     }
     
     public InvalidCharacterStateException(CharacterErrorCode errorCode, String message) {
@@ -29,13 +29,13 @@ public class InvalidCharacterStateException extends CharacterException {
      * 올바르지 않은 코인 수량일 때
      */
     public static InvalidCharacterStateException invalidCoinAmount(String message) {
-        return new InvalidCharacterStateException(CharacterErrorCode.INVALID_COIN_AMOUNT, message);
+        return new InvalidCharacterStateException(CharacterErrorCode.CHARACTER_INVALID_COIN_AMOUNT, message);
     }
     
     /**
      * 올바르지 않은 피쉬 코인 수량일 때
      */
     public static InvalidCharacterStateException invalidFishCoinAmount(String message) {
-        return new InvalidCharacterStateException(CharacterErrorCode.INVALID_FISH_COIN_AMOUNT, message);
+        return new InvalidCharacterStateException(CharacterErrorCode.CHARACTER_INVALID_FISH_COIN_AMOUNT, message);
     }
 }
