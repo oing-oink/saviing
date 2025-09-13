@@ -1,7 +1,10 @@
 package saviing.game.character.presentation.dto.request;
 
 /**
- * 코인 추가 요청 DTO
+ * 코인 추가 요청 DTO입니다.
+ *
+ * @param coinAmount 추가할 코인 수량
+ * @param fishCoinAmount 추가할 피쉬 코인 수량
  */
 public record AddCoinsRequest(
     Integer coinAmount,

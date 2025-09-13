@@ -1,10 +1,12 @@
-package saviing.game.character.application.dto;
+package saviing.game.character.application.dto.command;
 
+import lombok.Builder;
 import saviing.game.character.domain.model.vo.CharacterId;
 
 /**
  * 방 수 증가 Command
  */
+@Builder
 public record IncreaseRoomCountCommand(
     CharacterId characterId
 ) {

@@ -4,7 +4,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 /**
- * 계좌 연결 요청 DTO
+ * 계좌 연결 요청 DTO입니다.
+ *
+ * @param accountId 계좌 ID
  */
 public record ConnectAccountRequest(
     @NotNull(message = "계좌 ID는 필수입니다")

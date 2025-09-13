@@ -75,7 +75,10 @@ public class CharacterEntityMapper {
      * @param character Character 도메인 객체
      */
     public void updateEntity(CharacterEntity entity, Character character) {
-        if (entity == null || character == null) {
+        if (entity == null) {
+            return;
+        }
+        if (character == null) {
             return;
         }
 

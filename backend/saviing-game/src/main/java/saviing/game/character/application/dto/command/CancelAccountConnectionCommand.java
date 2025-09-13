@@ -1,10 +1,12 @@
-package saviing.game.character.application.dto;
+package saviing.game.character.application.dto.command;
 
+import lombok.Builder;
 import saviing.game.character.domain.model.vo.CharacterId;
 
 /**
  * 계좌 연결 취소 Command
  */
+@Builder
 public record CancelAccountConnectionCommand(
     CharacterId characterId
 ) {

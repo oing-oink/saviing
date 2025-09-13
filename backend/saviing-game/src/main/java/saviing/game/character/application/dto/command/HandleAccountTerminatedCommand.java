@@ -1,11 +1,13 @@
-package saviing.game.character.application.dto;
+package saviing.game.character.application.dto.command;
 
+import lombok.Builder;
 import saviing.game.character.domain.model.vo.CharacterId;
 
 /**
  * 계좌 해지 처리 Command
  * 외부 도메인(Bank)에서 계좌가 해지되었을 때 Character 도메인에 알리기 위한 Command
  */
+@Builder
 public record HandleAccountTerminatedCommand(
     CharacterId characterId,
     String terminationReason

@@ -1,10 +1,12 @@
-package saviing.game.character.application.dto;
+package saviing.game.character.application.dto.command;
 
+import lombok.Builder;
 import saviing.game.character.domain.model.vo.CharacterId;
 
 /**
  * 캐릭터 비활성화 Command
  */
+@Builder
 public record DeactivateCharacterCommand(
     CharacterId characterId
 ) {
