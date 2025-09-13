@@ -1,5 +1,7 @@
 package saviing.game.character.infrastructure.persistence.entity;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
@@ -16,16 +18,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import saviing.game.character.domain.model.enums.ConnectionStatus;
 
-import java.time.LocalDateTime;
-
 /**
  * Character JPA Entity
  * MySQL game.characters 테이블과 매핑됩니다.
  */
-@Entity
-@Table(name = "characters")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Entity
+@Table(name = "characters")
 public class CharacterEntity {
 
     @Id

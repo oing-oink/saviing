@@ -1,5 +1,9 @@
 package saviing.game.character.domain.service;
 
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.stereotype.Component;
+
 import saviing.game.character.domain.exception.DuplicateActiveCharacterException;
 import saviing.game.character.domain.model.aggregate.Character;
 import saviing.game.character.domain.model.vo.CustomerId;
@@ -9,13 +13,11 @@ import saviing.game.character.domain.repository.CharacterRepository;
  * 캐릭터 도메인 서비스
  * 복잡한 비즈니스 규칙을 처리합니다.
  */
+@RequiredArgsConstructor
+@Component
 public class CharacterDomainService {
     
     private final CharacterRepository characterRepository;
-    
-    public CharacterDomainService(CharacterRepository characterRepository) {
-        this.characterRepository = characterRepository;
-    }
     
     /**
      * 새로운 캐릭터를 생성합니다.

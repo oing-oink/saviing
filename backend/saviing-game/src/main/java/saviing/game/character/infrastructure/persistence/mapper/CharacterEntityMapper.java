@@ -1,5 +1,7 @@
 package saviing.game.character.infrastructure.persistence.mapper;
 
+import java.time.LocalDateTime;
+
 import org.springframework.stereotype.Component;
 import saviing.game.character.domain.model.aggregate.Character;
 import saviing.game.character.domain.model.enums.ConnectionStatus;
@@ -10,8 +12,6 @@ import saviing.game.character.domain.model.vo.CharacterLifecycle;
 import saviing.game.character.domain.model.vo.CustomerId;
 import saviing.game.character.domain.model.vo.GameStatus;
 import saviing.game.character.infrastructure.persistence.entity.CharacterEntity;
-
-import java.time.LocalDateTime;
 
 /**
  * Character Entity와 Domain Model 간의 변환을 담당하는 Mapper

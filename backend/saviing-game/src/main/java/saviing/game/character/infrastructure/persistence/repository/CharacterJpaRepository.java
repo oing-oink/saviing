@@ -1,13 +1,13 @@
 package saviing.game.character.infrastructure.persistence.repository;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import saviing.game.character.infrastructure.persistence.entity.CharacterEntity;
-
-import java.util.List;
-import java.util.Optional;
 
 /**
  * Character JPA Repository

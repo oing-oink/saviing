@@ -1,9 +1,14 @@
 package saviing.game.character.domain.model.aggregate;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
 import saviing.game.character.domain.event.AccountConnectedEvent;
 import saviing.game.character.domain.event.AccountTerminatedEvent;
 import saviing.game.character.domain.event.CharacterCreatedEvent;
@@ -17,10 +22,6 @@ import saviing.game.character.domain.model.vo.CharacterId;
 import saviing.game.character.domain.model.vo.CharacterLifecycle;
 import saviing.game.character.domain.model.vo.CustomerId;
 import saviing.game.character.domain.model.vo.GameStatus;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * 캐릭터 Aggregate Root

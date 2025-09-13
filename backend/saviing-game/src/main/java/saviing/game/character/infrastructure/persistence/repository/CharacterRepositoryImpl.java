@@ -1,25 +1,24 @@
 package saviing.game.character.infrastructure.persistence.repository;
 
+import java.util.List;
+import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import saviing.game.character.domain.exception.CharacterNotFoundException;
 import saviing.game.character.domain.model.aggregate.Character;
 import saviing.game.character.domain.model.vo.CharacterId;
 import saviing.game.character.domain.model.vo.CustomerId;
+import saviing.game.character.domain.repository.CharacterRepository;
 import saviing.game.character.infrastructure.persistence.entity.CharacterEntity;
 import saviing.game.character.infrastructure.persistence.mapper.CharacterEntityMapper;
-import saviing.game.character.domain.repository.CharacterRepository;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * CharacterRepository의 JPA 구현체
  * 도메인 Repository 인터페이스를 JPA를 사용해 구현합니다.
  */
-@Repository
 @RequiredArgsConstructor
+@Repository
 public class CharacterRepositoryImpl implements CharacterRepository {
 
     private final CharacterJpaRepository jpaRepository;
