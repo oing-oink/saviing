@@ -21,25 +21,30 @@ const DecoPage = () => {
     setShowSaveModal(false);
   };
 
+  const handleSave = () => {
+    // 저장 로직 추가!!
+    setShowSaveModal(false);
+  };
+
   return (
     <div className="game flex h-screen flex-col overflow-hidden bg-sky-bg font-galmuri">
       <div className="mt-4 flex items-center justify-between p-4">
-        <img
-          src={backButton}
-          alt="Back"
+        <button
           onClick={() => {
             navigate(PAGE_PATH.GAME);
           }}
-          className="focus:ring-opacity-50 h-10 w-10 cursor-pointer focus:ring-1 focus:ring-primary focus:outline-none active:scale-95 active:brightness-90"
-        />
-        <img
-          src={storeButton}
-          alt="Store"
+          className="cursor-pointer rounded-full bg-transparent p-0 focus:ring-1 focus:ring-primary focus:outline-none active:scale-95 active:brightness-90"
+        >
+          <img src={backButton} alt="back" className="h-10 w-10" />
+        </button>
+        <button
           onClick={() => {
             navigate(PAGE_PATH.SHOP);
           }}
-          className="focus:ring-opacity-50 h-10 w-10 cursor-pointer focus:ring-1 focus:ring-primary focus:outline-none active:scale-95 active:brightness-90"
-        />
+          className="cursor-pointer rounded-full bg-transparent p-0 focus:ring-1 focus:ring-primary focus:outline-none active:scale-95 active:brightness-90"
+        >
+          <img src={storeButton} alt="store" className="h-10 w-10" />
+        </button>
       </div>
 
       <div className="relative mt-4 flex flex-1 justify-center px-4">
@@ -55,16 +60,16 @@ const DecoPage = () => {
       <div className="relative">
         <Inventory items={mockInventoryItems} />
 
-        <img
-          src={floor1stButton}
-          alt="Floor 1st"
-          className="focus:ring-opacity-50 absolute top-[-14px] right-2 h-10 w-12 cursor-pointer focus:ring-1 focus:ring-primary focus:outline-none active:scale-95 active:brightness-90"
-        />
+        <button className="absolute -top-4 right-2 h-10 w-12 cursor-pointer focus:outline-none active:scale-95 active:brightness-90">
+          <img src={floor1stButton} alt="1st floor" className="h-10 w-12" />
+        </button>
       </div>
 
-      {showSaveModal && (
-        <SaveModal isOpen={showSaveModal} onClose={handleCloseModal} />
-      )}
+      <SaveModal
+        isOpen={showSaveModal}
+        onClose={handleCloseModal}
+        onSave={handleSave}
+      />
     </div>
   );
 };
