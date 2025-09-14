@@ -1,4 +1,5 @@
-import PetHud from '@/features/game/shared/components/GameHeader';
+import GameHeader from '@/features/game/shared/components/GameHeader';
+import GameHeader2 from '@/features/game/shared/components/GameHeader2';
 import PetStatusCard from '@/features/game/pet/components/PetStatusCard';
 import CatSprite from '@/features/game/pet/components/CatSprite';
 import GameBackground from '@/features/game/shared/components/GameBackground';
@@ -12,7 +13,7 @@ import { Room } from '@/features/game/room/Room';
 
 const GamePage = () => {
   // TODO: API 연결 후 동적으로 관리
-  const currentPetId = 10;
+  const currentPetId = 7;
   const currentAnimation = 'idle' as const;
 
   // TODO: 나중에 동적으로 변경할 수 있도록 상태 관리 추가 예정
@@ -20,42 +21,47 @@ const GamePage = () => {
   // const [currentAnimation, setCurrentAnimation] = useState<PetAnimationState>('idle');
 
   return (
-    <div className="game relative flex h-full flex-col font-galmuri">
+    <div className="game safeArea relative flex h-dvh touch-none flex-col overflow-hidden font-galmuri">
       <GameBackground />
 
       <div className="relative flex h-full flex-col">
-        <div className="px-3">
-          <PetHud />
+        <div className="px-3 pb-4">
+          <GameHeader />
         </div>
 
-        <div className="relative flex w-full flex-1 items-center justify-center">
-          <Room />
+        <div className="relative mt-4 flex w-full flex-1 justify-center px-4">
+          <div className="relative inline-block">
+            <Room />
 
-          <Popover>
-            <PopoverTrigger asChild>
-              <button
-                className="absolute cursor-pointer outline-none"
-                type="button"
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer outline-none"
+                  type="button"
+                >
+                  <CatSprite
+                    petId={currentPetId}
+                    currentAnimation={currentAnimation}
+                    className="scale-250"
+                  />
+                </button>
+              </PopoverTrigger>
+
+              <PopoverAnchor className="absolute right-0 bottom-0 left-0" />
+
+              <PopoverContent
+                side="top"
+                align="center"
+                sideOffset={24}
+                className="w-screen max-w-sm p-0"
               >
-                <CatSprite
-                  petId={currentPetId}
-                  currentAnimation={currentAnimation}
-                  className="scale-250"
-                />
-              </button>
-            </PopoverTrigger>
-
-            <PopoverAnchor className="absolute right-0 bottom-0 left-0" />
-
-            <PopoverContent
-              side="top"
-              align="center"
-              sideOffset={24}
-              className="w-screen max-w-sm p-0"
-            >
-              <PetStatusCard petId={currentPetId} />
-            </PopoverContent>
-          </Popover>
+                <PetStatusCard petId={currentPetId} />
+              </PopoverContent>
+            </Popover>
+          </div>
+        </div>
+        <div className="px-3 pb-10">
+          <GameHeader2 />
         </div>
       </div>
     </div>
