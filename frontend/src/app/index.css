@@ -183,13 +183,14 @@
   .progress-underlayer {
     background-color: oklch(0.9363 0.0032 17.22); /* 연한 회색 */
   }
-  .progress-energy {
+
+  .progress-energy [data-slot='progress-indicator'] {
     background-color: var(--energy);
   }
-  .progress-affection {
+  .progress-affection [data-slot='progress-indicator'] {
     background-color: var(--affection);
   }
-  .progress-experience {
+  .progress-experience [data-slot='progress-indicator'] {
     background-color: var(--experience);
   }
 }
@@ -238,6 +239,16 @@
   font-display: swap;
   font-style: normal;
   font-weight: 400;
+}
+
+/* 구름 애니메이션 */
+@keyframes cloud-scroll {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
 @utility font-galmuri {
