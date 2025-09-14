@@ -19,6 +19,6 @@ export const useItemModal = () => {
     selectedItem,
     isModalOpen,
     handleItemClick,
-    handleCloseModal
+    handleCloseModal,
   };
 };

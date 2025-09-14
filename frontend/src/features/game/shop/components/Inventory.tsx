@@ -11,13 +11,13 @@ interface InventoryProps {
 
 const Inventory = ({ items }: InventoryProps) => {
   const { activeTab, setActiveTab, TABS } = useTabs();
-  const { selectedItem, isModalOpen, handleItemClick, handleCloseModal } = useItemModal();
+  const { selectedItem, isModalOpen, handleItemClick, handleCloseModal } =
+    useItemModal();
 
   // 현재 탭에 해당하는 아이템 필터링
   const filteredItems = items.filter(item => item.category === activeTab);
 
   const slots = useSlots(filteredItems);
-
 
   return (
     <div className="game absolute bottom-0 left-0 w-full font-galmuri">
@@ -67,7 +67,7 @@ const Inventory = ({ items }: InventoryProps) => {
           ))}
         </div>
       </div>
-      
+
       {selectedItem && (
         <ItemDetailModal
           item={selectedItem}
