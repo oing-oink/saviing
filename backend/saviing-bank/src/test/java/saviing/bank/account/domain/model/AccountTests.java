@@ -7,7 +7,9 @@ import org.mockito.MockitoAnnotations;
 
 import saviing.bank.account.domain.model.Account;
 import saviing.bank.account.domain.model.AccountStatus;
-import saviing.bank.account.domain.model.ProductType;
+import saviing.bank.account.domain.model.Product;
+import saviing.bank.account.domain.model.ProductCategory;
+import saviing.bank.account.domain.vo.ProductId;
 import saviing.bank.account.domain.service.InterestAccrualService;
 import saviing.bank.account.domain.vo.AccountNumber;
 import saviing.bank.account.domain.vo.BasisPoints;
@@ -34,10 +36,16 @@ class AccountTests {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        Product testProduct = Product.of(
+            ProductId.of(1L),
+            ProductCategory.DEMAND_DEPOSIT,
+            "자유입출금통장",
+            "FREE_CHECKING"
+        );
         account = Account.open(
             new AccountNumber("1234567890"),
             1L,
-            ProductType.DEMAND_DEPOSIT,
+            testProduct,
             now
         );
     }
@@ -52,7 +60,7 @@ class AccountTests {
         assertThat(account.getId()).isNull();
         assertThat(account.getAccountNumber().value()).isEqualTo("1234567890");
         assertThat(account.getCustomerId()).isEqualTo(1L);
-        assertThat(account.getProductType()).isEqualTo(ProductType.DEMAND_DEPOSIT);
+        assertThat(account.getProduct().getCategory()).isEqualTo(ProductCategory.DEMAND_DEPOSIT);
         assertThat(account.getStatus()).isEqualTo(AccountStatus.ACTIVE);
         assertThat(account.getBalance().amount()).isEqualTo(0L);
     }

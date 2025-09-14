@@ -1,15 +1,12 @@
 package saviing.bank.account.application.port.in.command;
 
-import saviing.bank.account.domain.model.ProductType;
+import saviing.bank.account.domain.vo.ProductId;
 
 public record CreateAccountCommand(
     Long customerId,
-    ProductType productType
+    ProductId productId
 ) {
-    public static CreateAccountCommand of(Long customerId, String productTypeStr) {
-        return new CreateAccountCommand(
-            customerId,
-            ProductType.valueOf(productTypeStr)
-        );
+    public static CreateAccountCommand of(Long customerId, Long productId) {
+        return new CreateAccountCommand(customerId, ProductId.of(productId));
     }
 }

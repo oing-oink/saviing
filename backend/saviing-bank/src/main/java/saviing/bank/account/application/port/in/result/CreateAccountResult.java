@@ -37,7 +37,7 @@ public record CreateAccountResult(
             .accountId(account.getId() != null ? account.getId().value() : null)
             .accountNumber(account.getAccountNumber().value())
             .customerId(account.getCustomerId())
-            .productType(account.getProductType().name())
+            .productType(account.getProduct().getName())
             .compoundingType(account.getCompoundingType().name())
             .payoutAccountId(account.getPayoutAccountId() != null ? account.getPayoutAccountId().value() : null)
             .goalAmount(account.getGoalAmount() != null ? account.getGoalAmount().amount() : null)

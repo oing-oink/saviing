@@ -1,6 +1,7 @@
 package saviing.bank.account.adapter.in.web.dto.request;
 
 import jakarta.validation.constraints.NotNull;
+
 import saviing.bank.account.application.port.in.command.CreateAccountCommand;
 
 public record CreateAccountRequest(
@@ -8,9 +9,9 @@ public record CreateAccountRequest(
     Long customerId,
     
     @NotNull(message = "상품유형은 필수입니다")
-    String productType
+    Long productId
 ) {
     public CreateAccountCommand toCommand() {
-        return CreateAccountCommand.of(customerId, productType);
+        return CreateAccountCommand.of(customerId, productId);
     }
 }

@@ -18,21 +18,22 @@ import saviing.bank.account.domain.vo.AccountNumber;
 @Transactional
 @RequiredArgsConstructor
 public class AccountService implements CreateAccountUseCase {
-    
+
     private final GenerateAccountNumberPort generateAccountNumberPort;
     private final SaveAccountPort saveAccountPort;
+    private final ProductService productService;
     
     @Override
     public CreateAccountResult createAccount(CreateAccountCommand command) {
         AccountNumber accountNumber = generateAccountNumberPort.generateUniqueAccountNumber();
-        
+
         Account account = Account.open(
             accountNumber,
             command.customerId(),
-            command.productType(),
+            productService.getProduct(command.productId()),
             Instant.now()
         );
-        
+
         Account savedAccount = saveAccountPort.save(account);
         return CreateAccountResult.from(savedAccount);
     }

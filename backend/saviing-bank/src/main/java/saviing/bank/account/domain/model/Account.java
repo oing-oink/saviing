@@ -38,7 +38,7 @@ public class Account {
     private AccountId id;
     private AccountNumber accountNumber;
     private Long customerId;
-    private ProductType productType;
+    private Product product;
     private CompoundingType compoundingType = CompoundingType.DAILY;
     private AccountId payoutAccountId;
     private MoneyWon goalAmount;
@@ -58,13 +58,13 @@ public class Account {
     
     private Account(
         @NonNull AccountNumber accountNumber,
-        @NonNull Long customerId, 
-        @NonNull ProductType productType,
+        @NonNull Long customerId,
+        @NonNull Product product,
         @NonNull Instant now
     ) {
         this.accountNumber = accountNumber;
         this.customerId = customerId;
-        this.productType = productType;
+        this.product = product;
         this.openedAt = now;
         this.createdAt = now;
         this.updatedAt = now;
@@ -77,17 +77,17 @@ public class Account {
      *
      * @param accountNumber 계좌번호
      * @param customerId 고객 ID
-     * @param productType 상품 유형
+     * @param product 상품
      * @param openedAt 개설 시점
      * @return 개설된 계좌
      */
     public static Account open(
         @NonNull AccountNumber accountNumber,
         @NonNull Long customerId,
-        @NonNull ProductType productType,
+        @NonNull Product product,
         @NonNull Instant openedAt
     ) {
-        return new Account(accountNumber, customerId, productType, openedAt);
+        return new Account(accountNumber, customerId, product, openedAt);
     }
     
     /**
