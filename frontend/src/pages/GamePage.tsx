@@ -8,6 +8,7 @@ import {
   PopoverTrigger,
   PopoverAnchor,
 } from '@/shared/components/ui/popover';
+import { Room } from '@/features/game/room/Room';
 
 const GamePage = () => {
   // TODO: API 연결 후 동적으로 관리
@@ -19,7 +20,7 @@ const GamePage = () => {
   // const [currentAnimation, setCurrentAnimation] = useState<PetAnimationState>('idle');
 
   return (
-    <div className="game relative flex h-screen flex-col overflow-hidden font-galmuri">
+    <div className="game safeArea relative flex h-dvh touch-none flex-col overflow-hidden font-galmuri">
       <GameBackground />
 
       <div className="relative flex h-full flex-col">
@@ -27,16 +28,21 @@ const GamePage = () => {
           <PetHud />
         </div>
 
-        <div className="flex w-full flex-1 items-center justify-center">
+        <div className="relative flex w-full flex-1 items-center justify-center">
+          <Room />
+
           <Popover>
             <PopoverTrigger asChild>
-              <div className="cursor-pointer">
+              <button
+                className="absolute cursor-pointer outline-none"
+                type="button"
+              >
                 <CatSprite
                   petId={currentPetId}
                   currentAnimation={currentAnimation}
-                  className="scale-300"
+                  className="scale-250"
                 />
-              </div>
+              </button>
             </PopoverTrigger>
 
             <PopoverAnchor className="absolute right-0 bottom-0 left-0" />
