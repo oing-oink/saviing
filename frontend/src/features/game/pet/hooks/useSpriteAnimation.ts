@@ -1,89 +1,66 @@
-import { useState, useEffect } from 'react';
-import type { PetAnimationState } from '@/features/game/pet/types/petTypes';
-import { CAT_ANIMATIONS } from '@/features/game/pet/data/catAnimations';
+import { useEffect, useState } from 'react';
+import {
+  CAT_ANIMATIONS,
+  type CatAnimationType,
+} from '@/features/game/pet/data/catAnimations';
 
 interface UseSpriteAnimationProps {
   spritePath: string;
-  currentAnimation: PetAnimationState;
-  onAnimationComplete?: (animation: PetAnimationState) => void;
-}
-
-interface UseSpriteAnimationReturn {
-  currentFrame: number;
-  frameWidth: number;
-  frameHeight: number;
-  isLoaded: boolean;
+  currentAnimation: CatAnimationType;
+  onAnimationComplete?: (animation: CatAnimationType) => void;
 }
 
 export const useSpriteAnimation = ({
   spritePath,
   currentAnimation,
   onAnimationComplete,
-}: UseSpriteAnimationProps): UseSpriteAnimationReturn => {
+}: UseSpriteAnimationProps) => {
   const [currentFrame, setCurrentFrame] = useState(0);
   const [frameWidth, setFrameWidth] = useState(0);
   const [frameHeight, setFrameHeight] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  const animationConfig = CAT_ANIMATIONS[currentAnimation];
+  const config = CAT_ANIMATIONS[currentAnimation];
 
-  // 이미지 로드해서 실제 크기 측정
+  // 이미지 크기 계산
   useEffect(() => {
-    if (!spritePath || !animationConfig) {
-      return;
-    }
-
-    setIsLoaded(false);
     const img = new Image();
     img.src = spritePath;
-
     img.onload = () => {
-      setFrameWidth(img.width / animationConfig.frames);
+      setFrameWidth(img.width / config.frames);
       setFrameHeight(img.height);
       setIsLoaded(true);
     };
+  }, [spritePath, config.frames]);
 
-    img.onerror = () => {
-      console.error(`Failed to load sprite: ${spritePath}`);
-      setIsLoaded(false);
-    };
-  }, [spritePath, animationConfig]);
-
-  // 애니메이션이 변경되면 첫 번째 프레임으로 리셋
+  // 애니메이션 변경 시 초기화
   useEffect(() => {
     setCurrentFrame(0);
   }, [currentAnimation]);
 
-  // 프레임 변경 타이머
+  // 프레임 타이머
   useEffect(() => {
-    if (!animationConfig || !isLoaded) {
+    if (!isLoaded) {
       return;
     }
 
     const interval = setInterval(() => {
       setCurrentFrame(prev => {
         const next = prev + 1;
-
-        if (next >= animationConfig.frames) {
-          if (animationConfig.loop) {
+        if (next >= config.frames) {
+          if (config.loop) {
             return 0;
           } else {
             onAnimationComplete?.(currentAnimation);
             return prev;
           }
         }
-
         return next;
       });
-    }, animationConfig.duration);
+    }, config.duration);
 
     return () => clearInterval(interval);
-  }, [animationConfig, currentAnimation, onAnimationComplete, isLoaded]);
+  }, [isLoaded, config, currentAnimation, onAnimationComplete]);
 
-  return {
-    currentFrame,
-    frameWidth,
-    frameHeight,
-    isLoaded,
-  };
+  return { currentFrame, frameWidth, frameHeight, isLoaded };
 };

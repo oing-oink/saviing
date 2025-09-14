@@ -16,11 +16,12 @@ const CatSprite = ({
   const spriteFileName = getAnimationFileName(currentAnimation);
   const fullSpritePath = `${spritePath}/${spriteFileName}`;
 
-  const { currentFrame, frameWidth, frameHeight, isLoaded } = useSpriteAnimation({
-    spritePath: fullSpritePath,
-    currentAnimation,
-    onAnimationComplete,
-  });
+  const { currentFrame, frameWidth, frameHeight, isLoaded } =
+    useSpriteAnimation({
+      spritePath: fullSpritePath,
+      currentAnimation,
+      onAnimationComplete,
+    });
 
   // 이미지가 로드되기 전까지는 투명 플레이스홀더 표시
   if (!isLoaded || frameWidth === 0 || frameHeight === 0) {

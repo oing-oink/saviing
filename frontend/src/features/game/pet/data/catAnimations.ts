@@ -1,57 +1,29 @@
 export interface AnimationConfig {
+  /** 프레임 개수 */
   frames: number;
+  /** 프레임당 머무는 시간(ms) */
   duration: number;
+  /** 반복 여부 */
   loop?: boolean;
 }
 
-export interface CatAnimations {
-  idle: AnimationConfig;
-  idle2: AnimationConfig;
-  sitting: AnimationConfig;
-  liking: AnimationConfig;
-  run: AnimationConfig;
-  jump: AnimationConfig;
-  sleep: AnimationConfig;
-}
+export type CatAnimationType =
+  | 'idle'
+  | 'idle2'
+  | 'sitting'
+  | 'liking'
+  | 'run'
+  | 'jump'
+  | 'sleep';
 
-export type CatAnimationType = keyof CatAnimations;
-
-export const CAT_ANIMATIONS: CatAnimations = {
-  idle: {
-    frames: 7,
-    duration: 150,
-    loop: true,
-  },
-  idle2: {
-    frames: 14,
-    duration: 120,
-    loop: true,
-  },
-  sitting: {
-    frames: 3,
-    duration: 200,
-    loop: true,
-  },
-  liking: {
-    frames: 18,
-    duration: 100,
-    loop: true,
-  },
-  run: {
-    frames: 7,
-    duration: 80,
-    loop: true,
-  },
-  jump: {
-    frames: 13,
-    duration: 60,
-    loop: true,
-  },
-  sleep: {
-    frames: 3,
-    duration: 800,
-    loop: true,
-  },
+export const CAT_ANIMATIONS: Record<CatAnimationType, AnimationConfig> = {
+  idle: { frames: 7, duration: 200, loop: true },
+  idle2: { frames: 14, duration: 200, loop: true },
+  sitting: { frames: 3, duration: 250, loop: true },
+  liking: { frames: 18, duration: 150, loop: true },
+  run: { frames: 7, duration: 150, loop: true },
+  jump: { frames: 13, duration: 150, loop: true },
+  sleep: { frames: 3, duration: 500, loop: true },
 };
 
 export const CAT_SPRITE_PATHS = {
@@ -68,7 +40,7 @@ export const CAT_SPRITE_PATHS = {
 } as const;
 
 export const getAnimationFileName = (animation: CatAnimationType): string => {
-  const fileNames: Record<CatAnimationType, string> = {
+  const map: Record<CatAnimationType, string> = {
     idle: 'Idle.png',
     idle2: 'Idle2.png',
     sitting: 'Sitting.png',
@@ -77,6 +49,5 @@ export const getAnimationFileName = (animation: CatAnimationType): string => {
     jump: 'Jump.png',
     sleep: 'Sleep.png',
   };
-
-  return fileNames[animation];
+  return map[animation];
 };

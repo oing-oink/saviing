@@ -11,8 +11,8 @@ import {
 
 const GamePage = () => {
   // TODO: API 연결 후 동적으로 관리
-  const currentPetId = 1;
-  const currentAnimation = 'jump' as const;
+  const currentPetId = 10;
+  const currentAnimation = 'idle' as const;
 
   // TODO: 나중에 동적으로 변경할 수 있도록 상태 관리 추가 예정
   // const [petPosition, setPetPosition] = useState({ x: 0, y: 0 });
@@ -34,7 +34,7 @@ const GamePage = () => {
                 <CatSprite
                   petId={currentPetId}
                   currentAnimation={currentAnimation}
-                  className="h-24 w-24"
+                  className="scale-300"
                 />
               </div>
             </PopoverTrigger>
