@@ -20,7 +20,7 @@ const Inventory = ({ items }: InventoryProps) => {
   const slots = useSlots(filteredItems);
 
   return (
-    <div className="game absolute bottom-0 left-0 w-full font-galmuri">
+    <div className="game w-full font-galmuri">
       {/* 탭 영역 */}
       <div className="flex border-b">
         {TABS.map(tab => (
