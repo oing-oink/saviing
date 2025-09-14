@@ -24,6 +24,8 @@ import saviing.bank.account.domain.vo.AccountNumber;
 import saviing.bank.account.domain.vo.BasisPoints;
 import saviing.bank.account.domain.vo.MoneyWon;
 import saviing.bank.account.domain.vo.ProductId;
+import saviing.bank.account.domain.vo.TermPeriod;
+import saviing.bank.account.domain.model.TermUnit;
 
 @Entity
 @Table(name = "account")
@@ -49,15 +51,20 @@ public class AccountJpaEntity {
     @Column(name = "compounding_type", nullable = false)
     private CompoundingType compoundingType = CompoundingType.DAILY;
     
-    @Column(name = "payout_account_id")
-    private Long payoutAccountId;
-    
-    @Column(name = "goal_amount")
-    private Long goalAmount;
-    
-    @Column(name = "term_months")
-    private Short termMonths;
-    
+    // 적금 전용 필드들
+    @Column(name = "maturity_withdrawal_account", length = 32)
+    private String maturityWithdrawalAccount;
+
+    @Column(name = "target_amount")
+    private Long targetAmount;
+
+    @Column(name = "term_period_value")
+    private Integer termPeriodValue;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "term_period_unit")
+    private TermUnit termPeriodUnit;
+
     @Column(name = "maturity_date")
     private LocalDate maturityDate;
     
@@ -105,13 +112,18 @@ public class AccountJpaEntity {
         entity.customerId = account.getCustomerId();
         entity.productId = account.getProductId().value();
         entity.compoundingType = account.getCompoundingType();
-        if (account.getPayoutAccountId() != null) {
-            entity.payoutAccountId = account.getPayoutAccountId().value();
+
+        // 적금 필드 매핑
+        if (account.getMaturityWithdrawalAccount() != null) {
+            entity.maturityWithdrawalAccount = account.getMaturityWithdrawalAccount().value();
         }
-        if (account.getGoalAmount() != null) {
-            entity.goalAmount = account.getGoalAmount().amount();
+        if (account.getTargetAmount() != null) {
+            entity.targetAmount = account.getTargetAmount().amount();
         }
-        entity.termMonths = account.getTermMonths();
+        if (account.getTermPeriod() != null) {
+            entity.termPeriodValue = account.getTermPeriod().getValue();
+            entity.termPeriodUnit = account.getTermPeriod().getUnit();
+        }
         entity.maturityDate = account.getMaturityDate();
         entity.status = account.getStatus();
         entity.openedAt = account.getOpenedAt();
@@ -135,9 +147,10 @@ public class AccountJpaEntity {
             customerId,
             ProductId.of(productId),
             compoundingType,
-            payoutAccountId != null ? AccountId.of(payoutAccountId) : null,
-            goalAmount != null ? MoneyWon.of(goalAmount) : null,
-            termMonths,
+            maturityWithdrawalAccount != null ? new AccountNumber(maturityWithdrawalAccount) : null,
+            targetAmount != null ? MoneyWon.of(targetAmount) : null,
+            (termPeriodValue != null && termPeriodUnit != null) ?
+                TermPeriod.of(termPeriodValue, termPeriodUnit) : null,
             maturityDate,
             status,
             openedAt,

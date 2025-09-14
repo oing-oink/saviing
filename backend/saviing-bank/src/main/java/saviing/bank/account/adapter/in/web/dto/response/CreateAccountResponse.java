@@ -24,14 +24,9 @@ public record CreateAccountResponse(
     ProductInfo product,
     String compoundingType,
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING)
-    Long payoutAccountId,
+    // 적금 정보 (적금 계좌가 아닌 경우 null)
+    SavingsInfo savingsInfo,
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING)
-    Long goalAmount,
-
-    Short termMonths,
-    LocalDate maturityDate,
     String status,
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, timezone = "UTC")
@@ -70,8 +65,31 @@ public record CreateAccountResponse(
         String code,
         String category
     ) {}
+
+    @Builder
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public record SavingsInfo(
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
+        Long targetAmount,
+        String termPeriod,
+        LocalDate maturityDate,
+        String maturityWithdrawalAccount,
+        BigDecimal achievementRate
+    ) {}
     
     public static CreateAccountResponse from(CreateAccountResult result) {
+        // 적금 정보 변환 (적금 계좌인 경우만)
+        SavingsInfo savingsInfo = null;
+        if (result.savingsInfo() != null) {
+            savingsInfo = SavingsInfo.builder()
+                .targetAmount(result.savingsInfo().targetAmount())
+                .termPeriod(result.savingsInfo().termPeriod())
+                .maturityDate(result.savingsInfo().maturityDate())
+                .maturityWithdrawalAccount(result.savingsInfo().maturityWithdrawalAccount())
+                .achievementRate(result.savingsInfo().achievementRate())
+                .build();
+        }
+
         return CreateAccountResponse.builder()
             .accountId(result.accountId())
             .accountNumber(result.accountNumber())
@@ -83,10 +101,7 @@ public record CreateAccountResponse(
                 .category(result.product().category())
                 .build())
             .compoundingType(result.compoundingType())
-            .payoutAccountId(result.payoutAccountId())
-            .goalAmount(result.goalAmount())
-            .termMonths(result.termMonths())
-            .maturityDate(result.maturityDate())
+            .savingsInfo(savingsInfo)
             .status(result.status())
             .openedAt(result.openedAt())
             .closedAt(result.closedAt())

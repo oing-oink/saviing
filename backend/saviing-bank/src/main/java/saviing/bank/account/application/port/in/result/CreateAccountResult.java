@@ -16,10 +16,8 @@ public record CreateAccountResult(
     Long customerId,
     ProductInfo product,
     String compoundingType,
-    Long payoutAccountId,
-    Long goalAmount,
-    Short termMonths,
-    LocalDate maturityDate,
+    // 적금 정보 (적금 계좌가 아닌 경우 null)
+    SavingsInfo savingsInfo,
     String status,
     Instant openedAt,
     Instant closedAt,
@@ -41,8 +39,32 @@ public record CreateAccountResult(
         String code,
         String category
     ) {}
+
+    @Builder
+    public record SavingsInfo(
+        Long targetAmount,
+        String termPeriod,
+        LocalDate maturityDate,
+        String maturityWithdrawalAccount,
+        BigDecimal achievementRate
+    ) {}
     
     public static CreateAccountResult from(Account account, Product product) {
+        // 적금 정보 구성 (적금 계좌인 경우만)
+        SavingsInfo savingsInfo = null;
+        if (account.isSavingsAccount()) {
+            savingsInfo = SavingsInfo.builder()
+                .targetAmount(account.getTargetAmount().amount())
+                .termPeriod(account.getTermPeriod().toString())
+                .maturityDate(account.getMaturityDate())
+                .maturityWithdrawalAccount(
+                    account.getMaturityWithdrawalAccount() != null ?
+                    account.getMaturityWithdrawalAccount().value() : null
+                )
+                .achievementRate(account.getTargetAchievementRate())
+                .build();
+        }
+
         return CreateAccountResult.builder()
             .accountId(account.getId() != null ? account.getId().value() : null)
             .accountNumber(account.getAccountNumber().value())
@@ -54,10 +76,7 @@ public record CreateAccountResult(
                 .category(product.getCategory().getDescription())
                 .build())
             .compoundingType(account.getCompoundingType().name())
-            .payoutAccountId(account.getPayoutAccountId() != null ? account.getPayoutAccountId().value() : null)
-            .goalAmount(account.getGoalAmount() != null ? account.getGoalAmount().amount() : null)
-            .termMonths(account.getTermMonths())
-            .maturityDate(account.getMaturityDate())
+            .savingsInfo(savingsInfo)
             .status(account.getStatus().name())
             .openedAt(account.getOpenedAt())
             .closedAt(account.getClosedAt())

@@ -5,7 +5,6 @@ import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Map;
-import java.util.Objects;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -17,6 +16,7 @@ import saviing.bank.account.domain.vo.AccountNumber;
 import saviing.bank.account.domain.vo.BasisPoints;
 import saviing.bank.account.domain.vo.MoneyWon;
 import saviing.bank.account.domain.vo.ProductId;
+import saviing.bank.account.domain.vo.TermPeriod;
 import saviing.bank.account.exception.InsufficientBalanceException;
 import saviing.bank.account.exception.InvalidAccountStateException;
 import saviing.bank.account.exception.InvalidAmountException;
@@ -41,10 +41,11 @@ public class Account {
     private Long customerId;
     private ProductId productId;
     private CompoundingType compoundingType = CompoundingType.DAILY;
-    private AccountId payoutAccountId;
-    private MoneyWon goalAmount;
-    private Short termMonths;
-    private LocalDate maturityDate;
+    // 적금 전용 필드들 (자유입출금은 null)
+    private AccountNumber maturityWithdrawalAccount;  // 만기 시 출금계좌
+    private MoneyWon targetAmount;                    // 목표금액
+    private TermPeriod termPeriod;                    // 적금 기간 (26주 등)
+    private LocalDate maturityDate;                   // 만기일
     private AccountStatus status = AccountStatus.ACTIVE;
     private Instant openedAt;
     private Instant closedAt;
@@ -100,9 +101,9 @@ public class Account {
         @NonNull Long customerId,
         @NonNull ProductId productId,
         @NonNull CompoundingType compoundingType,
-        AccountId payoutAccountId,
-        MoneyWon goalAmount,
-        Short termMonths,
+        AccountNumber maturityWithdrawalAccount,
+        MoneyWon targetAmount,
+        TermPeriod termPeriod,
         LocalDate maturityDate,
         @NonNull AccountStatus status,
         @NonNull Instant openedAt,
@@ -122,9 +123,9 @@ public class Account {
         account.customerId = customerId;
         account.productId = productId;
         account.compoundingType = compoundingType;
-        account.payoutAccountId = payoutAccountId;
-        account.goalAmount = goalAmount;
-        account.termMonths = termMonths;
+        account.maturityWithdrawalAccount = maturityWithdrawalAccount;
+        account.targetAmount = targetAmount;
+        account.termPeriod = termPeriod;
         account.maturityDate = maturityDate;
         account.status = status;
         account.openedAt = openedAt;
@@ -348,5 +349,54 @@ public class Account {
         this.updatedAt = Instant.now();
 
         return appliedInterest;
+    }
+
+    /**
+     * 적금 설정을 추가합니다 (계좌 생성 시 사용).
+     *
+     * @param targetAmount 목표금액
+     * @param termPeriod 적금 기간
+     * @param maturityWithdrawalAccount 만기 시 출금계좌 (선택사항)
+     * @param now 현재 시점
+     */
+    public void setSavingsSettings(
+        @NonNull MoneyWon targetAmount,
+        @NonNull TermPeriod termPeriod,
+        AccountNumber maturityWithdrawalAccount,
+        @NonNull Instant now
+    ) {
+        this.targetAmount = targetAmount;
+        this.termPeriod = termPeriod;
+        this.maturityWithdrawalAccount = maturityWithdrawalAccount;
+
+        // 만기일 계산 (개설일 + termPeriod)
+        this.maturityDate = this.openedAt.atZone(java.time.ZoneId.systemDefault())
+            .toLocalDate()
+            .plusDays(termPeriod.toDays());
+
+        this.updatedAt = now;
+    }
+
+    /**
+     * 적금의 목표 달성률을 계산합니다.
+     *
+     * @return 목표 대비 현재 잔액 비율 (0.0 ~ 1.0 이상)
+     */
+    public BigDecimal getTargetAchievementRate() {
+        if (targetAmount == null || targetAmount.isZero()) {
+            return BigDecimal.ZERO;
+        }
+
+        return BigDecimal.valueOf(balance.amount())
+            .divide(BigDecimal.valueOf(targetAmount.amount()), 4, RoundingMode.HALF_UP);
+    }
+
+    /**
+     * 적금 계좌인지 확인합니다.
+     *
+     * @return 적금 계좌이면 true
+     */
+    public boolean isSavingsAccount() {
+        return targetAmount != null && termPeriod != null;
     }
 }

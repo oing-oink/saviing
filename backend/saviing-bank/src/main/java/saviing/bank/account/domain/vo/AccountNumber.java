@@ -1,14 +1,12 @@
 package saviing.bank.account.domain.vo;
 
-import java.util.Objects;
+import lombok.NonNull;
 
-public record AccountNumber(String value) {
+public record AccountNumber(@NonNull String value) {
     
     private static final String VALID_PATTERN = "^[0-9]{1,32}$";
     
     public AccountNumber {
-        Objects.requireNonNull(value, "계좌번호는 필수입니다");
-        
         if (value.trim().isEmpty()) {
             throw new IllegalArgumentException("계좌번호는 공백일 수 없습니다");
         }

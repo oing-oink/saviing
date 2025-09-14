@@ -5,6 +5,14 @@ import lombok.Getter;
 import lombok.NonNull;
 import saviing.bank.account.domain.model.TermUnit;
 
+/**
+ * 금융상품의 기간을 나타내는 값 객체
+ *
+ * 기간 값과 단위를 함께 관리하여 타입 안전성을 보장하며,
+ * 다양한 기간 단위 간의 변환과 비교 기능을 제공합니다.
+ * 예: 26주, 12개월, 2년 등의 기간을 표현
+ */
+
 @Getter
 @EqualsAndHashCode
 public class TermPeriod {

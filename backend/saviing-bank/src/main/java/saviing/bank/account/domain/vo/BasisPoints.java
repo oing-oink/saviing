@@ -24,7 +24,7 @@ public record BasisPoints(short value) {
     }
     
     public BigDecimal toPercent() {
-        return BigDecimal.valueOf(value).divide(BigDecimal.valueOf(10000), 6, RoundingMode.HALF_EVEN);
+        return BigDecimal.valueOf(value).divide(BigDecimal.valueOf(100), 3, RoundingMode.HALF_EVEN);
     }
     
     public BigDecimal toDecimal() {
