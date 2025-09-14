@@ -137,6 +137,8 @@ cmake-build-*/
 
 # IntelliJ
 out/
+!saviing-bank/src/**/out/
+!saviing-game/src/**/out/
 
 # mpeltonen/sbt-idea plugin
 .idea_modules/
