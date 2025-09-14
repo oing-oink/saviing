@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PAGE_PATH } from '@/shared/constants/path';
 import GameBackground from '@/features/game/shared/components/GameBackground';
+import Coin from '@/features/game/shared/components/Coin';
 
 const DecoPage = () => {
   const navigate = useNavigate();
@@ -31,7 +32,7 @@ const DecoPage = () => {
     <div className="game relative flex h-screen flex-col overflow-hidden font-galmuri">
       <GameBackground />
       <div className="relative z-10 flex h-full flex-col">
-        <div className="mt-4 flex items-center justify-between p-4">
+        <div className="relative z-10 mt-4 flex items-center justify-between p-4">
           <button
             onClick={() => {
               navigate(PAGE_PATH.GAME);
@@ -40,6 +41,7 @@ const DecoPage = () => {
           >
             <img src={backButton} alt="back" className="h-10 w-10" />
           </button>
+          <Coin />
           <button
             onClick={() => {
               navigate(PAGE_PATH.SHOP);
@@ -54,10 +56,10 @@ const DecoPage = () => {
           <div className="relative">
             <Room />
           </div>
-          <div className="my-2 text-center">
+          <div className="relative z-10 my-2 text-center">
             <button
               onClick={handleSaveClick}
-              className="focus:ring-opacity-50 rounded-lg bg-primary px-8 py-2 text-xl font-bold tracking-widest text-white shadow-lg focus:ring-1 focus:ring-primary focus:outline-none active:scale-95 active:brightness-90"
+              className="rounded-lg bg-primary px-8 py-2 text-xl font-bold tracking-widest text-white shadow-lg focus:ring-1 focus:ring-primary focus:outline-none active:scale-95 active:brightness-90"
             >
               SAVE
             </button>
