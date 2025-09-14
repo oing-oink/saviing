@@ -6,6 +6,19 @@ import {
 import { useSpriteAnimation } from '@/features/game/pet/hooks/useSpriteAnimation';
 import { cn } from '@/lib/utils';
 
+/**
+ * 고양이 스프라이트 애니메이션을 렌더링하는 컴포넌트
+ *
+ * 스프라이트 시트를 사용하여 프레임 기반 애니메이션을 구현합니다.
+ * 배경 이미지의 position을 조작하여 각 프레임을 순차적으로 표시합니다.
+ *
+ * @param props - 스프라이트 컴포넌트의 props
+ * @param props.petId - 펫의 고유 식별자 (스프라이트 경로 결정에 사용)
+ * @param props.currentAnimation - 현재 재생할 애니메이션 타입
+ * @param props.className - 추가적인 CSS 클래스명
+ * @param props.onAnimationComplete - 애니메이션 완료 시 호출되는 콜백 함수
+ * @returns 스프라이트 애니메이션이 적용된 div 엘리먼트
+ */
 const CatSprite = ({
   petId,
   currentAnimation,

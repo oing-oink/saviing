@@ -50,7 +50,6 @@ const GamePage = () => {
               <PopoverContent
                 side="top"
                 align="center"
-                sideOffset={0}
                 className="w-screen max-w-sm p-0"
               >
                 <PetStatusCard petId={currentPetId} />

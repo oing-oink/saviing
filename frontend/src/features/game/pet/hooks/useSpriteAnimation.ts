@@ -4,12 +4,30 @@ import {
   type CatAnimationType,
 } from '@/features/game/pet/data/catAnimations';
 
+/**
+ * 스프라이트 애니메이션 훅의 props 타입
+ */
 interface UseSpriteAnimationProps {
+  /** 스프라이트 이미지 파일의 경로 */
   spritePath: string;
+  /** 현재 재생할 애니메이션 타입 */
   currentAnimation: CatAnimationType;
+  /** 애니메이션 완료 시 호출되는 콜백 함수 */
   onAnimationComplete?: (animation: CatAnimationType) => void;
 }
 
+/**
+ * 스프라이트 시트를 사용한 프레임 기반 애니메이션을 관리하는 커스텀 훅
+ *
+ * 이미지 로드, 프레임 계산, 애니메이션 타이머, 프레임 전환을 자동으로 처리합니다.
+ * 각 애니메이션의 설정(프레임 수, 지속 시간, 반복 여부)에 따라 동작합니다.
+ *
+ * @param props - 스프라이트 애니메이션 설정
+ * @param props.spritePath - 스프라이트 이미지 파일 경로
+ * @param props.currentAnimation - 현재 애니메이션 타입
+ * @param props.onAnimationComplete - 애니메이션 완료 콜백
+ * @returns 현재 프레임, 프레임 크기, 로드 상태 정보
+ */
 export const useSpriteAnimation = ({
   spritePath,
   currentAnimation,
