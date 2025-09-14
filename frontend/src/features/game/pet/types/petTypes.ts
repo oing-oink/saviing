@@ -28,7 +28,7 @@ export interface PetInventory {
 /**
  * 펫 애니메이션 상태 타입
  */
-export type PetAnimationState = 
+export type PetAnimationState =
   | 'idle'
   | 'idle2'
   | 'sitting'

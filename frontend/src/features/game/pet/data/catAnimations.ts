@@ -1,6 +1,6 @@
 export interface AnimationConfig {
   frames: number;
-  duration: number; // ms per frame
+  duration: number;
   loop?: boolean;
 }
 
@@ -30,12 +30,12 @@ export const CAT_ANIMATIONS: CatAnimations = {
   sitting: {
     frames: 3,
     duration: 200,
-    loop: false,
+    loop: true,
   },
   liking: {
     frames: 18,
     duration: 100,
-    loop: false,
+    loop: true,
   },
   run: {
     frames: 7,
@@ -45,7 +45,7 @@ export const CAT_ANIMATIONS: CatAnimations = {
   jump: {
     frames: 13,
     duration: 60,
-    loop: false,
+    loop: true,
   },
   sleep: {
     frames: 3,
@@ -77,6 +77,6 @@ export const getAnimationFileName = (animation: CatAnimationType): string => {
     jump: 'Jump.png',
     sleep: 'Sleep.png',
   };
-  
+
   return fileNames[animation];
 };
