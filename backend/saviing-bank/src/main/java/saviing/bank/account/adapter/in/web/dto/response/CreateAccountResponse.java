@@ -15,57 +15,73 @@ import saviing.bank.account.application.port.in.result.CreateAccountResult;
 public record CreateAccountResponse(
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     Long accountId,
-    
+
     String accountNumber,
-    
+
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     Long customerId,
-    
-    String productType,
+
+    ProductInfo product,
     String compoundingType,
-    
+
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     Long payoutAccountId,
-    
+
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     Long goalAmount,
-    
+
     Short termMonths,
     LocalDate maturityDate,
     String status,
-    
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, timezone = "UTC")
     Instant openedAt,
-    
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, timezone = "UTC")
     Instant closedAt,
-    
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, timezone = "UTC")
     Instant lastAccrualAt,
-    
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, timezone = "UTC")
     Instant lastRateChangeAt,
-    
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, timezone = "UTC")
     Instant createdAt,
-    
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, timezone = "UTC")
     Instant updatedAt,
-    
+
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     Long balance,
-    
+
     BigDecimal interestAccrued,
     BigDecimal baseRatePercent,
     BigDecimal bonusRatePercent,
     BigDecimal totalRatePercent
 ) {
+
+    @Builder
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public record ProductInfo(
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
+        Long id,
+        String name,
+        String code,
+        String category
+    ) {}
+    
     public static CreateAccountResponse from(CreateAccountResult result) {
         return CreateAccountResponse.builder()
             .accountId(result.accountId())
             .accountNumber(result.accountNumber())
             .customerId(result.customerId())
-            .productType(result.productType())
+            .product(ProductInfo.builder()
+                .id(result.product().id())
+                .name(result.product().name())
+                .code(result.product().code())
+                .category(result.product().category())
+                .build())
             .compoundingType(result.compoundingType())
             .payoutAccountId(result.payoutAccountId())
             .goalAmount(result.goalAmount())

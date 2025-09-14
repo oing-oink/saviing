@@ -25,16 +25,19 @@ public class AccountService implements CreateAccountUseCase {
     
     @Override
     public CreateAccountResult createAccount(CreateAccountCommand command) {
+        // 상품 존재 여부 검증 및 상품 정보 조회
+        var product = productService.getProduct(command.productId());
+
         AccountNumber accountNumber = generateAccountNumberPort.generateUniqueAccountNumber();
 
         Account account = Account.open(
             accountNumber,
             command.customerId(),
-            productService.getProduct(command.productId()),
+            command.productId(),
             Instant.now()
         );
 
         Account savedAccount = saveAccountPort.save(account);
-        return CreateAccountResult.from(savedAccount);
+        return CreateAccountResult.from(savedAccount, product);
     }
 }

@@ -16,6 +16,7 @@ import saviing.bank.account.domain.vo.AccountId;
 import saviing.bank.account.domain.vo.AccountNumber;
 import saviing.bank.account.domain.vo.BasisPoints;
 import saviing.bank.account.domain.vo.MoneyWon;
+import saviing.bank.account.domain.vo.ProductId;
 import saviing.bank.account.exception.InsufficientBalanceException;
 import saviing.bank.account.exception.InvalidAccountStateException;
 import saviing.bank.account.exception.InvalidAmountException;
@@ -38,7 +39,7 @@ public class Account {
     private AccountId id;
     private AccountNumber accountNumber;
     private Long customerId;
-    private Product product;
+    private ProductId productId;
     private CompoundingType compoundingType = CompoundingType.DAILY;
     private AccountId payoutAccountId;
     private MoneyWon goalAmount;
@@ -59,12 +60,12 @@ public class Account {
     private Account(
         @NonNull AccountNumber accountNumber,
         @NonNull Long customerId,
-        @NonNull Product product,
+        @NonNull ProductId productId,
         @NonNull Instant now
     ) {
         this.accountNumber = accountNumber;
         this.customerId = customerId;
-        this.product = product;
+        this.productId = productId;
         this.openedAt = now;
         this.createdAt = now;
         this.updatedAt = now;
@@ -77,17 +78,66 @@ public class Account {
      *
      * @param accountNumber 계좌번호
      * @param customerId 고객 ID
-     * @param product 상품
+     * @param productId 상품 ID
      * @param openedAt 개설 시점
      * @return 개설된 계좌
      */
     public static Account open(
         @NonNull AccountNumber accountNumber,
         @NonNull Long customerId,
-        @NonNull Product product,
+        @NonNull ProductId productId,
         @NonNull Instant openedAt
     ) {
-        return new Account(accountNumber, customerId, product, openedAt);
+        return new Account(accountNumber, customerId, productId, openedAt);
+    }
+
+    /**
+     * 기존 계좌 데이터로부터 계좌를 복원합니다.
+     */
+    public static Account restore(
+        @NonNull AccountId id,
+        @NonNull AccountNumber accountNumber,
+        @NonNull Long customerId,
+        @NonNull ProductId productId,
+        @NonNull CompoundingType compoundingType,
+        AccountId payoutAccountId,
+        MoneyWon goalAmount,
+        Short termMonths,
+        LocalDate maturityDate,
+        @NonNull AccountStatus status,
+        @NonNull Instant openedAt,
+        Instant closedAt,
+        @NonNull Instant lastAccrualTs,
+        @NonNull Instant lastRateChangeAt,
+        @NonNull Instant createdAt,
+        @NonNull Instant updatedAt,
+        @NonNull MoneyWon balance,
+        @NonNull BigDecimal interestAccrued,
+        @NonNull BasisPoints baseRate,
+        @NonNull BasisPoints bonusRate
+    ) {
+        Account account = new Account();
+        account.id = id;
+        account.accountNumber = accountNumber;
+        account.customerId = customerId;
+        account.productId = productId;
+        account.compoundingType = compoundingType;
+        account.payoutAccountId = payoutAccountId;
+        account.goalAmount = goalAmount;
+        account.termMonths = termMonths;
+        account.maturityDate = maturityDate;
+        account.status = status;
+        account.openedAt = openedAt;
+        account.closedAt = closedAt;
+        account.lastAccrualTs = lastAccrualTs;
+        account.lastRateChangeAt = lastRateChangeAt;
+        account.createdAt = createdAt;
+        account.updatedAt = updatedAt;
+        account.balance = balance;
+        account.interestAccrued = interestAccrued;
+        account.baseRate = baseRate;
+        account.bonusRate = bonusRate;
+        return account;
     }
     
     /**

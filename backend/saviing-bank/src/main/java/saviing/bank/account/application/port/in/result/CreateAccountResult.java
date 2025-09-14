@@ -7,13 +7,14 @@ import java.time.Instant;
 import java.time.LocalDate;
 
 import saviing.bank.account.domain.model.Account;
+import saviing.bank.account.domain.model.Product;
 
 @Builder
 public record CreateAccountResult(
     Long accountId,
     String accountNumber,
     Long customerId,
-    String productType,
+    ProductInfo product,
     String compoundingType,
     Long payoutAccountId,
     Long goalAmount,
@@ -32,12 +33,26 @@ public record CreateAccountResult(
     BigDecimal bonusRatePercent,
     BigDecimal totalRatePercent
 ) {
-    public static CreateAccountResult from(Account account) {
+
+    @Builder
+    public record ProductInfo(
+        Long id,
+        String name,
+        String code,
+        String category
+    ) {}
+    
+    public static CreateAccountResult from(Account account, Product product) {
         return CreateAccountResult.builder()
             .accountId(account.getId() != null ? account.getId().value() : null)
             .accountNumber(account.getAccountNumber().value())
             .customerId(account.getCustomerId())
-            .productType(account.getProduct().getName())
+            .product(ProductInfo.builder()
+                .id(product.getId().value())
+                .name(product.getName())
+                .code(product.getCode())
+                .category(product.getCategory().getDescription())
+                .build())
             .compoundingType(account.getCompoundingType().name())
             .payoutAccountId(account.getPayoutAccountId() != null ? account.getPayoutAccountId().value() : null)
             .goalAmount(account.getGoalAmount() != null ? account.getGoalAmount().amount() : null)
