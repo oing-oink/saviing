@@ -8,6 +8,7 @@ import ColorTestPage from '@/pages/ColorTestPage';
 import { PAGE_PATH } from '@/shared/constants/path';
 import ShopPage from '@/pages/ShopPage';
 import GachaPage from '@/pages/GachaPage';
+import DecoPage from '@/pages/DecoPage';
 
 export const router = createBrowserRouter([
   { path: PAGE_PATH.HOME, element: <HomePage /> },
@@ -16,6 +17,7 @@ export const router = createBrowserRouter([
   { path: PAGE_PATH.GAME, element: <GamePage /> },
   { path: PAGE_PATH.SHOP, element: <ShopPage /> },
   { path: PAGE_PATH.GACHA, element: <GachaPage /> },
+  { path: PAGE_PATH.DECO, element: <DecoPage /> },
   { path: PAGE_PATH.NOT_FOUND, element: <NotFoundPage /> },
   { path: PAGE_PATH.COLORTEST, element: <ColorTestPage /> },
 ]);

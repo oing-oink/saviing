@@ -23,7 +23,7 @@ const Inventory = ({ items }: InventoryProps) => {
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`rounded-t-xl px-4 py-2 text-sm ${
+            className={`rounded-t-xl px-4 py-2 text-sm active:scale-95 active:brightness-90 ${
               activeTab === tab
                 ? 'border-t border-r border-l bg-secondary font-semibold'
                 : 'bg-primary text-gray-600'
