@@ -22,10 +22,10 @@ import saviing.game.character.application.dto.result.VoidResult;
 import saviing.game.character.application.event.DomainEventPublisher;
 import saviing.game.character.application.mapper.CharacterResultMapper;
 import saviing.game.character.domain.exception.CharacterNotFoundException;
+import saviing.game.character.domain.exception.DuplicateActiveCharacterException;
 import saviing.game.character.domain.model.aggregate.Character;
 import saviing.game.character.domain.model.vo.CharacterId;
 import saviing.game.character.domain.repository.CharacterRepository;
-import saviing.game.character.domain.service.CharacterDomainService;
 
 import java.util.List;
 
@@ -40,7 +40,6 @@ import java.util.List;
 public class CharacterApplicationService {
 
     private final CharacterRepository characterRepository;
-    private final CharacterDomainService characterDomainService;
     private final DomainEventPublisher domainEventPublisher;
     private final CharacterResultMapper resultMapper;
 
@@ -56,7 +55,11 @@ public class CharacterApplicationService {
     public CharacterCreatedResult createCharacter(CreateCharacterCommand command) {
         log.info("Creating character for customer: {}", command.customerId().value());
 
-        Character character = characterDomainService.createCharacter(command.customerId());
+        if (characterRepository.findActiveCharacterByCustomerId(command.customerId()).isPresent()) {
+            throw new DuplicateActiveCharacterException(command.customerId());
+        }
+
+        Character character = Character.create(command.customerId());
         Character savedCharacter = characterRepository.save(character);
         publishDomainEvents(savedCharacter);
 
