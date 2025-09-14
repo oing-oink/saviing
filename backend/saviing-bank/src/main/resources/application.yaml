@@ -10,10 +10,13 @@ api:
 spring:
   application:
     name: BANK
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}
   config:
     import:
+      - optional:file:.env
+      - optional:file:./saviing-bank/.env
       - optional:file:../config/bank/.env[.properties]
-
   devtools:
     livereload:
       enabled: true
@@ -21,6 +24,13 @@ spring:
       enabled: true
       additional-paths:
         - src/main/resources
+
+# OAuth2 설정
+oauth2:
+  google:
+    client-id: ${OAUTH2_GOOGLE_CLIENT_ID}
+    client-secret: ${OAUTH2_GOOGLE_CLIENT_SECRET}
+    redirect-uri: ${OAUTH2_GOOGLE_REDIRECT_URI}
 
 logging:
   config: file:${LOGGING_CONFIG_PATH:../config/common/logback-spring.xml}

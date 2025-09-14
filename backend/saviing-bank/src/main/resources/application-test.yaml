@@ -6,6 +6,13 @@ spring:
     config:
       import: ""
 
+# OAuth2 테스트용 설정 (더미 값)
+oauth2:
+  google:
+    client-id: test-client-id
+    client-secret: test-client-secret
+    redirect-uri: http://localhost:5173/auth/callback
+
     devtools:
       livereload:
         enabled: false
