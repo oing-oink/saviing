@@ -5,9 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import saviing.bank.account.domain.exception.InsufficientBalanceException;
-import saviing.bank.account.domain.exception.InvalidAccountStateException;
-import saviing.bank.account.domain.exception.InvalidAmountException;
 import saviing.bank.account.domain.model.Account;
 import saviing.bank.account.domain.model.AccountStatus;
 import saviing.bank.account.domain.model.ProductType;
@@ -15,6 +12,9 @@ import saviing.bank.account.domain.service.InterestAccrualService;
 import saviing.bank.account.domain.vo.AccountNumber;
 import saviing.bank.account.domain.vo.BasisPoints;
 import saviing.bank.account.domain.vo.MoneyWon;
+import saviing.bank.account.exception.InsufficientBalanceException;
+import saviing.bank.account.exception.InvalidAccountStateException;
+import saviing.bank.account.exception.InvalidAmountException;
 
 import java.math.BigDecimal;
 import java.time.Instant;

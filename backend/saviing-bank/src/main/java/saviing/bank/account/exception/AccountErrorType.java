@@ -1,0 +1,26 @@
+package saviing.bank.account.exception;
+
+public enum AccountErrorType {
+    
+    // 잔액 관련 에러
+    INSUFFICIENT_BALANCE("잔액이 부족합니다"),
+    
+    // 계좌 상태 관련 에러
+    INVALID_ACCOUNT_STATE("계좌 상태가 유효하지 않습니다"),
+    
+    // 금액 관련 에러
+    INVALID_AMOUNT("유효하지 않은 금액입니다"),
+    
+    // 금리 관련 에러
+    INVALID_RATE("유효하지 않은 금리입니다");
+    
+    private final String message;
+    
+    AccountErrorType(String message) {
+        this.message = message;
+    }
+    
+    public String getMessage() {
+        return message;
+    }
+}

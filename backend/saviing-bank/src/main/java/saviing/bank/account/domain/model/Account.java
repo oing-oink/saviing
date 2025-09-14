@@ -1,262 +1,302 @@
 package saviing.bank.account.domain.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Map;
 import java.util.Objects;
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import saviing.bank.account.domain.exception.InsufficientBalanceException;
-import saviing.bank.account.domain.exception.InvalidAccountStateException;
-import saviing.bank.account.domain.exception.InvalidAmountException;
+import lombok.NonNull;
 import saviing.bank.account.domain.service.InterestAccrualService;
+import saviing.bank.account.domain.vo.AccountId;
 import saviing.bank.account.domain.vo.AccountNumber;
 import saviing.bank.account.domain.vo.BasisPoints;
 import saviing.bank.account.domain.vo.MoneyWon;
+import saviing.bank.account.exception.InsufficientBalanceException;
+import saviing.bank.account.exception.InvalidAccountStateException;
+import saviing.bank.account.exception.InvalidAmountException;
 
-@Entity
-@Table(name = "account")
+/**
+ * 계좌 도메인의 애그리거트 루트(Aggregate Root)입니다.
+ *
+ * 계좌와 관련된 모든 비즈니스 로직과 불변성을 보장하며,
+ * 외부에서 계좌 도메인에 접근할 때의 진입점 역할을 합니다.
+ *
+ * 주요 기능:
+ * - 계좌 개설, 입금, 출금, 동결/해제, 해지
+ * - 금리 변경 및 이자 계산
+ * - 계좌 상태 관리 및 비즈니스 룰 검증
+ */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Account {
     
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "account_id")
-    private Long id;
-    
-    @Column(name = "account_number", length = 32, nullable = false, unique = true)
-    private String accountNumber;
-    
-    @Column(name = "customer_id", nullable = false)
+    private AccountId id;
+    private AccountNumber accountNumber;
     private Long customerId;
-    
-    @Enumerated(EnumType.STRING)
-    @Column(name = "product_type", nullable = false)
     private ProductType productType;
-    
-    @Enumerated(EnumType.STRING)
-    @Column(name = "compounding_type", nullable = false)
     private CompoundingType compoundingType = CompoundingType.DAILY;
-    
-    @Column(name = "payout_account_id")
-    private Long payoutAccountId;
-    
-    @Column(name = "goal_amount")
-    private Long goalAmount;
-    
-    @Column(name = "term_months")
+    private AccountId payoutAccountId;
+    private MoneyWon goalAmount;
     private Short termMonths;
-    
-    @Column(name = "maturity_date")
     private LocalDate maturityDate;
-    
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
     private AccountStatus status = AccountStatus.ACTIVE;
-    
-    @Column(name = "opened_at", nullable = false)
     private Instant openedAt;
-    
-    @Column(name = "closed_at")
     private Instant closedAt;
-    
-    @Column(name = "last_accrual_ts")
     private Instant lastAccrualTs;
-    
-    @Column(name = "last_rate_change_at")
     private Instant lastRateChangeAt;
-    
-    @Column(name = "created_at", nullable = false)
     private Instant createdAt;
-    
-    @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
-    
-    @Column(name = "balance", nullable = false)
-    private Long balance = 0L;
-    
-    @Column(name = "interest_accrued", precision = 20, scale = 6, nullable = false)
+    private MoneyWon balance = MoneyWon.zero();
     private BigDecimal interestAccrued = BigDecimal.ZERO;
-    
-    @Column(name = "base_rate_bps", nullable = false)
-    private Short baseRateBps = 0;
-    
-    @Column(name = "bonus_rate_bps", nullable = false)
-    private Short bonusRateBps = 0;
+    private BasisPoints baseRate = BasisPoints.zero();
+    private BasisPoints bonusRate = BasisPoints.zero();
     
     private Account(
-        AccountNumber accountNumber,
-        Long customerId, 
-        ProductType productType,
-        Instant now
+        @NonNull AccountNumber accountNumber,
+        @NonNull Long customerId, 
+        @NonNull ProductType productType,
+        @NonNull Instant now
     ) {
-        this.accountNumber = Objects.requireNonNull(accountNumber, "계좌번호는 필수입니다").value();
-        this.customerId = Objects.requireNonNull(customerId, "고객ID는 필수입니다");
-        this.productType = Objects.requireNonNull(productType, "상품유형은 필수입니다");
-        this.openedAt = Objects.requireNonNull(now, "개설시간은 필수입니다");
+        this.accountNumber = accountNumber;
+        this.customerId = customerId;
+        this.productType = productType;
+        this.openedAt = now;
         this.createdAt = now;
         this.updatedAt = now;
         this.lastAccrualTs = now;
         this.lastRateChangeAt = now;
     }
     
+    /**
+     * 새로운 계좌를 개설합니다.
+     *
+     * @param accountNumber 계좌번호
+     * @param customerId 고객 ID
+     * @param productType 상품 유형
+     * @param openedAt 개설 시점
+     * @return 개설된 계좌
+     */
     public static Account open(
-        AccountNumber accountNumber,
-        Long customerId,
-        ProductType productType,
-        Instant openedAt
+        @NonNull AccountNumber accountNumber,
+        @NonNull Long customerId,
+        @NonNull ProductType productType,
+        @NonNull Instant openedAt
     ) {
         return new Account(accountNumber, customerId, productType, openedAt);
     }
     
-    public MoneyWon getBalance() {
-        return MoneyWon.of(this.balance);
-    }
-    
-    public BasisPoints getBaseRate() {
-        return BasisPoints.of(this.baseRateBps);
-    }
-    
-    public BasisPoints getBonusRate() {
-        return BasisPoints.of(this.bonusRateBps);
-    }
-    
+    /**
+     * 기본 금리와 보너스 금리를 합친 총 금리를 반환합니다.
+     *
+     * @return 총 금리 (기본 금리 + 보너스 금리)
+     */
     public BasisPoints getTotalRate() {
-        return getBaseRate().add(getBonusRate());
+        return this.baseRate.add(this.bonusRate);
     }
     
-    public AccountNumber getAccountNumber() {
-        return new AccountNumber(this.accountNumber);
-    }
-    
-    public void deposit(MoneyWon amount) {
-        Objects.requireNonNull(amount, "입금액은 필수입니다");
-        
+    /**
+     * 계좌에 입금합니다.
+     *
+     * @param amount 입금할 금액
+     * @throws InvalidAmountException 0원 입금 시도 시
+     * @throws InvalidAccountStateException 거래 불가능한 계좌 상태일 시
+     */
+    public void deposit(@NonNull MoneyWon amount) {
         if (amount.isZero()) {
-            throw InvalidAmountException.zeroAmount();
+            throw new InvalidAmountException(Map.of("amount", amount.amount()));
         }
-        
+
         if (!status.canTransact()) {
-            throw new InvalidAccountStateException(status, "입금");
+            throw new InvalidAccountStateException(Map.of(
+                "accountNumber", accountNumber,
+                "currentStatus", status
+            ));
         }
-        
-        this.balance += amount.amount();
+
+        this.balance = this.balance.add(amount);
         this.updatedAt = Instant.now();
     }
     
-    public void withdraw(MoneyWon amount) {
-        Objects.requireNonNull(amount, "출금액은 필수입니다");
-        
+    /**
+     * 계좌에서 출금합니다.
+     *
+     * @param amount 출금할 금액
+     * @throws InvalidAmountException 0원 출금 시도 시
+     * @throws InvalidAccountStateException 거래 불가능한 계좌 상태일 시
+     * @throws InsufficientBalanceException 잔액이 부족할 시
+     */
+    public void withdraw(@NonNull MoneyWon amount) {
         if (amount.isZero()) {
-            throw InvalidAmountException.zeroAmount();
+            throw new InvalidAmountException(Map.of("amount", amount.amount()));
         }
-        
+
         if (!status.canTransact()) {
-            throw new InvalidAccountStateException(status, "출금");
+            throw new InvalidAccountStateException(Map.of(
+                "accountNumber", accountNumber,
+                "currentStatus", status
+            ));
         }
-        
-        MoneyWon currentBalance = MoneyWon.of(this.balance);
-        if (currentBalance.isLessThan(amount)) {
-            throw new InsufficientBalanceException(this.accountNumber, amount.amount(), this.balance);
+
+        if (this.balance.isLessThan(amount)) {
+            throw new InsufficientBalanceException(Map.of(
+                "accountNumber", this.accountNumber.value(),
+                "currentBalance", this.balance.amount(),
+                "requestAmount", amount.amount()
+            ));
         }
-        
-        this.balance -= amount.amount();
+
+        this.balance = this.balance.subtract(amount);
         this.updatedAt = Instant.now();
     }
     
+    /**
+     * 계좌를 동결 상태로 변경합니다.
+     *
+     * @throws InvalidAccountStateException 동결할 수 없는 계좌 상태일 시
+     */
     public void freeze() {
         if (!status.canFreeze()) {
-            throw new InvalidAccountStateException(status, "동결");
+            throw new InvalidAccountStateException(Map.of(
+                "accountNumber", accountNumber,
+                "currentStatus", status
+            ));
         }
-        
+
         this.status = AccountStatus.FROZEN;
         this.updatedAt = Instant.now();
     }
     
+    /**
+     * 계좌 동결을 해제하여 활성 상태로 변경합니다.
+     *
+     * @throws InvalidAccountStateException 동결 해제할 수 없는 계좌 상태일 시
+     */
     public void unfreeze() {
         if (!status.canUnfreeze()) {
-            throw new InvalidAccountStateException(status, "동결 해제");
+            throw new InvalidAccountStateException(Map.of(
+                "accountNumber", accountNumber,
+                "currentStatus", status
+            ));
         }
-        
+
         this.status = AccountStatus.ACTIVE;
         this.updatedAt = Instant.now();
     }
     
-    public void close(Instant closedAt) {
-        Objects.requireNonNull(closedAt, "해지시간은 필수입니다");
-        
+    /**
+     * 계좌를 해지합니다.
+     *
+     * @param closedAt 해지 시점
+     * @throws InvalidAccountStateException 해지할 수 없는 계좌 상태일 시
+     */
+    public void close(@NonNull Instant closedAt) {
         if (!status.canClose()) {
-            throw new InvalidAccountStateException(status, "해지");
+            throw new InvalidAccountStateException(Map.of(
+                "accountNumber", accountNumber,
+                "currentStatus", status
+            ));
         }
-        
+
         this.status = AccountStatus.CLOSED;
         this.closedAt = closedAt;
         this.updatedAt = Instant.now();
     }
     
-    public void changeRates(BasisPoints baseRate, BasisPoints bonusRate, Instant changedAt) {
-        Objects.requireNonNull(baseRate, "기본금리는 필수입니다");
-        Objects.requireNonNull(bonusRate, "보너스금리는 필수입니다");
-        Objects.requireNonNull(changedAt, "변경시간은 필수입니다");
-        
-        this.baseRateBps = baseRate.value();
-        this.bonusRateBps = bonusRate.value();
+    /**
+     * 계좌의 기본 금리와 보너스 금리를 변경합니다.
+     *
+     * @param baseRate 새로운 기본 금리
+     * @param bonusRate 새로운 보너스 금리
+     * @param changedAt 금리 변경 시점
+     */
+    public void changeRates(
+        @NonNull BasisPoints baseRate,
+        @NonNull BasisPoints bonusRate,
+        @NonNull Instant changedAt
+    ) {
+        this.baseRate = baseRate;
+        this.bonusRate = bonusRate;
+        this.lastRateChangeAt = changedAt;
+        this.updatedAt = Instant.now();
+    }
+
+    /**
+     * 계좌의 기본 금리만 변경합니다.
+     *
+     * @param baseRate 새로운 기본 금리
+     * @param changedAt 금리 변경 시점
+     */
+    public void changeBaseRate(@NonNull BasisPoints baseRate, @NonNull Instant changedAt) {
+        this.baseRate = baseRate;
+        this.lastRateChangeAt = changedAt;
+        this.updatedAt = Instant.now();
+    }
+
+    /**
+     * 계좌의 보너스 금리만 변경합니다.
+     *
+     * @param bonusRate 새로운 보너스 금리
+     * @param changedAt 금리 변경 시점
+     */
+    public void changeBonusRate(@NonNull BasisPoints bonusRate, @NonNull Instant changedAt) {
+        this.bonusRate = bonusRate;
         this.lastRateChangeAt = changedAt;
         this.updatedAt = Instant.now();
     }
     
-    public void accrueInterest(Instant asOf, InterestAccrualService accrualService) {
-        Objects.requireNonNull(asOf, "기준시간은 필수입니다");
-        Objects.requireNonNull(accrualService, "이자계산서비스는 필수입니다");
-        
-        if (this.balance <= 0) {
+    /**
+     * 이자를 계산하여 누적 이자에 추가합니다.
+     * 잔액이 0원인 경우 이자 계산을 생략합니다.
+     *
+     * @param asOf 이자 계산 기준 시점
+     * @param accrualService 이자 계산 서비스
+     */
+    public void accrueInterest(@NonNull Instant asOf, @NonNull InterestAccrualService accrualService) {
+        if (this.balance.isZero()) {
             this.lastAccrualTs = asOf;
             this.updatedAt = Instant.now();
             return;
         }
-        
+
         BigDecimal additionalInterest = accrualService.computeAccrual(
-            this.balance,
+            this.balance.amount(),
             this.interestAccrued,
-            getBaseRate(),
-            getBonusRate(),
+            this.baseRate,
+            this.bonusRate,
             this.compoundingType,
             this.lastAccrualTs,
             asOf
         );
-        
+
         this.interestAccrued = this.interestAccrued.add(additionalInterest);
         this.lastAccrualTs = asOf;
         this.updatedAt = Instant.now();
     }
     
+    /**
+     * 누적된 이자를 계좌 잔액에 반영합니다.
+     * 이월형 방식으로 정수 부분만 잔액에 추가하고, 소수점 이하는 다음 회차로 이월됩니다.
+     *
+     * @return 실제로 잔액에 반영된 이자 금액
+     */
     public MoneyWon applyAccruedInterest() {
         if (this.interestAccrued.compareTo(BigDecimal.ZERO) <= 0) {
             return MoneyWon.zero();
         }
-        
+
         // 이월형: floor(누적이자)만 지급, 소수점 이하는 이월
         long interestWon = this.interestAccrued.setScale(0, RoundingMode.FLOOR).longValue();
         MoneyWon appliedInterest = MoneyWon.of(interestWon);
-        
-        this.balance += interestWon;
+
+        this.balance = this.balance.add(MoneyWon.of(interestWon));
         this.interestAccrued = this.interestAccrued.subtract(BigDecimal.valueOf(interestWon));
         this.updatedAt = Instant.now();
-        
+
         return appliedInterest;
     }
 }
