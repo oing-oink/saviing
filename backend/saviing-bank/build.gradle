@@ -19,6 +19,9 @@ dependencies {
 
 	// JPA
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+	// MySQL
+	runtimeOnly 'com.mysql:mysql-connector-j'
 	
 	// OpenFeign
 	implementation("org.springframework.cloud:spring-cloud-starter-openfeign:4.3.0")
