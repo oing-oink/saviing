@@ -10,8 +10,25 @@ import {
   PopoverAnchor,
 } from '@/shared/components/ui/popover';
 import Room from '@/features/game/room/Room';
+import { useGameQuery } from '@/features/game/shared/query/useGameQuery';
+import { useGameStore } from '@/features/game/shared/store/useGameStore';
+import { useEffect } from 'react';
 
 const GamePage = () => {
+  // 캐릭터 ID 하드코딩
+  const characterId = 5;
+
+  // 게임 데이터 조회 및 스토어 관리
+  const { data: gameData, isLoading, error } = useGameQuery(characterId);
+  const { setGameData } = useGameStore();
+
+  // 게임 데이터가 로드되면 스토어에 저장
+  useEffect(() => {
+    if (gameData) {
+      setGameData(gameData);
+    }
+  }, [gameData, setGameData]);
+
   // TODO: API 연결 후 동적으로 관리
   const currentPetId = 7;
   const currentAnimation = 'idle' as const;
@@ -19,6 +36,11 @@ const GamePage = () => {
   // TODO: 나중에 동적으로 변경할 수 있도록 상태 관리 추가 예정
   // const [petPosition, setPetPosition] = useState({ x: 0, y: 0 });
   // const [currentAnimation, setCurrentAnimation] = useState<PetAnimationState>('idle');
+
+  // 로딩 중이거나 에러가 있는 경우 처리
+  if (isLoading || error) {
+    // 로딩/에러 상태에서도 기본 UI는 표시 (Coin 컴포넌트가 기본값 0을 표시)
+  }
 
   return (
     <div className="game safeArea relative flex h-dvh touch-none flex-col overflow-hidden font-galmuri">
