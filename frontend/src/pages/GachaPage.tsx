@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import catPaw from '@/assets/catPaw.png';
 import gachaMachine from '@/assets/gachaMachine.png';
 import coin from '@/assets/coin.png';
-import Coin from '@/features/game/shared/components/Coin';
 
 const GachaPage = () => {
   const navigate = useNavigate();

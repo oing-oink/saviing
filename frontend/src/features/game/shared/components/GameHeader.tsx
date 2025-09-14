@@ -12,7 +12,7 @@ import { PAGE_PATH } from '@/shared/constants/path';
 const GameHeader = () => {
   const navigate = useNavigate();
   return (
-    <div className="flex w-full justify-between items-center px-3 h-20">
+    <div className="flex h-20 w-full items-center justify-between px-3">
       <button onClick={() => navigate(PAGE_PATH.HOME)}>
         <img className="w-9 pt-5" src={closeButton} />
       </button>

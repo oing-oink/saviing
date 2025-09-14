@@ -1,7 +1,6 @@
 import Room from '@/features/game/room/Room';
 import Inventory from '@/features/game/shop/components/Inventory';
 import { mockInventoryItems } from '@/features/game/shop/mocks/inventoryMockData';
-import floor1stButton from '@/assets/game_button/floor1st.png';
 import { SaveModal } from '@/features/game/room/components/SaveModal';
 import { useState } from 'react';
 import GameBackground from '@/features/game/shared/components/GameBackground';
