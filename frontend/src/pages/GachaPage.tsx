@@ -12,7 +12,7 @@ const GachaPage = () => {
       {/* 상단 영역 */}
       <div className="flex items-end justify-between px-6">
         <button onClick={() => navigate(PAGE_PATH.SHOP)}>
-          <img className="w-8 pt-10" src={backButton} alt="" />
+          <img className="w-[70%] pt-10" src={backButton} alt="" />
         </button>
         <div className="text-3xl text-red-400">GACHA</div>
         <div className="px-4"></div>
@@ -31,9 +31,9 @@ const GachaPage = () => {
         <div>도전하겠냥?</div>
       </div>
 
-      <div className="flex justify-center pt-9">
-        <img src={coin} alt="" className="w-[30%]" />
-      </div>
+      <button className="mx-auto flex justify-center pt-9" onClick={()=>{navigate(PAGE_PATH.GACHA)}}>
+        <img src={coin} alt="" className="w-[70%]" />
+      </button>
       <div className="flex justify-center">
         <img src={catPaw} alt="" className="w-[85%] pt-15" />
       </div>
