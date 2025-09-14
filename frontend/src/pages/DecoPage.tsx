@@ -1,5 +1,5 @@
 import { Room } from '@/features/game/room/Room';
-import Inventory from '@/features/game/shop/components/inventory';
+import Inventory from '@/features/game/shop/components/Inventory';
 import { mockInventoryItems } from '@/features/game/shop/mocks/inventoryMockData';
 import backButton from '@/assets/game_button/backButton.png';
 import storeButton from '@/assets/game_button/storeButton.png';
