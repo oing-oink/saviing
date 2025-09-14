@@ -20,7 +20,7 @@ const GamePage = () => {
   // const [currentAnimation, setCurrentAnimation] = useState<PetAnimationState>('idle');
 
   return (
-    <div className="game safeArea relative flex h-dvh touch-none flex-col overflow-hidden font-galmuri">
+    <div className="game relative flex h-full flex-col font-galmuri">
       <GameBackground />
 
       <div className="relative flex h-full flex-col">
