@@ -9,11 +9,13 @@ const InventoryHud = () => {
   return (
     <div className="flex w-full justify-between px-3">
       <button onClick={() => navigate(PAGE_PATH.GAME)}>
-        <img className="w-8 pt-10" src={backButton} />
+        <img className="w-10 pt-10" src={backButton} />
       </button>
-      <Coin />
+      <div className="pt-9">
+        <Coin />
+      </div>
       <button onClick={() => navigate(PAGE_PATH.GACHA)}>
-        <img className="w-8 pt-10" src={gachaButton} />
+        <img className="w-10 pt-10" src={gachaButton} />
       </button>
     </div>
   );

@@ -9,25 +9,21 @@ const Coin = () => {
   return (
     <div className="flex items-end justify-center gap-3">
       {/* Coin */}
-      <div className="relative h-16 w-24">
-        <img
-          src={coin}
-          alt="coin"
-          className="h-full w-full object-contain object-bottom"
-        />
-        <span className="absolute inset-0 flex items-end justify-end pr-2 pb-1 text-lg font-bold text-gray-600">
+      <div className="relative flex h-16 w-28 items-center">
+        <img src={coin} alt="coin" className="h-full w-auto object-contain" />
+        <span className="absolute right-4 bottom-4 text-lg font-bold text-gray-600">
           {coinAmount}
         </span>
       </div>
 
       {/* Fish Coin */}
-      <div className="relative h-16 w-24">
+      <div className="relative ml-1 flex h-16 w-28 items-center">
         <img
           src={fishCoin}
           alt="fish coin"
-          className="h-full w-full object-contain object-bottom"
+          className="-ml-2 h-full w-auto scale-105 object-contain"
         />
-        <span className="absolute inset-0 flex items-end justify-end pr-2 pb-1 text-lg font-bold text-gray-600">
+        <span className="absolute right-5 bottom-4 text-lg font-bold text-gray-600">
           {fishCoinAmount}
         </span>
       </div>
