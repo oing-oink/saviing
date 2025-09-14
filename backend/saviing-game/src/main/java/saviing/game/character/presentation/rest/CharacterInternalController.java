@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import saviing.common.response.ApiResult;
-import saviing.game.character.application.service.CharacterApplicationService;
+import saviing.game.character.application.service.CharacterCommandService;
 import saviing.game.character.presentation.dto.request.AddCoinsRequest;
 import saviing.game.character.presentation.dto.request.CompleteAccountConnectionRequest;
 import saviing.game.character.presentation.dto.request.HandleAccountTerminatedRequest;
@@ -25,7 +25,7 @@ import saviing.game.character.presentation.mapper.CharacterRequestMapper;
 @RequestMapping("/v1/internal/characters")
 public class CharacterInternalController implements CharacterInternalControllerInterface {
 
-    private final CharacterApplicationService characterApplicationService;
+    private final CharacterCommandService characterCommandService;
     private final CharacterRequestMapper requestMapper;
 
     @Override
@@ -33,7 +33,7 @@ public class CharacterInternalController implements CharacterInternalControllerI
                                                    @Valid @RequestBody CompleteAccountConnectionRequest request) {
         log.info("Completing account connection for character: {}, account: {}", characterId, request.accountId());
 
-        characterApplicationService.completeAccountConnection(
+        characterCommandService.completeAccountConnection(
             requestMapper.toCommand(characterId, request)
         );
 
@@ -46,7 +46,7 @@ public class CharacterInternalController implements CharacterInternalControllerI
         log.info("Adding coins to character: {}, coin: {}, fishCoin: {}",
                 characterId, request.coinAmount(), request.fishCoinAmount());
 
-        characterApplicationService.addCoins(
+        characterCommandService.addCoins(
             requestMapper.toCommand(characterId, request)
         );
 
@@ -59,7 +59,7 @@ public class CharacterInternalController implements CharacterInternalControllerI
         log.info("Handling account termination for character: {}, reason: {}",
                 characterId, request.terminationReason());
 
-        characterApplicationService.handleAccountTerminated(
+        characterCommandService.handleAccountTerminated(
             requestMapper.toCommand(characterId, request)
         );
 
@@ -70,7 +70,7 @@ public class CharacterInternalController implements CharacterInternalControllerI
     public ApiResult<Void> deactivateCharacter(@PathVariable Long characterId) {
         log.info("Deactivating character: {}", characterId);
 
-        characterApplicationService.deactivateCharacter(
+        characterCommandService.deactivateCharacter(
             requestMapper.toDeactivateCommand(characterId)
         );
 

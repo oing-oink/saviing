@@ -11,7 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 import saviing.common.response.ApiResult;
 import saviing.game.character.application.dto.result.CharacterCreatedResult;
 import saviing.game.character.application.dto.result.CharacterResult;
-import saviing.game.character.application.service.CharacterApplicationService;
+import saviing.game.character.application.service.CharacterCommandService;
+import saviing.game.character.application.service.CharacterQueryService;
 import saviing.game.character.presentation.dto.request.ConnectAccountRequest;
 import saviing.game.character.presentation.dto.request.CreateCharacterRequest;
 import saviing.game.character.presentation.dto.response.CharacterResponse;
@@ -29,7 +30,8 @@ import saviing.game.character.presentation.mapper.CharacterResponseMapper;
 @RequestMapping("/v1/games/characters")
 public class CharacterController implements CharacterControllerInterface {
 
-    private final CharacterApplicationService characterApplicationService;
+    private final CharacterCommandService characterCommandService;
+    private final CharacterQueryService characterQueryService;
     private final CharacterRequestMapper requestMapper;
     private final CharacterResponseMapper responseMapper;
 
@@ -37,7 +39,7 @@ public class CharacterController implements CharacterControllerInterface {
     public ApiResult<CharacterResponse> createCharacter(@Valid @RequestBody CreateCharacterRequest request) {
         log.info("Creating character for customer: {}", request.customerId());
 
-        CharacterCreatedResult result = characterApplicationService.createCharacter(
+        CharacterCreatedResult result = characterCommandService.createCharacter(
             requestMapper.toCommand(request)
         );
         CharacterResponse response = responseMapper.toResponse(result);
@@ -49,7 +51,7 @@ public class CharacterController implements CharacterControllerInterface {
     public ApiResult<CharacterResponse> getCharacter(@PathVariable Long characterId) {
         log.info("Getting character: {}", characterId);
 
-        CharacterResult result = characterApplicationService.getCharacter(
+        CharacterResult result = characterQueryService.getCharacter(
             requestMapper.toQuery(characterId)
         );
         CharacterResponse response = responseMapper.toResponse(result);
@@ -62,7 +64,7 @@ public class CharacterController implements CharacterControllerInterface {
                                         @Valid @RequestBody ConnectAccountRequest request) {
         log.info("Connecting account for character: {}, account: {}", characterId, request.accountId());
 
-        characterApplicationService.connectAccount(
+        characterCommandService.connectAccount(
             requestMapper.toCommand(characterId, request)
         );
 
@@ -73,7 +75,7 @@ public class CharacterController implements CharacterControllerInterface {
     public ApiResult<Void> cancelAccountConnection(@PathVariable Long characterId) {
         log.info("Canceling account connection for character: {}", characterId);
 
-        characterApplicationService.cancelAccountConnection(
+        characterCommandService.cancelAccountConnection(
             requestMapper.toCancelConnectionCommand(characterId)
         );
 
