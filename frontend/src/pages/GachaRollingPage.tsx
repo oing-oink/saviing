@@ -7,7 +7,7 @@ import gachaMachine from '@/assets/gachaMachine.png';
 const GachaRollingPage = () => {
   const navigate = useNavigate();
   return (
-    <div className="game min-h-screen bg-store-bg font-galmuri flex flex-col">
+    <div className="game flex min-h-screen flex-col bg-store-bg font-galmuri">
       {/* 상단 영역 */}
       <div className="flex items-end justify-between px-6">
         <button onClick={() => navigate(PAGE_PATH.GACHA)}>
