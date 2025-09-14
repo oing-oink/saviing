@@ -7,7 +7,7 @@ const Coin = () => {
   const fishCoinAmount = 10000;
 
   return (
-    <div className="flex items-end justify-center gap-3">
+    <div className="flex items-end justify-center gap-2 pt-4">
       {/* Coin */}
       <div className="relative flex h-16 w-28 items-center">
         <img src={coin} alt="coin" className="h-full w-auto object-contain" />

@@ -9,7 +9,7 @@ import {
   PopoverTrigger,
   PopoverAnchor,
 } from '@/shared/components/ui/popover';
-import { Room } from '@/features/game/room/Room';
+import Room from '@/features/game/room/Room';
 
 const GamePage = () => {
   // TODO: API 연결 후 동적으로 관리
@@ -25,9 +25,7 @@ const GamePage = () => {
       <GameBackground />
 
       <div className="relative flex h-full flex-col">
-        <div className="px-3 pb-4">
-          <GameHeader />
-        </div>
+        <GameHeader />
 
         <div className="relative mt-4 flex w-full flex-1 justify-center px-4">
           <div className="relative inline-block">
@@ -52,7 +50,7 @@ const GamePage = () => {
               <PopoverContent
                 side="top"
                 align="center"
-                sideOffset={24}
+                sideOffset={0}
                 className="w-screen max-w-sm p-0"
               >
                 <PetStatusCard petId={currentPetId} />
@@ -60,7 +58,7 @@ const GamePage = () => {
             </Popover>
           </div>
         </div>
-        <div className="px-3 pb-10">
+        <div className="pb-5">
           <GameHeader2 />
         </div>
       </div>

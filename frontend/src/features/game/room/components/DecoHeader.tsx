@@ -1,20 +1,20 @@
 import Coin from '@/features/game/shared/components/Coin';
-import closeButton from '@/assets/game_button/closeButton.png';
+import backButton from '@/assets/game_button/backButton.png';
 import storeButton from '@/assets/game_button/storeButton.png';
 import { useNavigate } from 'react-router-dom';
 import { PAGE_PATH } from '@/shared/constants/path';
 
 /**
- * 게임 메인 페이지 상단바
+ * 게임 데코 페이지 상단바
  *
  * home 버튼 + 코인 + shop 버튼
  */
-const GameHeader = () => {
+const DecoHeader = () => {
   const navigate = useNavigate();
   return (
     <div className="flex w-full justify-between items-center px-3 h-20">
-      <button onClick={() => navigate(PAGE_PATH.HOME)}>
-        <img className="w-9 pt-5" src={closeButton} />
+      <button onClick={() => navigate(PAGE_PATH.GAME)}>
+        <img className="w-9 pt-5" src={backButton} />
       </button>
       <Coin />
       <button onClick={() => navigate(PAGE_PATH.SHOP)}>
@@ -24,4 +24,4 @@ const GameHeader = () => {
   );
 };
 
-export default GameHeader;
+export default DecoHeader;

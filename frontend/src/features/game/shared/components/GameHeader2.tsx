@@ -13,10 +13,10 @@ const GameHeader2 = () => {
   return (
     <div className="flex w-full justify-between px-3">
       <button onClick={() => navigate(PAGE_PATH.DECO)}>
-        <img className="w-8" src={decoButton} />
+        <img className="w-9" src={decoButton} />
       </button>
       <button>
-        <img className="w-8" src={elevatorBasic} />
+        <img className="w-9" src={elevatorBasic} />
       </button>
     </div>
   );
