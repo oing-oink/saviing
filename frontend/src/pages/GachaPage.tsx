@@ -8,7 +8,7 @@ import coin from '@/assets/coin.png';
 const GachaPage = () => {
   const navigate = useNavigate();
   return (
-    <div className="game min-h-screen bg-store-bg font-galmuri">
+    <div className="game min-h-screen bg-store-bg font-galmuri flex flex-col">
       {/* 상단 영역 */}
       <div className="flex items-end justify-between px-6">
         <button onClick={() => navigate(PAGE_PATH.SHOP)}>
@@ -31,11 +31,16 @@ const GachaPage = () => {
         <div>도전하겠냥?</div>
       </div>
 
-      <button className="mx-auto flex justify-center pt-9" onClick={()=>{navigate(PAGE_PATH.GACHA)}}>
+      <button
+        className="mx-auto flex justify-center pt-9"
+        onClick={() => {
+          navigate(PAGE_PATH.GACHA_ROLLING);
+        }}
+      >
         <img src={coin} alt="" className="w-[70%]" />
       </button>
-      <div className="flex justify-center">
-        <img src={catPaw} alt="" className="w-[85%] pt-15" />
+      <div className="mt-auto flex justify-center pb-6">
+        <img src={catPaw} alt="" className="w-[85%]" />
       </div>
     </div>
   );

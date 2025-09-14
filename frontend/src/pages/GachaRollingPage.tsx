@@ -1,4 +1,42 @@
+import backButton from '@/assets/game_button/backButton.png';
+import { PAGE_PATH } from '@/shared/constants/path';
+import { useNavigate } from 'react-router-dom';
+import catPaw from '@/assets/catPaw.png';
+import gachaMachine from '@/assets/gachaMachine.png';
+
 const GachaRollingPage = () => {
-  return <div>Gacha Rolling Page</div>;
+  const navigate = useNavigate();
+  return (
+    <div className="game min-h-screen bg-store-bg font-galmuri flex flex-col">
+      {/* 상단 영역 */}
+      <div className="flex items-end justify-between px-6">
+        <button onClick={() => navigate(PAGE_PATH.GACHA)}>
+          <img className="w-[70%] pt-10" src={backButton} alt="" />
+        </button>
+        <div className="text-3xl text-red-400">GACHA</div>
+        <div className="px-4"></div>
+      </div>
+
+      <div className="flex justify-center pt-10">
+        <img
+          src={gachaMachine}
+          alt=""
+          className="animate-gacha-shake w-[60%]"
+        />
+      </div>
+
+      <div className="flex flex-col items-center pt-10 text-xl">
+        <div>뽑는중이다냥!</div>
+      </div>
+      <div className="flex flex-col items-center pt-5 text-sm">
+        <div>두근두근 어떤 아이템이 나올지</div>
+        <div>너무 떨린다옹!!</div>
+      </div>
+
+      <div className="mt-auto flex justify-center pb-6">
+        <img src={catPaw} alt="" className="w-[85%]" />
+      </div>
+    </div>
+  );
 };
 export default GachaRollingPage;
