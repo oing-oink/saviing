@@ -15,7 +15,7 @@ import saviing.game.character.presentation.dto.request.CompleteAccountConnection
 import saviing.game.character.presentation.dto.request.HandleAccountTerminatedRequest;
 
 @Tag(name = "Character Internal", description = "캐릭터 시스템 간 통신 API (Bank ↔ Game)")
-public interface CharacterInternalControllerInterface {
+public interface CharacterInternalApi {
 
     @Operation(
         summary = "계좌 연결 완료",

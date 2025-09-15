@@ -17,7 +17,7 @@ import saviing.game.character.presentation.dto.request.CreateCharacterRequest;
 import saviing.game.character.presentation.dto.response.CharacterResponse;
 
 @Tag(name = "Character", description = "게임 캐릭터 관리 API")
-public interface CharacterControllerInterface {
+public interface CharacterApi {
 
     @Operation(
         summary = "캐릭터 생성",

@@ -12,8 +12,9 @@ import saviing.game.character.application.service.CharacterCommandService;
 import saviing.game.character.presentation.dto.request.AddCoinsRequest;
 import saviing.game.character.presentation.dto.request.CompleteAccountConnectionRequest;
 import saviing.game.character.presentation.dto.request.HandleAccountTerminatedRequest;
-import saviing.game.character.presentation.interfaces.CharacterInternalControllerInterface;
 import saviing.game.character.presentation.mapper.CharacterRequestMapper;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 
 /**
  * 내부 시스템 간 통신을 위한 캐릭터 API 컨트롤러
@@ -23,12 +24,12 @@ import saviing.game.character.presentation.mapper.CharacterRequestMapper;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/v1/internal/characters")
-public class CharacterInternalController implements CharacterInternalControllerInterface {
+public class CharacterInternalController {
 
     private final CharacterCommandService characterCommandService;
     private final CharacterRequestMapper requestMapper;
 
-    @Override
+    @PutMapping("/{characterId}/account")
     public ApiResult<Void> completeAccountConnection(@PathVariable Long characterId,
                                                    @Valid @RequestBody CompleteAccountConnectionRequest request) {
         log.info("Completing account connection for character: {}, account: {}", characterId, request.accountId());
@@ -40,7 +41,7 @@ public class CharacterInternalController implements CharacterInternalControllerI
         return ApiResult.ok();
     }
 
-    @Override
+    @PostMapping("/{characterId}/transactions")
     public ApiResult<Void> addCoins(@PathVariable Long characterId,
                                    @Valid @RequestBody AddCoinsRequest request) {
         log.info("Adding coins to character: {}, coin: {}, fishCoin: {}",
@@ -53,7 +54,7 @@ public class CharacterInternalController implements CharacterInternalControllerI
         return ApiResult.ok();
     }
 
-    @Override
+    @PostMapping("/{characterId}/events")
     public ApiResult<Void> handleAccountTerminated(@PathVariable Long characterId,
                                                   @Valid @RequestBody HandleAccountTerminatedRequest request) {
         log.info("Handling account termination for character: {}, reason: {}",
@@ -66,7 +67,7 @@ public class CharacterInternalController implements CharacterInternalControllerI
         return ApiResult.ok();
     }
 
-    @Override
+    @PutMapping("/{characterId}/status")
     public ApiResult<Void> deactivateCharacter(@PathVariable Long characterId) {
         log.info("Deactivating character: {}", characterId);
 

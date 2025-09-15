@@ -16,9 +16,12 @@ import saviing.game.character.application.service.CharacterQueryService;
 import saviing.game.character.presentation.dto.request.ConnectAccountRequest;
 import saviing.game.character.presentation.dto.request.CreateCharacterRequest;
 import saviing.game.character.presentation.dto.response.CharacterResponse;
-import saviing.game.character.presentation.interfaces.CharacterControllerInterface;
 import saviing.game.character.presentation.mapper.CharacterRequestMapper;
 import saviing.game.character.presentation.mapper.CharacterResponseMapper;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 
 /**
  * 캐릭터 관련 REST API를 제공하는 컨트롤러
@@ -28,14 +31,14 @@ import saviing.game.character.presentation.mapper.CharacterResponseMapper;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/v1/games/characters")
-public class CharacterController implements CharacterControllerInterface {
+public class CharacterController {
 
     private final CharacterCommandService characterCommandService;
     private final CharacterQueryService characterQueryService;
     private final CharacterRequestMapper requestMapper;
     private final CharacterResponseMapper responseMapper;
 
-    @Override
+    @PostMapping
     public ApiResult<CharacterResponse> createCharacter(@Valid @RequestBody CreateCharacterRequest request) {
         log.info("Creating character for customer: {}", request.customerId());
 
@@ -47,7 +50,7 @@ public class CharacterController implements CharacterControllerInterface {
         return ApiResult.of(HttpStatus.CREATED, response);
     }
 
-    @Override
+    @GetMapping("/{characterId}")
     public ApiResult<CharacterResponse> getCharacter(@PathVariable Long characterId) {
         log.info("Getting character: {}", characterId);
 
@@ -59,7 +62,7 @@ public class CharacterController implements CharacterControllerInterface {
         return ApiResult.ok(response);
     }
 
-    @Override
+    @PutMapping("/{characterId}/account")
     public ApiResult<Void> connectAccount(@PathVariable Long characterId,
                                         @Valid @RequestBody ConnectAccountRequest request) {
         log.info("Connecting account for character: {}, account: {}", characterId, request.accountId());
@@ -71,7 +74,7 @@ public class CharacterController implements CharacterControllerInterface {
         return ApiResult.ok();
     }
 
-    @Override
+    @DeleteMapping("/{characterId}/account")
     public ApiResult<Void> cancelAccountConnection(@PathVariable Long characterId) {
         log.info("Canceling account connection for character: {}", characterId);
 
