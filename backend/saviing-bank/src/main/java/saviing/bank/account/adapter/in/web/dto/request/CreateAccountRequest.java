@@ -1,6 +1,5 @@
 package saviing.bank.account.adapter.in.web.dto.request;
 
-import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;

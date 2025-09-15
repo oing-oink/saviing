@@ -34,7 +34,7 @@ public interface AccountApi {
                               "customerId": 1001,
                               "productId": 1
                             }
-                            """
+                        """
                     ),
                     @ExampleObject(
                         name = "자유적금 계좌 생성",
@@ -50,7 +50,7 @@ public interface AccountApi {
                               },
                               "maturityWithdrawalAccount": "11012345678901234"
                             }
-                            """
+                        """
                     )
                 }
             )
