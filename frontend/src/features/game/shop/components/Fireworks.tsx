@@ -6,13 +6,8 @@ interface FireworksProps {
 }
 
 const Fireworks = ({ isActive }: FireworksProps) => {
-  useEffect(() => {
-    if (!isActive) {
-      return;
-    }
-
-    // 기존 폭죽 효과
-    const duration = 3 * 1000; // 3초 동안
+  const startCenterFireworks = () => {
+    const duration = 3 * 1000;
     const animationEnd = Date.now() + duration;
 
     const interval = window.setInterval(() => {
@@ -24,22 +19,24 @@ const Fireworks = ({ isActive }: FireworksProps) => {
 
       const particleCount = 50 * (timeLeft / duration);
 
-      // 화면 중앙 위쪽에서 불꽃 발사
       confetti({
         particleCount,
         startVelocity: 40,
         spread: 360,
         ticks: 60,
         origin: {
-          x: Math.random(), // 랜덤한 x 위치
-          y: Math.random() * 0.5, // 화면 위쪽 절반까지만
+          x: Math.random(),
+          y: Math.random() * 0.5,
         },
       });
     }, 250);
 
-    // GachaResult에서 온 confetti 효과 추가
-    const gachaDuration = 2000; // 2초 동안
-    const end = Date.now() + gachaDuration;
+    return interval;
+  };
+
+  const startSideFireworks = () => {
+    const duration = 2000;
+    const end = Date.now() + duration;
 
     (function frame() {
       confetti({
@@ -59,6 +56,15 @@ const Fireworks = ({ isActive }: FireworksProps) => {
         requestAnimationFrame(frame);
       }
     })();
+  };
+
+  useEffect(() => {
+    if (!isActive) {
+      return;
+    }
+
+    const interval = startCenterFireworks();
+    startSideFireworks();
 
     return () => clearInterval(interval);
   }, [isActive]);
