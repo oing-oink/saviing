@@ -6,7 +6,7 @@ const Room = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
 
-  const { scale, position, gestureHandlers } = useGestures({
+  const { scale, position } = useGestures({
     containerRef,
     targetRef: imageRef,
     minScale: 1,
@@ -18,7 +18,6 @@ const Room = () => {
       ref={containerRef}
       className="touch-none"
       style={{ cursor: scale > 1 ? 'grab' : 'default' }}
-      {...gestureHandlers}
     >
       <img
         ref={imageRef}
