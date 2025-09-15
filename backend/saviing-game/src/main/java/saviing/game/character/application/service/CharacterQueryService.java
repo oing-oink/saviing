@@ -49,8 +49,8 @@ public class CharacterQueryService {
      */
     public CharacterResult getActiveCharacter(GetActiveCharacterQuery query) {
         Character character = characterRepository.findActiveCharacterByCustomerId(query.customerId())
-                .orElseThrow(() -> new CharacterNotFoundException(
-                        "고객 ID " + query.customerId().value() + "의 활성 캐릭터를 찾을 수 없습니다"));
+            .orElseThrow(() -> new CharacterNotFoundException(
+                "고객 ID " + query.customerId().value() + "의 활성 캐릭터를 찾을 수 없습니다"));
         return resultMapper.toResult(character);
     }
 
@@ -63,8 +63,8 @@ public class CharacterQueryService {
     public CharacterListResult getAllCharactersByCustomer(GetAllCharactersByCustomerQuery query) {
         List<Character> characters = characterRepository.findAllByCustomerId(query.customerId());
         List<CharacterResult> results = characters.stream()
-                .map(resultMapper::toResult)
-                .toList();
+            .map(resultMapper::toResult)
+            .toList();
         return CharacterListResult.of(results);
     }
 
@@ -77,6 +77,6 @@ public class CharacterQueryService {
      */
     private Character findCharacterById(CharacterId characterId) {
         return characterRepository.findById(characterId)
-                .orElseThrow(() -> new CharacterNotFoundException(characterId.value()));
+            .orElseThrow(() -> new CharacterNotFoundException(characterId.value()));
     }
 }
