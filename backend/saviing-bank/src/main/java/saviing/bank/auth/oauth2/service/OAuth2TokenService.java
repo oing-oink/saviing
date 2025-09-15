@@ -150,11 +150,11 @@ public class OAuth2TokenService {
      * @return 토큰 응답 DTO
      */
     private TokenResponse createTokenResponse(Customer customer) {
-        // JWT Access Token 생성 (userId, name, expiresIn 포함)
+        // JWT Access Token 생성 (customerId, name, expiresIn 포함)
         String accessToken = jwtConfig.generateAccessToken(
             customer.getCustomerId().toString(),
             Map.of(
-                "userId", customer.getCustomerId(),
+                "customerId", customer.getCustomerId(),
                 "name", customer.getName(),
                 "expiresIn", jwtConfig.getTokenExpiryInSeconds()
             )

@@ -7,14 +7,14 @@ import lombok.Getter;
 @Builder
 public class TokenResponse {
 
-    private final Long userId;
+    private final Long customerId;
     private final String name;
     private final String accessToken;
     private final Long expiresIn;
 
-    public static TokenResponse of(Long userId, String name, String accessToken, Long expiresIn) {
+    public static TokenResponse of(Long customerId, String name, String accessToken, Long expiresIn) {
         return TokenResponse.builder()
-            .userId(userId)
+            .customerId(customerId)
             .name(name)
             .accessToken(accessToken)
             .expiresIn(expiresIn)
