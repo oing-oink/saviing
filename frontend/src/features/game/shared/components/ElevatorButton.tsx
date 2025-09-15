@@ -1,11 +1,11 @@
 import elevatorBasic from '@/assets/game_button/elevatorBasic.png';
 
 /**
- * 게임
+ * 엘리베이터 버튼
  *
- * room 변경 버튼
+ * room 변경을 위한 엘리베이터 버튼 컴포넌트
  */
-const GameHeader2 = () => {
+const ElevatorButton = () => {
   return (
     <div className="flex justify-end px-3">
       <button>
@@ -15,4 +15,4 @@ const GameHeader2 = () => {
   );
 };
 
-export default GameHeader2;
+export default ElevatorButton;

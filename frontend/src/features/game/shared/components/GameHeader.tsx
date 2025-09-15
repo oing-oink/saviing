@@ -25,7 +25,7 @@ const GameHeader = () => {
       </div>
       <div className="flex justify-end px-3">
         <button onClick={() => navigate(PAGE_PATH.DECO)}>
-          <img className="w-9 pt-5" src={decoButton} />
+          <img className="w-9" src={decoButton} />
         </button>
       </div>
     </div>

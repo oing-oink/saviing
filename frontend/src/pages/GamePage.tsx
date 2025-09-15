@@ -1,5 +1,5 @@
 import GameHeader from '@/features/game/shared/components/GameHeader';
-import GameHeader2 from '@/features/game/shared/components/GameHeader2';
+import ElevatorButton from '@/features/game/shared/components/ElevatorButton';
 import PetStatusCard from '@/features/game/pet/components/PetStatusCard';
 import CatSprite from '@/features/game/pet/components/CatSprite';
 import GameBackground from '@/features/game/shared/components/GameBackground';
@@ -92,7 +92,7 @@ const GamePage = () => {
         </div>
 
         <div className="absolute right-0 bottom-0 z-5 pr-3 pb-5">
-          <GameHeader2 />
+          <ElevatorButton />
         </div>
       </div>
     </div>
