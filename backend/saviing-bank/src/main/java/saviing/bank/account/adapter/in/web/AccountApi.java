@@ -1,6 +1,7 @@
 package saviing.bank.account.adapter.in.web;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -8,9 +9,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
 
 import saviing.bank.account.adapter.in.web.dto.request.CreateAccountRequest;
 import saviing.bank.account.adapter.in.web.dto.response.CreateAccountResponse;
+import saviing.bank.account.adapter.in.web.dto.response.GetAccountResponse;
 import saviing.common.response.ApiResult;
 
 @Tag(name = "계좌 관리", description = "계좌 생성, 조회, 관리 API")
@@ -62,4 +67,21 @@ public interface AccountApi {
         useReturnTypeSchema = true
     )
     ApiResult<CreateAccountResponse> createAccount(@Valid @RequestBody CreateAccountRequest request);
+
+    @Operation(
+        summary = "고객 계좌 목록 조회",
+        description = "특정 고객의 모든 계좌를 상품 정보와 함께 조회합니다.",
+        parameters = @Parameter(
+            name = "customerId",
+            description = "조회할 고객 ID",
+            required = true,
+            example = "1001"
+        )
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "계좌 목록 조회 성공",
+        useReturnTypeSchema = true
+    )
+    ApiResult<List<GetAccountResponse>> getAccountsByCustomerId(@RequestParam Long customerId);
 }

@@ -5,15 +5,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 
 import saviing.common.annotation.ExecutionTime;
 import saviing.bank.account.application.port.in.CreateAccountUseCase;
+import saviing.bank.account.application.port.in.GetAccountsByCustomerIdUseCase;
 import saviing.bank.account.application.port.in.command.CreateAccountCommand;
 import saviing.bank.account.application.port.in.command.CreateDemandDepositCommand;
 import saviing.bank.account.application.port.in.command.CreateSavingsCommand;
 import saviing.bank.account.application.port.in.result.CreateAccountResult;
+import saviing.bank.account.application.port.in.result.GetAccountResult;
 import saviing.bank.account.application.port.out.GenerateAccountNumberPort;
+import saviing.bank.account.application.port.out.LoadAccountPort;
 import saviing.bank.account.application.port.out.SaveAccountPort;
 import saviing.bank.account.domain.model.Account;
 import saviing.bank.account.domain.model.Product;
@@ -30,21 +34,13 @@ import saviing.bank.account.exception.InvalidTargetAmountException;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class AccountService implements CreateAccountUseCase {
+public class AccountService implements CreateAccountUseCase, GetAccountsByCustomerIdUseCase {
 
     private final GenerateAccountNumberPort generateAccountNumberPort;
+    private final LoadAccountPort loadAccountPort;
     private final SaveAccountPort saveAccountPort;
     private final ProductService productService;
     
-    /**
-     * 계좌 생성 요청을 처리합니다.
-     *
-     * Pattern Matching을 통해 상품 카테고리에 따른 분기 처리를 합니다.
-     *
-     * @param command 계좌 생성 명령 (CreateDemandDepositCommand 또는 CreateSavingsCommand)
-     * @return 생성된 계좌 정보
-     * @throws InvalidProductTypeException Command와 상품 타입이 일치하지 않는 경우
-     */
     @Override
     public CreateAccountResult createAccount(CreateAccountCommand command) {
         // 1. 상품 조회 및 존재성 검증
@@ -57,6 +53,18 @@ public class AccountService implements CreateAccountUseCase {
             case CreateDemandDepositCommand demandDeposit -> createDemandDepositAccount(demandDeposit, product);
             case CreateSavingsCommand savings -> createSavingsAccount(savings, product);
         };
+    }
+
+    @Override
+    public List<GetAccountResult> getAccountsByCustomerId(Long customerId) {
+        List<Account> accounts = loadAccountPort.findByCustomerId(customerId);
+
+        return accounts.stream()
+            .map(account -> {
+                Product product = productService.getProduct(account.getProductId());
+                return GetAccountResult.from(account, product);
+            })
+            .toList();
     }
 
     private CreateAccountResult createDemandDepositAccount(CreateDemandDepositCommand command, Product product) {

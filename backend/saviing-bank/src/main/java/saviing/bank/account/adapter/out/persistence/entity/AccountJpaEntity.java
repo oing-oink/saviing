@@ -123,8 +123,8 @@ public class AccountJpaEntity {
             entity.targetAmount = account.getTargetAmount().amount();
         }
         if (account.getTermPeriod() != null) {
-            entity.termPeriodValue = account.getTermPeriod().getValue();
-            entity.termPeriodUnit = account.getTermPeriod().getUnit();
+            entity.termPeriodValue = account.getTermPeriod().value();
+            entity.termPeriodUnit = account.getTermPeriod().unit();
         }
         entity.maturityDate = account.getMaturityDate();
         entity.status = account.getStatus();

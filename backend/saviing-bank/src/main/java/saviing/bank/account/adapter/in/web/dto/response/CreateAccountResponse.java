@@ -7,7 +7,6 @@ import lombok.Builder;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.LocalDate;
 
 import saviing.bank.account.application.port.in.result.CreateAccountResult;
 
@@ -27,7 +26,7 @@ public record CreateAccountResponse(
     Long customerId,
 
     @Schema(description = "상품 정보")
-    ProductInfo product,
+    ProductDto product,
 
     @Schema(
         description = "복리 계산 방식",
@@ -35,9 +34,6 @@ public record CreateAccountResponse(
         allowableValues = {"SIMPLE", "DAILY", "MONTH", "YEAR"}
     )
     String compoundingType,
-
-    @Schema(description = "적금 정보 (적금 계좌가 아닌 경우 null)")
-    SavingsInfo savingsInfo,
 
     @Schema(
         description = "계좌 상태",
@@ -84,77 +80,20 @@ public record CreateAccountResponse(
     BigDecimal bonusRatePercent,
 
     @Schema(description = "총 금리 (퍼센트 단위, 예: 2.00 = 2.0%)", example = "1.50")
-    BigDecimal totalRatePercent
+    BigDecimal totalRatePercent,
+
+    @Schema(description = "적금 정보 (적금 계좌가 아닌 경우 null)")
+    SavingsDto savings
 ) {
 
-    @Schema(description = "상품 정보")
-    @Builder
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public record ProductInfo(
-        @Schema(description = "상품 ID", example = "1")
-        @JsonFormat(shape = JsonFormat.Shape.STRING)
-        Long id,
-
-        @Schema(description = "상품명", example = "자유입출금통장")
-        String name,
-
-        @Schema(description = "상품 코드", example = "DEMAND_001")
-        String code,
-
-        @Schema(
-            description = "상품 카테고리",
-            example = "DEMAND_DEPOSIT",
-            allowableValues = {"DEMAND_DEPOSIT", "TIME_DEPOSIT", "INSTALLMENT_SAVINGS"}
-        )
-        String category
-    ) {}
-
-    @Schema(description = "적금 정보")
-    @Builder
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public record SavingsInfo(
-        @Schema(description = "목표금액(원 단위, 정수)", example = "1000000")
-        @JsonFormat(shape = JsonFormat.Shape.STRING)
-        Long targetAmount,
-
-        @Schema(description = "기간", example = "12 WEEKS")
-        String termPeriod,
-
-        @Schema(description = "만기일", example = "2024-04-15")
-        LocalDate maturityDate,
-
-        @Schema(description = "만기 출금 계좌번호", example = "11012345678901234")
-        String maturityWithdrawalAccount,
-
-        @Schema(description = "달성률 (퍼센트 단위, 예: 50.00 = 50%)", example = "0.00")
-        BigDecimal achievementRate
-    ) {}
     
     public static CreateAccountResponse from(CreateAccountResult result) {
-        // 적금 정보 변환 (적금 계좌인 경우만)
-        SavingsInfo savingsInfo = null;
-        if (result.savingsInfo() != null) {
-            savingsInfo = SavingsInfo.builder()
-                .targetAmount(result.savingsInfo().targetAmount())
-                .termPeriod(result.savingsInfo().termPeriod())
-                .maturityDate(result.savingsInfo().maturityDate())
-                .maturityWithdrawalAccount(result.savingsInfo().maturityWithdrawalAccount())
-                .achievementRate(result.savingsInfo().achievementRate())
-                .build();
-        }
-
         return CreateAccountResponse.builder()
             .accountId(result.accountId())
             .accountNumber(result.accountNumber())
             .customerId(result.customerId())
-            .product(ProductInfo.builder()
-                .id(result.product().id())
-                .name(result.product().name())
-                .code(result.product().code())
-                .category(result.product().category())
-                .build())
+            .product(ProductDto.from(result.productInfo()))
             .compoundingType(result.compoundingType())
-            .savingsInfo(savingsInfo)
             .status(result.status())
             .openedAt(result.openedAt())
             .closedAt(result.closedAt())
@@ -167,6 +106,7 @@ public record CreateAccountResponse(
             .baseRatePercent(result.baseRatePercent())
             .bonusRatePercent(result.bonusRatePercent())
             .totalRatePercent(result.totalRatePercent())
+            .savings(SavingsDto.from(result.savingsInfo()))
             .build();
     }
 }

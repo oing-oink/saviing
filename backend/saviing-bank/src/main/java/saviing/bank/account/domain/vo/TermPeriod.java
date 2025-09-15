@@ -1,9 +1,6 @@
 package saviing.bank.account.domain.vo;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.NonNull;
-
 import saviing.bank.account.domain.model.TermUnit;
 
 /**
@@ -13,20 +10,15 @@ import saviing.bank.account.domain.model.TermUnit;
  * 다양한 기간 단위 간의 변환과 비교 기능을 제공합니다.
  * 예: 26주, 12개월, 2년 등의 기간을 표현
  */
+public record TermPeriod(
+    int value,
+    @NonNull TermUnit unit
+) {
 
-@Getter
-@EqualsAndHashCode
-public class TermPeriod {
-
-    private final int value;
-    private final TermUnit unit;
-
-    private TermPeriod(int value, @NonNull TermUnit unit) {
+    public TermPeriod {
         if (value <= 0) {
             throw new IllegalArgumentException("기간 값은 양수여야 합니다: " + value);
         }
-        this.value = value;
-        this.unit = unit;
     }
 
     public static TermPeriod of(int value, TermUnit unit) {

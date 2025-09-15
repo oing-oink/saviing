@@ -80,13 +80,13 @@ public class TermConstraints {
      */
     private boolean isValidStep(TermPeriod term) {
         // 단위가 다르면 무효
-        if (term.getUnit() != stepUnit) {
+        if (term.unit() != stepUnit) {
             return false;
         }
 
         // 최소값 기준으로 증가 단위 체크
-        int minValue = minTerm != null && minTerm.getUnit() == stepUnit ? minTerm.getValue() : stepValue;
-        return (term.getValue() - minValue) % stepValue == 0;
+        int minValue = minTerm != null && minTerm.unit() == stepUnit ? minTerm.value() : stepValue;
+        return (term.value() - minValue) % stepValue == 0;
     }
 
     /**

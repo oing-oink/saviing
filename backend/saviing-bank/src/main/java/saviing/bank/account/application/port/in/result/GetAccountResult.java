@@ -1,15 +1,16 @@
 package saviing.bank.account.application.port.in.result;
 
-import lombok.Builder;
-
 import java.math.BigDecimal;
 import java.time.Instant;
+
+import lombok.Builder;
+import lombok.NonNull;
 
 import saviing.bank.account.domain.model.Account;
 import saviing.bank.account.domain.model.Product;
 
 @Builder
-public record CreateAccountResult(
+public record GetAccountResult(
     Long accountId,
     String accountNumber,
     Long customerId,
@@ -17,39 +18,37 @@ public record CreateAccountResult(
     String status,
     Instant openedAt,
     Instant closedAt,
-    Instant lastAccrualAt,
+    Instant lastAccrualTs,
     Instant lastRateChangeAt,
     Instant createdAt,
     Instant updatedAt,
     Long balance,
     BigDecimal interestAccrued,
-    BigDecimal baseRatePercent,
-    BigDecimal bonusRatePercent,
-    BigDecimal totalRatePercent,
-    ProductInfo productInfo,
-    SavingsInfo savingsInfo
+    Short baseRate,
+    Short bonusRate,
+    ProductInfo product,
+    SavingsInfo savings
 ) {
-    
-    public static CreateAccountResult from(Account account, Product product) {
-        return CreateAccountResult.builder()
-            .accountId(account.getId() != null ? account.getId().value() : null)
+
+    public static GetAccountResult from(@NonNull Account account, @NonNull Product product) {
+        return GetAccountResult.builder()
+            .accountId(account.getId().value())
             .accountNumber(account.getAccountNumber().value())
             .customerId(account.getCustomerId())
             .compoundingType(account.getCompoundingType().name())
             .status(account.getStatus().name())
             .openedAt(account.getOpenedAt())
             .closedAt(account.getClosedAt())
-            .lastAccrualAt(account.getLastAccrualTs())
+            .lastAccrualTs(account.getLastAccrualTs())
             .lastRateChangeAt(account.getLastRateChangeAt())
             .createdAt(account.getCreatedAt())
             .updatedAt(account.getUpdatedAt())
             .balance(account.getBalance().amount())
             .interestAccrued(account.getInterestAccrued())
-            .baseRatePercent(account.getBaseRate().toPercent())
-            .bonusRatePercent(account.getBonusRate().toPercent())
-            .totalRatePercent(account.getTotalRate().toPercent())
-            .productInfo(ProductInfo.from(product))
-            .savingsInfo(SavingsInfo.from(account))
+            .baseRate(account.getBaseRate().value())
+            .bonusRate(account.getBonusRate().value())
+            .product(ProductInfo.from(product))
+            .savings(SavingsInfo.from(account))
             .build();
     }
 }
