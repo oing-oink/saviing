@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import saviing.bank.account.adapter.in.web.AccountApi;
 import saviing.bank.account.adapter.in.web.dto.request.CreateAccountRequest;
 import saviing.bank.account.adapter.in.web.dto.response.CreateAccountResponse;
 import saviing.bank.account.application.port.in.CreateAccountUseCase;
@@ -17,7 +18,7 @@ import saviing.common.response.ApiResult;
 @RestController
 @RequestMapping("/api/accounts")
 @RequiredArgsConstructor
-public class AccountController {
+public class AccountController implements AccountApi {
     
     private final CreateAccountUseCase createAccountUseCase;
     
