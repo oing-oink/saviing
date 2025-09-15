@@ -14,6 +14,7 @@ import saviing.bank.auth.oauth2.userinfo.OAuth2UserInfo;
 import saviing.bank.auth.oauth2.userinfo.OAuth2UserInfoFactory;
 import saviing.bank.auth.oauth2.exception.OAuth2ErrorCode;
 import saviing.bank.auth.oauth2.dto.TokenResponse;
+import saviing.bank.common.enums.OAuth2Provider;
 import saviing.bank.customer.entity.Customer;
 import saviing.bank.customer.repository.CustomerRepository;
 import saviing.common.config.JwtConfig;
@@ -79,13 +80,13 @@ public class OAuth2TokenService {
         params.add("redirect_uri", googleRedirectUri);
 
         return Optional.ofNullable(
-                webClient.post()
-                    .uri(googleTokenUrl)
-                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                    .body(BodyInserters.fromFormData(params))
-                    .retrieve()
-                    .bodyToMono(Map.class)
-                    .block()
+            webClient.post()
+                .uri(googleTokenUrl)
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .body(BodyInserters.fromFormData(params))
+                .retrieve()
+                .bodyToMono(Map.class)
+                .block()
             )
             .filter(response -> response.containsKey("access_token"))
             .map(response -> (String) response.get("access_token"))
@@ -118,7 +119,7 @@ public class OAuth2TokenService {
      * Customer 생성 또는 조회
      */
     private Customer processCustomer(OAuth2UserInfo userInfo) {
-        Customer.OAuth2Provider provider = Customer.OAuth2Provider.GOOGLE;
+        OAuth2Provider provider = OAuth2Provider.GOOGLE;
         String oauth2Id = userInfo.getId();
 
         return customerRepository.findByOauth2ProviderAndOauth2Id(provider, oauth2Id)

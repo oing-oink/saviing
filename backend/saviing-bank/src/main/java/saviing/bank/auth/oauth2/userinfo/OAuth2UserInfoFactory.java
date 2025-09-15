@@ -3,7 +3,7 @@ package saviing.bank.auth.oauth2.userinfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import saviing.bank.auth.oauth2.exception.OAuth2ErrorCode;
-import saviing.bank.customer.entity.Customer;
+import saviing.bank.common.enums.OAuth2Provider;
 import saviing.common.exception.BusinessException;
 
 import java.util.Map;
@@ -14,7 +14,7 @@ public class OAuth2UserInfoFactory {
 
     public OAuth2UserInfo getOAuth2UserInfo(String registrationId, Map<String, Object> attributes) {
         try {
-            Customer.OAuth2Provider provider = extractProvider(registrationId);
+            OAuth2Provider provider = extractProvider(registrationId);
 
             log.debug("OAuth2 사용자 정보 생성 - Provider: {}, RegistrationId: {}", provider, registrationId);
 
@@ -36,7 +36,7 @@ public class OAuth2UserInfoFactory {
         }
     }
 
-    public Customer.OAuth2Provider getOAuth2Provider(String registrationId) {
+    public OAuth2Provider getOAuth2Provider(String registrationId) {
         return extractProvider(registrationId);
     }
 
@@ -47,7 +47,7 @@ public class OAuth2UserInfoFactory {
         return new GoogleOAuth2UserInfo(attributes);
     }
 
-    private Customer.OAuth2Provider extractProvider(String registrationId) {
+    private OAuth2Provider extractProvider(String registrationId) {
         if (registrationId == null || registrationId.trim().isEmpty()) {
             throw new BusinessException(OAuth2ErrorCode.UNSUPPORTED_PROVIDER, "OAuth2 제공업체 정보가 없습니다.");
         }
@@ -55,11 +55,11 @@ public class OAuth2UserInfoFactory {
         String lowerRegistrationId = registrationId.toLowerCase();
 
         if (lowerRegistrationId.startsWith("google")) {
-            return Customer.OAuth2Provider.GOOGLE;
+            return OAuth2Provider.GOOGLE;
         } else if (lowerRegistrationId.startsWith("kakao")) {
-            return Customer.OAuth2Provider.KAKAO;
+            return OAuth2Provider.KAKAO;
         } else if (lowerRegistrationId.startsWith("naver")) {
-            return Customer.OAuth2Provider.NAVER;
+            return OAuth2Provider.NAVER;
         }
 
         throw new BusinessException(OAuth2ErrorCode.UNSUPPORTED_PROVIDER, "지원하지 않는 OAuth2 제공업체입니다: " + registrationId);

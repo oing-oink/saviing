@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import saviing.bank.common.enums.OAuth2Provider;
 
 import java.time.LocalDateTime;
 
@@ -54,9 +55,5 @@ public class Customer {
 
     public void updatePin(String pin) {
         this.pin = pin;
-    }
-
-    public enum OAuth2Provider {
-        GOOGLE, KAKAO, NAVER
     }
 }
