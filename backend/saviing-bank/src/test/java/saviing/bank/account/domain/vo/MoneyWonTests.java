@@ -2,8 +2,6 @@ package saviing.bank.account.domain.vo;
 
 import org.junit.jupiter.api.Test;
 
-import saviing.bank.account.domain.vo.MoneyWon;
-
 import java.math.BigDecimal;
 import static org.assertj.core.api.Assertions.*;
 

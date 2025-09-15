@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.Map;
 
 import saviing.bank.account.application.port.in.CreateAccountUseCase;
 import saviing.bank.account.application.port.in.command.CreateAccountCommand;
@@ -20,6 +21,9 @@ import saviing.bank.account.domain.vo.AccountNumber;
 import saviing.bank.account.domain.vo.BasisPoints;
 import saviing.bank.account.domain.vo.InterestRateRange;
 import saviing.bank.account.domain.vo.ProductConfiguration;
+import saviing.bank.account.exception.InvalidProductTypeException;
+import saviing.bank.account.exception.InvalidSavingsTermException;
+import saviing.bank.account.exception.InvalidTargetAmountException;
 
 @Service
 @Transactional
@@ -37,7 +41,7 @@ public class AccountService implements CreateAccountUseCase {
      *
      * @param command 계좌 생성 명령 (CreateDemandDepositCommand 또는 CreateSavingsCommand)
      * @return 생성된 계좌 정보
-     * @throws IllegalArgumentException 상품이 존재하지 않거나, Command와 상품 타입이 일치하지 않는 경우
+     * @throws InvalidProductTypeException Command와 상품 타입이 일치하지 않는 경우
      */
     @Override
     public CreateAccountResult createAccount(CreateAccountCommand command) {
@@ -123,22 +127,26 @@ public class AccountService implements CreateAccountUseCase {
      *
      * @param command 계좌 생성 명령
      * @param product 조회된 상품 정보
-     * @throws IllegalArgumentException Command 타입과 상품 타입이 일치하지 않는 경우
+     * @throws InvalidProductTypeException Command 타입과 상품 타입이 일치하지 않는 경우
      */
     private void validateCommandProductTypeMatch(CreateAccountCommand command, Product product) {
         switch (command) {
             case CreateDemandDepositCommand demandDeposit -> {
                 if (product.getCategory() != ProductCategory.DEMAND_DEPOSIT) {
-                    throw new IllegalArgumentException(
-                        "자유입출금 계좌 생성 요청이지만 상품이 자유입출금이 아닙니다. 상품타입: " + product.getCategory()
-                    );
+                    throw new InvalidProductTypeException(Map.of(
+                        "requestedType", "DEMAND_DEPOSIT",
+                        "actualType", product.getCategory(),
+                        "productId", product.getId()
+                    ));
                 }
             }
             case CreateSavingsCommand savings -> {
                 if (product.getCategory() != ProductCategory.INSTALLMENT_SAVINGS) {
-                    throw new IllegalArgumentException(
-                        "적금 계좌 생성 요청이지만 상품이 적금이 아닙니다. 상품타입: " + product.getCategory()
-                    );
+                    throw new InvalidProductTypeException(Map.of(
+                        "requestedType", "INSTALLMENT_SAVINGS",
+                        "actualType", product.getCategory(),
+                        "productId", product.getId()
+                    ));
                 }
             }
         }
@@ -166,17 +174,25 @@ public class AccountService implements CreateAccountUseCase {
      *
      * @param command 적금 계좌 생성 명령
      * @param product 상품 정보
-     * @throws IllegalArgumentException 기간이 상품 제약에 맞지 않거나 목표금액이 유효하지 않은 경우
+     * @throws InvalidSavingsTermException 기간이 상품 제약에 맞지 않는 경우
+     * @throws InvalidTargetAmountException 목표금액이 유효하지 않은 경우
      */
     private void validateSavingsCreation(CreateSavingsCommand command, Product product) {
         // 상품 설정과 기간 일치성 검증
         ProductConfiguration config = product.getConfiguration();
         if (config != null && !config.isValidTerm(command.termPeriod())) {
-            throw new IllegalArgumentException("유효하지 않은 적금 기간입니다: " + command.termPeriod());
+            throw new InvalidSavingsTermException(Map.of(
+                "termPeriod", command.termPeriod(),
+                "productId", product.getId(),
+                "validTerms", config.getTermConstraints()
+            ));
         }
 
         if (!command.targetAmount().isPositive()) {
-            throw new IllegalArgumentException("목표금액은 0보다 커야 합니다");
+            throw new InvalidTargetAmountException(Map.of(
+                "targetAmount", command.targetAmount(),
+                "customerId", command.customerId()
+            ));
         }
     }
 }

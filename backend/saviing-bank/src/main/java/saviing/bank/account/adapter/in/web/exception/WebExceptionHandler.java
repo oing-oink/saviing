@@ -31,6 +31,9 @@ public class WebExceptionHandler {
             case INVALID_AMOUNT -> WebErrorCode.ACCOUNT_INVALID_AMOUNT;
             case INVALID_ACCOUNT_STATE -> WebErrorCode.ACCOUNT_INVALID_ACCOUNT_STATE;
             case INVALID_RATE -> WebErrorCode.ACCOUNT_INVALID_RATE;
+            case INVALID_PRODUCT_TYPE -> WebErrorCode.ACCOUNT_INVALID_PRODUCT_TYPE;
+            case INVALID_SAVINGS_TERM -> WebErrorCode.ACCOUNT_INVALID_SAVINGS_TERM;
+            case INVALID_TARGET_AMOUNT -> WebErrorCode.ACCOUNT_INVALID_TARGET_AMOUNT;
         };
     }
 

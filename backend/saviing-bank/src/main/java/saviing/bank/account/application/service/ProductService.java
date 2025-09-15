@@ -52,8 +52,8 @@ public class ProductService {
             .termConstraints(TermConstraints.range(
                 TermPeriod.weeks(1),    // 최소 1주
                 TermPeriod.weeks(15),   // 최대 15주
-                TermUnit.WEEKS,         // 주 단위로
-                1                       // 1주씩 증가
+                TermUnit.WEEKS,               // 주 단위로
+                1                   // 1주씩 증가
             ))
             .build();
 

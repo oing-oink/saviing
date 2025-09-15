@@ -4,10 +4,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Singular;
-import saviing.bank.account.domain.model.TermUnit;
 
 import java.util.Collections;
 import java.util.Set;
+
+import saviing.bank.account.domain.model.TermUnit;
 
 /**
  * 금융상품의 기간 제약 조건을 관리하는 값 객체

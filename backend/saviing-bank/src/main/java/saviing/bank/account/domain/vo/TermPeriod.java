@@ -3,6 +3,7 @@ package saviing.bank.account.domain.vo;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
+
 import saviing.bank.account.domain.model.TermUnit;
 
 /**

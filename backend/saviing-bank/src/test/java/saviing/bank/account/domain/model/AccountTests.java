@@ -5,8 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import saviing.bank.account.domain.model.Account;
-import saviing.bank.account.domain.model.AccountStatus;
 import saviing.bank.account.domain.vo.ProductId;
 import saviing.bank.account.domain.service.InterestAccrualService;
 import saviing.bank.account.domain.vo.AccountNumber;

@@ -1,16 +1,13 @@
 package saviing.bank.account.domain.vo;
 
-import java.util.Objects;
+import org.springframework.lang.NonNull;
 
 public record PaymentAmount(
-    MoneyWon minAmount,
-    MoneyWon maxAmount
+    @NonNull MoneyWon minAmount, // 최소 납입액
+    @NonNull MoneyWon maxAmount // 최대 납입액
 ) {
 
     public PaymentAmount {
-        Objects.requireNonNull(minAmount, "최소 납입액은 필수입니다");
-        Objects.requireNonNull(maxAmount, "최대 납입액은 필수입니다");
-
         if (minAmount.isGreaterThan(maxAmount)) {
             throw new IllegalArgumentException("최소 납입액은 최대 납입액보다 클 수 없습니다");
         }

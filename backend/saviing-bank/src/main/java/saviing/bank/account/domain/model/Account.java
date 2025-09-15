@@ -183,7 +183,11 @@ public class Account {
      */
     public void withdraw(@NonNull MoneyWon amount) {
         if (amount.isZero()) {
-            throw new InvalidAmountException(Map.of("amount", amount.amount()));
+            throw new InvalidAmountException(Map.of(
+                "accountNumber", accountNumber,
+                "amount", amount.amount(),
+                "reason", "0원 출금 시도"
+            ));
         }
 
         if (!status.canTransact()) {
@@ -214,7 +218,8 @@ public class Account {
         if (!status.canFreeze()) {
             throw new InvalidAccountStateException(Map.of(
                 "accountNumber", accountNumber,
-                "currentStatus", status
+                "currentStatus", status,
+                "newStatus", AccountStatus.FROZEN
             ));
         }
 
@@ -231,7 +236,8 @@ public class Account {
         if (!status.canUnfreeze()) {
             throw new InvalidAccountStateException(Map.of(
                 "accountNumber", accountNumber,
-                "currentStatus", status
+                "currentStatus", status,
+                "newStatus", AccountStatus.ACTIVE
             ));
         }
 
@@ -249,7 +255,8 @@ public class Account {
         if (!status.canClose()) {
             throw new InvalidAccountStateException(Map.of(
                 "accountNumber", accountNumber,
-                "currentStatus", status
+                "currentStatus", status,
+                "newStatus", AccountStatus.CLOSED
             ));
         }
 

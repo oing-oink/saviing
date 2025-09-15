@@ -1,12 +1,10 @@
 package saviing.bank.account.domain.vo;
 
-import java.util.Objects;
+import lombok.NonNull;
 
-public record ProductId(Long value) {
+public record ProductId(@NonNull Long value) {
 
     public ProductId {
-        Objects.requireNonNull(value, "상품ID는 필수입니다");
-
         if (value <= 0) {
             throw new IllegalArgumentException("상품ID는 양수여야 합니다");
         }

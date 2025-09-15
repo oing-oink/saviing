@@ -1,16 +1,13 @@
 package saviing.bank.account.domain.vo;
 
-import java.util.Objects;
+import org.springframework.lang.NonNull;
 
 public record InterestRateRange(
-    BasisPoints minRate,
-    BasisPoints maxRate
+    @NonNull BasisPoints minRate, // 최소 이자율
+    @NonNull BasisPoints maxRate // 최대 이자율
 ) {
 
     public InterestRateRange {
-        Objects.requireNonNull(minRate, "최소 이자율은 필수입니다");
-        Objects.requireNonNull(maxRate, "최대 이자율은 필수입니다");
-
         if (minRate.isGreaterThan(maxRate)) {
             throw new IllegalArgumentException("최소 이자율은 최대 이자율보다 클 수 없습니다");
         }

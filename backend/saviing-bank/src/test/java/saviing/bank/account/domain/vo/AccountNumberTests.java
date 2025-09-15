@@ -2,8 +2,6 @@ package saviing.bank.account.domain.vo;
 
 import org.junit.jupiter.api.Test;
 
-import saviing.bank.account.domain.vo.AccountNumber;
-
 import static org.assertj.core.api.Assertions.*;
 
 class AccountNumberTests {
