@@ -15,7 +15,7 @@ const Fireworks = ({ isActive }: FireworksProps) => {
     const duration = 3 * 1000; // 3초 동안
     const animationEnd = Date.now() + duration;
 
-    const interval: NodeJS.Timeout = setInterval(() => {
+    const interval = window.setInterval(() => {
       const timeLeft = animationEnd - Date.now();
 
       if (timeLeft <= 0) {
