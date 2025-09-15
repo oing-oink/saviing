@@ -1,6 +1,6 @@
 /**
  * 펫의 기본 정보와 상태를 나타내는 데이터 타입
- * 
+ *
  * 펫의 레벨, 경험치, 애정도, 포만감 등 게임에서 사용되는 모든 펫 관련 정보를 포함합니다.
  */
 export interface PetData {
@@ -32,7 +32,7 @@ export interface PetData {
 
 /**
  * 펫 상호작용에 사용되는 아이템 인벤토리 타입
- * 
+ *
  * 펫에게 먹이를 주거나 놀아줄 때 사용하는 아이템들의 수량을 관리합니다.
  */
 //TODO: 사용자 아이템에서 feed와 toy 추출해서 사용
@@ -45,7 +45,7 @@ export interface PetInventory {
 
 /**
  * 펫의 애니메이션 상태를 나타내는 타입
- * 
+ *
  * 펫이 표시할 수 있는 모든 애니메이션 상태를 정의합니다.
  * 각 상태는 catAnimations.ts의 설정과 연동됩니다.
  */
@@ -60,7 +60,7 @@ export type PetAnimationState =
 
 /**
  * CatSprite 컴포넌트에 전달되는 props 타입
- * 
+ *
  * 스프라이트 렌더링에 필요한 모든 속성을 정의합니다.
  */
 export interface PetSpriteProps {
@@ -76,7 +76,7 @@ export interface PetSpriteProps {
 
 /**
  * 펫의 행동과 애니메이션 상태를 관리하는 타입
- * 
+ *
  * 펫의 현재 애니메이션, 애니메이션 진행 여부, 마지막 변경 시간 등을 추적합니다.
  */
 export interface PetBehaviorState {

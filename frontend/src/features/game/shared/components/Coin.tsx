@@ -4,13 +4,13 @@ import { useGameStore } from '@/features/game/shared/store/useGameStore';
 
 /**
  * 사용자의 보유 재화(코인, 피시코인)를 표시하는 컴포넌트
- * 
+ *
  * 전역 상태에서 실시간 재화 정보를 가져와 표시합니다.
  * 게임 데이터가 로드되지 않은 경우 기본값(0)을 표시합니다.
  */
 const Coin = () => {
   const { gameData } = useGameStore();
-  
+
   const coinAmount = gameData?.coin ?? 0;
   const fishCoinAmount = gameData?.fishCoin ?? 0;
 
