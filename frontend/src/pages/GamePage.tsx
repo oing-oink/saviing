@@ -12,7 +12,7 @@ import {
 import Room from '@/features/game/room/Room';
 import { useGameQuery } from '@/features/game/shared/query/useGameQuery';
 import { useGameStore } from '@/features/game/shared/store/useGameStore';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const GamePage = () => {
   // 캐릭터 ID 하드코딩
@@ -33,6 +33,9 @@ const GamePage = () => {
   const currentPetId = 7;
   const currentAnimation = 'idle' as const;
 
+  // Popover 상태 관리
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+
   // TODO: 나중에 동적으로 변경할 수 있도록 상태 관리 추가 예정
   // const [petPosition, setPetPosition] = useState({ x: 0, y: 0 });
   // const [currentAnimation, setCurrentAnimation] = useState<PetAnimationState>('idle');
@@ -51,12 +54,12 @@ const GamePage = () => {
 
         <div className="relative mt-4 flex w-full flex-1 justify-center px-4">
           <div className="relative inline-block">
-            <Room />
-
-            <Popover>
+            <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
               <PopoverTrigger asChild>
                 <button
-                  className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer outline-none"
+                  className={`absolute left-1/2 z-10 -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all duration-300 ease-in-out outline-none ${
+                    isPopoverOpen ? 'top-[30%]' : 'top-1/2'
+                  }`}
                   type="button"
                 >
                   <CatSprite
@@ -66,20 +69,29 @@ const GamePage = () => {
                   />
                 </button>
               </PopoverTrigger>
+              <div
+                className={`absolute left-1/2 z-0 h-80 w-80 -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ease-in-out ${
+                  isPopoverOpen ? 'top-[30%]' : 'top-1/2'
+                }`}
+              >
+                <Room />
+              </div>
 
               <PopoverAnchor className="absolute right-0 bottom-0 left-0" />
 
               <PopoverContent
                 side="top"
                 align="center"
-                className="w-screen max-w-sm p-0"
+                sideOffset={16}
+                className="w-screen p-0"
               >
                 <PetStatusCard petId={currentPetId} />
               </PopoverContent>
             </Popover>
           </div>
         </div>
-        <div className="pb-5">
+
+        <div className="absolute bottom-0 right-0 pb-5 pr-3 z-5">
           <GameHeader2 />
         </div>
       </div>
