@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.Map;
 
+import saviing.common.annotation.ExecutionTime;
 import saviing.bank.account.application.port.in.CreateAccountUseCase;
 import saviing.bank.account.application.port.in.command.CreateAccountCommand;
 import saviing.bank.account.application.port.in.command.CreateDemandDepositCommand;
@@ -25,6 +26,7 @@ import saviing.bank.account.exception.InvalidProductTypeException;
 import saviing.bank.account.exception.InvalidSavingsTermException;
 import saviing.bank.account.exception.InvalidTargetAmountException;
 
+@ExecutionTime
 @Service
 @Transactional
 @RequiredArgsConstructor

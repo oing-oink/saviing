@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import saviing.common.annotation.ExecutionTime;
 import saviing.bank.account.domain.model.Product;
 import saviing.bank.account.domain.model.ProductCategory;
 import saviing.bank.account.domain.model.TermUnit;
@@ -20,6 +21,7 @@ import saviing.bank.account.domain.vo.PaymentAmount;
 import saviing.bank.account.domain.vo.BasisPoints;
 import saviing.bank.account.domain.vo.MoneyWon;
 
+@ExecutionTime
 @Service
 @RequiredArgsConstructor
 public class ProductService {

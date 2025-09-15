@@ -6,10 +6,12 @@ import org.springframework.stereotype.Component;
 import java.time.Instant;
 import java.util.Random;
 
+import saviing.common.annotation.ExecutionTime;
 import saviing.bank.account.application.port.out.GenerateAccountNumberPort;
 import saviing.bank.account.application.port.out.LoadAccountPort;
 import saviing.bank.account.domain.vo.AccountNumber;
 
+@ExecutionTime
 @Component
 @RequiredArgsConstructor
 public class DefaultAccountNumberGenerator implements GenerateAccountNumberPort {

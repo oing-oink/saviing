@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import saviing.common.annotation.ExecutionTime;
 import saviing.bank.account.adapter.out.persistence.entity.AccountJpaEntity;
 import saviing.bank.account.adapter.out.persistence.repository.JpaAccountRepository;
 import saviing.bank.account.application.port.out.LoadAccountPort;
@@ -15,6 +16,7 @@ import saviing.bank.account.domain.model.Account;
 import saviing.bank.account.domain.vo.AccountId;
 import saviing.bank.account.domain.vo.AccountNumber;
 
+@ExecutionTime
 @Repository
 @RequiredArgsConstructor
 public class AccountPersistenceAdapter implements LoadAccountPort, SaveAccountPort {

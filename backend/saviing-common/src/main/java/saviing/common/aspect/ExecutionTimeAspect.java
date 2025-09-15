@@ -10,6 +10,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 import saviing.common.annotation.ExecutionTime;
@@ -30,7 +31,7 @@ public class ExecutionTimeAspect {
     @Pointcut("@within(saviing.common.annotation.ExecutionTime)")
     public void annotatedClass() {}
     
-    @Around("execution(* *(..)) && (annotatedMethod() || annotatedClass())")
+    @Around("execution(* *(..)) && !execution(static * *..*(..)) && (annotatedMethod() || annotatedClass())")
     public Object measureExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();

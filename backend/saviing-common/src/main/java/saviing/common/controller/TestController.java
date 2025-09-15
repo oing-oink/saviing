@@ -25,7 +25,6 @@ public class TestController {
     private AnotherTestService anotherTestService;
 
     // 성공 응답 (데이터 없음)
-    @ExecutionTime
     @GetMapping("/success")
     public ApiResult<Void> testSuccess() {
         return ApiResult.ok();

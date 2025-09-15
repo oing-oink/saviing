@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 
+import saviing.common.annotation.ExecutionTime;
 import saviing.bank.account.domain.model.Account;
 import saviing.bank.account.domain.model.AccountStatus;
 import saviing.bank.account.domain.model.CompoundingType;
@@ -27,6 +28,7 @@ import saviing.bank.account.domain.vo.ProductId;
 import saviing.bank.account.domain.vo.TermPeriod;
 import saviing.bank.account.domain.model.TermUnit;
 
+@ExecutionTime
 @Entity
 @Table(name = "account")
 @Getter

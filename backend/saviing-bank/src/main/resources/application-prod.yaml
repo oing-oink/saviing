@@ -8,9 +8,8 @@ api:
   versionPath: ${API_VERSION_PATH:v1}
 
 spring:
-  # Database Configuration - Production
   datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/bank?useSSL=true&serverTimezone=Asia/Seoul
+    url: jdbc:mysql://${DB_HOST:0.0.0.0}:${DB_PORT:3306}/${DB_NAME:bank}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -19,6 +18,11 @@ spring:
     hibernate:
       ddl-auto: validate
     show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        highlight_sql: false
+        use_sql_comments: false
 
   devtools:
     livereload:

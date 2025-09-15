@@ -14,9 +14,11 @@ import saviing.bank.account.adapter.in.web.dto.response.CreateAccountResponse;
 import saviing.bank.account.application.port.in.CreateAccountUseCase;
 import saviing.bank.account.application.port.in.result.CreateAccountResult;
 import saviing.common.response.ApiResult;
+import saviing.common.annotation.ExecutionTime;
 
+@ExecutionTime
 @RestController
-@RequestMapping("/api/accounts")
+@RequestMapping("/v1/accounts")
 @RequiredArgsConstructor
 public class AccountController implements AccountApi {
     
