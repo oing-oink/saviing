@@ -6,11 +6,13 @@ import catPaw from '@/assets/catPaw.png';
 import gachaMachine from '@/assets/gachaMachine.png';
 import GachaResult from '@/features/game/shop/components/GachaResult';
 import { mockInventoryItems } from '@/features/game/shop/mocks/inventoryMockData';
-import Fireworks from '@/features/game/shop/components/Fireworks';
+import { useFireworks } from '@/features/game/shop/hooks/useFireworks';
 
 const GachaRollingPage = () => {
   const navigate = useNavigate();
   const [showResult, setShowResult] = useState(false);
+
+  useFireworks(showResult);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -55,12 +57,8 @@ const GachaRollingPage = () => {
       </div>
 
       {showResult && (
-        <GachaResult
-          item={mockInventoryItems[0]}
-          onClose={handleCloseResult}
-        />
+        <GachaResult item={mockInventoryItems[0]} onClose={handleCloseResult} />
       )}
-      <Fireworks isActive={showResult} />
     </div>
   );
 };

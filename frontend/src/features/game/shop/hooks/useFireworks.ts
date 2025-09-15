@@ -1,11 +1,7 @@
 import { useEffect } from 'react';
 import confetti from 'canvas-confetti';
 
-interface FireworksProps {
-  isActive: boolean;
-}
-
-const Fireworks = ({ isActive }: FireworksProps) => {
+export const useFireworks = (isActive: boolean) => {
   const startCenterFireworks = () => {
     const duration = 3 * 1000;
     const animationEnd = Date.now() + duration;
@@ -68,8 +64,4 @@ const Fireworks = ({ isActive }: FireworksProps) => {
 
     return () => clearInterval(interval);
   }, [isActive]);
-
-  return null;
 };
-
-export default Fireworks;
