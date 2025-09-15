@@ -160,9 +160,6 @@ public class OAuth2TokenService {
             )
         );
 
-        // Refresh Token 생성 (쿠키로 설정 예정)
-        String refreshToken = jwtConfig.generateRefreshToken(customer.getCustomerId().toString());
-
         // 응답 데이터 구성
         return TokenResponse.of(
             customer.getCustomerId(),
