@@ -1,9 +1,10 @@
 package saviing.game.character.infrastructure.persistence.mapper;
 
+import java.time.LocalDateTime;
+
 import org.springframework.stereotype.Component;
 import saviing.game.character.domain.model.aggregate.Character;
 import saviing.game.character.domain.model.enums.ConnectionStatus;
-import saviing.game.character.domain.model.enums.TerminationCategory;
 import saviing.game.character.domain.model.vo.AccountConnection;
 import saviing.game.character.domain.model.vo.AccountTermination;
 import saviing.game.character.domain.model.vo.CharacterId;
@@ -11,8 +12,6 @@ import saviing.game.character.domain.model.vo.CharacterLifecycle;
 import saviing.game.character.domain.model.vo.CustomerId;
 import saviing.game.character.domain.model.vo.GameStatus;
 import saviing.game.character.infrastructure.persistence.entity.CharacterEntity;
-
-import java.time.LocalDateTime;
 
 /**
  * Character Entity와 Domain Model 간의 변환을 담당하는 Mapper
@@ -57,7 +56,6 @@ public class CharacterEntityMapper {
             .accountId(character.getAccountConnection().accountId())
             .connectionStatus(character.getAccountConnection().connectionStatus())
             .connectionDate(character.getAccountConnection().connectionDate())
-            .terminationCategory(extractTerminationCategory(character.getAccountConnection()))
             .terminationReason(extractTerminationReason(character.getAccountConnection()))
             .terminatedAt(extractTerminatedAt(character.getAccountConnection()))
             .coin(character.getGameStatus().coin())
@@ -77,7 +75,10 @@ public class CharacterEntityMapper {
      * @param character Character 도메인 객체
      */
     public void updateEntity(CharacterEntity entity, Character character) {
-        if (entity == null || character == null) {
+        if (entity == null) {
+            return;
+        }
+        if (character == null) {
             return;
         }
 
@@ -85,7 +86,6 @@ public class CharacterEntityMapper {
             character.getAccountConnection().accountId(),
             character.getAccountConnection().connectionStatus(),
             character.getAccountConnection().connectionDate(),
-            extractTerminationCategory(character.getAccountConnection()),
             extractTerminationReason(character.getAccountConnection()),
             extractTerminatedAt(character.getAccountConnection()),
             character.getGameStatus().coin(),
@@ -96,12 +96,17 @@ public class CharacterEntityMapper {
         );
     }
 
+    /**
+     * CharacterEntity의 계좌 연결 정보를 AccountConnection Value Object로 변환합니다.
+     * 
+     * @param entity CharacterEntity
+     * @return AccountConnection Value Object
+     */
     private AccountConnection mapAccountConnection(CharacterEntity entity) {
         AccountTermination termination = null;
         
         if (entity.getConnectionStatus() == ConnectionStatus.TERMINATED) {
             termination = new AccountTermination(
-                entity.getTerminationCategory(),
                 entity.getTerminationReason(),
                 entity.getTerminatedAt()
             );
@@ -115,6 +120,12 @@ public class CharacterEntityMapper {
         );
     }
 
+    /**
+     * CharacterEntity의 게임 상태 정보를 GameStatus Value Object로 변환합니다.
+     * 
+     * @param entity CharacterEntity
+     * @return GameStatus Value Object
+     */
     private GameStatus mapGameStatus(CharacterEntity entity) {
         return new GameStatus(
             entity.getCoin(),
@@ -124,20 +135,33 @@ public class CharacterEntityMapper {
         );
     }
 
+    /**
+     * CharacterEntity의 생명주기 정보를 CharacterLifecycle Value Object로 변환합니다.
+     * 
+     * @param entity CharacterEntity
+     * @return CharacterLifecycle Value Object
+     */
     private CharacterLifecycle mapCharacterLifecycle(CharacterEntity entity) {
         return new CharacterLifecycle(entity.getCreatedAt(), entity.getUpdatedAt(), entity.getDeactivatedAt());
     }
 
-    private TerminationCategory extractTerminationCategory(AccountConnection accountConnection) {
-        return accountConnection.terminationInfo() != null ? 
-            accountConnection.terminationInfo().category() : null;
-    }
-
+    /**
+     * AccountConnection에서 해지 사유를 추출합니다.
+     * 
+     * @param accountConnection 계좌 연결 정보
+     * @return 해지 사유 (해지 정보가 없으면 null)
+     */
     private String extractTerminationReason(AccountConnection accountConnection) {
         return accountConnection.terminationInfo() != null ? 
             accountConnection.terminationInfo().reason() : null;
     }
 
+    /**
+     * AccountConnection에서 해지 시간을 추출합니다.
+     * 
+     * @param accountConnection 계좌 연결 정보
+     * @return 해지 시간 (해지 정보가 없으면 null)
+     */
     private LocalDateTime extractTerminatedAt(AccountConnection accountConnection) {
         return accountConnection.terminationInfo() != null ? 
             accountConnection.terminationInfo().terminatedAt() : null;

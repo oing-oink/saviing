@@ -9,7 +9,7 @@ public record CustomerId(
 ) {
     public CustomerId {
         if (value == null || value <= 0) {
-            throw new IllegalArgumentException("Customer ID must be positive");
+            throw new IllegalArgumentException("고객 ID는 양수여야 합니다");
         }
     }
 
