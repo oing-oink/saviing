@@ -83,7 +83,7 @@ const GamePage = () => {
                 side="top"
                 align="center"
                 sideOffset={16}
-                className="w-screen p-0"
+                className="w-screen max-w-md p-0"
               >
                 <PetStatusCard petId={currentPetId} />
               </PopoverContent>
@@ -91,7 +91,7 @@ const GamePage = () => {
           </div>
         </div>
 
-        <div className="absolute bottom-0 right-0 pb-5 pr-3 z-5">
+        <div className="absolute right-0 bottom-0 z-5 pr-3 pb-5">
           <GameHeader2 />
         </div>
       </div>
