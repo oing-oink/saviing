@@ -12,9 +12,11 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import saviing.bank.auth.oauth2.userinfo.OAuth2UserInfo;
 import saviing.bank.auth.oauth2.userinfo.OAuth2UserInfoFactory;
+import saviing.bank.auth.oauth2.exception.OAuth2ErrorCode;
 import saviing.bank.customer.entity.Customer;
 import saviing.bank.customer.repository.CustomerRepository;
 import saviing.common.config.JwtConfig;
+import saviing.common.exception.BusinessException;
 
 import java.util.Map;
 import java.util.Optional;
@@ -86,10 +88,7 @@ public class OAuth2TokenService {
             )
             .filter(response -> response.containsKey("access_token"))
             .map(response -> (String) response.get("access_token"))
-            .orElseThrow(() -> {
-                log.error("Google 토큰 교환 실패");
-                return new IllegalArgumentException("Google 토큰 교환에 실패했습니다.");
-            });
+            .orElseThrow(() -> new BusinessException(OAuth2ErrorCode.TOKEN_EXCHANGE_FAILED));
     }
 
     /**
@@ -106,10 +105,7 @@ public class OAuth2TokenService {
                     .bodyToMono(Map.class)
                     .block()
             )
-            .orElseThrow(() -> {
-                log.error("Google 사용자 정보 조회 실패");
-                return new IllegalArgumentException("Google 사용자 정보 조회에 실패했습니다.");
-            });
+            .orElseThrow(() -> new BusinessException(OAuth2ErrorCode.USER_INFO_RETRIEVAL_FAILED));
 
         OAuth2UserInfo userInfo = oAuth2UserInfoFactory.getOAuth2UserInfo("google", userAttributes);
         log.debug("Google 사용자 정보 조회 성공 - ID: {}", userInfo.getId());
