@@ -15,7 +15,7 @@ spring:
       - optional:file:../config/bank/.env[.properties]
     
   datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:bank}
+    url: ${DB_URL:jdbc:mysql://localhost:3306/bank}
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:root}
     driver-class-name: com.mysql.cj.jdbc.Driver

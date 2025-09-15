@@ -10,7 +10,7 @@ api:
 spring:
   # Database Configuration - Production
   datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/game?useSSL=true&serverTimezone=Asia/Seoul
+    url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
