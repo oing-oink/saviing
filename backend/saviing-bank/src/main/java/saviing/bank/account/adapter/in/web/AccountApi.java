@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -84,4 +85,38 @@ public interface AccountApi {
         useReturnTypeSchema = true
     )
     ApiResult<List<GetAccountResponse>> getAccountsByCustomerId(@RequestParam Long customerId);
+
+    @Operation(
+        summary = "계좌 조회",
+        description = "계좌번호로 계좌 상세 정보를 조회합니다.",
+        parameters = @Parameter(
+            name = "accountNumber",
+            description = "조회할 계좌번호",
+            required = true,
+            example = "11012345678901234"
+        )
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "계좌 조회 성공",
+        useReturnTypeSchema = true
+    )
+    ApiResult<GetAccountResponse> getAccount(@PathVariable String accountNumber);
+
+    @Operation(
+        summary = "계좌 ID로 계좌 조회",
+        description = "계좌 ID로 계좌 상세 정보를 조회합니다. (내부용)",
+        parameters = @Parameter(
+            name = "accountId",
+            description = "조회할 계좌 ID",
+            required = true,
+            example = "1"
+        )
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "계좌 조회 성공",
+        useReturnTypeSchema = true
+    )
+    ApiResult<GetAccountResponse> getAccountById(@PathVariable Long accountId);
 }

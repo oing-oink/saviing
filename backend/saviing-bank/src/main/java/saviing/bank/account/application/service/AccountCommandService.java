@@ -5,19 +5,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Map;
 
 import saviing.common.annotation.ExecutionTime;
 import saviing.bank.account.application.port.in.CreateAccountUseCase;
-import saviing.bank.account.application.port.in.GetAccountsByCustomerIdUseCase;
 import saviing.bank.account.application.port.in.command.CreateAccountCommand;
 import saviing.bank.account.application.port.in.command.CreateDemandDepositCommand;
 import saviing.bank.account.application.port.in.command.CreateSavingsCommand;
 import saviing.bank.account.application.port.in.result.CreateAccountResult;
-import saviing.bank.account.application.port.in.result.GetAccountResult;
 import saviing.bank.account.application.port.out.GenerateAccountNumberPort;
-import saviing.bank.account.application.port.out.LoadAccountPort;
 import saviing.bank.account.application.port.out.SaveAccountPort;
 import saviing.bank.account.domain.model.Account;
 import saviing.bank.account.domain.model.Product;
@@ -34,10 +30,9 @@ import saviing.bank.account.exception.InvalidTargetAmountException;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class AccountService implements CreateAccountUseCase, GetAccountsByCustomerIdUseCase {
+public class AccountCommandService implements CreateAccountUseCase {
 
     private final GenerateAccountNumberPort generateAccountNumberPort;
-    private final LoadAccountPort loadAccountPort;
     private final SaveAccountPort saveAccountPort;
     private final ProductService productService;
     
@@ -53,18 +48,6 @@ public class AccountService implements CreateAccountUseCase, GetAccountsByCustom
             case CreateDemandDepositCommand demandDeposit -> createDemandDepositAccount(demandDeposit, product);
             case CreateSavingsCommand savings -> createSavingsAccount(savings, product);
         };
-    }
-
-    @Override
-    public List<GetAccountResult> getAccountsByCustomerId(Long customerId) {
-        List<Account> accounts = loadAccountPort.findByCustomerId(customerId);
-
-        return accounts.stream()
-            .map(account -> {
-                Product product = productService.getProduct(account.getProductId());
-                return GetAccountResult.from(account, product);
-            })
-            .toList();
     }
 
     private CreateAccountResult createDemandDepositAccount(CreateDemandDepositCommand command, Product product) {

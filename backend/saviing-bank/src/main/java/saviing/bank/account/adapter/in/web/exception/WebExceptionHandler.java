@@ -27,6 +27,7 @@ public class WebExceptionHandler {
 
     private WebErrorCode mapToWebErrorCode(AccountErrorType errorType) {
         return switch (errorType) {
+            case ACCOUNT_NOT_FOUND -> WebErrorCode.ACCOUNT_NOT_FOUND;
             case INSUFFICIENT_BALANCE -> WebErrorCode.ACCOUNT_INSUFFICIENT_BALANCE;
             case INVALID_AMOUNT -> WebErrorCode.ACCOUNT_INVALID_AMOUNT;
             case INVALID_ACCOUNT_STATE -> WebErrorCode.ACCOUNT_INVALID_ACCOUNT_STATE;
