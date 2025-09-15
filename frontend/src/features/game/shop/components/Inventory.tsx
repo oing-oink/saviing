@@ -27,7 +27,7 @@ const Inventory = ({ items }: InventoryProps) => {
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`h-10 w-20 rounded-t-xl px-2 py-2 text-sm active:scale-95 active:brightness-90 ${
+            className={`h-8 w-16 rounded-t-lg px-1 py-1 text-xs active:scale-95 active:brightness-90 ${
               activeTab === tab
                 ? 'border-t border-r border-l bg-secondary font-semibold'
                 : 'bg-primary text-gray-600'
@@ -39,12 +39,12 @@ const Inventory = ({ items }: InventoryProps) => {
       </div>
 
       {/* 인벤토리 슬롯 */}
-      <div className="max-h-80 overflow-y-auto bg-secondary px-4 pt-1 pb-5">
-        <div className="grid grid-cols-3 gap-1">
+      <div className="h-45 overflow-y-auto bg-secondary px-2 pt-2">
+        <div className="grid grid-cols-4 gap-0.5">
           {slots.map(slot => (
             <div
               key={slot.id}
-              className="relative -mb-5 flex aspect-square items-center justify-center"
+              className="relative -mb-3 flex aspect-square items-center justify-center"
             >
               <img
                 src={inventory_square}
