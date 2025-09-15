@@ -14,6 +14,21 @@ spring:
     import:
       - optional:file:../config/game/.env[.properties]
 
+  # Database Configuration
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:3306/game?useSSL=false&serverTimezone=Asia/Seoul
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:update}
+    show-sql: ${JPA_SHOW_SQL:true}
+    properties:
+      hibernate:
+        format_sql: true
+
   devtools:
     livereload:
       enabled: true
