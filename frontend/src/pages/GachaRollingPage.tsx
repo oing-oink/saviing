@@ -57,7 +57,6 @@ const GachaRollingPage = () => {
       {showResult && (
         <GachaResult
           item={mockInventoryItems[0]}
-          isOpen={showResult}
           onClose={handleCloseResult}
         />
       )}

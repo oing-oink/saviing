@@ -5,15 +5,11 @@ import { PAGE_PATH } from '@/shared/constants/path';
 
 interface ItemDetailModalProps {
   item: Item;
-  isOpen: boolean;
   onClose: () => void;
 }
 
-const GachaResult = ({ item, isOpen }: ItemDetailModalProps) => {
+const GachaResult = ({ item }: ItemDetailModalProps) => {
   const navigate = useNavigate();
-  if (!isOpen) {
-    return null;
-  }
 
   return (
     <div className="game fixed inset-0 z-50 flex items-center justify-center bg-white/50">
