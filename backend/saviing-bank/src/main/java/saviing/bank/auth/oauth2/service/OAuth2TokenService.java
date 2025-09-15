@@ -12,9 +12,12 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import saviing.bank.auth.oauth2.userinfo.OAuth2UserInfo;
 import saviing.bank.auth.oauth2.userinfo.OAuth2UserInfoFactory;
+import saviing.bank.auth.oauth2.exception.OAuth2ErrorCode;
+import saviing.bank.auth.oauth2.dto.TokenResponse;
 import saviing.bank.customer.entity.Customer;
 import saviing.bank.customer.repository.CustomerRepository;
 import saviing.common.config.JwtConfig;
+import saviing.common.exception.BusinessException;
 
 import java.util.Map;
 import java.util.Optional;
@@ -48,7 +51,7 @@ public class OAuth2TokenService {
      * OAuth2 Authorization Code를 처리하여 Customer를 생성/조회하고 JWT 토큰 발급
      */
     @Transactional
-    public Map<String, Object> exchangeCodeForToken(String authorizationCode) {
+    public TokenResponse exchangeCodeForToken(String authorizationCode) {
         // 1. Authorization Code → Google Access Token
         String googleAccessToken = exchangeCodeForAccessToken(authorizationCode);
 
@@ -86,10 +89,7 @@ public class OAuth2TokenService {
             )
             .filter(response -> response.containsKey("access_token"))
             .map(response -> (String) response.get("access_token"))
-            .orElseThrow(() -> {
-                log.error("Google 토큰 교환 실패");
-                return new IllegalArgumentException("Google 토큰 교환에 실패했습니다.");
-            });
+            .orElseThrow(() -> new BusinessException(OAuth2ErrorCode.TOKEN_EXCHANGE_FAILED));
     }
 
     /**
@@ -106,10 +106,7 @@ public class OAuth2TokenService {
                     .bodyToMono(Map.class)
                     .block()
             )
-            .orElseThrow(() -> {
-                log.error("Google 사용자 정보 조회 실패");
-                return new IllegalArgumentException("Google 사용자 정보 조회에 실패했습니다.");
-            });
+            .orElseThrow(() -> new BusinessException(OAuth2ErrorCode.USER_INFO_RETRIEVAL_FAILED));
 
         OAuth2UserInfo userInfo = oAuth2UserInfoFactory.getOAuth2UserInfo("google", userAttributes);
         log.debug("Google 사용자 정보 조회 성공 - ID: {}", userInfo.getId());
@@ -149,9 +146,9 @@ public class OAuth2TokenService {
      * Customer 정보를 기반으로 JWT Access Token을 생성하여 응답 객체를 구성합니다.
      *
      * @param customer 인증된 Customer 엔티티
-     * @return 토큰 응답 Map
+     * @return 토큰 응답 DTO
      */
-    private Map<String, Object> createTokenResponse(Customer customer) {
+    private TokenResponse createTokenResponse(Customer customer) {
         // JWT Access Token 생성 (userId, name, expiresIn 포함)
         String accessToken = jwtConfig.generateAccessToken(
             customer.getCustomerId().toString(),
@@ -166,11 +163,11 @@ public class OAuth2TokenService {
         String refreshToken = jwtConfig.generateRefreshToken(customer.getCustomerId().toString());
 
         // 응답 데이터 구성
-        return Map.of(
-            "userId", customer.getCustomerId(),
-            "name", customer.getName(),
-            "accessToken", accessToken,
-            "expiresIn", jwtConfig.getTokenExpiryInSeconds()
+        return TokenResponse.of(
+            customer.getCustomerId(),
+            customer.getName(),
+            accessToken,
+            jwtConfig.getTokenExpiryInSeconds()
         );
     }
 }
