@@ -15,6 +15,8 @@ dependencies {
 	implementation project(':saviing-common')
 	aspect project(':saviing-common')
 
+	implementation project(':saviing-bank-usecase-api')
+
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
