@@ -4,7 +4,7 @@ import { Button } from '@/shared/components/ui/button';
 import StatusProgress from './StatusProgress';
 import { usePetStore } from '@/features/game/pet/store/usePetStore';
 import { usePetStatusCard } from '@/features/game/pet/hooks/usePetStatusCard';
-import { usePetInteraction } from '@/features/game/pet/hooks/usePetInteraction';
+import { usePetInteraction } from '@/features/game/pet/query/usePetInteraction';
 import feed from '@/assets/game_pet/feed.png';
 import play from '@/assets/game_pet/play.png';
 import { Loader2 } from 'lucide-react';
