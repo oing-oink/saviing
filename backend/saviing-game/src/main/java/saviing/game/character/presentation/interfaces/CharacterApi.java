@@ -61,7 +61,6 @@ public interface CharacterApi {
             content = @Content(schema = @Schema(implementation = ErrorResult.class))
         )
     })
-    @PostMapping
     ApiResult<CharacterResponse> createCharacter(
         @Parameter(description = "캐릭터 생성 요청", required = true)
         @Valid @RequestBody CreateCharacterRequest request
@@ -104,7 +103,6 @@ public interface CharacterApi {
             content = @Content(schema = @Schema(implementation = ErrorResult.class))
         )
     })
-    @GetMapping("/{characterId}")
     ApiResult<CharacterResponse> getCharacter(
         @Parameter(description = "캐릭터 ID", required = true, example = "1")
         @PathVariable Long characterId
@@ -182,7 +180,6 @@ public interface CharacterApi {
             content = @Content(schema = @Schema(implementation = ErrorResult.class))
         )
     })
-    @PutMapping("/{characterId}/account")
     ApiResult<Void> connectAccount(
         @Parameter(description = "캐릭터 ID", required = true, example = "1")
         @PathVariable Long characterId,
@@ -257,7 +254,6 @@ public interface CharacterApi {
             content = @Content(schema = @Schema(implementation = ErrorResult.class))
         )
     })
-    @DeleteMapping("/{characterId}/account")
     ApiResult<Void> cancelAccountConnection(
         @Parameter(description = "캐릭터 ID", required = true, example = "1")
         @PathVariable Long characterId
