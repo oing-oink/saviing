@@ -10,9 +10,16 @@ import ShopPage from '@/pages/ShopPage';
 import GachaPage from '@/pages/GachaPage';
 import GachaRollingPage from '@/pages/GachaRollingPage';
 import DecoPage from '@/pages/DecoPage';
+import SavingsLayout from '@/features/savings/components/SavingsLayout';
 
 export const router = createBrowserRouter([
-  { path: PAGE_PATH.HOME, element: <HomePage /> },
+  {
+    path: PAGE_PATH.HOME,
+    element: <SavingsLayout />,
+    children: [
+      { index: true, element: <HomePage /> },
+    ],
+  },
   { path: PAGE_PATH.LOGIN, element: <LoginPage /> },
   { path: PAGE_PATH.SAVINGS, element: <SavingsPage /> },
   { path: PAGE_PATH.GAME, element: <GamePage /> },
