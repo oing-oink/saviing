@@ -15,7 +15,7 @@ const PetCard = ({ petId }: PetCardProps) => {
 
   if (isLoading) {
     return (
-      <Card className="game mb-4 flex w-full flex-col items-center gap-4 rounded-2xl bg-white py-4 font-galmuri shadow">
+      <Card className="game flex w-full flex-col items-center gap-4 rounded-2xl bg-white py-4 font-galmuri shadow">
         <div className="flex h-full items-center justify-center">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           <span className="ml-2 text-sm text-muted-foreground">
@@ -28,14 +28,14 @@ const PetCard = ({ petId }: PetCardProps) => {
 
   if (error || !petData) {
     return (
-      <Card className="game mb-4 flex w-full flex-col items-center gap-4 rounded-2xl bg-white py-4 shadow">
+      <Card className="game flex w-full flex-col items-center gap-4 rounded-2xl bg-white py-4 shadow">
         <div className="text-red-500">데이터를 불러올 수 없습니다</div>
       </Card>
     );
   }
 
   return (
-    <Card className="game mb-4 flex w-full flex-col items-center gap-4 rounded-2xl bg-white py-4 font-galmuri shadow">
+    <Card className="game flex w-full flex-col items-center gap-4 rounded-2xl bg-white py-4 font-galmuri shadow">
       {/* 레벨 배지 */}
       <Badge className={`${levelClass}`}>Lv{petData.level}</Badge>
 
