@@ -2,7 +2,7 @@ import { Bell } from 'lucide-react';
 
 const TopBar = () => {
   return (
-    <header className="saving flex w-full items-center justify-between bg-violet-50 px-6 py-4">
+    <header className="saving fixed top-0 z-50 flex w-full items-center justify-between bg-violet-50 px-6 py-4">
       {/* 왼쪽 로고 */}
       <h1 className="text-2xl font-bold text-primary">Saviing</h1>
 
