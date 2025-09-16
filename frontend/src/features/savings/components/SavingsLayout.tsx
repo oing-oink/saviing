@@ -6,7 +6,7 @@ const SavingsLayout = () => {
   return (
     <div className="mx-auto min-h-dvh w-full max-w-md bg-violet-50">
       <TopBar />
-      <div className="pt-16 pb-20">
+      <div className="pb-20">
         <Outlet />
       </div>
       <BottomNav />
