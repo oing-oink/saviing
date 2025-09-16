@@ -1,15 +1,27 @@
 import coin from '@/assets/game_button/coin.png';
 import fishCoin from '@/assets/game_button/fishCoin.png';
 import { useGameStore } from '@/features/game/shared/store/useGameStore';
+import { useGameQuery } from '@/features/game/shared/query/useGameQuery';
+import { useEffect } from 'react';
 
 /**
  * 사용자의 보유 재화(코인, 피시코인)를 표시하는 컴포넌트
  *
- * 전역 상태에서 실시간 재화 정보를 가져와 표시합니다.
+ * 게임 데이터를 직접 API에서 가져와 전역 상태에 저장하고 표시합니다.
  * 게임 데이터가 로드되지 않은 경우 기본값(0)을 표시합니다.
  */
 const Coin = () => {
-  const { gameData } = useGameStore();
+  // Todo: 나중에 api 받아와서 수정
+  const characterId = 5;
+
+  const { gameData, setGameData } = useGameStore();
+  const { data: apiGameData } = useGameQuery(characterId);
+
+  useEffect(() => {
+    if (apiGameData) {
+      setGameData(apiGameData);
+    }
+  }, [apiGameData, setGameData]);
 
   const coinAmount = gameData?.coin ?? 0;
   const fishCoinAmount = gameData?.fishCoin ?? 0;
