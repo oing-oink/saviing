@@ -16,8 +16,6 @@ public class OAuth2UserInfoFactory {
         try {
             OAuth2Provider provider = extractProvider(registrationId);
 
-            log.debug("OAuth2 사용자 정보 생성 - Provider: {}, RegistrationId: {}", provider, registrationId);
-
             switch (provider) {
                 case GOOGLE:
                     return createGoogleUserInfo(attributes);
