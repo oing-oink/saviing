@@ -30,7 +30,7 @@ public class ExecutionTimeAspect {
     @Pointcut("@within(saviing.common.annotation.ExecutionTime)")
     public void annotatedClass() {}
     
-    @Around("execution(* *(..)) && (annotatedMethod() || annotatedClass())")
+    @Around("execution(* *(..)) && !execution(static * *..*(..)) && (annotatedMethod() || annotatedClass())")
     public Object measureExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();

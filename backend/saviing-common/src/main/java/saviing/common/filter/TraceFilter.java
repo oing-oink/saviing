@@ -23,7 +23,7 @@ public class TraceFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
         // 헬스체크/정적 리소스는 스킵
         String uri = request.getRequestURI();
-        return uri.startsWith("/actuator") || uri.startsWith("/assets/");
+        return uri.startsWith("/actuator") || uri.contains("/swagger-ui/") || uri.contains("/api-docs");
     }
 
     @Override

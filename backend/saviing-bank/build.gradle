@@ -1,3 +1,7 @@
+plugins {
+	id 'io.freefair.aspectj.post-compile-weaving' version '8.14.2'
+}
+
 bootJar {
 	enabled = true
 	mainClass = 'saviing.bank.BankApplication'
@@ -9,14 +13,24 @@ jar {
 
 dependencies {
 	implementation project(':saviing-common')
+	aspect project(':saviing-common')
 
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
+	// Database
 	runtimeOnly 'com.h2database:h2'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 
+	// JPA
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	
+	// OpenFeign
+	implementation("org.springframework.cloud:spring-cloud-starter-openfeign:4.3.0")
+
+	// Swagger
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.13'
+	
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	testImplementation 'org.springframework.security:spring-security-test'

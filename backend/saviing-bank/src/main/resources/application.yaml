@@ -10,24 +10,12 @@ api:
 spring:
   application:
     name: BANK
-  profiles:
-    active: ${SPRING_PROFILES_ACTIVE:local}
   config:
     import:
-      - optional:file:.env
-      - optional:file:./saviing-bank/.env
       - optional:file:../config/bank/.env[.properties]
-  devtools:
-    livereload:
-      enabled: true
-    restart:
-      enabled: true
-      additional-paths:
-        - src/main/resources
-
-  # Database Configuration
+    
   datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3307}/bank?useSSL=false&serverTimezone=Asia/Seoul
+    url: ${DB_URL:jdbc:mysql://localhost:3306/bank}
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:root}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -35,10 +23,24 @@ spring:
   jpa:
     hibernate:
       ddl-auto: ${JPA_DDL_AUTO:update}
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     show-sql: ${JPA_SHOW_SQL:true}
     properties:
       hibernate:
         format_sql: true
+        highlight_sql: true
+        use_sql_comments: true
+        dialect: org.hibernate.dialect.MySQLDialect
+    open-in-view: false
+
+  devtools:
+    livereload:
+      enabled: true
+    restart:
+      enabled: true
+      additional-paths:
+        - src/main/resources
 
 # OAuth2 설정
 oauth2:
