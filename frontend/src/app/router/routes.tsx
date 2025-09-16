@@ -16,9 +16,7 @@ export const router = createBrowserRouter([
   {
     path: PAGE_PATH.HOME,
     element: <SavingsLayout />,
-    children: [
-      { index: true, element: <HomePage /> },
-    ],
+    children: [{ index: true, element: <HomePage /> }],
   },
   { path: PAGE_PATH.LOGIN, element: <LoginPage /> },
   { path: PAGE_PATH.SAVINGS, element: <SavingsPage /> },
