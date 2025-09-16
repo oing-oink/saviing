@@ -51,7 +51,12 @@ const PromoCarousel = () => {
 
   return (
     <div className="relative w-full">
-      <Carousel plugins={[plugin.current]} setApi={setApi} className="w-full" opts={{ loop: true }}>
+      <Carousel
+        plugins={[plugin.current]}
+        setApi={setApi}
+        className="w-full"
+        opts={{ loop: true }}
+      >
         <CarouselContent className="-ml-2">
           {promoItems.map((item, index) => (
             <CarouselItem key={index} className="bg-transparent pl-2">
