@@ -118,7 +118,6 @@ public class OAuth2TokenService {
      * Authorization Code를 Google Access Token으로 교환
      */
     private String exchangeCodeForAccessToken(String authorizationCode) {
-        log.debug("Google Authorization Code를 Access Token으로 교환 시작");
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("client_id", googleClientId);
@@ -145,7 +144,6 @@ public class OAuth2TokenService {
      * Google Access Token으로 사용자 정보 조회
      */
     private OAuth2UserInfo getUserInfo(String accessToken) {
-        log.debug("Google Access Token으로 사용자 정보 조회 시작");
 
         Map<String, Object> userAttributes = Optional.ofNullable(
                 webClient.get()
@@ -157,10 +155,7 @@ public class OAuth2TokenService {
             )
             .orElseThrow(() -> new BusinessException(OAuth2ErrorCode.USER_INFO_RETRIEVAL_FAILED));
 
-        OAuth2UserInfo userInfo = oAuth2UserInfoFactory.getOAuth2UserInfo("google", userAttributes);
-        log.debug("Google 사용자 정보 조회 성공 - ID: {}", userInfo.getId());
-
-        return userInfo;
+        return oAuth2UserInfoFactory.getOAuth2UserInfo("google", userAttributes);
     }
 
     /**
@@ -171,11 +166,6 @@ public class OAuth2TokenService {
         String oauth2Id = userInfo.getId();
 
         return customerRepository.findByOauth2ProviderAndOauth2Id(provider, oauth2Id)
-            .map(existingCustomer -> {
-                log.info("기존 고객 로그인 - CustomerId: {}, Name: {}",
-                    existingCustomer.getCustomerId(), existingCustomer.getName());
-                return existingCustomer;
-            })
             .orElseGet(() -> {
                 Customer newCustomer = Customer.builder()
                     .name(userInfo.getName())
@@ -183,10 +173,7 @@ public class OAuth2TokenService {
                     .oauth2Id(oauth2Id)
                     .build();
 
-                Customer savedCustomer = customerRepository.save(newCustomer);
-                log.info("신규 고객 자동 가입 - CustomerId: {}, Name: {}",
-                    savedCustomer.getCustomerId(), savedCustomer.getName());
-                return savedCustomer;
+                return customerRepository.save(newCustomer);
             });
     }
 

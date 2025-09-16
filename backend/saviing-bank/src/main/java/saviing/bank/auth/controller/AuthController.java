@@ -23,14 +23,12 @@ public class AuthController {
 
     @PostMapping("/login")
     public ApiResult<LoginResponse> login(@RequestParam("code") String code) {
-        log.info("OAuth2 로그인 요청 - Authorization Code 길이: {}", code.length());
-
         // Authorization Code 유효성 검증
         if (code.trim().isEmpty()) {
             throw new BusinessException(GlobalErrorCode.INVALID_INPUT_VALUE, "Authorization code는 필수입니다.");
         }
 
-        // OAuth2 로그인 처리 (서비스에서 모든 토큰 생성 처리)
+        // OAuth2 로그인 처리
         LoginResponseWithCookie result = oAuth2TokenService.processLogin(code);
 
         return ApiResult.ok(result.loginResponse())
