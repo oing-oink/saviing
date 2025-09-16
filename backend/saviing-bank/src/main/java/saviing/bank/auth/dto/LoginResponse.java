@@ -7,7 +7,7 @@ package saviing.bank.auth.dto;
 public record LoginResponse(
     String accessToken,
     Long customerId,
-    Long expires_in
+    Long expiresIn
 ) {
     /**
      * LoginResponse 생성을 위한 팩토리 메서드
