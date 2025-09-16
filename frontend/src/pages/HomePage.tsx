@@ -13,6 +13,12 @@ const HomePage = () => {
       >
         Go to Color Test Page
       </button>
+      <button
+        onClick={() => navigate('/game')}
+        className="game block w-full rounded-lg bg-primary p-2 text-center text-white"
+      >
+        Go to Color Game Page
+      </button>
     </div>
   );
 };

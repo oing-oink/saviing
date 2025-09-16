@@ -1,6 +1,7 @@
 import Coin from '@/features/game/shared/components/Coin';
 import closeButton from '@/assets/game_button/closeButton.png';
 import storeButton from '@/assets/game_button/storeButton.png';
+import decoButton from '@/assets/game_button/decoButton.png';
 import { useNavigate } from 'react-router-dom';
 import { PAGE_PATH } from '@/shared/constants/path';
 
@@ -12,14 +13,21 @@ import { PAGE_PATH } from '@/shared/constants/path';
 const GameHeader = () => {
   const navigate = useNavigate();
   return (
-    <div className="flex w-full justify-between px-3">
-      <button onClick={() => navigate(PAGE_PATH.HOME)}>
-        <img className="w-8 pt-10" src={closeButton} />
-      </button>
-      <Coin />
-      <button onClick={() => navigate(PAGE_PATH.SHOP)}>
-        <img className="w-8 pt-10" src={storeButton} />
-      </button>
+    <div>
+      <div className="flex h-20 w-full items-center justify-between px-3">
+        <button onClick={() => navigate(PAGE_PATH.HOME)}>
+          <img className="w-9 pt-5" src={closeButton} />
+        </button>
+        <Coin />
+        <button onClick={() => navigate(PAGE_PATH.SHOP)}>
+          <img className="w-9 pt-5" src={storeButton} />
+        </button>
+      </div>
+      <div className="flex justify-end px-3">
+        <button onClick={() => navigate(PAGE_PATH.DECO)}>
+          <img className="w-9" src={decoButton} />
+        </button>
+      </div>
     </div>
   );
 };

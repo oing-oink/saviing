@@ -7,15 +7,13 @@ import { PAGE_PATH } from '@/shared/constants/path';
 const InventoryHud = () => {
   const navigate = useNavigate();
   return (
-    <div className="flex w-full justify-between px-3">
+    <div className="flex h-20 w-full items-center justify-between px-3">
       <button onClick={() => navigate(PAGE_PATH.GAME)}>
-        <img className="w-10 pt-10" src={backButton} />
+        <img className="w-9 pt-5" src={backButton} />
       </button>
-      <div className="pt-9">
-        <Coin />
-      </div>
+      <Coin />
       <button onClick={() => navigate(PAGE_PATH.GACHA)}>
-        <img className="w-10 pt-10" src={gachaButton} />
+        <img className="w-9 pt-5" src={gachaButton} />
       </button>
     </div>
   );
