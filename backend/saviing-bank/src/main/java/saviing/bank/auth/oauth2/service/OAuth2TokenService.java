@@ -13,7 +13,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 import saviing.bank.auth.oauth2.userinfo.OAuth2UserInfo;
 import saviing.bank.auth.oauth2.userinfo.OAuth2UserInfoFactory;
 import saviing.bank.auth.oauth2.exception.OAuth2ErrorCode;
+import saviing.bank.auth.exception.AuthErrorCode;
 import saviing.bank.auth.dto.LoginResponse;
+import saviing.bank.auth.dto.RefreshResponse;
 import saviing.bank.auth.oauth2.dto.TokenResponse;
 import saviing.bank.common.enums.OAuth2Provider;
 import saviing.bank.customer.entity.Customer;
@@ -67,24 +69,10 @@ public class OAuth2TokenService {
         Customer customer = processCustomer(userInfo);
 
         // 4. JWT Access Token 생성
-        String accessToken = jwtConfig.generateAccessToken(
-            customer.getCustomerId().toString(),
-            Map.of(
-                "customerId", customer.getCustomerId(),
-                "name", customer.getName(),
-                "expiresIn", jwtConfig.getTokenExpiryInSeconds()
-            )
-        );
+        String accessToken = createAccessToken(customer);
 
         // 5. Refresh Token 생성 및 쿠키 설정
-        String refreshToken = jwtConfig.generateRefreshToken(customer.getCustomerId().toString());
-        ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", refreshToken)
-            .httpOnly(true)
-            .secure(true)
-            .sameSite("Strict")
-            .maxAge(Duration.ofMinutes(15)) // 15분
-            .path("/")
-            .build();
+        ResponseCookie refreshTokenCookie = createRefreshTokenCookie(customer);
 
         // 6. 로그인 응답 생성
         LoginResponse loginResponse = LoginResponse.of(
@@ -112,6 +100,37 @@ public class OAuth2TokenService {
 
         // 4. JWT 토큰 응답 생성
         return createTokenResponse(customer);
+    }
+
+    /**
+     * Refresh Token을 사용하여 새로운 Access Token과 Refresh Token 발급
+     */
+    public RefreshResponseWithCookie refreshTokens(String refreshToken) {
+        // 1. Refresh Token 유효성 검증
+        if (!jwtConfig.isTokenValid(refreshToken) || !jwtConfig.isRefreshToken(refreshToken)) {
+            throw new BusinessException(AuthErrorCode.INVALID_REFRESH_TOKEN);
+        }
+
+        // 2. Refresh Token에서 customerId 추출
+        String customerId = jwtConfig.getSubjectFromToken(refreshToken);
+
+        // 3. Customer 조회
+        Customer customer = customerRepository.findById(Long.valueOf(customerId))
+            .orElseThrow(() -> new BusinessException(AuthErrorCode.USER_NOT_FOUND));
+
+        // 4. 새로운 Access Token 생성
+        String newAccessToken = createAccessToken(customer);
+
+        // 5. 새로운 Refresh Token 생성 및 쿠키 설정
+        ResponseCookie refreshTokenCookie = createRefreshTokenCookie(customer);
+
+        // 6. 응답 생성 (RefreshResponse와 쿠키)
+        RefreshResponse refreshResponse = RefreshResponse.of(
+            newAccessToken,
+            jwtConfig.getTokenExpiryInSeconds()
+        );
+
+        return new RefreshResponseWithCookie(refreshResponse, refreshTokenCookie);
     }
 
     /**
@@ -178,6 +197,28 @@ public class OAuth2TokenService {
     }
 
     /**
+     * Customer 정보를 기반으로 JWT Access Token 생성
+     */
+    private String createAccessToken(Customer customer) {
+        return jwtConfig.generateAccessToken(
+            customer.getCustomerId().toString(),
+            Map.of(
+                "customerId", customer.getCustomerId(),
+                "name", customer.getName(),
+                "expiresIn", jwtConfig.getTokenExpiryInSeconds()
+            )
+        );
+    }
+
+    /**
+     * Customer 정보를 기반으로 Refresh Token 쿠키 생성
+     */
+    private ResponseCookie createRefreshTokenCookie(Customer customer) {
+        String refreshToken = jwtConfig.generateRefreshToken(customer.getCustomerId().toString());
+        return jwtConfig.createRefreshTokenCookie(refreshToken);
+    }
+
+    /**
      * JWT 토큰 응답 생성
      * Customer 정보를 기반으로 JWT Access Token을 생성하여 응답 객체를 구성합니다.
      *
@@ -186,14 +227,7 @@ public class OAuth2TokenService {
      */
     private TokenResponse createTokenResponse(Customer customer) {
         // JWT Access Token 생성 (customerId, name, expiresIn 포함)
-        String accessToken = jwtConfig.generateAccessToken(
-            customer.getCustomerId().toString(),
-            Map.of(
-                "customerId", customer.getCustomerId(),
-                "name", customer.getName(),
-                "expiresIn", jwtConfig.getTokenExpiryInSeconds()
-            )
-        );
+        String accessToken = createAccessToken(customer);
 
         // 응답 데이터 구성
         return TokenResponse.of(

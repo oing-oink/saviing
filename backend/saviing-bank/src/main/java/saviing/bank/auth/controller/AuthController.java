@@ -2,13 +2,16 @@ package saviing.bank.auth.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import saviing.bank.auth.dto.LoginResponse;
+import saviing.bank.auth.dto.RefreshResponse;
 import saviing.bank.auth.oauth2.service.OAuth2TokenService;
 import saviing.bank.auth.oauth2.service.LoginResponseWithCookie;
+import saviing.bank.auth.oauth2.service.RefreshResponseWithCookie;
 import saviing.common.response.ApiResult;
 import saviing.common.exception.BusinessException;
 import saviing.common.exception.GlobalErrorCode;
@@ -32,6 +35,15 @@ public class AuthController {
         LoginResponseWithCookie result = oAuth2TokenService.processLogin(code);
 
         return ApiResult.ok(result.loginResponse())
+            .cookie(result.refreshTokenCookie());
+    }
+
+    @PostMapping("/refresh")
+    public ApiResult<RefreshResponse> refresh(@CookieValue("refresh_token") String refreshToken) {
+        // Refresh Token을 사용하여 새로운 토큰 발급
+        RefreshResponseWithCookie result = oAuth2TokenService.refreshTokens(refreshToken);
+
+        return ApiResult.ok(result.refreshResponse())
             .cookie(result.refreshTokenCookie());
     }
 }

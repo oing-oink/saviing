@@ -105,4 +105,8 @@ public class JwtConfig {
     public String getRefreshTokenCookieName() {
         return refreshTokenCookieName;
     }
+
+    public String getSubjectFromToken(String token) {
+        return parseToken(token).getSubject();
+    }
 }
