@@ -1,13 +1,13 @@
 package saviing.game.character.presentation.dto.request;
 
-/**
- * 코인 추가 요청 DTO입니다.
- *
- * @param coinAmount 추가할 코인 수량
- * @param fishCoinAmount 추가할 피쉬 코인 수량
- */
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "코인 지급 요청 (내부 API용)")
 public record AddCoinsRequest(
+    @Schema(description = "지급할 코인 수량 (선택사항)", example = "100", minimum = "1")
     Integer coinAmount,
+    
+    @Schema(description = "지급할 피쉬 코인 수량 (선택사항)", example = "50", minimum = "1")
     Integer fishCoinAmount
 ) {
     public AddCoinsRequest {
