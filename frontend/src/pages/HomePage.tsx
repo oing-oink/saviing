@@ -1,24 +1,17 @@
-import { Button } from '@/shared/components/ui/button';
-import { useNavigate } from 'react-router-dom';
+import PetCard from '@/features/savings/components/PetCard';
+import PromoCarousel from '@/features/savings/components/PromoCarousel';
+import SavingCard from '@/features/savings/components/SavingCard';
 
 const HomePage = () => {
-  const navigate = useNavigate();
-
   return (
-    <div>
-      <Button>Home</Button>
-      <button
-        onClick={() => navigate('/colortest')}
-        className="block w-full rounded-lg bg-blue-500 p-2 text-center text-white"
-      >
-        Go to Color Test Page
-      </button>
-      <button
-        onClick={() => navigate('/game')}
-        className="game block w-full rounded-lg bg-primary p-2 text-center text-white"
-      >
-        Go to Color Game Page
-      </button>
+    <div className="flex min-h-screen flex-col">
+      <div className="flex-1 px-5">
+        <div className="flex flex-col items-center gap-4">
+          <PromoCarousel />
+          <PetCard petId={1} />
+          <SavingCard />
+        </div>
+      </div>
     </div>
   );
 };
