@@ -13,12 +13,16 @@ import org.springframework.web.reactive.function.client.WebClient;
 import saviing.bank.auth.oauth2.userinfo.OAuth2UserInfo;
 import saviing.bank.auth.oauth2.userinfo.OAuth2UserInfoFactory;
 import saviing.bank.auth.oauth2.exception.OAuth2ErrorCode;
+import saviing.bank.auth.dto.LoginResponse;
 import saviing.bank.auth.oauth2.dto.TokenResponse;
 import saviing.bank.common.enums.OAuth2Provider;
 import saviing.bank.customer.entity.Customer;
 import saviing.bank.customer.repository.CustomerRepository;
 import saviing.common.config.JwtConfig;
 import saviing.common.exception.BusinessException;
+import org.springframework.http.ResponseCookie;
+
+import java.time.Duration;
 
 import java.util.Map;
 import java.util.Optional;
@@ -47,6 +51,50 @@ public class OAuth2TokenService {
 
     @Value("${oauth2.google.user-info-url:https://www.googleapis.com/oauth2/v3/userinfo}")
     private String googleUserInfoUrl;
+
+    /**
+     * OAuth2 로그인 처리 - Access Token과 Refresh Token 쿠키를 포함한 완전한 로그인 응답 생성
+     */
+    @Transactional
+    public LoginResponseWithCookie processLogin(String authorizationCode) {
+        // 1. Authorization Code → Google Access Token
+        String googleAccessToken = exchangeCodeForAccessToken(authorizationCode);
+
+        // 2. Google Access Token → 사용자 정보
+        OAuth2UserInfo userInfo = getUserInfo(googleAccessToken);
+
+        // 3. Customer 생성 또는 조회
+        Customer customer = processCustomer(userInfo);
+
+        // 4. JWT Access Token 생성
+        String accessToken = jwtConfig.generateAccessToken(
+            customer.getCustomerId().toString(),
+            Map.of(
+                "customerId", customer.getCustomerId(),
+                "name", customer.getName(),
+                "expiresIn", jwtConfig.getTokenExpiryInSeconds()
+            )
+        );
+
+        // 5. Refresh Token 생성 및 쿠키 설정
+        String refreshToken = jwtConfig.generateRefreshToken(customer.getCustomerId().toString());
+        ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", refreshToken)
+            .httpOnly(true)
+            .secure(true)
+            .sameSite("Strict")
+            .maxAge(Duration.ofMinutes(15)) // 15분
+            .path("/")
+            .build();
+
+        // 6. 로그인 응답 생성
+        LoginResponse loginResponse = LoginResponse.of(
+            accessToken,
+            customer.getCustomerId(),
+            jwtConfig.getTokenExpiryInSeconds()
+        );
+
+        return new LoginResponseWithCookie(loginResponse, refreshTokenCookie);
+    }
 
     /**
      * OAuth2 Authorization Code를 처리하여 Customer를 생성/조회하고 JWT 토큰 발급
