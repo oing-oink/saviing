@@ -19,10 +19,10 @@ const BottomNav = () => {
       <div
         className="absolute rounded-full bg-violet-600 transition-all duration-300 ease-in-out"
         style={{
-          width: active ? '96px' : '64px',
-          height: '40px',
-          transform: `translateX(${activeIndex * (64 + 8)}px)`,
-          left: '12px',
+          width: active ? '6rem' : '4rem',
+          height: '2.5rem',
+          transform: `translateX(${activeIndex * 4.5}rem)`,
+          left: '0.75rem',
         }}
       />
 
