@@ -13,6 +13,7 @@ import saviing.game.character.presentation.dto.request.AddCoinsRequest;
 import saviing.game.character.presentation.dto.request.CompleteAccountConnectionRequest;
 import saviing.game.character.presentation.dto.request.HandleAccountTerminatedRequest;
 import saviing.game.character.presentation.mapper.CharacterRequestMapper;
+import saviing.game.character.presentation.interfaces.CharacterInternalApi;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 
@@ -24,11 +25,12 @@ import org.springframework.web.bind.annotation.PutMapping;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/v1/internal/characters")
-public class CharacterInternalController {
+public class CharacterInternalController implements CharacterInternalApi {
 
     private final CharacterCommandService characterCommandService;
     private final CharacterRequestMapper requestMapper;
 
+    @Override
     @PutMapping("/{characterId}/account")
     public ApiResult<Void> completeAccountConnection(@PathVariable Long characterId,
                                                    @Valid @RequestBody CompleteAccountConnectionRequest request) {
@@ -41,6 +43,7 @@ public class CharacterInternalController {
         return ApiResult.ok();
     }
 
+    @Override
     @PostMapping("/{characterId}/transactions")
     public ApiResult<Void> addCoins(@PathVariable Long characterId,
                                    @Valid @RequestBody AddCoinsRequest request) {
@@ -54,6 +57,7 @@ public class CharacterInternalController {
         return ApiResult.ok();
     }
 
+    @Override
     @PostMapping("/{characterId}/events")
     public ApiResult<Void> handleAccountTerminated(@PathVariable Long characterId,
                                                   @Valid @RequestBody HandleAccountTerminatedRequest request) {
@@ -67,6 +71,7 @@ public class CharacterInternalController {
         return ApiResult.ok();
     }
 
+    @Override
     @PutMapping("/{characterId}/status")
     public ApiResult<Void> deactivateCharacter(@PathVariable Long characterId) {
         log.info("Deactivating character: {}", characterId);
