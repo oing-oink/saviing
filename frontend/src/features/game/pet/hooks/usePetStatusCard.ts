@@ -1,4 +1,4 @@
-import { usePetQuery } from '@/features/game/pet/query/usepetQuery';
+import { usePetQuery } from '@/features/game/pet/query/usePetQuery';
 
 /**
  * 펫 레벨별 배지 CSS 클래스 매핑
