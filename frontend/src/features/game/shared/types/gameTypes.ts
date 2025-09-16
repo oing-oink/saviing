@@ -1,9 +1,9 @@
 /**
- * 사용자 게임 정보 데이터 타입
+ * 캐릭터 게임 정보 데이터 타입
  *
- * 게임 내에서 사용되는 사용자의 기본 정보와 보유 재화 정보를 포함합니다.
+ * 게임 내에서 사용되는 캐릭터의 기본 정보와 보유 재화 정보를 포함합니다.
  */
-export interface UserGameData {
+export interface CharacterGameData {
   /** 캐릭터 ID */
   characterId: number;
   /** 고객 ID */

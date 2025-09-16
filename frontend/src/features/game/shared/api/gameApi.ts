@@ -1,6 +1,6 @@
 import { http } from '@/shared/services/api/http';
-import type { UserGameData } from '@/features/game/shared/types/gameTypes';
-import { mockGetUserGameData } from '@/features/game/shared/data/mockGameApi';
+import type { CharacterGameData } from '@/features/game/shared/types/gameTypes';
+import { mockGetCharacterGameData } from '@/features/game/shared/data/mockGameApi';
 
 /**
  * 개발 환경에서 mock 데이터 사용 여부를 결정하는 플래그
@@ -17,20 +17,20 @@ const USE_MOCK = import.meta.env.MODE === 'development';
  * 사용자의 캐릭터 정보, 보유 재화, 방 개수 등 게임 진행에 필요한 정보를 반환합니다.
  *
  * @param characterId - 조회할 캐릭터의 고유 식별자
- * @returns 사용자의 게임 정보가 담긴 UserGameData 객체
+ * @returns 캐릭터의 게임 정보가 담긴 CharacterGameData 객체
  * @throws API 호출 실패 시 네트워크 오류 또는 HTTP 오류 발생
  */
-export const getUserGameData = async (
+export const getCharacterGameData = async (
   characterId: number,
-): Promise<UserGameData> => {
+): Promise<CharacterGameData> => {
   if (USE_MOCK) {
     // Mock 데이터 사용
-    const mockResponse = await mockGetUserGameData();
+    const mockResponse = await mockGetCharacterGameData();
     return mockResponse.body!;
   }
 
   // 실제 API 호출
-  const response = await http.get<UserGameData>(
+  const response = await http.get<CharacterGameData>(
     `/v1/games/character/${characterId}`,
   );
   return response.body!;
