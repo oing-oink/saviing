@@ -50,41 +50,38 @@ const PromoCarousel = () => {
   }, [api]);
 
   return (
-    <div className="w-full">
+    <div className="relative w-full">
       <Carousel plugins={[plugin.current]} setApi={setApi} className="w-full">
         <CarouselContent className="-ml-2">
           {promoItems.map((item, index) => (
             <CarouselItem key={index} className="bg-transparent pl-2">
-              <div className="flex flex-col justify-between rounded-2xl bg-white p-3">
-                {/* 상단 영역: 텍스트 + 이미지 */}
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-bold text-black">{item.title}</p>
-                    <p className="text-xs text-gray-600">{item.subtitle}</p>
-                  </div>
-                  <img
-                    src={item.image}
-                    alt="promo"
-                    className="h-12 w-12 object-contain"
-                  />
+              <div className="flex items-center justify-between rounded-2xl bg-white p-5">
+                <div>
+                  <p className="text-sm font-bold text-black">{item.title}</p>
+                  <p className="text-xs text-gray-600">{item.subtitle}</p>
                 </div>
-
-                {/* 인디케이터 (카드 안쪽 하단) */}
-                <div className="mt-3 flex justify-center gap-2">
-                  {promoItems.map((_, dotIndex) => (
-                    <span
-                      key={dotIndex}
-                      className={`h-2 w-2 rounded-full transition-colors ${
-                        current === dotIndex ? 'bg-gray-700' : 'bg-gray-300'
-                      }`}
-                    />
-                  ))}
-                </div>
+                <img
+                  src={item.image}
+                  alt="promo"
+                  className="h-12 w-12 object-contain"
+                />
               </div>
             </CarouselItem>
           ))}
         </CarouselContent>
       </Carousel>
+
+      {/* 독립적인 인디케이터 (카드 위에 떠있음) */}
+      <div className="absolute bottom-1 left-1/2 z-10 flex -translate-x-1/2 gap-2 rounded-full bg-white/80 px-3 py-1 shadow-sm backdrop-blur-sm">
+        {promoItems.map((_, dotIndex) => (
+          <span
+            key={dotIndex}
+            className={`h-2 w-2 rounded-full transition-colors ${
+              current === dotIndex ? 'bg-gray-700' : 'bg-gray-300'
+            }`}
+          />
+        ))}
+      </div>
     </div>
   );
 };
