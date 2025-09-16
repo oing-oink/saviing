@@ -53,7 +53,7 @@ export const mockGetPet = async (): Promise<ApiSuccessResponse<PetData>> => {
  * @returns Promise로 래핑된 API 성공 응답 객체
  */
 export const mockPetInteraction = async (
-  petId: number,
+  _petId: number,
   request: PetInteractionRequest,
 ): Promise<ApiSuccessResponse<PetInteractionResponse>> => {
   // 실제 네트워크 지연 시뮬레이션
