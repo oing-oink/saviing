@@ -70,40 +70,29 @@ export const mockPetInteraction = async (
     exp: mockPetData.exp + 5,
   };
 
-  const consumption =
-    request.type === 'feed'
-      ? [
-          {
-            inventoryItemId: 4,
-            item_id: 4,
-            name: '사료',
-            type: 'feed',
-            count: 1,
-          },
-        ]
-      : [
-          {
-            inventoryItemId: 5,
-            item_id: 5,
-            name: '장난감',
-            type: 'play',
-            count: 1,
-          },
-        ];
-
-  // 현재 인벤토리에서 소모된 아이템만큼 차감한 업데이트된 인벤토리
-  // 실제로는 서버에서 현재 사용자의 인벤토리 정보를 가져와서 계산해야 함
+  // 사용자가 보유한 모든 펫 관련 아이템 (사용 후 남은 개수)
   const mockCurrentInventory = { feed: 3, toy: 2 }; // TODO: 실제 사용자 인벤토리로 교체
-  const updatedInventory =
-    request.type === 'feed'
-      ? {
-          ...mockCurrentInventory,
-          feed: Math.max(0, mockCurrentInventory.feed - 1),
-        }
-      : {
-          ...mockCurrentInventory,
-          toy: Math.max(0, mockCurrentInventory.toy - 1),
-        };
+
+  const consumption = [
+    {
+      inventoryItemId: 4,
+      item_id: 4,
+      name: '사료',
+      type: 'feed',
+      count: request.type === 'feed'
+        ? Math.max(0, mockCurrentInventory.feed - 1)  // 사료 사용 시 -1
+        : mockCurrentInventory.feed,                   // 놀이 시 그대로
+    },
+    {
+      inventoryItemId: 5,
+      item_id: 5,
+      name: '장난감',
+      type: 'play',
+      count: request.type === 'play'
+        ? Math.max(0, mockCurrentInventory.toy - 1)    // 놀이 시 -1
+        : mockCurrentInventory.toy,                     // 사료 시 그대로
+    },
+  ];
 
   return {
     success: true,
@@ -111,7 +100,6 @@ export const mockPetInteraction = async (
     body: {
       pet: updatedPet,
       consumption,
-      updatedInventory,
     },
   };
 };

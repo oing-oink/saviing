@@ -22,8 +22,14 @@ export const usePetInteraction = (petId: number) => {
       // 펫 데이터 캐시 업데이트
       queryClient.setQueryData(petKeys.detail(petId), data.pet);
 
-      // 서버 응답의 업데이트된 인벤토리로 동기화 (서버 진실 기반)
-      setInventory(data.updatedInventory);
+      // consumption 배열에서 인벤토리 정보 추출 (서버 진실 기반)
+      const feedItem = data.consumption.find(item => item.type === 'feed');
+      const toyItem = data.consumption.find(item => item.type === 'play');
+
+      setInventory({
+        feed: feedItem?.count || 0,
+        toy: toyItem?.count || 0,
+      });
 
       // 상호작용 타입에 따른 애니메이션 설정
       if (variables.type === 'feed') {

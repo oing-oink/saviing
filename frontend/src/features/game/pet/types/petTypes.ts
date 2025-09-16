@@ -114,8 +114,6 @@ export interface ConsumptionItem {
 export interface PetInteractionResponse {
   /** 업데이트된 펫 정보 */
   pet: PetData;
-  /** 소모된 아이템 목록 */
+  /** 사용자가 보유한 펫 관련 아이템 목록 (사용 후 남은 개수 포함) */
   consumption: ConsumptionItem[];
-  /** 업데이트된 인벤토리 상태 */
-  updatedInventory: PetInventory;
 }
