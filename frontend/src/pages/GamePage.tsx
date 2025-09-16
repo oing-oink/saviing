@@ -11,18 +11,24 @@ import {
 } from '@/shared/components/ui/popover';
 import Room from '@/features/game/room/Room';
 import { useState } from 'react';
+import { usePetStore } from '@/features/game/pet/store/usePetStore';
 
 const GamePage = () => {
   // TODO: API 연결 후 동적으로 관리
   const currentPetId = 7;
-  const currentAnimation = 'idle' as const;
+  const { behavior, setBehavior } = usePetStore();
 
   // Popover 상태 관리
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
-  // TODO: 나중에 동적으로 변경할 수 있도록 상태 관리 추가 예정
-  // const [petPosition, setPetPosition] = useState({ x: 0, y: 0 });
-  // const [currentAnimation, setCurrentAnimation] = useState<PetAnimationState>('idle');
+  // 애니메이션 완료 시 idle로 복귀
+  const handleAnimationComplete = (animation: string) => {
+    if (animation === 'sitting' || animation === 'jump') {
+      setBehavior({
+        currentAnimation: 'idle',
+      });
+    }
+  };
 
   return (
     <div className="game safeArea relative flex h-dvh touch-none flex-col overflow-hidden font-galmuri">
@@ -43,8 +49,9 @@ const GamePage = () => {
                 >
                   <CatSprite
                     petId={currentPetId}
-                    currentAnimation={currentAnimation}
+                    currentAnimation={behavior.currentAnimation}
                     className="scale-250"
+                    onAnimationComplete={handleAnimationComplete}
                   />
                 </button>
               </PopoverTrigger>

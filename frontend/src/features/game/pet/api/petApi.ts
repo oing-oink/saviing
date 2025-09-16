@@ -1,6 +1,13 @@
 import { http } from '@/shared/services/api/http';
-import type { PetData } from '@/features/game/pet/types/petTypes';
-import { mockGetPet } from '@/features/game/pet/data/mockPetApi';
+import type {
+  PetData,
+  PetInteractionRequest,
+  PetInteractionResponse,
+} from '@/features/game/pet/types/petTypes';
+import {
+  mockGetPet,
+  mockPetInteraction,
+} from '@/features/game/pet/data/mockPetApi';
 
 /**
  * 개발 환경에서 mock 데이터 사용 여부를 결정하는 플래그
@@ -28,5 +35,34 @@ export const getPet = async (petId: number): Promise<PetData> => {
 
   // 실제 API 호출
   const response = await http.get<PetData>(`/v1/game/pets/${petId}`);
+  return response.body!;
+};
+
+/**
+ * 펫과 상호작용하는 API 함수
+ *
+ * 개발 환경에서는 mock 데이터를, 프로덕션 환경에서는 실제 API를 호출합니다.
+ * 사료 주기(feed) 또는 놀아주기(play) 상호작용을 수행합니다.
+ *
+ * @param petId - 상호작용할 펫의 고유 식별자
+ * @param request - 상호작용 요청 데이터 (type: 'feed' | 'play')
+ * @returns 업데이트된 펫 정보와 소모된 아이템 정보
+ * @throws API 호출 실패 시 네트워크 오류 또는 HTTP 오류 발생
+ */
+export const interactWithPet = async (
+  petId: number,
+  request: PetInteractionRequest,
+): Promise<PetInteractionResponse> => {
+  if (USE_MOCK) {
+    // Mock 데이터 사용
+    const mockResponse = await mockPetInteraction(petId, request);
+    return mockResponse.body!;
+  }
+
+  // 실제 API 호출
+  const response = await http.post<PetInteractionResponse>(
+    `/v1/game/pets/${petId}/interaction`,
+    request,
+  );
   return response.body!;
 };

@@ -1,5 +1,5 @@
 import { QueryClientProvider } from '@tanstack/react-query';
-//import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { queryClient } from '@/app/query/client';
 import type { PropsWithChildren } from 'react';
 
@@ -13,7 +13,7 @@ const QueryProvider = ({ children }: PropsWithChildren) => {
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      {/* {import.meta.env.DEV && <ReactQueryDevtools />} */}
+      import.meta.env.DEV && <ReactQueryDevtools />
     </QueryClientProvider>
   );
 };

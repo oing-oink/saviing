@@ -34,10 +34,10 @@ export type CatAnimationType =
 export const CAT_ANIMATIONS: Record<CatAnimationType, AnimationConfig> = {
   idle: { frames: 7, duration: 200, loop: true },
   idle2: { frames: 14, duration: 200, loop: true },
-  sitting: { frames: 3, duration: 250, loop: true },
+  sitting: { frames: 3, duration: 400, loop: false },
   liking: { frames: 18, duration: 150, loop: true },
   run: { frames: 7, duration: 150, loop: true },
-  jump: { frames: 13, duration: 150, loop: true },
+  jump: { frames: 13, duration: 180, loop: false },
   sleep: { frames: 3, duration: 500, loop: true },
 };
 
