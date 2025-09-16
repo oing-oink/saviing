@@ -37,7 +37,8 @@ export const useSpriteAnimation = ({
   const [frameWidth, setFrameWidth] = useState(0);
   const [frameHeight, setFrameHeight] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [animationCompleted, setAnimationCompleted] = useState<CatAnimationType | null>(null);
+  const [animationCompleted, setAnimationCompleted] =
+    useState<CatAnimationType | null>(null);
 
   const config = CAT_ANIMATIONS[currentAnimation];
 

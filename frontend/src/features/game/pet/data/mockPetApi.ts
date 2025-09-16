@@ -98,11 +98,11 @@ export const mockPetInteraction = async (
     request.type === 'feed'
       ? {
           ...mockCurrentInventory,
-          feed: Math.max(0, mockCurrentInventory.feed - 1)
+          feed: Math.max(0, mockCurrentInventory.feed - 1),
         }
       : {
           ...mockCurrentInventory,
-          toy: Math.max(0, mockCurrentInventory.toy - 1)
+          toy: Math.max(0, mockCurrentInventory.toy - 1),
         };
 
   return {
