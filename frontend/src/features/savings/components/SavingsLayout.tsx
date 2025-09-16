@@ -2,7 +2,7 @@ import TopBar from './TopBar';
 import BottomNav from './BottomNav';
 import { Outlet } from 'react-router-dom';
 
-export default function SavingsLayout() {
+const SavingsLayout = () => {
   return (
     <div className="mx-auto min-h-dvh w-full max-w-md bg-violet-50">
       <TopBar />
@@ -12,4 +12,6 @@ export default function SavingsLayout() {
       <BottomNav />
     </div>
   );
-}
+};
+
+export default SavingsLayout;
