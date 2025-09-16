@@ -8,6 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -103,6 +104,10 @@ public class AccountJpaEntity {
     
     @Column(name = "bonus_rate_bps", nullable = false)
     private Short bonusRateBps = 0;
+
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version = 0L;
     
     public static AccountJpaEntity fromDomain(Account account) {
         AccountJpaEntity entity = new AccountJpaEntity();
@@ -138,7 +143,7 @@ public class AccountJpaEntity {
         entity.interestAccrued = account.getInterestAccrued();
         entity.baseRateBps = account.getBaseRate().value();
         entity.bonusRateBps = account.getBonusRate().value();
-        
+
         return entity;
     }
     
