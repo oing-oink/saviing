@@ -18,6 +18,7 @@ import saviing.bank.account.adapter.in.web.dto.request.CreateAccountRequest;
 import saviing.bank.account.adapter.in.web.dto.response.CreateAccountResponse;
 import saviing.bank.account.adapter.in.web.dto.response.GetAccountResponse;
 import saviing.common.response.ApiResult;
+import saviing.common.response.ErrorResult;
 
 @Tag(name = "계좌 관리", description = "계좌 생성, 조회, 관리 API")
 public interface AccountApi {
@@ -67,6 +68,16 @@ public interface AccountApi {
         description = "계좌 생성 성공",
         useReturnTypeSchema = true
     )
+    @ApiResponse(
+        responseCode = "400",
+        description = "잘못된 요청 (유효하지 않은 금액, 상품 타입, 적금 기간 등)",
+        content = @Content(schema = @Schema(implementation = ErrorResult.class))
+    )
+    @ApiResponse(
+        responseCode = "409",
+        description = "계좌 중복",
+        content = @Content(schema = @Schema(implementation = ErrorResult.class))
+    )
     ApiResult<CreateAccountResponse> createAccount(@Valid @RequestBody CreateAccountRequest request);
 
     @Operation(
@@ -101,6 +112,11 @@ public interface AccountApi {
         description = "계좌 조회 성공",
         useReturnTypeSchema = true
     )
+    @ApiResponse(
+        responseCode = "404",
+        description = "계좌를 찾을 수 없음",
+        content = @Content(schema = @Schema(implementation = ErrorResult.class))
+    )
     ApiResult<GetAccountResponse> getAccount(@PathVariable String accountNumber);
 
     @Operation(
@@ -117,6 +133,11 @@ public interface AccountApi {
         responseCode = "200",
         description = "계좌 조회 성공",
         useReturnTypeSchema = true
+    )
+    @ApiResponse(
+        responseCode = "404",
+        description = "계좌를 찾을 수 없음",
+        content = @Content(schema = @Schema(implementation = ErrorResult.class))
     )
     ApiResult<GetAccountResponse> getAccountById(@PathVariable Long accountId);
 }

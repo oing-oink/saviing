@@ -19,7 +19,7 @@ import saviing.bank.account.domain.vo.ProductConfiguration;
 import saviing.bank.account.domain.vo.InterestRateRange;
 import saviing.bank.account.domain.vo.PaymentAmount;
 import saviing.bank.account.domain.vo.BasisPoints;
-import saviing.bank.account.domain.vo.MoneyWon;
+import saviing.bank.common.vo.MoneyWon;
 
 @ExecutionTime
 @Service

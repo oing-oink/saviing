@@ -1,6 +1,7 @@
 package saviing.bank.account.domain.vo;
 
 import org.springframework.lang.NonNull;
+import saviing.bank.common.vo.MoneyWon;
 
 public record PaymentAmount(
     @NonNull MoneyWon minAmount, // 최소 납입액

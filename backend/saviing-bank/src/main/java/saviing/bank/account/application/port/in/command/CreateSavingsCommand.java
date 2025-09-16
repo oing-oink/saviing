@@ -1,7 +1,7 @@
 package saviing.bank.account.application.port.in.command;
 
 import saviing.bank.account.domain.vo.ProductId;
-import saviing.bank.account.domain.vo.MoneyWon;
+import saviing.bank.common.vo.MoneyWon;
 import saviing.bank.account.domain.vo.TermPeriod;
 import saviing.bank.account.domain.vo.AccountNumber;
 

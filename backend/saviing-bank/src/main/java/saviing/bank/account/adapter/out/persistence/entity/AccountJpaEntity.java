@@ -23,7 +23,7 @@ import saviing.bank.account.domain.model.CompoundingType;
 import saviing.bank.account.domain.vo.AccountId;
 import saviing.bank.account.domain.vo.AccountNumber;
 import saviing.bank.account.domain.vo.BasisPoints;
-import saviing.bank.account.domain.vo.MoneyWon;
+import saviing.bank.common.vo.MoneyWon;
 import saviing.bank.account.domain.vo.ProductId;
 import saviing.bank.account.domain.vo.TermPeriod;
 import saviing.bank.account.domain.model.TermUnit;

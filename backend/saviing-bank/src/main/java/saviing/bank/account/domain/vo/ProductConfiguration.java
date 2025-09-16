@@ -7,6 +7,7 @@ import lombok.Getter;
 import saviing.bank.account.domain.model.CompoundingType;
 import saviing.bank.account.domain.model.PaymentCycle;
 import saviing.bank.account.domain.model.ProductCategory;
+import saviing.bank.common.vo.MoneyWon;
 
 @Getter
 @Builder
