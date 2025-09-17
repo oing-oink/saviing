@@ -12,7 +12,7 @@ const CheckingAccountWalletCard = () => {
             <p className="text-md text-gray-500">입출금 통장</p>
           </div>
           <div className="flex items-center gap-1 text-gray-400">
-            <p className="mt-1 text-sm">1042-001-532620</p>
+            <p className="text-sm">1042-001-532620</p>
             <CopyToClipboard
               text="1042-001-532620"
               onCopy={() => {
