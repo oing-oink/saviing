@@ -1,5 +1,5 @@
-import TopBar from './TopBar';
-import BottomNav from './BottomNav';
+import TopBar from '@/features/savings/components/TopBar';
+import BottomNav from '@/features/savings/components/BottomNav';
 import { Outlet } from 'react-router-dom';
 
 const SavingsLayout = () => {

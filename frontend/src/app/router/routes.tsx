@@ -11,8 +11,8 @@ import ShopPage from '@/pages/ShopPage';
 import GachaPage from '@/pages/GachaPage';
 import GachaRollingPage from '@/pages/GachaRollingPage';
 import DecoPage from '@/pages/DecoPage';
-import SavingsLayout from '@/features/savings/components/SavingsLayout';
-import SavingsDetailLayout from '@/features/savings/components/SavingsDetailLayout';
+import SavingsLayout from '@/features/savings/layouts/SavingsLayout';
+import SavingsDetailLayout from '@/features/savings/layouts/SavingsDetailLayout';
 
 export const router = createBrowserRouter([
   {

@@ -1,4 +1,4 @@
-import DetailTopBar from './DetailTopBar';
+import DetailTopBar from '@/features/savings/components/DetailTopBar';
 import { Outlet } from 'react-router-dom';
 
 interface SavingsDetailLayoutProps {
