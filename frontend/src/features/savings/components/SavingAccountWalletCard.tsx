@@ -9,7 +9,7 @@ const SavingAccountWalletCard = () => {
   const percent = (current / target) * 100;
 
   return (
-    <div className="saving w-full max-w-md rounded-2xl bg-white p-6 font-pretendard shadow">
+    <div className="w-full max-w-md rounded-2xl bg-white p-6 font-pretendard shadow">
       <div className="mb-6 flex items-start gap-3">
         <div className="flex-1">
           <div className="flex items-center justify-between">

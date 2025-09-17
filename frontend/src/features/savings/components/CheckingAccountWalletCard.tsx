@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 
 const CheckingAccountWalletCard = () => {
   return (
-    <div className="saving w-full max-w-md rounded-2xl bg-white font-pretendard shadow">
+    <div className="w-full max-w-md rounded-2xl bg-white font-pretendard shadow">
       <div className="mb-3 flex items-start gap-3 p-6 pb-0">
         <div className="flex-1">
           <div className="flex items-center justify-between">
