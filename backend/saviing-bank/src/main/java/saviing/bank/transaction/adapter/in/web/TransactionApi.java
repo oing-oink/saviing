@@ -95,13 +95,7 @@ public interface TransactionApi {
 
     @Operation(
         summary = "거래 무효화",
-        description = "잘못 처리된 거래나 취소해야 할 거래를 무효화합니다.",
-        parameters = @Parameter(
-            name = "transactionId",
-            description = "무효화할 거래 ID",
-            required = true,
-            example = "1"
-        )
+        description = "잘못 처리된 거래나 취소해야 할 거래를 무효화합니다."
     )
     @ApiResponse(
         responseCode = "200",
@@ -119,19 +113,13 @@ public interface TransactionApi {
         content = @Content(schema = @Schema(implementation = ErrorResult.class))
     )
     ApiResult<TransactionResponse> voidTransaction(
-        @Parameter(description = "거래 ID") @PathVariable Long transactionId,
+        @Parameter(description = "무효화할 거래 ID", example = "1") @PathVariable Long transactionId,
         @Valid @RequestBody VoidTransactionRequest request
     );
 
     @Operation(
         summary = "거래 조회",
-        description = "거래 ID로 특정 거래의 상세 정보를 조회합니다.",
-        parameters = @Parameter(
-            name = "transactionId",
-            description = "조회할 거래 ID",
-            required = true,
-            example = "1"
-        )
+        description = "거래 ID로 특정 거래의 상세 정보를 조회합니다."
     )
     @ApiResponse(
         responseCode = "200",
@@ -144,19 +132,13 @@ public interface TransactionApi {
         content = @Content(schema = @Schema(implementation = ErrorResult.class))
     )
     ApiResult<TransactionResponse> getTransaction(
-        @Parameter(description = "거래 ID") @PathVariable Long transactionId
+        @Parameter(description = "조회할 거래 ID", example = "1") @PathVariable Long transactionId
     );
 
     @Operation(
         summary = "계좌별 거래 내역 조회",
         description = "특정 계좌의 거래 내역을 페이지네이션으로 조회합니다.",
         parameters = {
-            @Parameter(
-                name = "accountNumber",
-                description = "조회할 계좌번호",
-                required = true,
-                example = "1234567890123456"
-            ),
             @Parameter(
                 name = "page",
                 description = "페이지 번호 (0부터 시작)",
@@ -180,7 +162,7 @@ public interface TransactionApi {
         content = @Content(schema = @Schema(implementation = ErrorResult.class))
     )
     ApiResult<List<TransactionResponse>> getTransactionsByAccount(
-        @Parameter(description = "계좌번호") @PathVariable String accountNumber,
+        @Parameter(description = "조회할 계좌번호", example = "1234567890123456") @PathVariable String accountNumber,
         @Parameter(description = "페이지 번호 (0부터 시작)") @RequestParam(defaultValue = "0") int page,
         @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "20") int size
     );

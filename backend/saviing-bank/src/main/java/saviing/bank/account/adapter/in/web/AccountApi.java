@@ -99,13 +99,7 @@ public interface AccountApi {
 
     @Operation(
         summary = "계좌 조회",
-        description = "계좌번호로 계좌 상세 정보를 조회합니다.",
-        parameters = @Parameter(
-            name = "accountNumber",
-            description = "조회할 계좌번호",
-            required = true,
-            example = "11012345678901234"
-        )
+        description = "계좌번호로 계좌 상세 정보를 조회합니다."
     )
     @ApiResponse(
         responseCode = "200",
@@ -117,17 +111,14 @@ public interface AccountApi {
         description = "계좌를 찾을 수 없음",
         content = @Content(schema = @Schema(implementation = ErrorResult.class))
     )
-    ApiResult<GetAccountResponse> getAccount(@PathVariable String accountNumber);
+    ApiResult<GetAccountResponse> getAccount(
+        @Parameter(description = "조회할 계좌번호", example = "11012345678901234")
+        @PathVariable String accountNumber
+    );
 
     @Operation(
         summary = "계좌 ID로 계좌 조회",
-        description = "계좌 ID로 계좌 상세 정보를 조회합니다. (내부용)",
-        parameters = @Parameter(
-            name = "accountId",
-            description = "조회할 계좌 ID",
-            required = true,
-            example = "1"
-        )
+        description = "계좌 ID로 계좌 상세 정보를 조회합니다. (내부용)"
     )
     @ApiResponse(
         responseCode = "200",
@@ -139,5 +130,8 @@ public interface AccountApi {
         description = "계좌를 찾을 수 없음",
         content = @Content(schema = @Schema(implementation = ErrorResult.class))
     )
-    ApiResult<GetAccountResponse> getAccountById(@PathVariable Long accountId);
+    ApiResult<GetAccountResponse> getAccountById(
+        @Parameter(description = "조회할 계좌 ID", example = "1")
+        @PathVariable Long accountId
+    );
 }
