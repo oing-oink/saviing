@@ -37,6 +37,8 @@ export const useSpriteAnimation = ({
   const [frameWidth, setFrameWidth] = useState(0);
   const [frameHeight, setFrameHeight] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [animationCompleted, setAnimationCompleted] =
+    useState<CatAnimationType | null>(null);
 
   const config = CAT_ANIMATIONS[currentAnimation];
 
@@ -54,6 +56,7 @@ export const useSpriteAnimation = ({
   // 애니메이션 변경 시 초기화
   useEffect(() => {
     setCurrentFrame(0);
+    setAnimationCompleted(null);
   }, [currentAnimation]);
 
   // 프레임 타이머
@@ -69,7 +72,8 @@ export const useSpriteAnimation = ({
           if (config.loop) {
             return 0;
           } else {
-            onAnimationComplete?.(currentAnimation);
+            // 렌더링 중 상태 변경을 피하기 위해 완료 상태만 설정
+            setAnimationCompleted(currentAnimation);
             return prev;
           }
         }
@@ -78,7 +82,15 @@ export const useSpriteAnimation = ({
     }, config.duration);
 
     return () => clearInterval(interval);
-  }, [isLoaded, config, currentAnimation, onAnimationComplete]);
+  }, [isLoaded, config, currentAnimation]);
+
+  // 애니메이션 완료 처리 (렌더링 사이클과 분리)
+  useEffect(() => {
+    if (animationCompleted) {
+      onAnimationComplete?.(animationCompleted);
+      setAnimationCompleted(null); // 완료 상태 초기화
+    }
+  }, [animationCompleted, onAnimationComplete]);
 
   return { currentFrame, frameWidth, frameHeight, isLoaded };
 };

@@ -77,13 +77,43 @@ export interface PetSpriteProps {
 /**
  * 펫의 행동과 애니메이션 상태를 관리하는 타입
  *
- * 펫의 현재 애니메이션, 애니메이션 진행 여부, 마지막 변경 시간 등을 추적합니다.
+ * 펫의 현재 애니메이션을 추적합니다.
  */
 export interface PetBehaviorState {
   /** 현재 재생 중인 애니메이션 */
   currentAnimation: PetAnimationState;
-  /** 애니메이션 진행 여부 */
-  isAnimating: boolean;
-  /** 마지막으로 애니메이션이 변경된 시간 (타임스탬프) */
-  lastAnimationChange: number;
+}
+
+/**
+ * 펫 상호작용 요청 타입
+ */
+export interface PetInteractionRequest {
+  /** 상호작용 타입 */
+  type: 'feed' | 'play';
+}
+
+/**
+ * 소모된 아이템 정보
+ */
+export interface ConsumptionItem {
+  /** 인벤토리 아이템 ID */
+  inventoryItemId: number;
+  /** 아이템 ID */
+  item_id: number;
+  /** 아이템 이름 */
+  name: string;
+  /** 아이템 타입 */
+  type: string;
+  /** 소모된 개수 */
+  count: number;
+}
+
+/**
+ * 펫 상호작용 응답 타입
+ */
+export interface PetInteractionResponse {
+  /** 업데이트된 펫 정보 */
+  pet: PetData;
+  /** 사용자가 보유한 펫 관련 아이템 목록 (사용 후 남은 개수 포함) */
+  consumption: ConsumptionItem[];
 }

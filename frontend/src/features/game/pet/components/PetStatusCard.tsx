@@ -4,6 +4,7 @@ import { Button } from '@/shared/components/ui/button';
 import StatusProgress from './StatusProgress';
 import { usePetStore } from '@/features/game/pet/store/usePetStore';
 import { usePetStatusCard } from '@/features/game/pet/hooks/usePetStatusCard';
+import { usePetInteraction } from '@/features/game/pet/query/usePetInteraction';
 import feed from '@/assets/game_pet/feed.png';
 import play from '@/assets/game_pet/play.png';
 import { Loader2 } from 'lucide-react';
@@ -20,6 +21,19 @@ interface PetStatusCardProps {
 const PetStatusCard = ({ petId }: PetStatusCardProps) => {
   const { inventory } = usePetStore();
   const { petData, isLoading, error, levelClass } = usePetStatusCard(petId);
+  const petInteraction = usePetInteraction(petId);
+
+  const handleFeedClick = () => {
+    if (inventory.feed > 0 && !petInteraction.isPending) {
+      petInteraction.mutate({ type: 'feed' });
+    }
+  };
+
+  const handlePlayClick = () => {
+    if (inventory.toy > 0 && !petInteraction.isPending) {
+      petInteraction.mutate({ type: 'play' });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -75,11 +89,21 @@ const PetStatusCard = ({ petId }: PetStatusCardProps) => {
         </div>
       </div>
       <div className="flex justify-center gap-4">
-        <Button variant="secondary" className="h-20 flex-1 flex-col gap-2">
+        <Button
+          variant="secondary"
+          className="h-20 flex-1 flex-col gap-2"
+          onClick={handleFeedClick}
+          disabled={inventory.feed <= 0 || petInteraction.isPending}
+        >
           <img src={feed} className="h-8 w-8" />
           {inventory.feed}개
         </Button>
-        <Button variant="secondary" className="h-20 flex-1 flex-col gap-2">
+        <Button
+          variant="secondary"
+          className="h-20 flex-1 flex-col gap-2"
+          onClick={handlePlayClick}
+          disabled={inventory.toy <= 0 || petInteraction.isPending}
+        >
           <img src={play} className="h-8 w-8" />
           {inventory.toy}개
         </Button>
