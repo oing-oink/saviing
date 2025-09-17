@@ -7,7 +7,7 @@ interface SavingsDetailLayoutProps {
 
 const SavingsDetailLayout = ({ title }: SavingsDetailLayoutProps) => {
   return (
-    <div className="saving mx-auto min-h-dvh w-full max-w-md bg-primary">
+    <div className="saving mx-auto min-h-dvh w-full max-w-md bg-secondary">
       <DetailTopBar title={title} />
       <div>
         <Outlet />
