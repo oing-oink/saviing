@@ -34,6 +34,16 @@ public class LedgerEntry {
     private Instant createdAt;
     private Instant updatedAt;
 
+    /**
+     * LedgerEntry 생성자
+     *
+     * @param accountId 계좌 ID
+     * @param direction 거래 방향 (출금/입금)
+     * @param amount 거래 금액
+     * @param valueDate 가치일
+     * @param idempotencyKey 멱등키
+     * @param now 생성 시각
+     */
     private LedgerEntry(
         Long accountId,
         TransactionDirection direction,
@@ -53,7 +63,15 @@ public class LedgerEntry {
     }
 
     /**
-     * 신규 송금 생성 시 호출되는 팩토리 메서드.
+     * 신규 송금 생성 시 호출되는 팩토리 메서드
+     *
+     * @param accountId 계좌 ID
+     * @param direction 거래 방향
+     * @param amount 거래 금액
+     * @param valueDate 가치일
+     * @param idempotencyKey 멱등키
+     * @param now 생성 시각
+     * @return 생성된 원장 엔트리
      */
     public static LedgerEntry create(
         Long accountId,
@@ -67,7 +85,20 @@ public class LedgerEntry {
     }
 
     /**
-     * 저장소에서 불러온 엔트리를 복원한다.
+     * 저장소에서 불러온 엔트리를 복원한다
+     *
+     * @param id 엔트리 ID
+     * @param accountId 계좌 ID
+     * @param direction 거래 방향
+     * @param amount 거래 금액
+     * @param status 엔트리 상태
+     * @param valueDate 가치일
+     * @param postedAt 처리 시각
+     * @param idempotencyKey 멱등키
+     * @param transactionId 거래 ID
+     * @param createdAt 생성 시각
+     * @param updatedAt 수정 시각
+     * @return 복원된 원장 엔트리
      */
     public static LedgerEntry restore(
         Long id,
@@ -93,7 +124,11 @@ public class LedgerEntry {
     }
 
     /**
-     * 엔트리가 실제 거래와 매칭되어 POSTED 상태가 되었음을 표시한다.
+     * 엔트리가 실제 거래와 매칭되어 POSTED 상태가 되었음을 표시한다
+     *
+     * @param transactionId 연결된 거래 ID
+     * @param postedAt 처리 시각
+     * @throws InvalidLedgerStateException 이미 무효화되거나 실패한 엔트리인 경우
      */
     public void markPosted(TransactionId transactionId, Instant postedAt) {
         if (status == LedgerEntryStatus.POSTED) {
@@ -109,7 +144,10 @@ public class LedgerEntry {
     }
 
     /**
-     * 엔트리 처리가 실패했음을 기록한다.
+     * 엔트리 처리가 실패했음을 기록한다
+     *
+     * @param failedAt 실패 시각
+     * @throws InvalidLedgerStateException 이미 처리된 엔트리인 경우
      */
     public void markFailed(Instant failedAt) {
         if (status == LedgerEntryStatus.POSTED) {
@@ -120,7 +158,9 @@ public class LedgerEntry {
     }
 
     /**
-     * 엔트리를 무효 상태로 전환한다.
+     * 엔트리를 무효 상태로 전환한다
+     *
+     * @param voidedAt 무효화 시각
      */
     public void voidEntry(Instant voidedAt) {
         this.status = LedgerEntryStatus.VOID;
@@ -128,7 +168,9 @@ public class LedgerEntry {
     }
 
     /**
-     * 읽기 전용 스냅샷으로 변환한다.
+     * 읽기 전용 스냅샷으로 변환한다
+     *
+     * @return 원장 엔트리 스냅샷
      */
     public LedgerEntrySnapshot toSnapshot() {
         return new LedgerEntrySnapshot(

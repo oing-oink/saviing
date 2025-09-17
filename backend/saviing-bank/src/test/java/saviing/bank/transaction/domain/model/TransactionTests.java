@@ -3,14 +3,12 @@ package saviing.bank.transaction.domain.model;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import saviing.bank.transaction.domain.vo.IdempotencyKey;
 import saviing.bank.common.vo.MoneyWon;
 
 @DisplayName("Transaction 도메인 테스트")
@@ -21,18 +19,17 @@ class TransactionTests {
     void 거래_생성_성공() {
         // Given
         Long accountId = 1L;
-        TransactionType transactionType = TransactionType.DEPOSIT;
+        TransactionType transactionType = TransactionType.TRANSFER_IN;
         TransactionDirection direction = TransactionDirection.CREDIT;
         MoneyWon amount = MoneyWon.of(10000);
         LocalDate valueDate = LocalDate.now();
         Instant postedAt = Instant.now();
-        IdempotencyKey idempotencyKey = IdempotencyKey.of("test-key");
         String description = "테스트 입금";
 
         // When
         Transaction transaction = Transaction.create(
             accountId, transactionType, direction, amount,
-            valueDate, postedAt, idempotencyKey, description
+            valueDate, postedAt, description
         );
 
         // Then
@@ -43,7 +40,6 @@ class TransactionTests {
         assertThat(transaction.getValueDate()).isEqualTo(valueDate);
         assertThat(transaction.getPostedAt()).isEqualTo(postedAt);
         assertThat(transaction.getStatus()).isEqualTo(TransactionStatus.POSTED);
-        assertThat(transaction.getIdempotencyKey()).isEqualTo(idempotencyKey);
         assertThat(transaction.getDescription()).isEqualTo(description);
     }
 
@@ -52,7 +48,7 @@ class TransactionTests {
     void 거래_유형_방향_불일치_예외() {
         // Given
         Long accountId = 1L;
-        TransactionType transactionType = TransactionType.DEPOSIT; // CREDIT이어야 함
+        TransactionType transactionType = TransactionType.TRANSFER_IN; // CREDIT이어야 함
         TransactionDirection direction = TransactionDirection.DEBIT; // 잘못된 방향
         MoneyWon amount = MoneyWon.of(10000);
         LocalDate valueDate = LocalDate.now();
@@ -61,7 +57,7 @@ class TransactionTests {
         // When & Then
         assertThatThrownBy(() -> Transaction.create(
             accountId, transactionType, direction, amount,
-            valueDate, postedAt, null, null
+            valueDate, postedAt, null
         )).isInstanceOf(saviing.bank.transaction.exception.InvalidTransactionStateException.class)
           .hasMessageContaining("거래 유형")
           .hasMessageContaining("방향이어야 합니다");
@@ -101,12 +97,11 @@ class TransactionTests {
         // Given
         Transaction transaction = Transaction.create(
             1L,
-            TransactionType.DEPOSIT,
+            TransactionType.TRANSFER_IN,
             TransactionDirection.CREDIT,
             MoneyWon.of(10000),
             LocalDate.now(),
             Instant.now(),
-            null,
             null
         );
 
@@ -123,12 +118,11 @@ class TransactionTests {
         // Given
         Transaction transaction = Transaction.create(
             1L,
-            TransactionType.WITHDRAWAL,
+            TransactionType.TRANSFER_OUT,
             TransactionDirection.DEBIT,
             MoneyWon.of(5000),
             LocalDate.now(),
             Instant.now(),
-            null,
             null
         );
 
@@ -156,12 +150,11 @@ class TransactionTests {
     private Transaction createTestTransaction() {
         return Transaction.create(
             1L,
-            TransactionType.DEPOSIT,
+            TransactionType.TRANSFER_IN,
             TransactionDirection.CREDIT,
             MoneyWon.of(10000),
             LocalDate.now(),
             Instant.now(),
-            IdempotencyKey.of("test-key"),
             "테스트 거래"
         );
     }

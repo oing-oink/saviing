@@ -30,6 +30,18 @@ public class LedgerPair {
     private Instant updatedAt;
     private String failureReason;
 
+    /**
+     * LedgerPair 생성자
+     *
+     * @param transferId 송금 ID
+     * @param transferType 송금 유형
+     * @param status 송금 상태
+     * @param idempotencyKey 멱등키
+     * @param entries 원장 엔트리 목록
+     * @param createdAt 생성 시각
+     * @param updatedAt 수정 시각
+     * @param failureReason 실패 사유
+     */
     private LedgerPair(
         TransferId transferId,
         TransferType transferType,
@@ -51,7 +63,17 @@ public class LedgerPair {
     }
 
     /**
-     * 신규 송금을 초기화할 때 사용되는 팩토리 메서드.
+     * 신규 송금을 초기화할 때 사용되는 팩토리 메서드
+     *
+     * @param transferId 송금 ID
+     * @param sourceAccountId 출금 계좌 ID
+     * @param targetAccountId 입금 계좌 ID
+     * @param amount 송금 금액
+     * @param valueDate 가치일
+     * @param transferType 송금 유형
+     * @param idempotencyKey 멱등키
+     * @param now 생성 시각
+     * @return 생성된 원장 페어
      */
     public static LedgerPair create(
         TransferId transferId,
@@ -92,7 +114,17 @@ public class LedgerPair {
     }
 
     /**
-     * 저장소에서 읽어온 LedgerPair를 복원한다.
+     * 저장소에서 읽어온 LedgerPair를 복원한다
+     *
+     * @param transferId 송금 ID
+     * @param transferType 송금 유형
+     * @param status 송금 상태
+     * @param idempotencyKey 멱등키
+     * @param entries 원장 엔트리 목록
+     * @param createdAt 생성 시각
+     * @param updatedAt 수정 시각
+     * @param failureReason 실패 사유
+     * @return 복원된 원장 페어
      */
     public static LedgerPair restore(
         TransferId transferId,
@@ -107,40 +139,84 @@ public class LedgerPair {
         return new LedgerPair(transferId, transferType, status, idempotencyKey, entries, createdAt, updatedAt, failureReason);
     }
 
+    /**
+     * 송금 ID를 반환한다
+     *
+     * @return 송금 ID
+     */
     public TransferId getTransferId() {
         return transferId;
     }
 
+    /**
+     * 송금 유형을 반환한다
+     *
+     * @return 송금 유형
+     */
     public TransferType getTransferType() {
         return transferType;
     }
 
+    /**
+     * 송금 상태를 반환한다
+     *
+     * @return 송금 상태
+     */
     public TransferStatus getStatus() {
         return status;
     }
 
+    /**
+     * 멱등키를 반환한다
+     *
+     * @return 멱등키
+     */
     public IdempotencyKey getIdempotencyKey() {
         return idempotencyKey;
     }
 
+    /**
+     * 원장 엔트리 목록을 반환한다
+     *
+     * @return 원장 엔트리 목록 (복사본)
+     */
     public List<LedgerEntry> getEntries() {
         return List.copyOf(entries);
     }
 
+    /**
+     * 생성 시각을 반환한다
+     *
+     * @return 생성 시각
+     */
     public Instant getCreatedAt() {
         return createdAt;
     }
 
+    /**
+     * 수정 시각을 반환한다
+     *
+     * @return 수정 시각
+     */
     public Instant getUpdatedAt() {
         return updatedAt;
     }
 
+    /**
+     * 실패 사유를 반환한다
+     *
+     * @return 실패 사유
+     */
     public String getFailureReason() {
         return failureReason;
     }
 
     /**
-     * 특정 방향(Debit/Credit)의 엔트리를 조회한다.
+     * 특정 방향(Debit/Credit)의 엔트리를 조회한다
+     *
+     * @param direction 거래 방향
+     * @return 해당 방향의 원장 엔트리
+     * @throws InvalidLedgerStateException 해당 방향의 엔트리를 찾을 수 없는 경우
      */
     public LedgerEntry getEntry(TransactionDirection direction) {
         return entries.stream()
@@ -150,7 +226,11 @@ public class LedgerPair {
     }
 
     /**
-     * 지정된 방향의 엔트리가 POSTED 상태가 되었음을 반영한다.
+     * 지정된 방향의 엔트리가 POSTED 상태가 되었음을 반영한다
+     *
+     * @param direction 거래 방향
+     * @param transactionId 거래 ID
+     * @param postedAt 처리 시각
      */
     public void markEntryPosted(TransactionDirection direction, TransactionId transactionId, Instant postedAt) {
         LedgerEntry entry = getEntry(direction);
@@ -164,7 +244,10 @@ public class LedgerPair {
     }
 
     /**
-     * 송금이 실패했을 때 상태와 실패 사유를 기록한다.
+     * 송금이 실패했을 때 상태와 실패 사유를 기록한다
+     *
+     * @param reason 실패 사유
+     * @param failedAt 실패 시각
      */
     public void markFailed(String reason, Instant failedAt) {
         this.failureReason = reason;
@@ -176,7 +259,10 @@ public class LedgerPair {
     }
 
     /**
-     * 두 엔트리가 모두 POSTED 상태일 때 송금을 정산 완료로 전환한다.
+     * 두 엔트리가 모두 POSTED 상태일 때 송금을 정산 완료로 전환한다
+     *
+     * @param settledAt 정산 완료 시각
+     * @throws InvalidLedgerStateException 모든 엔트리가 POSTED 상태가 아닌 경우
      */
     public void markSettled(Instant settledAt) {
         boolean allPosted = entries.stream().allMatch(entry -> entry.getStatus() == LedgerEntryStatus.POSTED);
@@ -188,7 +274,9 @@ public class LedgerPair {
     }
 
     /**
-     * 조회용 스냅샷으로 변환한다.
+     * 조회용 스냅샷으로 변환한다
+     *
+     * @return 원장 페어 스냅샷
      */
     public LedgerPairSnapshot toSnapshot() {
         List<LedgerEntrySnapshot> snapshots = entries.stream()

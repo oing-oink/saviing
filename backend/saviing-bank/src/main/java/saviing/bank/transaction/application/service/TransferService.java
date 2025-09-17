@@ -127,7 +127,6 @@ public class TransferService implements TransferUseCase {
                 TransactionDirection.DEBIT,
                 command.amount(),
                 command.valueDate(),
-                command.idempotencyKey(),
                 command.memo(),
                 startedAt
             );
@@ -145,7 +144,6 @@ public class TransferService implements TransferUseCase {
                 TransactionDirection.CREDIT,
                 command.amount(),
                 command.valueDate(),
-                command.idempotencyKey(),
                 command.memo(),
                 Instant.now()
             );
@@ -241,7 +239,6 @@ public class TransferService implements TransferUseCase {
         TransactionDirection direction,
         MoneyWon amount,
         LocalDate valueDate,
-        IdempotencyKey idempotencyKey,
         String description,
         Instant postedAt
     ) {
@@ -252,7 +249,6 @@ public class TransferService implements TransferUseCase {
             amount,
             valueDate,
             postedAt,
-            idempotencyKey,
             description
         );
         TransactionId transactionId = saveTransactionPort.saveTransaction(transaction);
@@ -358,13 +354,6 @@ public class TransferService implements TransferUseCase {
     }
 
     /**
-     * 보상 트랜잭션용 멱등성 키를 생성한다.
-     */
-    private IdempotencyKey createCompensationIdempotencyKey(TransferId transferId) {
-        return IdempotencyKey.of("COMP-" + transferId.value());
-    }
-
-    /**
      * 출금 성공 후 실패가 발생한 경우 원복을 시도한다.
      */
     private String attemptDebitCompensation(TransferCommand command, TransferId transferId) {
@@ -380,7 +369,6 @@ public class TransferService implements TransferUseCase {
                 TransactionDirection.CREDIT,
                 command.amount(),
                 command.valueDate(),
-                createCompensationIdempotencyKey(transferId),
                 "Transfer compensation for " + transferId.value(),
                 Instant.now()
             );

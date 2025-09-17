@@ -1,6 +1,5 @@
 package saviing.bank.transaction.adapter.out.persistence.entity;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 
@@ -13,7 +12,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -23,7 +21,6 @@ import saviing.bank.transaction.domain.model.Transaction;
 import saviing.bank.transaction.domain.model.TransactionDirection;
 import saviing.bank.transaction.domain.model.TransactionStatus;
 import saviing.bank.transaction.domain.model.TransactionType;
-import saviing.bank.transaction.domain.vo.IdempotencyKey;
 import saviing.bank.common.vo.MoneyWon;
 import saviing.bank.transaction.domain.vo.TransactionId;
 import saviing.common.annotation.ExecutionTime;
@@ -32,9 +29,6 @@ import saviing.common.annotation.ExecutionTime;
 @Entity
 @Table(
     name = "transaction",
-    uniqueConstraints = {
-        @UniqueConstraint(name = "uk_account_idempotency", columnNames = {"account_id", "idempotency_key"})
-    },
     indexes = {
         @Index(name = "idx_account_posted_at", columnList = "account_id, posted_at"),
         @Index(name = "idx_value_date", columnList = "value_date"),
@@ -77,9 +71,6 @@ public class TransactionJpaEntity {
     @Column(name = "related_txn_id")
     private Long relatedTxnId;
 
-    @Column(name = "idempotency_key", length = 64)
-    private String idempotencyKey;
-
     @Column(name = "description")
     private String description;
 
@@ -101,8 +92,6 @@ public class TransactionJpaEntity {
         entity.status = transaction.getStatus();
         entity.relatedTxnId = transaction.getRelatedTransactionId() != null
             ? transaction.getRelatedTransactionId().value() : null;
-        entity.idempotencyKey = transaction.getIdempotencyKey() != null
-            ? transaction.getIdempotencyKey().value() : null;
         entity.description = transaction.getDescription();
         entity.createdAt = transaction.getCreatedAt();
         entity.updatedAt = transaction.getUpdatedAt();
@@ -120,7 +109,6 @@ public class TransactionJpaEntity {
             postedAt,
             status,
             relatedTxnId != null ? TransactionId.of(relatedTxnId) : null,
-            idempotencyKey != null ? IdempotencyKey.of(idempotencyKey) : null,
             description,
             createdAt,
             updatedAt

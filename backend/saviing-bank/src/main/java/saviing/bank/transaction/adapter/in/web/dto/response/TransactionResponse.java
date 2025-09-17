@@ -21,7 +21,7 @@ public record TransactionResponse(
     @Schema(description = "계좌 ID", example = "1")
     Long accountId,
 
-    @Schema(description = "거래 유형", example = "DEPOSIT", allowableValues = {"DEPOSIT", "WITHDRAWAL", "TRANSFER"})
+    @Schema(description = "거래 유형", example = "TRANSFER_OUT", allowableValues = {"TRANSFER_OUT", "TRANSFER_IN", "REVERSAL"})
     String transactionType,
 
     @Schema(description = "거래 방향", example = "CREDIT", allowableValues = {"CREDIT", "DEBIT"})
@@ -42,10 +42,7 @@ public record TransactionResponse(
     @Schema(description = "연관 거래 ID (이체 등)", example = "2")
     Long relatedTransactionId,
 
-    @Schema(description = "중복 방지 키", example = "deposit-20240115-001")
-    String idempotencyKey,
-
-    @Schema(description = "거래 설명", example = "급여 입금")
+    @Schema(description = "거래 설명", example = "Rent transfer")
     String description,
 
     @Schema(description = "생성일시", example = "2024-01-15T14:30:00Z")
@@ -66,7 +63,6 @@ public record TransactionResponse(
             .postedAt(result.postedAt())
             .status(result.status())
             .relatedTransactionId(result.relatedTransactionId())
-            .idempotencyKey(result.idempotencyKey())
             .description(result.description())
             .createdAt(result.createdAt())
             .updatedAt(result.updatedAt())

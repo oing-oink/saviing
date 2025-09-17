@@ -1,8 +1,6 @@
 package saviing.bank.transaction.adapter.out.persistence;
 
 import java.util.List;
-import java.util.Optional;
-
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
@@ -13,11 +11,11 @@ import saviing.bank.transaction.adapter.out.persistence.repository.JpaTransactio
 import saviing.bank.transaction.application.port.out.LoadTransactionPort;
 import saviing.bank.transaction.application.port.out.SaveTransactionPort;
 import saviing.bank.transaction.domain.model.Transaction;
-import saviing.bank.transaction.domain.vo.IdempotencyKey;
 import saviing.bank.transaction.domain.vo.TransactionId;
 import saviing.bank.transaction.exception.TransactionNotFoundException;
 
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -46,17 +44,6 @@ public class TransactionPersistenceAdapter implements LoadTransactionPort, SaveT
             .stream()
             .map(TransactionJpaEntity::toDomain)
             .toList();
-    }
-
-    @Override
-    public Optional<Transaction> loadTransactionByIdempotencyKey(Long accountId, IdempotencyKey idempotencyKey) {
-        return repository.findByAccountIdAndIdempotencyKey(accountId, idempotencyKey.value())
-            .map(TransactionJpaEntity::toDomain);
-    }
-
-    @Override
-    public boolean existsByIdempotencyKey(Long accountId, IdempotencyKey idempotencyKey) {
-        return repository.existsByAccountIdAndIdempotencyKey(accountId, idempotencyKey.value());
     }
 
     @Override

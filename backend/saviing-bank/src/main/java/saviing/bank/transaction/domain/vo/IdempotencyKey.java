@@ -1,5 +1,9 @@
 package saviing.bank.transaction.domain.vo;
 
+/**
+ * 멱등성 보장을 위한 키 값 객체
+ * 동일한 요청에 대해 중복 처리를 방지한다.
+ */
 public record IdempotencyKey(String value) {
 
     public IdempotencyKey {
@@ -11,6 +15,14 @@ public record IdempotencyKey(String value) {
         }
     }
 
+    /**
+     * 주어진 문자열로 멱등키를 생성한다
+     * 입력된 값의 양끝 공백을 제거한다.
+     *
+     * @param value 멱등키 값 (비어있지 않고 64자 이하여야 함)
+     * @return 생성된 멱등키 객체
+     * @throws IllegalArgumentException 값이 비어있거나 64자를 초과하는 경우
+     */
     public static IdempotencyKey of(String value) {
         return new IdempotencyKey(value.trim());
     }
