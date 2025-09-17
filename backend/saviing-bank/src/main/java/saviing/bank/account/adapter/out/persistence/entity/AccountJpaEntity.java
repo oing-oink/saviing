@@ -107,7 +107,7 @@ public class AccountJpaEntity {
 
     @Version
     @Column(name = "version", nullable = false)
-    private Long version = 0L;
+    private Long version;
     
     public static AccountJpaEntity fromDomain(Account account) {
         AccountJpaEntity entity = new AccountJpaEntity();
@@ -147,6 +147,43 @@ public class AccountJpaEntity {
         return entity;
     }
     
+    public void updateFromDomain(Account account) {
+        this.accountNumber = account.getAccountNumber().value();
+        this.customerId = account.getCustomerId();
+        this.productId = account.getProductId().value();
+        this.compoundingType = account.getCompoundingType();
+
+        if (account.getMaturityWithdrawalAccount() != null) {
+            this.maturityWithdrawalAccount = account.getMaturityWithdrawalAccount().value();
+        } else {
+            this.maturityWithdrawalAccount = null;
+        }
+        if (account.getTargetAmount() != null) {
+            this.targetAmount = account.getTargetAmount().amount();
+        } else {
+            this.targetAmount = null;
+        }
+        if (account.getTermPeriod() != null) {
+            this.termPeriodValue = account.getTermPeriod().value();
+            this.termPeriodUnit = account.getTermPeriod().unit();
+        } else {
+            this.termPeriodValue = null;
+            this.termPeriodUnit = null;
+        }
+        this.maturityDate = account.getMaturityDate();
+        this.status = account.getStatus();
+        this.openedAt = account.getOpenedAt();
+        this.closedAt = account.getClosedAt();
+        this.lastAccrualTs = account.getLastAccrualTs();
+        this.lastRateChangeAt = account.getLastRateChangeAt();
+        this.createdAt = account.getCreatedAt();
+        this.updatedAt = account.getUpdatedAt();
+        this.balance = account.getBalance().amount();
+        this.interestAccrued = account.getInterestAccrued();
+        this.baseRateBps = account.getBaseRate().value();
+        this.bonusRateBps = account.getBonusRate().value();
+    }
+
     public Account toDomain() {
         return Account.restore(
             id != null ? AccountId.of(id) : null,

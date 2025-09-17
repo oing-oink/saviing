@@ -115,10 +115,12 @@ public class TransferService implements TransferUseCase {
         TransactionId debitTransactionId = null;
         TransactionId creditTransactionId = null;
         LedgerPairSnapshot currentSnapshot = ledgerSnapshot;
+        boolean withdrawCompleted = false;
 
         try {
             // 출금/입금은 AccountInternalApi를 통해 처리하며 실패 시 도메인 예외로 변환한다.
             withdraw(command.sourceAccountId(), command.amount());
+            withdrawCompleted = true;
             debitTransactionId = createTransaction(
                 command.sourceAccountId(),
                 TransactionType.TRANSFER_OUT,
@@ -166,7 +168,7 @@ public class TransferService implements TransferUseCase {
             return mapToResult(currentSnapshot);
         } catch (RuntimeException ex) {
             String failureReason = ex.getMessage();
-            if (currentSnapshot.status() == TransferStatus.DEBIT_POSTED) {
+            if (withdrawCompleted) {
                 failureReason += attemptDebitCompensation(command, transferId);
             }
             // 예외 발생 시 Ledger 상태를 FAILED로 전환하고 도메인 후처리를 실행한다.
@@ -336,28 +338,60 @@ public class TransferService implements TransferUseCase {
     }
 
     /**
+     * 실제 출금이 실행되었는지 확인한다.
+     * DEBIT_POSTED 상태뿐만 아니라 출금 Transaction이 생성된 모든 경우를 포함한다.
+     */
+    private boolean isDebitExecuted(LedgerPairSnapshot snapshot, TransactionId debitTransactionId) {
+        // 출금 Transaction이 생성되었다면 실제 계좌에서 출금이 완료된 상태
+        if (debitTransactionId != null) {
+            return true;
+        }
+
+        // Ledger 상태가 DEBIT_POSTED인 경우
+        if (snapshot.status() == TransferStatus.DEBIT_POSTED) {
+            return true;
+        }
+
+        // debitEntry에 transactionId가 있는 경우 (상태와 무관하게 Transaction이 생성됨)
+        return snapshot.debitEntry() != null &&
+               snapshot.debitEntry().transactionId() != null;
+    }
+
+    /**
+     * 보상 트랜잭션용 멱등성 키를 생성한다.
+     */
+    private IdempotencyKey createCompensationIdempotencyKey(TransferId transferId) {
+        return IdempotencyKey.of("COMP-" + transferId.value());
+    }
+
+    /**
      * 출금 성공 후 실패가 발생한 경우 원복을 시도한다.
      */
     private String attemptDebitCompensation(TransferCommand command, TransferId transferId) {
         try {
-            log.warn("송금 실패 보상 시도: transferId={}, sourceAccountId={}, amount={}",
+            log.warn("[COMPENSATION-START] 송금 보상 처리 시작 - transferId: {}, accountId: {}, amount: {}",
                 transferId.value(), command.sourceAccountId(), command.amount().amount());
+
             deposit(command.sourceAccountId(), command.amount());
+
             TransactionId compensationTxId = createTransaction(
                 command.sourceAccountId(),
                 TransactionType.REVERSAL,
                 TransactionDirection.CREDIT,
                 command.amount(),
                 command.valueDate(),
-                null,
+                createCompensationIdempotencyKey(transferId),
                 "Transfer compensation for " + transferId.value(),
                 Instant.now()
             );
-            log.info("송금 보상 완료: transferId={}, compensationTransactionId={}",
+
+            log.warn("[COMPENSATION-SUCCESS] 송금 보상 처리 완료 - transferId: {}, compensationTxId: {}",
                 transferId.value(), compensationTxId.value());
+
             return "; compensationSuccess=" + compensationTxId.value();
         } catch (RuntimeException compensationEx) {
-            log.error("송금 보상 실패: transferId={}, reason={}", transferId.value(), compensationEx.getMessage(), compensationEx);
+            log.warn("[COMPENSATION-FAILED] 송금 보상 처리 실패 - transferId: {}, error: {}",
+                transferId.value(), compensationEx.getMessage(), compensationEx);
             return "; compensationFailed=" + compensationEx.getMessage();
         }
     }

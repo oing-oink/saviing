@@ -50,9 +50,17 @@ public class AccountPersistenceAdapter implements LoadAccountPort, SaveAccountPo
     
     @Override
     public Account save(Account account) {
-        AccountJpaEntity entity = AccountJpaEntity.fromDomain(account);
-        AccountJpaEntity saved = jpaAccountRepository.save(entity);
-        return saved.toDomain();
+        if (account.getId() != null) {
+            AccountJpaEntity existing = jpaAccountRepository.findById(account.getId().value())
+                .orElseThrow(() -> new IllegalStateException("Account not found: " + account.getId().value()));
+            existing.updateFromDomain(account);
+            AccountJpaEntity saved = jpaAccountRepository.save(existing);
+            return saved.toDomain();
+        } else {
+            AccountJpaEntity entity = AccountJpaEntity.fromDomain(account);
+            AccountJpaEntity saved = jpaAccountRepository.save(entity);
+            return saved.toDomain();
+        }
     }
     
     @Override
