@@ -46,4 +46,13 @@ public class AuthController {
         return ApiResult.ok(result.refreshResponse())
             .cookie(result.refreshTokenCookie());
     }
+
+    @PostMapping("/logout")
+    public ApiResult<Void> logout(@CookieValue("refresh_token") String refreshToken) {
+        // Refresh Token 검증 및 쿠키 삭제
+        var expiredCookie = oAuth2TokenService.logout(refreshToken);
+
+        return ApiResult.ok(null)
+            .cookie(expiredCookie);
+    }
 }
