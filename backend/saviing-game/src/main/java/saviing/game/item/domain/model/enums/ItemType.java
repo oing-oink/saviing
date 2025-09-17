@@ -15,7 +15,7 @@ public enum ItemType {
      * 펫 아이템
      * 캐릭터와 함께하는 동반자 아이템
      */
-    PET("펫") {
+    PET {
         @Override
         public List<Category> getCategories() {
             return Arrays.asList(Pet.values());
@@ -31,7 +31,7 @@ public enum ItemType {
      * 액세서리 아이템
      * 캐릭터가 착용하는 장식 아이템
      */
-    ACCESSORY("액세서리") {
+    ACCESSORY {
         @Override
         public List<Category> getCategories() {
             return Arrays.asList(Accessory.values());
@@ -47,7 +47,7 @@ public enum ItemType {
      * 데코레이션 아이템
      * 방을 꾸미는 장식 아이템
      */
-    DECORATION("데코레이션") {
+    DECORATION {
         @Override
         public List<Category> getCategories() {
             return Arrays.asList(Decoration.values());
@@ -58,16 +58,6 @@ public enum ItemType {
             return category instanceof Decoration;
         }
     };
-
-    private final String displayName;
-
-    ItemType(String displayName) {
-        this.displayName = displayName;
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
 
     /**
      * 해당 타입에서 사용 가능한 모든 카테고리를 반환합니다.

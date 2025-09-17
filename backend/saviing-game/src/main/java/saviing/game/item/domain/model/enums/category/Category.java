@@ -9,13 +9,6 @@ import saviing.game.item.domain.model.enums.ItemType;
 public interface Category {
 
     /**
-     * 카테고리의 표시 이름을 반환합니다.
-     *
-     * @return 카테고리 표시 이름
-     */
-    String getDisplayName();
-
-    /**
      * 카테고리가 속하는 아이템 타입을 반환합니다.
      *
      * @return 아이템 타입

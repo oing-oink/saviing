@@ -103,8 +103,8 @@ public class Item {
         // 카테고리와 타입 일치성 검증
         if (!itemType.isValidCategory(itemCategory)) {
             throw InvalidItemDefinitionException.categoryTypeMismatch(
-                itemCategory.getDisplayName(),
-                itemType.getDisplayName()
+                itemCategory.name(),
+                itemType.name()
             );
         }
 
@@ -355,8 +355,8 @@ public class Item {
         // 카테고리와 타입 일치성 검증
         if (!itemType.isValidCategory(itemCategory)) {
             throw InvalidItemDefinitionException.categoryTypeMismatch(
-                itemCategory.getDisplayName(),
-                itemType.getDisplayName()
+                itemCategory.name(),
+                itemType.name()
             );
         }
 
