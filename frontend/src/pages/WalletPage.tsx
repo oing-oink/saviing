@@ -1,5 +1,5 @@
 import CheckingAccountWalletCard from '@/features/savings/components/CheckingAccountWalletCard';
-import SavingAccountWalletCard from '@/features/savings/components/SavingAccountWalletCard';
+import SavingsAccountWalletCard from '@/features/savings/components/SavingAccountWalletCard';
 import WalletButton from '@/features/savings/components/WalletButton';
 import { useWalletButtons } from '@/shared/hooks/useWalletButtons';
 const WalletPage = () => {
@@ -9,7 +9,7 @@ const WalletPage = () => {
     <div className="flex min-h-screen flex-col">
       <div className="flex-1 px-5">
         <div className="flex flex-col items-center gap-4">
-          <SavingAccountWalletCard />
+          <SavingsAccountWalletCard />
           <CheckingAccountWalletCard />
           <div className="flex w-full gap-4">
             {buttons.map((btn, i) => (

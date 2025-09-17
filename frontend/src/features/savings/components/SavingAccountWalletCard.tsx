@@ -3,7 +3,7 @@ import { Copy } from 'lucide-react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
 
-const SavingAccountWalletCard = () => {
+const SavingsAccountWalletCard = () => {
   const target = 1200000;
   const current = 750000;
   const percent = (current / target) * 100;
@@ -53,4 +53,4 @@ const SavingAccountWalletCard = () => {
   );
 };
 
-export default SavingAccountWalletCard;
+export default SavingsAccountWalletCard;
