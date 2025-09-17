@@ -17,7 +17,7 @@ import saviing.game.item.presentation.mapper.ItemRequestMapper;
 
 /**
  * 아이템 REST API 컨트롤러
- * /v1/store/items 경로로 아이템 관련 API를 제공합니다.
+ * /v1/game/items 경로로 아이템 관련 API를 제공합니다.
  */
 @Slf4j
 @RestController
