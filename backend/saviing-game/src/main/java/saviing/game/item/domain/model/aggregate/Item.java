@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import saviing.game.character.domain.event.DomainEvent;
+import saviing.game.item.domain.event.DomainEvent;
 import saviing.game.item.domain.event.ItemAvailabilityChangedEvent;
 import saviing.game.item.domain.event.ItemRegisteredEvent;
 import saviing.game.item.domain.event.ItemUpdatedEvent;
@@ -18,7 +18,6 @@ import saviing.game.item.domain.model.vo.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -123,9 +122,9 @@ public class Item {
 
         item.addDomainEvent(ItemRegisteredEvent.of(
             item.itemId,
-            item.itemName.value(),
-            item.itemType.getDisplayName(),
-            item.itemCategory.getDisplayName()
+            item.itemName,
+            item.itemType,
+            item.itemCategory
         ));
 
         return item;
@@ -146,7 +145,7 @@ public class Item {
 
         addDomainEvent(ItemAvailabilityChangedEvent.makeAvailable(
             this.itemId,
-            this.itemName.value()
+            this.itemName
         ));
     }
 
@@ -166,7 +165,7 @@ public class Item {
 
         addDomainEvent(ItemAvailabilityChangedEvent.makeUnavailable(
             this.itemId,
-            this.itemName.value(),
+            this.itemName,
             reason
         ));
     }
@@ -184,7 +183,7 @@ public class Item {
 
             addDomainEvent(ItemUpdatedEvent.ofSingleField(
                 this.itemId,
-                this.itemName.value(),
+                this.itemName,
                 "name",
                 Map.of("old", oldName, "new", newName.value())
             ));
@@ -204,7 +203,7 @@ public class Item {
 
             addDomainEvent(ItemUpdatedEvent.ofSingleField(
                 this.itemId,
-                this.itemName.value(),
+                this.itemName,
                 "description",
                 Map.of("old", oldDescription, "new", newDescription.value())
             ));
@@ -225,7 +224,7 @@ public class Item {
             // 가격 변경은 비즈니스적으로 중요한 이벤트이므로 유지
             addDomainEvent(ItemUpdatedEvent.ofSingleField(
                 this.itemId,
-                this.itemName.value(),
+                this.itemName,
                 "price",
                 Map.of("old", oldPrice, "new", newPrice)
             ));
@@ -245,7 +244,7 @@ public class Item {
 
             addDomainEvent(ItemUpdatedEvent.ofSingleField(
                 this.itemId,
-                this.itemName.value(),
+                this.itemName,
                 "imageUrl",
                 Map.of("old", oldUrl, "new", newImageUrl.value())
             ));
@@ -265,7 +264,7 @@ public class Item {
 
             addDomainEvent(ItemUpdatedEvent.ofSingleField(
                 this.itemId,
-                this.itemName.value(),
+                this.itemName,
                 "rarity",
                 Map.of("old", oldRarity.name(), "new", newRarity.name())
             ));

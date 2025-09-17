@@ -32,60 +32,6 @@ public interface ItemRepository {
     Optional<Item> findById(ItemId itemId);
 
     /**
-     * 아이템 타입으로 아이템 목록을 조회합니다.
-     *
-     * @param itemType 아이템 타입
-     * @return 해당 타입의 아이템 목록
-     */
-    List<Item> findByType(ItemType itemType);
-
-    /**
-     * 아이템 카테고리로 아이템 목록을 조회합니다.
-     *
-     * @param category 아이템 카테고리
-     * @return 해당 카테고리의 아이템 목록
-     */
-    List<Item> findByCategory(Category category);
-
-    /**
-     * 희귀도로 아이템 목록을 조회합니다.
-     *
-     * @param rarity 희귀도
-     * @return 해당 희귀도의 아이템 목록
-     */
-    List<Item> findByRarity(Rarity rarity);
-
-    /**
-     * 판매 가능한 모든 아이템을 조회합니다.
-     *
-     * @return 판매 가능한 아이템 목록
-     */
-    List<Item> findAllAvailable();
-
-    /**
-     * 특정 타입의 판매 가능한 아이템을 조회합니다.
-     *
-     * @param itemType 아이템 타입
-     * @return 해당 타입의 판매 가능한 아이템 목록
-     */
-    List<Item> findAvailableByType(ItemType itemType);
-
-    /**
-     * 특정 카테고리의 판매 가능한 아이템을 조회합니다.
-     *
-     * @param category 아이템 카테고리
-     * @return 해당 카테고리의 판매 가능한 아이템 목록
-     */
-    List<Item> findAvailableByCategory(Category category);
-
-    /**
-     * 모든 아이템을 조회합니다 (판매 불가능한 아이템 포함).
-     *
-     * @return 모든 아이템 목록
-     */
-    List<Item> findAll();
-
-    /**
      * 아이템이 존재하는지 확인합니다.
      *
      * @param itemId 아이템 ID
@@ -101,10 +47,26 @@ public interface ItemRepository {
     void deleteById(ItemId itemId);
 
     /**
-     * 아이템 이름으로 검색합니다 (부분 검색 지원).
+     * 조건에 맞는 아이템을 DB에서 정렬/필터링하여 조회합니다.
      *
-     * @param keyword 검색 키워드
-     * @return 이름에 키워드가 포함된 아이템 목록
+     * @param itemType 아이템 타입
+     * @param category 아이템 카테고리
+     * @param rarity 희귀도
+     * @param keyword 이름 검색 키워드
+     * @param available 판매 가능 여부
+     * @param sortField 정렬 필드
+     * @param sortDirection 정렬 방향
+     * @param coinType 코인 타입
+     * @return 조회된 아이템 목록
      */
-    List<Item> findByNameContaining(String keyword);
+    List<Item> findItemsWithConditions(
+        ItemType itemType,
+        Category category,
+        Rarity rarity,
+        String keyword,
+        Boolean available,
+        String sortField,
+        String sortDirection,
+        String coinType
+    );
 }

@@ -39,64 +39,6 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     @Override
-    public List<Item> findByType(ItemType itemType) {
-        List<ItemEntity> entities = itemJpaRepository.findByItemType(itemType.name());
-        return entities.stream()
-            .map(itemEntityMapper::toDomain)
-            .toList();
-    }
-
-    @Override
-    public List<Item> findByCategory(Category category) {
-        String categoryString = formatCategoryForQuery(category);
-        List<ItemEntity> entities = itemJpaRepository.findByItemCategory(categoryString);
-        return entities.stream()
-            .map(itemEntityMapper::toDomain)
-            .toList();
-    }
-
-    @Override
-    public List<Item> findByRarity(Rarity rarity) {
-        List<ItemEntity> entities = itemJpaRepository.findByRarity(rarity.name());
-        return entities.stream()
-            .map(itemEntityMapper::toDomain)
-            .toList();
-    }
-
-    @Override
-    public List<Item> findAllAvailable() {
-        List<ItemEntity> entities = itemJpaRepository.findByIsAvailableTrue();
-        return entities.stream()
-            .map(itemEntityMapper::toDomain)
-            .toList();
-    }
-
-    @Override
-    public List<Item> findAvailableByType(ItemType itemType) {
-        List<ItemEntity> entities = itemJpaRepository.findByItemTypeAndIsAvailableTrue(itemType.name());
-        return entities.stream()
-            .map(itemEntityMapper::toDomain)
-            .toList();
-    }
-
-    @Override
-    public List<Item> findAvailableByCategory(Category category) {
-        String categoryString = formatCategoryForQuery(category);
-        List<ItemEntity> entities = itemJpaRepository.findByItemCategoryAndIsAvailableTrue(categoryString);
-        return entities.stream()
-            .map(itemEntityMapper::toDomain)
-            .toList();
-    }
-
-    @Override
-    public List<Item> findAll() {
-        List<ItemEntity> entities = itemJpaRepository.findAll();
-        return entities.stream()
-            .map(itemEntityMapper::toDomain)
-            .toList();
-    }
-
-    @Override
     public boolean existsById(ItemId itemId) {
         return itemJpaRepository.existsById(itemId.value());
     }
@@ -106,10 +48,30 @@ public class ItemRepositoryImpl implements ItemRepository {
         itemJpaRepository.deleteById(itemId.value());
     }
 
-
     @Override
-    public List<Item> findByNameContaining(String keyword) {
-        List<ItemEntity> entities = itemJpaRepository.findByItemNameContainingIgnoreCase(keyword);
+    public List<Item> findItemsWithConditions(
+        ItemType itemType,
+        Category category,
+        Rarity rarity,
+        String keyword,
+        Boolean available,
+        String sortField,
+        String sortDirection,
+        String coinType
+    ) {
+        String categoryString = category != null ? formatCategoryForQuery(category) : null;
+
+        List<ItemEntity> entities = itemJpaRepository.findItemsWithDynamicQuery(
+            itemType != null ? itemType.name() : null,
+            categoryString,
+            rarity != null ? rarity.name() : null,
+            keyword,
+            available,
+            sortField != null ? sortField : "NAME",
+            sortDirection != null ? sortDirection : "ASC",
+            coinType != null ? coinType : "COIN"
+        );
+
         return entities.stream()
             .map(itemEntityMapper::toDomain)
             .toList();

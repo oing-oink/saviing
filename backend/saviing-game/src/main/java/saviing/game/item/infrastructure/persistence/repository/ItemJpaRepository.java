@@ -13,94 +13,46 @@ import java.util.List;
  */
 public interface ItemJpaRepository extends JpaRepository<ItemEntity, Long> {
 
+
     /**
-     * 아이템 타입으로 아이템 목록을 조회합니다.
+     * 동적 조건과 정렬을 적용하여 아이템을 조회합니다.
      *
      * @param itemType 아이템 타입
-     * @return 해당 타입의 아이템 목록
-     */
-    List<ItemEntity> findByItemType(String itemType);
-
-    /**
-     * 아이템 카테고리로 아이템 목록을 조회합니다.
-     *
-     * @param itemCategory 아이템 카테고리
-     * @return 해당 카테고리의 아이템 목록
-     */
-    List<ItemEntity> findByItemCategory(String itemCategory);
-
-    /**
-     * 희귀도로 아이템 목록을 조회합니다.
-     *
+     * @param category 아이템 카테고리
      * @param rarity 희귀도
-     * @return 해당 희귀도의 아이템 목록
+     * @param keyword 이름 검색 키워드
+     * @param available 판매 가능 여부
+     * @param sortField 정렬 필드
+     * @param sortDirection 정렬 방향
+     * @return 조건에 맞는 아이템 목록
      */
-    List<ItemEntity> findByRarity(String rarity);
-
-    /**
-     * 판매 가능한 모든 아이템을 조회합니다.
-     *
-     * @return 판매 가능한 아이템 목록
-     */
-    List<ItemEntity> findByIsAvailableTrue();
-
-    /**
-     * 특정 타입의 판매 가능한 아이템을 조회합니다.
-     *
-     * @param itemType 아이템 타입
-     * @return 해당 타입의 판매 가능한 아이템 목록
-     */
-    List<ItemEntity> findByItemTypeAndIsAvailableTrue(String itemType);
-
-    /**
-     * 특정 카테고리의 판매 가능한 아이템을 조회합니다.
-     *
-     * @param itemCategory 아이템 카테고리
-     * @return 해당 카테고리의 판매 가능한 아이템 목록
-     */
-    List<ItemEntity> findByItemCategoryAndIsAvailableTrue(String itemCategory);
-
-
-    /**
-     * 아이템 이름으로 검색합니다 (부분 검색 지원).
-     *
-     * @param keyword 검색 키워드
-     * @return 이름에 키워드가 포함된 아이템 목록
-     */
-    List<ItemEntity> findByItemNameContainingIgnoreCase(String keyword);
-
-    /**
-     * 판매 가능한 아이템을 이름 순으로 정렬하여 조회합니다.
-     *
-     * @return 판매 가능한 아이템 목록 (이름 순)
-     */
-    List<ItemEntity> findByIsAvailableTrueOrderByItemNameAsc();
-
-    /**
-     * 판매 가능한 아이템을 코인 가격 순으로 정렬하여 조회합니다.
-     *
-     * @return 판매 가능한 아이템 목록 (코인 가격 순)
-     */
-    List<ItemEntity> findByIsAvailableTrueOrderByCoinAsc();
-
-    /**
-     * 판매 가능한 아이템을 피쉬 코인 가격 순으로 정렬하여 조회합니다.
-     *
-     * @return 판매 가능한 아이템 목록 (피쉬 코인 가격 순)
-     */
-    List<ItemEntity> findByIsAvailableTrueOrderByFishCoinAsc();
-
-    /**
-     * 판매 가능한 아이템을 희귀도 순으로 정렬하여 조회합니다.
-     *
-     * @return 판매 가능한 아이템 목록 (희귀도 순)
-     */
-    List<ItemEntity> findByIsAvailableTrueOrderByRarityAsc();
-
-    /**
-     * 판매 가능한 아이템을 생성일 순으로 정렬하여 조회합니다.
-     *
-     * @return 판매 가능한 아이템 목록 (생성일 순)
-     */
-    List<ItemEntity> findByIsAvailableTrueOrderByCreatedAtDesc();
+    @Query("SELECT i FROM ItemEntity i WHERE " +
+           "(:itemType IS NULL OR i.itemType = :itemType) AND " +
+           "(:category IS NULL OR i.itemCategory = :category) AND " +
+           "(:rarity IS NULL OR i.rarity = :rarity) AND " +
+           "(:keyword IS NULL OR LOWER(i.itemName) LIKE LOWER(CONCAT('%', :keyword, '%'))) AND " +
+           "(:available IS NULL OR i.isAvailable = :available) " +
+           "ORDER BY " +
+           "CASE WHEN :sortField = 'NAME' AND :sortDirection = 'ASC' THEN i.itemName END ASC, " +
+           "CASE WHEN :sortField = 'NAME' AND :sortDirection = 'DESC' THEN i.itemName END DESC, " +
+           "CASE WHEN :sortField = 'PRICE' AND :sortDirection = 'ASC' AND :coinType = 'COIN' THEN i.coin END ASC, " +
+           "CASE WHEN :sortField = 'PRICE' AND :sortDirection = 'DESC' AND :coinType = 'COIN' THEN i.coin END DESC, " +
+           "CASE WHEN :sortField = 'PRICE' AND :sortDirection = 'ASC' AND :coinType = 'FISH_COIN' THEN i.fishCoin END ASC, " +
+           "CASE WHEN :sortField = 'PRICE' AND :sortDirection = 'DESC' AND :coinType = 'FISH_COIN' THEN i.fishCoin END DESC, " +
+           "CASE WHEN :sortField = 'RARITY' AND :sortDirection = 'ASC' THEN i.rarity END ASC, " +
+           "CASE WHEN :sortField = 'RARITY' AND :sortDirection = 'DESC' THEN i.rarity END DESC, " +
+           "CASE WHEN :sortField = 'CREATED_AT' AND :sortDirection = 'ASC' THEN i.createdAt END ASC, " +
+           "CASE WHEN :sortField = 'CREATED_AT' AND :sortDirection = 'DESC' THEN i.createdAt END DESC, " +
+           "CASE WHEN :sortField = 'UPDATED_AT' AND :sortDirection = 'ASC' THEN i.updatedAt END ASC, " +
+           "CASE WHEN :sortField = 'UPDATED_AT' AND :sortDirection = 'DESC' THEN i.updatedAt END DESC, " +
+           "i.itemName ASC")
+    List<ItemEntity> findItemsWithDynamicQuery(
+        @Param("itemType") String itemType,
+        @Param("category") String category,
+        @Param("rarity") String rarity,
+        @Param("keyword") String keyword,
+        @Param("available") Boolean available,
+        @Param("sortField") String sortField,
+        @Param("sortDirection") String sortDirection,
+        @Param("coinType") String coinType);
 }

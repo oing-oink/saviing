@@ -38,13 +38,13 @@ public class ItemEntity {
     @Column(name = "rarity", nullable = false, length = 20)
     private String rarity;
 
-    @Column(name = "x_length", nullable = false)
+    @Column(name = "x_length")
     private Integer xLength;
 
-    @Column(name = "y_length", nullable = false)
+    @Column(name = "y_length")
     private Integer yLength;
 
-    @Column(name = "coin")
+    @Column(name = "coin", nullable = false)
     private Integer coin;
 
     @Column(name = "fish_coin")
