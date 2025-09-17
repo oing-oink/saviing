@@ -23,9 +23,7 @@ import saviing.bank.transaction.domain.model.TransactionStatus;
 import saviing.bank.transaction.domain.model.TransactionType;
 import saviing.bank.common.vo.MoneyWon;
 import saviing.bank.transaction.domain.vo.TransactionId;
-import saviing.common.annotation.ExecutionTime;
 
-@ExecutionTime
 @Entity
 @Table(
     name = "transaction",

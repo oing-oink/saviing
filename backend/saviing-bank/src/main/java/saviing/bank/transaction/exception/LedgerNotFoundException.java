@@ -4,7 +4,7 @@ import java.util.Map;
 
 /**
  * 원장을 찾을 수 없음 예외
- * 요청한 IdempotencyKey에 해당하는 LedgerPair가 없을 때 발생하는 예외이다.
+ * 요청한 IdempotencyKey에 해당하는 Transfer가 없을 때 발생하는 예외이다.
  */
 public class LedgerNotFoundException extends TransactionException {
 

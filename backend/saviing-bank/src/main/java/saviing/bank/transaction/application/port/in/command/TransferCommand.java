@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.NonNull;
 
 import saviing.bank.common.vo.MoneyWon;
-import saviing.bank.transaction.domain.model.TransferType;
+import saviing.bank.transaction.domain.model.transfer.TransferType;
 import saviing.bank.transaction.domain.vo.IdempotencyKey;
 
 /**
@@ -33,5 +33,31 @@ public record TransferCommand(
         if (sourceAccountId.equals(targetAccountId) && transferType == TransferType.INTERNAL) {
             throw new IllegalArgumentException("Source and target account must differ for internal transfer");
         }
+    }
+
+    /**
+     * 기본 타입들로부터 TransferCommand를 생성하는 정적 팩토리 메서드.
+     */
+    public static TransferCommand of(
+        Long sourceAccountId,
+        Long targetAccountId,
+        Long amount,
+        LocalDate valueDate,
+        String transferType,
+        String memo,
+        String idempotencyKey
+    ) {
+        return TransferCommand.builder()
+            .sourceAccountId(sourceAccountId)
+            .targetAccountId(targetAccountId)
+            .amount(MoneyWon.of(amount))
+            .valueDate(valueDate)
+            .transferType(transferType != null ?
+                TransferType.valueOf(transferType) : TransferType.INTERNAL)
+            .memo(memo)
+            .idempotencyKey(idempotencyKey != null ?
+                IdempotencyKey.of(idempotencyKey) : null)
+            .requestedAt(Instant.now())
+            .build();
     }
 }

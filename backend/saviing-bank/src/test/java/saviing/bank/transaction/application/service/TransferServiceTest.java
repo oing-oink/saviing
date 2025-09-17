@@ -17,7 +17,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationEventPublisher;
 
 import saviing.bank.account.api.AccountInternalApi;
 import saviing.bank.account.api.request.DepositAccountRequest;
@@ -33,12 +32,12 @@ import saviing.bank.transaction.application.port.out.LoadTransactionPort;
 import saviing.bank.transaction.application.port.out.SaveTransactionPort;
 import saviing.bank.transaction.domain.model.Transaction;
 import saviing.bank.transaction.domain.model.TransactionDirection;
-import saviing.bank.transaction.domain.model.TransferStatus;
-import saviing.bank.transaction.domain.model.TransferType;
-import saviing.bank.transaction.domain.model.ledger.LedgerEntrySnapshot;
-import saviing.bank.transaction.domain.model.ledger.LedgerEntryStatus;
-import saviing.bank.transaction.domain.model.ledger.LedgerPairSnapshot;
-import saviing.bank.transaction.domain.service.LedgerService;
+import saviing.bank.transaction.domain.model.transfer.TransferStatus;
+import saviing.bank.transaction.domain.model.transfer.TransferType;
+import saviing.bank.transaction.domain.vo.LedgerEntrySnapshot;
+import saviing.bank.transaction.domain.model.transfer.LedgerEntryStatus;
+import saviing.bank.transaction.domain.vo.TransferSnapshot;
+import saviing.bank.transaction.application.service.LedgerService;
 import saviing.bank.transaction.domain.service.TransferDomainService;
 import saviing.bank.transaction.domain.vo.IdempotencyKey;
 import saviing.bank.transaction.domain.vo.TransactionId;
@@ -56,8 +55,6 @@ class TransferServiceTest {
     private LoadTransactionPort loadTransactionPort;
     @Mock
     private AccountInternalApi accountInternalApi;
-    @Mock
-    private ApplicationEventPublisher eventPublisher;
 
     @InjectMocks
     private TransferService transferService;
@@ -92,7 +89,7 @@ class TransferServiceTest {
             Instant.now(),
             Instant.now()
         );
-        LedgerPairSnapshot settledSnapshot = new LedgerPairSnapshot(
+        TransferSnapshot settledSnapshot = new TransferSnapshot(
             TransferType.INTERNAL,
             TransferStatus.SETTLED,
             idempotencyKey,
@@ -137,8 +134,8 @@ class TransferServiceTest {
         // given - withdraw 성공 후 createTransaction 실패 시나리오
         IdempotencyKey idempotencyKey = IdempotencyKey.of("transfer-fail-1");
 
-        LedgerPairSnapshot requestedSnapshot = createRequestedSnapshot(idempotencyKey);
-        LedgerPairSnapshot failedSnapshot = createFailedSnapshot(idempotencyKey);
+        TransferSnapshot requestedSnapshot = createRequestedSnapshot(idempotencyKey);
+        TransferSnapshot failedSnapshot = createFailedSnapshot(idempotencyKey);
 
         when(ledgerService.initializeTransfer(any(), any(), any(), any(), any(), any()))
             .thenReturn(requestedSnapshot);
@@ -201,8 +198,8 @@ class TransferServiceTest {
         // given - 동일한 transferId로 보상 트랜잭션 2번 실행
         IdempotencyKey idempotencyKey = IdempotencyKey.of("transfer-idem-1");
 
-        LedgerPairSnapshot requestedSnapshot = createRequestedSnapshot(idempotencyKey);
-        LedgerPairSnapshot failedSnapshot = createFailedSnapshot(idempotencyKey);
+        TransferSnapshot requestedSnapshot = createRequestedSnapshot(idempotencyKey);
+        TransferSnapshot failedSnapshot = createFailedSnapshot(idempotencyKey);
 
         when(ledgerService.initializeTransfer(any(), any(), any(), any(), any(), any()))
             .thenReturn(requestedSnapshot);
@@ -259,8 +256,8 @@ class TransferServiceTest {
         // given - withdraw 자체가 실패한 경우
         IdempotencyKey idempotencyKey = IdempotencyKey.of("transfer-no-comp-1");
 
-        LedgerPairSnapshot requestedSnapshot = createRequestedSnapshot(idempotencyKey);
-        LedgerPairSnapshot failedSnapshot = createFailedSnapshot(idempotencyKey);
+        TransferSnapshot requestedSnapshot = createRequestedSnapshot(idempotencyKey);
+        TransferSnapshot failedSnapshot = createFailedSnapshot(idempotencyKey);
 
         when(ledgerService.initializeTransfer(any(), any(), any(), any(), any(), any()))
             .thenReturn(requestedSnapshot);
@@ -300,7 +297,7 @@ class TransferServiceTest {
         verifyNoInteractions(saveTransactionPort);
     }
 
-    private LedgerPairSnapshot createRequestedSnapshot(IdempotencyKey idempotencyKey) {
+    private TransferSnapshot createRequestedSnapshot(IdempotencyKey idempotencyKey) {
         LedgerEntrySnapshot debitSnapshot = new LedgerEntrySnapshot(
             1L, 100L, TransactionDirection.DEBIT, MoneyWon.of(1000L),
             LedgerEntryStatus.REQUESTED, LocalDate.now(), null, null, null,
@@ -311,13 +308,13 @@ class TransferServiceTest {
             LedgerEntryStatus.REQUESTED, LocalDate.now(), null, null, null,
             Instant.now(), Instant.now()
         );
-        return new LedgerPairSnapshot(
+        return new TransferSnapshot(
             TransferType.INTERNAL, TransferStatus.REQUESTED, idempotencyKey,
             List.of(debitSnapshot, creditSnapshot), Instant.now(), Instant.now(), null
         );
     }
 
-    private LedgerPairSnapshot createFailedSnapshot(IdempotencyKey idempotencyKey) {
+    private TransferSnapshot createFailedSnapshot(IdempotencyKey idempotencyKey) {
         LedgerEntrySnapshot debitSnapshot = new LedgerEntrySnapshot(
             1L, 100L, TransactionDirection.DEBIT, MoneyWon.of(1000L),
             LedgerEntryStatus.FAILED, LocalDate.now(), null, null, null,
@@ -328,7 +325,7 @@ class TransferServiceTest {
             LedgerEntryStatus.FAILED, LocalDate.now(), null, null, null,
             Instant.now(), Instant.now()
         );
-        return new LedgerPairSnapshot(
+        return new TransferSnapshot(
             TransferType.INTERNAL, TransferStatus.FAILED, idempotencyKey,
             List.of(debitSnapshot, creditSnapshot), Instant.now(), Instant.now(), "Test failure"
         );

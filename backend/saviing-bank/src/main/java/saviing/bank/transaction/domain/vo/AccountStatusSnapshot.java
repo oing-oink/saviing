@@ -1,4 +1,4 @@
-package saviing.bank.transaction.domain.model.account;
+package saviing.bank.transaction.domain.vo;
 
 /**
  * AccountInternalApi 응답에서 사용하는 계좌 상태 스냅샷.

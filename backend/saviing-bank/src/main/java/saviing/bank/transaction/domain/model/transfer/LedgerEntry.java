@@ -1,4 +1,4 @@
-package saviing.bank.transaction.domain.model.ledger;
+package saviing.bank.transaction.domain.model.transfer;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -172,8 +172,8 @@ public class LedgerEntry {
      *
      * @return 원장 엔트리 스냅샷
      */
-    public LedgerEntrySnapshot toSnapshot() {
-        return new LedgerEntrySnapshot(
+    public saviing.bank.transaction.domain.vo.LedgerEntrySnapshot toSnapshot() {
+        return new saviing.bank.transaction.domain.vo.LedgerEntrySnapshot(
             id,
             accountId,
             direction,

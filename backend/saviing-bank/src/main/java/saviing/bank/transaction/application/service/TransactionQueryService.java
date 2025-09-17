@@ -16,11 +16,13 @@ import java.util.Map;
 import saviing.bank.transaction.application.port.out.LoadTransactionPort;
 import saviing.bank.transaction.domain.model.Transaction;
 import saviing.bank.transaction.domain.vo.TransactionId;
+import saviing.common.annotation.ExecutionTime;
 
 /**
  * 거래 조회 서비스
  * 거래 조회 및 계좌별 거래 내역 조회 기능을 제공하는 애플리케이션 서비스이다.
  */
+@ExecutionTime
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)

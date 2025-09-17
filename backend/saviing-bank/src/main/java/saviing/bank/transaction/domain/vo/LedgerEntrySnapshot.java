@@ -1,12 +1,11 @@
-package saviing.bank.transaction.domain.model.ledger;
+package saviing.bank.transaction.domain.vo;
 
 import java.time.Instant;
 import java.time.LocalDate;
 
 import saviing.bank.common.vo.MoneyWon;
 import saviing.bank.transaction.domain.model.TransactionDirection;
-import saviing.bank.transaction.domain.vo.IdempotencyKey;
-import saviing.bank.transaction.domain.vo.TransactionId;
+import saviing.bank.transaction.domain.model.transfer.LedgerEntryStatus;
 
 /**
  * LedgerEntry 읽기 전용 뷰 모델.

@@ -1,17 +1,16 @@
-package saviing.bank.transaction.domain.model.ledger;
+package saviing.bank.transaction.domain.vo;
 
 import java.time.Instant;
 import java.util.List;
 
 import saviing.bank.transaction.domain.model.TransactionDirection;
-import saviing.bank.transaction.domain.model.TransferStatus;
-import saviing.bank.transaction.domain.model.TransferType;
-import saviing.bank.transaction.domain.vo.IdempotencyKey;
+import saviing.bank.transaction.domain.model.transfer.TransferStatus;
+import saviing.bank.transaction.domain.model.transfer.TransferType;
 
 /**
- * LedgerPair의 상태를 조회하기 위한 스냅샷 모델.
+ * Transfer의 상태를 조회하기 위한 스냅샷 모델.
  */
-public record LedgerPairSnapshot(
+public record TransferSnapshot(
     TransferType transferType,
     TransferStatus status,
     IdempotencyKey idempotencyKey,

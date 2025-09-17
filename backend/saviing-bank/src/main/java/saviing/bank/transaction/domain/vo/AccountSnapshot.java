@@ -1,4 +1,4 @@
-package saviing.bank.transaction.domain.model.account;
+package saviing.bank.transaction.domain.vo;
 
 import saviing.bank.common.vo.MoneyWon;
 

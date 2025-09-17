@@ -1,4 +1,4 @@
-package saviing.bank.transaction.domain.model;
+package saviing.bank.transaction.domain.model.transfer;
 
 /**
  * 송금 진행 상태를 나타내는 열거형

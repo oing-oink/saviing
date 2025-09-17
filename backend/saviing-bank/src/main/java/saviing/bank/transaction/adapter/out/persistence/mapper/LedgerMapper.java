@@ -6,23 +6,23 @@ import org.springframework.stereotype.Component;
 
 import saviing.bank.common.vo.MoneyWon;
 import saviing.bank.transaction.adapter.out.persistence.entity.ledger.LedgerEntryJpaEntity;
-import saviing.bank.transaction.adapter.out.persistence.entity.ledger.LedgerPairJpaEntity;
-import saviing.bank.transaction.domain.model.ledger.LedgerEntry;
-import saviing.bank.transaction.domain.model.ledger.LedgerPair;
+import saviing.bank.transaction.adapter.out.persistence.entity.ledger.TransferJpaEntity;
+import saviing.bank.transaction.domain.model.transfer.LedgerEntry;
+import saviing.bank.transaction.domain.model.transfer.Transfer;
 import saviing.bank.transaction.domain.vo.IdempotencyKey;
 import saviing.bank.transaction.domain.vo.TransactionId;
 
 /**
- * LedgerPair/LedgerEntry 도메인 객체와 JPA 엔티티 간 변환을 담당하는 매퍼.
+ * Transfer/LedgerEntry 도메인 객체와 JPA 엔티티 간 변환을 담당하는 매퍼.
  */
 @Component
 public class LedgerMapper {
 
-    public LedgerPair toDomain(LedgerPairJpaEntity entity) {
+    public Transfer toDomain(TransferJpaEntity entity) {
         List<LedgerEntry> entries = entity.getEntries().stream()
             .map(this::toDomainEntry)
             .toList();
-        return LedgerPair.restore(
+        return Transfer.restore(
             entity.getTransferType(),
             entity.getStatus(),
             entity.getIdempotencyKey() != null ? IdempotencyKey.of(entity.getIdempotencyKey()) : null,
@@ -33,8 +33,8 @@ public class LedgerMapper {
         );
     }
 
-    public LedgerPairJpaEntity toEntity(LedgerPair ledgerPair) {
-        LedgerPairJpaEntity entity = LedgerPairJpaEntity.create();
+    public TransferJpaEntity toEntity(Transfer ledgerPair) {
+        TransferJpaEntity entity = TransferJpaEntity.create();
         entity.setTransferType(ledgerPair.getTransferType());
         entity.setStatus(ledgerPair.getStatus());
         entity.setCreatedAt(ledgerPair.getCreatedAt());
@@ -49,7 +49,7 @@ public class LedgerMapper {
         return entity;
     }
 
-    public void updateEntity(LedgerPair ledgerPair, LedgerPairJpaEntity entity) {
+    public void updateEntity(Transfer ledgerPair, TransferJpaEntity entity) {
         entity.setStatus(ledgerPair.getStatus());
         entity.setUpdatedAt(ledgerPair.getUpdatedAt());
         entity.setFailureReason(ledgerPair.getFailureReason());
@@ -81,7 +81,7 @@ public class LedgerMapper {
         return entity;
     }
 
-    private LedgerEntryJpaEntity updateOrCreateEntry(LedgerPairJpaEntity pairEntity, LedgerEntry entry) {
+    private LedgerEntryJpaEntity updateOrCreateEntry(TransferJpaEntity pairEntity, LedgerEntry entry) {
         return pairEntity.getEntries().stream()
             .filter(existing -> existing.getDirection() == entry.getDirection())
             .findFirst()
@@ -92,7 +92,7 @@ public class LedgerMapper {
             .orElseGet(() -> {
                 LedgerEntryJpaEntity created = LedgerEntryJpaEntity.create();
                 populateEntryFields(entry, created);
-                created.setLedgerPair(pairEntity);
+                created.setTransfer(pairEntity);
                 return created;
             });
     }

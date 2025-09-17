@@ -22,31 +22,31 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import saviing.bank.transaction.domain.model.TransferStatus;
-import saviing.bank.transaction.domain.model.TransferType;
+import saviing.bank.transaction.domain.model.transfer.TransferStatus;
+import saviing.bank.transaction.domain.model.transfer.TransferType;
 import saviing.common.annotation.ExecutionTime;
 
 /**
- * LedgerPair 애그리거트를 저장하기 위한 JPA 엔티티.
+ * Transfer 애그리거트를 저장하기 위한 JPA 엔티티.
  */
 @ExecutionTime
 @Entity
 @Table(
-    name = "ledger_pair",
+    name = "transfer",
     uniqueConstraints = {
         @UniqueConstraint(name = "uk_idempotency_key", columnNames = "idempotency_key")
     },
     indexes = {
-        @Index(name = "idx_ledger_pair_status", columnList = "status")
+        @Index(name = "idx_transfer_status", columnList = "status")
     }
 )
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class LedgerPairJpaEntity {
+public class TransferJpaEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ledger_pair_id")
+    @Column(name = "transfer_id")
     private Long id;
 
     @Enumerated(EnumType.STRING)
@@ -70,20 +70,20 @@ public class LedgerPairJpaEntity {
     private Instant updatedAt;
 
     @OneToMany(
-        mappedBy = "ledgerPair",
+        mappedBy = "transfer",
         cascade = CascadeType.ALL,
         orphanRemoval = true,
         fetch = FetchType.LAZY
     )
     private List<LedgerEntryJpaEntity> entries = new ArrayList<>();
 
-    public static LedgerPairJpaEntity create() {
-        return new LedgerPairJpaEntity();
+    public static TransferJpaEntity create() {
+        return new TransferJpaEntity();
     }
 
     public void addEntry(LedgerEntryJpaEntity entry) {
         entries.add(entry);
-        entry.setLedgerPair(this);
+        entry.setTransfer(this);
     }
 
     public void replaceEntries(List<LedgerEntryJpaEntity> newEntries) {

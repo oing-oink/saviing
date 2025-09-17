@@ -1,4 +1,4 @@
-package saviing.bank.transaction.domain.model.ledger;
+package saviing.bank.transaction.domain.model.transfer;
 
 /**
  * Ledger 엔트리 상태.

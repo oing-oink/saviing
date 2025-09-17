@@ -6,9 +6,9 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 
 import saviing.bank.common.vo.MoneyWon;
-import saviing.bank.transaction.domain.model.TransferType;
-import saviing.bank.transaction.domain.model.account.AccountSnapshot;
-import saviing.bank.transaction.domain.model.ledger.LedgerPairSnapshot;
+import saviing.bank.transaction.domain.model.transfer.TransferType;
+import saviing.bank.transaction.domain.vo.AccountSnapshot;
+import saviing.bank.transaction.domain.vo.TransferSnapshot;
 import saviing.bank.transaction.domain.vo.IdempotencyKey;
 import saviing.bank.transaction.exception.InsufficientBalanceException;
 import saviing.bank.transaction.exception.TransferValidationException;
@@ -58,13 +58,13 @@ public class TransferDomainServiceImpl implements TransferDomainService {
 
     @Override
     /** {@inheritDoc} */
-    public void onTransferSettled(IdempotencyKey idempotencyKey, LedgerPairSnapshot ledgerPair) {
+    public void onTransferSettled(IdempotencyKey idempotencyKey, TransferSnapshot ledgerPair) {
         // 후속 처리(이벤트 발행 등)는 Application 계층에서 수행, 도메인에서는 체크만 수행
     }
 
     @Override
     /** {@inheritDoc} */
-    public void onTransferFailed(IdempotencyKey idempotencyKey, LedgerPairSnapshot ledgerPair, Throwable cause) {
+    public void onTransferFailed(IdempotencyKey idempotencyKey, TransferSnapshot ledgerPair, Throwable cause) {
         // 실패 시 추가 정합성 체크 또는 보상 로직 훅을 위해 남겨둔 메서드
     }
 

@@ -3,9 +3,9 @@ package saviing.bank.transaction.domain.service;
 import java.time.LocalDate;
 
 import saviing.bank.common.vo.MoneyWon;
-import saviing.bank.transaction.domain.model.account.AccountSnapshot;
-import saviing.bank.transaction.domain.model.TransferType;
-import saviing.bank.transaction.domain.model.ledger.LedgerPairSnapshot;
+import saviing.bank.transaction.domain.vo.AccountSnapshot;
+import saviing.bank.transaction.domain.model.transfer.TransferType;
+import saviing.bank.transaction.domain.vo.TransferSnapshot;
 import saviing.bank.transaction.domain.vo.IdempotencyKey;
 
 /**
@@ -32,10 +32,10 @@ public interface TransferDomainService {
     /**
      * 송금이 성공적으로 정산되었을 때 후속 처리를 수행한다.
      */
-    void onTransferSettled(IdempotencyKey idempotencyKey, LedgerPairSnapshot ledgerPair);
+    void onTransferSettled(IdempotencyKey idempotencyKey, TransferSnapshot ledgerPair);
 
     /**
      * 송금 실패 시 후속 처리를 수행한다.
      */
-    void onTransferFailed(IdempotencyKey idempotencyKey, LedgerPairSnapshot ledgerPair, Throwable cause);
+    void onTransferFailed(IdempotencyKey idempotencyKey, TransferSnapshot ledgerPair, Throwable cause);
 }

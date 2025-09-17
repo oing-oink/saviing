@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import java.util.Map;
 import java.util.UUID;
 
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,8 +19,6 @@ import saviing.bank.account.api.response.AccountApiResponse;
 import saviing.bank.account.api.response.AccountInfoResponse;
 import saviing.bank.account.api.response.BalanceUpdateResponse;
 import saviing.bank.common.vo.MoneyWon;
-import saviing.bank.transaction.application.event.TransferFailedEvent;
-import saviing.bank.transaction.application.event.TransferSettledEvent;
 import saviing.bank.transaction.application.port.in.TransferUseCase;
 import saviing.bank.transaction.application.port.in.command.TransferCommand;
 import saviing.bank.transaction.application.port.in.result.TransferResult;
@@ -30,11 +27,11 @@ import saviing.bank.transaction.application.port.out.SaveTransactionPort;
 import saviing.bank.transaction.domain.model.Transaction;
 import saviing.bank.transaction.domain.model.TransactionDirection;
 import saviing.bank.transaction.domain.model.TransactionType;
-import saviing.bank.transaction.domain.model.TransferStatus;
-import saviing.bank.transaction.domain.model.account.AccountSnapshot;
-import saviing.bank.transaction.domain.model.account.AccountStatusSnapshot;
-import saviing.bank.transaction.domain.model.ledger.LedgerPairSnapshot;
-import saviing.bank.transaction.domain.service.LedgerService;
+import saviing.bank.transaction.domain.model.transfer.TransferStatus;
+import saviing.bank.transaction.domain.vo.AccountSnapshot;
+import saviing.bank.transaction.domain.vo.AccountStatusSnapshot;
+import saviing.bank.transaction.domain.vo.TransferSnapshot;
+import saviing.bank.transaction.application.service.LedgerService;
 import saviing.bank.transaction.domain.service.TransferDomainService;
 import saviing.bank.transaction.domain.vo.IdempotencyKey;
 import saviing.bank.transaction.domain.vo.TransactionId;
@@ -45,7 +42,7 @@ import saviing.common.annotation.ExecutionTime;
 
 /**
  * 헥사고날 아키텍처 기준으로 송금 유즈케이스를 오케스트레이션하는 애플리케이션 서비스.
- * Ledger 상태 전환, Account BC 내부 API 호출, Transaction 저장, 도메인 이벤트 발행을 한 곳에서 조율한다.
+ * Ledger 상태 전환, Account BC 내부 API 호출, Transaction 저장을 한 곳에서 조율한다.
  */
 @Slf4j
 @ExecutionTime
@@ -58,7 +55,6 @@ public class TransferService implements TransferUseCase {
     private final SaveTransactionPort saveTransactionPort;
     private final LoadTransactionPort loadTransactionPort;
     private final AccountInternalApi accountInternalApi;
-    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 송금 명령을 처리한다. 멱등성을 확인하고 Ledger/Transaction/Account API를 순차적으로 실행한다.
@@ -75,7 +71,7 @@ public class TransferService implements TransferUseCase {
         }
         log.info("송금 시작: idempotencyKey={}, sourceAccountId={}, targetAccountId={}, amount={}",
             idempotencyKey.value(), command.sourceAccountId(), command.targetAccountId(), command.amount().amount());
-        LedgerPairSnapshot ledgerSnapshot = ledgerService.initializeTransfer(
+        TransferSnapshot ledgerSnapshot = ledgerService.initializeTransfer(
             idempotencyKey,
             command.sourceAccountId(),
             command.targetAccountId(),
@@ -116,7 +112,7 @@ public class TransferService implements TransferUseCase {
         Instant startedAt = Instant.now();
         TransactionId debitTransactionId = null;
         TransactionId creditTransactionId = null;
-        LedgerPairSnapshot currentSnapshot = ledgerSnapshot;
+        TransferSnapshot currentSnapshot = ledgerSnapshot;
         boolean withdrawCompleted = false;
 
         try {
@@ -159,7 +155,6 @@ public class TransferService implements TransferUseCase {
             currentSnapshot = ledgerService.markTransferSettled(idempotencyKey, Instant.now());
             linkTransactions(debitTransactionId, creditTransactionId);
             transferDomainService.onTransferSettled(idempotencyKey, currentSnapshot);
-            publishSettledEvent(currentSnapshot, debitTransactionId, creditTransactionId);
             log.info("송금 완료: idempotencyKey={}, debitTxId={}, creditTxId={}, status={}",
                 idempotencyKey.value(),
                 debitTransactionId != null ? debitTransactionId.value() : null,
@@ -172,9 +167,8 @@ public class TransferService implements TransferUseCase {
                 failureReason += attemptDebitCompensation(command, idempotencyKey);
             }
             // 예외 발생 시 Ledger 상태를 FAILED로 전환하고 도메인 후처리를 실행한다.
-            LedgerPairSnapshot failedSnapshot = ledgerService.markTransferFailed(idempotencyKey, failureReason);
+            TransferSnapshot failedSnapshot = ledgerService.markTransferFailed(idempotencyKey, failureReason);
             transferDomainService.onTransferFailed(idempotencyKey, failedSnapshot, ex);
-            publishFailedEvent(idempotencyKey, failedSnapshot, ex);
             log.warn("송금 실패: idempotencyKey={}, status={}, reason={}", idempotencyKey.value(),
                 failedSnapshot.status(), failedSnapshot.failureReason(), ex);
             throw ex;
@@ -275,45 +269,11 @@ public class TransferService implements TransferUseCase {
         saveTransactionPort.updateTransaction(credit);
     }
 
-    /**
-     * 송금 완료 이벤트를 발행한다.
-     */
-    private void publishSettledEvent(
-        LedgerPairSnapshot snapshot,
-        TransactionId debitTransactionId,
-        TransactionId creditTransactionId
-    ) {
-        eventPublisher.publishEvent(new TransferSettledEvent(
-            snapshot.idempotencyKey(),
-            debitTransactionId,
-            creditTransactionId,
-            snapshot.debitEntry() != null ? snapshot.debitEntry().amount() : MoneyWon.zero(),
-            snapshot.transferType(),
-            snapshot.updatedAt()
-        ));
-    }
-
-    /**
-     * 송금 실패 이벤트를 발행한다.
-     */
-    private void publishFailedEvent(
-        IdempotencyKey idempotencyKey,
-        LedgerPairSnapshot snapshot,
-        Throwable cause
-    ) {
-        eventPublisher.publishEvent(new TransferFailedEvent(
-            idempotencyKey,
-            snapshot.status(),
-            snapshot.failureReason(),
-            cause,
-            snapshot.updatedAt()
-        ));
-    }
 
     /**
      * Ledger 스냅샷을 REST 응답용 결과 객체로 변환한다.
      */
-    private TransferResult mapToResult(LedgerPairSnapshot snapshot) {
+    private TransferResult mapToResult(TransferSnapshot snapshot) {
         TransactionId debitId = snapshot.debitEntry() != null ? snapshot.debitEntry().transactionId() : null;
         TransactionId creditId = snapshot.creditEntry() != null ? snapshot.creditEntry().transactionId() : null;
         return TransferResult.builder()
@@ -329,7 +289,7 @@ public class TransferService implements TransferUseCase {
      * 실제 출금이 실행되었는지 확인한다.
      * DEBIT_POSTED 상태뿐만 아니라 출금 Transaction이 생성된 모든 경우를 포함한다.
      */
-    private boolean isDebitExecuted(LedgerPairSnapshot snapshot, TransactionId debitTransactionId) {
+    private boolean isDebitExecuted(TransferSnapshot snapshot, TransactionId debitTransactionId) {
         // 출금 Transaction이 생성되었다면 실제 계좌에서 출금이 완료된 상태
         if (debitTransactionId != null) {
             return true;

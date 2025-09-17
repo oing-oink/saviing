@@ -3,7 +3,6 @@ package saviing.bank.transaction.adapter.in.web.dto.response;
 import java.time.Instant;
 
 import saviing.bank.transaction.application.port.in.result.TransferResult;
-import saviing.bank.transaction.domain.model.TransferStatus;
 
 /**
  * 송금 처리 결과를 REST 응답으로 제공하기 위한 DTO.
@@ -11,7 +10,7 @@ import saviing.bank.transaction.domain.model.TransferStatus;
 public record TransferResponse(
     Long debitTransactionId,
     Long creditTransactionId,
-    TransferStatus status,
+    String status,
     Instant completedAt
 ) {
 
@@ -22,7 +21,7 @@ public record TransferResponse(
         return new TransferResponse(
             result.debitTransactionId() != null ? result.debitTransactionId().value() : null,
             result.creditTransactionId() != null ? result.creditTransactionId().value() : null,
-            result.status(),
+            result.status().name(),
             result.completedAt()
         );
     }

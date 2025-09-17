@@ -22,7 +22,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import saviing.bank.transaction.domain.model.TransactionDirection;
-import saviing.bank.transaction.domain.model.ledger.LedgerEntryStatus;
+import saviing.bank.transaction.domain.model.transfer.LedgerEntryStatus;
 import saviing.common.annotation.ExecutionTime;
 
 /**
@@ -50,8 +50,8 @@ public class LedgerEntryJpaEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ledger_pair_id", nullable = false)
-    private LedgerPairJpaEntity ledgerPair;
+    @JoinColumn(name = "transfer_id", nullable = false)
+    private TransferJpaEntity transfer;
 
     @Column(name = "account_id", nullable = false)
     private Long accountId;
@@ -92,8 +92,8 @@ public class LedgerEntryJpaEntity {
         return new LedgerEntryJpaEntity();
     }
 
-    public void setLedgerPair(LedgerPairJpaEntity ledgerPair) {
-        this.ledgerPair = ledgerPair;
+    public void setTransfer(TransferJpaEntity transfer) {
+        this.transfer = transfer;
     }
 
     public void setStatus(LedgerEntryStatus status) {

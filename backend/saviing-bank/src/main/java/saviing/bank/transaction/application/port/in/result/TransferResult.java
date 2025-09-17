@@ -5,7 +5,7 @@ import java.time.Instant;
 import lombok.Builder;
 import lombok.NonNull;
 
-import saviing.bank.transaction.domain.model.TransferStatus;
+import saviing.bank.transaction.domain.model.transfer.TransferStatus;
 import saviing.bank.transaction.domain.vo.TransactionId;
 
 /**

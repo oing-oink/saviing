@@ -1,4 +1,4 @@
-package saviing.bank.transaction.domain.model.ledger;
+package saviing.bank.transaction.domain.model.transfer;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -8,8 +8,8 @@ import java.util.Objects;
 
 import saviing.bank.common.vo.MoneyWon;
 import saviing.bank.transaction.domain.model.TransactionDirection;
-import saviing.bank.transaction.domain.model.TransferStatus;
-import saviing.bank.transaction.domain.model.TransferType;
+import saviing.bank.transaction.domain.model.transfer.TransferStatus;
+import saviing.bank.transaction.domain.model.transfer.TransferType;
 import saviing.bank.transaction.domain.vo.IdempotencyKey;
 import saviing.bank.transaction.domain.vo.TransactionId;
 import saviing.bank.transaction.exception.InvalidLedgerStateException;
@@ -18,7 +18,7 @@ import saviing.bank.transaction.exception.InvalidLedgerStateException;
  * 송금 단위를 표현하는 애그리거트 루트.
  * 두 개의 LedgerEntry를 묶어 double-entry 불변식을 유지한다.
  */
-public class LedgerPair {
+public class Transfer {
 
     private final TransferType transferType;
     private TransferStatus status;
@@ -29,7 +29,7 @@ public class LedgerPair {
     private String failureReason;
 
     /**
-     * LedgerPair 생성자
+     * Transfer 생성자
      *
      * @param transferType 송금 유형
      * @param status 송금 상태
@@ -39,7 +39,7 @@ public class LedgerPair {
      * @param updatedAt 수정 시각
      * @param failureReason 실패 사유
      */
-    private LedgerPair(
+    private Transfer(
         TransferType transferType,
         TransferStatus status,
         IdempotencyKey idempotencyKey,
@@ -69,7 +69,7 @@ public class LedgerPair {
      * @param now 생성 시각
      * @return 생성된 원장 페어
      */
-    public static LedgerPair create(
+    public static Transfer create(
         Long sourceAccountId,
         Long targetAccountId,
         MoneyWon amount,
@@ -94,7 +94,7 @@ public class LedgerPair {
             idempotencyKey,
             now
         );
-        return new LedgerPair(
+        return new Transfer(
             transferType,
             TransferStatus.REQUESTED,
             idempotencyKey,
@@ -106,7 +106,7 @@ public class LedgerPair {
     }
 
     /**
-     * 저장소에서 읽어온 LedgerPair를 복원한다
+     * 저장소에서 읽어온 Transfer를 복원한다
      *
      * @param transferType 송금 유형
      * @param status 송금 상태
@@ -117,7 +117,7 @@ public class LedgerPair {
      * @param failureReason 실패 사유
      * @return 복원된 원장 페어
      */
-    public static LedgerPair restore(
+    public static Transfer restore(
         TransferType transferType,
         TransferStatus status,
         IdempotencyKey idempotencyKey,
@@ -126,7 +126,7 @@ public class LedgerPair {
         Instant updatedAt,
         String failureReason
     ) {
-        return new LedgerPair(transferType, status, idempotencyKey, entries, createdAt, updatedAt, failureReason);
+        return new Transfer(transferType, status, idempotencyKey, entries, createdAt, updatedAt, failureReason);
     }
 
 
@@ -260,11 +260,11 @@ public class LedgerPair {
      *
      * @return 원장 페어 스냅샷
      */
-    public LedgerPairSnapshot toSnapshot() {
-        List<LedgerEntrySnapshot> snapshots = entries.stream()
+    public saviing.bank.transaction.domain.vo.TransferSnapshot toSnapshot() {
+        List<saviing.bank.transaction.domain.vo.LedgerEntrySnapshot> snapshots = entries.stream()
             .map(LedgerEntry::toSnapshot)
             .toList();
-        return new LedgerPairSnapshot(
+        return new saviing.bank.transaction.domain.vo.TransferSnapshot(
             transferType,
             status,
             idempotencyKey,
