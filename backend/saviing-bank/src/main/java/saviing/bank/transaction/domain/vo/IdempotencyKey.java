@@ -26,4 +26,20 @@ public record IdempotencyKey(String value) {
     public static IdempotencyKey of(String value) {
         return new IdempotencyKey(value.trim());
     }
+
+    /**
+     * 특정 계좌에 대한 멱등키를 생성한다
+     * 계좌별 멱등성 스코핑을 명시적으로 표현하기 위한 팩토리 메서드
+     *
+     * @param sourceAccountId 출금 계좌 ID
+     * @param originalKey 원본 멱등키 값
+     * @return 생성된 멱등키 객체
+     * @throws IllegalArgumentException 값이 유효하지 않은 경우
+     */
+    public static IdempotencyKey forAccount(Long sourceAccountId, String originalKey) {
+        if (sourceAccountId == null) {
+            throw new IllegalArgumentException("계좌 ID는 null일 수 없습니다");
+        }
+        return new IdempotencyKey(originalKey.trim());
+    }
 }

@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.NonNull;
 
 import saviing.bank.transaction.domain.model.TransferStatus;
-import saviing.bank.transaction.domain.vo.TransferId;
 import saviing.bank.transaction.domain.vo.TransactionId;
 
 /**
@@ -15,7 +14,6 @@ import saviing.bank.transaction.domain.vo.TransactionId;
  */
 @Builder
 public record TransferResult(
-    @NonNull TransferId transferId,
     TransactionId debitTransactionId,
     TransactionId creditTransactionId,
     TransferStatus status,

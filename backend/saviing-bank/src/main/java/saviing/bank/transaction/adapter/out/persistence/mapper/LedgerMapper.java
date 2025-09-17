@@ -11,7 +11,6 @@ import saviing.bank.transaction.domain.model.ledger.LedgerEntry;
 import saviing.bank.transaction.domain.model.ledger.LedgerPair;
 import saviing.bank.transaction.domain.vo.IdempotencyKey;
 import saviing.bank.transaction.domain.vo.TransactionId;
-import saviing.bank.transaction.domain.vo.TransferId;
 
 /**
  * LedgerPair/LedgerEntry 도메인 객체와 JPA 엔티티 간 변환을 담당하는 매퍼.
@@ -24,7 +23,6 @@ public class LedgerMapper {
             .map(this::toDomainEntry)
             .toList();
         return LedgerPair.restore(
-            TransferId.of(entity.getTransferId()),
             entity.getTransferType(),
             entity.getStatus(),
             entity.getIdempotencyKey() != null ? IdempotencyKey.of(entity.getIdempotencyKey()) : null,
@@ -37,7 +35,6 @@ public class LedgerMapper {
 
     public LedgerPairJpaEntity toEntity(LedgerPair ledgerPair) {
         LedgerPairJpaEntity entity = LedgerPairJpaEntity.create();
-        entity.setTransferId(ledgerPair.getTransferId().value());
         entity.setTransferType(ledgerPair.getTransferType());
         entity.setStatus(ledgerPair.getStatus());
         entity.setCreatedAt(ledgerPair.getCreatedAt());

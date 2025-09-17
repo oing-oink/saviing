@@ -42,7 +42,6 @@ import saviing.bank.transaction.domain.service.LedgerService;
 import saviing.bank.transaction.domain.service.TransferDomainService;
 import saviing.bank.transaction.domain.vo.IdempotencyKey;
 import saviing.bank.transaction.domain.vo.TransactionId;
-import saviing.bank.transaction.domain.vo.TransferId;
 
 @ExtendWith(MockitoExtension.class)
 class TransferServiceTest {
@@ -67,7 +66,6 @@ class TransferServiceTest {
     void 이미_완료된_송금은_기존_결과를_반환한다() {
         // given
         IdempotencyKey idempotencyKey = IdempotencyKey.of("transfer-1");
-        TransferId transferId = TransferId.of(idempotencyKey.value());
         LedgerEntrySnapshot debitSnapshot = new LedgerEntrySnapshot(
             1L,
             100L,
@@ -95,7 +93,6 @@ class TransferServiceTest {
             Instant.now()
         );
         LedgerPairSnapshot settledSnapshot = new LedgerPairSnapshot(
-            transferId,
             TransferType.INTERNAL,
             TransferStatus.SETTLED,
             idempotencyKey,
@@ -106,13 +103,12 @@ class TransferServiceTest {
         );
 
         when(ledgerService.initializeTransfer(
-            eq(transferId),
+            eq(idempotencyKey),
             any(Long.class),
             any(Long.class),
             any(MoneyWon.class),
             any(LocalDate.class),
-            any(TransferType.class),
-            eq(idempotencyKey)
+            any(TransferType.class)
         )).thenReturn(settledSnapshot);
 
         TransferCommand command = TransferCommand.builder()
@@ -130,7 +126,6 @@ class TransferServiceTest {
         TransferResult result = transferService.transfer(command);
 
         // then
-        assertThat(result.transferId()).isEqualTo(transferId);
         assertThat(result.status()).isEqualTo(TransferStatus.SETTLED);
         assertThat(result.debitTransactionId()).isEqualTo(TransactionId.of(10L));
         assertThat(result.creditTransactionId()).isEqualTo(TransactionId.of(11L));
@@ -141,12 +136,11 @@ class TransferServiceTest {
     void 거래_생성_실패시_보상_트랜잭션이_실행된다() {
         // given - withdraw 성공 후 createTransaction 실패 시나리오
         IdempotencyKey idempotencyKey = IdempotencyKey.of("transfer-fail-1");
-        TransferId transferId = TransferId.of(idempotencyKey.value());
 
-        LedgerPairSnapshot requestedSnapshot = createRequestedSnapshot(transferId, idempotencyKey);
-        LedgerPairSnapshot failedSnapshot = createFailedSnapshot(transferId, idempotencyKey);
+        LedgerPairSnapshot requestedSnapshot = createRequestedSnapshot(idempotencyKey);
+        LedgerPairSnapshot failedSnapshot = createFailedSnapshot(idempotencyKey);
 
-        when(ledgerService.initializeTransfer(any(), any(), any(), any(), any(), any(), any()))
+        when(ledgerService.initializeTransfer(any(), any(), any(), any(), any(), any()))
             .thenReturn(requestedSnapshot);
 
         // Account 조회 성공
@@ -199,19 +193,18 @@ class TransferServiceTest {
 
         // then - 보상 트랜잭션이 실행되었는지 확인
         verify(accountInternalApi).deposit(DepositAccountRequest.of(100L, 1000L));
-        verify(ledgerService).markTransferFailed(eq(transferId), any(String.class));
+        verify(ledgerService).markTransferFailed(eq(idempotencyKey), any(String.class));
     }
 
     @Test
     void 보상_트랜잭션_멱등성이_보장된다() {
         // given - 동일한 transferId로 보상 트랜잭션 2번 실행
         IdempotencyKey idempotencyKey = IdempotencyKey.of("transfer-idem-1");
-        TransferId transferId = TransferId.of(idempotencyKey.value());
 
-        LedgerPairSnapshot requestedSnapshot = createRequestedSnapshot(transferId, idempotencyKey);
-        LedgerPairSnapshot failedSnapshot = createFailedSnapshot(transferId, idempotencyKey);
+        LedgerPairSnapshot requestedSnapshot = createRequestedSnapshot(idempotencyKey);
+        LedgerPairSnapshot failedSnapshot = createFailedSnapshot(idempotencyKey);
 
-        when(ledgerService.initializeTransfer(any(), any(), any(), any(), any(), any(), any()))
+        when(ledgerService.initializeTransfer(any(), any(), any(), any(), any(), any()))
             .thenReturn(requestedSnapshot);
 
         // Account 조회 성공
@@ -265,12 +258,11 @@ class TransferServiceTest {
     void 출금_실패시_보상_트랜잭션이_실행되지_않는다() {
         // given - withdraw 자체가 실패한 경우
         IdempotencyKey idempotencyKey = IdempotencyKey.of("transfer-no-comp-1");
-        TransferId transferId = TransferId.of(idempotencyKey.value());
 
-        LedgerPairSnapshot requestedSnapshot = createRequestedSnapshot(transferId, idempotencyKey);
-        LedgerPairSnapshot failedSnapshot = createFailedSnapshot(transferId, idempotencyKey);
+        LedgerPairSnapshot requestedSnapshot = createRequestedSnapshot(idempotencyKey);
+        LedgerPairSnapshot failedSnapshot = createFailedSnapshot(idempotencyKey);
 
-        when(ledgerService.initializeTransfer(any(), any(), any(), any(), any(), any(), any()))
+        when(ledgerService.initializeTransfer(any(), any(), any(), any(), any(), any()))
             .thenReturn(requestedSnapshot);
 
         // Account 조회 성공
@@ -308,7 +300,7 @@ class TransferServiceTest {
         verifyNoInteractions(saveTransactionPort);
     }
 
-    private LedgerPairSnapshot createRequestedSnapshot(TransferId transferId, IdempotencyKey idempotencyKey) {
+    private LedgerPairSnapshot createRequestedSnapshot(IdempotencyKey idempotencyKey) {
         LedgerEntrySnapshot debitSnapshot = new LedgerEntrySnapshot(
             1L, 100L, TransactionDirection.DEBIT, MoneyWon.of(1000L),
             LedgerEntryStatus.REQUESTED, LocalDate.now(), null, null, null,
@@ -320,12 +312,12 @@ class TransferServiceTest {
             Instant.now(), Instant.now()
         );
         return new LedgerPairSnapshot(
-            transferId, TransferType.INTERNAL, TransferStatus.REQUESTED, idempotencyKey,
+            TransferType.INTERNAL, TransferStatus.REQUESTED, idempotencyKey,
             List.of(debitSnapshot, creditSnapshot), Instant.now(), Instant.now(), null
         );
     }
 
-    private LedgerPairSnapshot createFailedSnapshot(TransferId transferId, IdempotencyKey idempotencyKey) {
+    private LedgerPairSnapshot createFailedSnapshot(IdempotencyKey idempotencyKey) {
         LedgerEntrySnapshot debitSnapshot = new LedgerEntrySnapshot(
             1L, 100L, TransactionDirection.DEBIT, MoneyWon.of(1000L),
             LedgerEntryStatus.FAILED, LocalDate.now(), null, null, null,
@@ -337,7 +329,7 @@ class TransferServiceTest {
             Instant.now(), Instant.now()
         );
         return new LedgerPairSnapshot(
-            transferId, TransferType.INTERNAL, TransferStatus.FAILED, idempotencyKey,
+            TransferType.INTERNAL, TransferStatus.FAILED, idempotencyKey,
             List.of(debitSnapshot, creditSnapshot), Instant.now(), Instant.now(), "Test failure"
         );
     }

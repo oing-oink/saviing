@@ -12,7 +12,6 @@ import saviing.bank.transaction.domain.model.TransferStatus;
 import saviing.bank.transaction.domain.model.TransferType;
 import saviing.bank.transaction.domain.vo.IdempotencyKey;
 import saviing.bank.transaction.domain.vo.TransactionId;
-import saviing.bank.transaction.domain.vo.TransferId;
 import saviing.bank.transaction.exception.InvalidLedgerStateException;
 
 /**
@@ -21,7 +20,6 @@ import saviing.bank.transaction.exception.InvalidLedgerStateException;
  */
 public class LedgerPair {
 
-    private final TransferId transferId;
     private final TransferType transferType;
     private TransferStatus status;
     private final IdempotencyKey idempotencyKey;
@@ -33,7 +31,6 @@ public class LedgerPair {
     /**
      * LedgerPair 생성자
      *
-     * @param transferId 송금 ID
      * @param transferType 송금 유형
      * @param status 송금 상태
      * @param idempotencyKey 멱등키
@@ -43,7 +40,6 @@ public class LedgerPair {
      * @param failureReason 실패 사유
      */
     private LedgerPair(
-        TransferId transferId,
         TransferType transferType,
         TransferStatus status,
         IdempotencyKey idempotencyKey,
@@ -52,7 +48,6 @@ public class LedgerPair {
         Instant updatedAt,
         String failureReason
     ) {
-        this.transferId = Objects.requireNonNull(transferId, "transferId must not be null");
         this.transferType = Objects.requireNonNull(transferType, "transferType must not be null");
         this.status = Objects.requireNonNull(status, "status must not be null");
         this.idempotencyKey = idempotencyKey;
@@ -65,7 +60,6 @@ public class LedgerPair {
     /**
      * 신규 송금을 초기화할 때 사용되는 팩토리 메서드
      *
-     * @param transferId 송금 ID
      * @param sourceAccountId 출금 계좌 ID
      * @param targetAccountId 입금 계좌 ID
      * @param amount 송금 금액
@@ -76,7 +70,6 @@ public class LedgerPair {
      * @return 생성된 원장 페어
      */
     public static LedgerPair create(
-        TransferId transferId,
         Long sourceAccountId,
         Long targetAccountId,
         MoneyWon amount,
@@ -102,7 +95,6 @@ public class LedgerPair {
             now
         );
         return new LedgerPair(
-            transferId,
             transferType,
             TransferStatus.REQUESTED,
             idempotencyKey,
@@ -116,7 +108,6 @@ public class LedgerPair {
     /**
      * 저장소에서 읽어온 LedgerPair를 복원한다
      *
-     * @param transferId 송금 ID
      * @param transferType 송금 유형
      * @param status 송금 상태
      * @param idempotencyKey 멱등키
@@ -127,7 +118,6 @@ public class LedgerPair {
      * @return 복원된 원장 페어
      */
     public static LedgerPair restore(
-        TransferId transferId,
         TransferType transferType,
         TransferStatus status,
         IdempotencyKey idempotencyKey,
@@ -136,17 +126,9 @@ public class LedgerPair {
         Instant updatedAt,
         String failureReason
     ) {
-        return new LedgerPair(transferId, transferType, status, idempotencyKey, entries, createdAt, updatedAt, failureReason);
+        return new LedgerPair(transferType, status, idempotencyKey, entries, createdAt, updatedAt, failureReason);
     }
 
-    /**
-     * 송금 ID를 반환한다
-     *
-     * @return 송금 ID
-     */
-    public TransferId getTransferId() {
-        return transferId;
-    }
 
     /**
      * 송금 유형을 반환한다
@@ -283,7 +265,6 @@ public class LedgerPair {
             .map(LedgerEntry::toSnapshot)
             .toList();
         return new LedgerPairSnapshot(
-            transferId,
             transferType,
             status,
             idempotencyKey,

@@ -4,17 +4,11 @@ import java.util.Optional;
 
 import saviing.bank.transaction.domain.model.ledger.LedgerPair;
 import saviing.bank.transaction.domain.vo.IdempotencyKey;
-import saviing.bank.transaction.domain.vo.TransferId;
 
 /**
  * LedgerPair 애그리거트 저장소와 상호작용하기 위한 아웃바운드 포트.
  */
 public interface LedgerPersistencePort {
-
-    /**
-     * TransferId로 LedgerPair를 조회한다.
-     */
-    Optional<LedgerPair> findByTransferId(TransferId transferId);
 
     /**
      * 멱등 키로 LedgerPair를 조회한다.

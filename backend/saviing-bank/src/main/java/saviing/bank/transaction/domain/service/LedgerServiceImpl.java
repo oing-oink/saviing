@@ -16,7 +16,6 @@ import saviing.bank.transaction.domain.model.ledger.LedgerPair;
 import saviing.bank.transaction.domain.model.ledger.LedgerPairSnapshot;
 import saviing.bank.transaction.domain.vo.IdempotencyKey;
 import saviing.bank.transaction.domain.vo.TransactionId;
-import saviing.bank.transaction.domain.vo.TransferId;
 import saviing.bank.transaction.exception.InvalidLedgerStateException;
 import saviing.bank.transaction.exception.LedgerNotFoundException;
 
@@ -36,13 +35,12 @@ public class LedgerServiceImpl implements LedgerService {
     @Override
     /** {@inheritDoc} */
     public LedgerPairSnapshot initializeTransfer(
-        TransferId transferId,
+        IdempotencyKey idempotencyKey,
         Long sourceAccountId,
         Long targetAccountId,
         MoneyWon amount,
         LocalDate valueDate,
-        TransferType transferType,
-        IdempotencyKey idempotencyKey
+        TransferType transferType
     ) {
         LedgerPair ledgerPair = null;
 
@@ -52,14 +50,8 @@ public class LedgerServiceImpl implements LedgerService {
         }
 
         if (ledgerPair == null) {
-            ledgerPair = ledgerPersistencePort.findByTransferId(transferId)
-                .orElse(null);
-        }
-
-        if (ledgerPair == null) {
             // 새 송금의 첫 호출이면 LedgerPair를 생성한다.
             ledgerPair = createNewPair(
-                transferId,
                 sourceAccountId,
                 targetAccountId,
                 amount,
@@ -76,7 +68,6 @@ public class LedgerServiceImpl implements LedgerService {
      * 새 LedgerPair를 생성하고 저장한다.
      */
     private LedgerPair createNewPair(
-        TransferId transferId,
         Long sourceAccountId,
         Long targetAccountId,
         MoneyWon amount,
@@ -85,7 +76,6 @@ public class LedgerServiceImpl implements LedgerService {
         IdempotencyKey idempotencyKey
     ) {
         LedgerPair ledgerPair = LedgerPair.create(
-            transferId,
             sourceAccountId,
             targetAccountId,
             amount,
@@ -99,13 +89,13 @@ public class LedgerServiceImpl implements LedgerService {
 
     @Override
     public LedgerPairSnapshot markEntryPosted(
-        TransferId transferId,
+        IdempotencyKey idempotencyKey,
         TransactionDirection direction,
         TransactionId transactionId,
         Instant postedAt
     ) {
-        LedgerPair ledgerPair = ledgerPersistencePort.findByTransferId(transferId)
-            .orElseThrow(() -> new LedgerNotFoundException(Map.of("transferId", transferId.value())));
+        LedgerPair ledgerPair = ledgerPersistencePort.findByIdempotencyKey(idempotencyKey)
+            .orElseThrow(() -> new LedgerNotFoundException(Map.of("idempotencyKey", idempotencyKey.value())));
 
         if (ledgerPair.getStatus() == TransferStatus.FAILED || ledgerPair.getStatus() == TransferStatus.VOID) {
             throw new InvalidLedgerStateException("Cannot post entry for transfer in status " + ledgerPair.getStatus());
@@ -117,18 +107,18 @@ public class LedgerServiceImpl implements LedgerService {
     }
 
     @Override
-    public LedgerPairSnapshot markTransferFailed(TransferId transferId, String reason) {
-        LedgerPair ledgerPair = ledgerPersistencePort.findByTransferId(transferId)
-            .orElseThrow(() -> new LedgerNotFoundException(Map.of("transferId", transferId.value())));
+    public LedgerPairSnapshot markTransferFailed(IdempotencyKey idempotencyKey, String reason) {
+        LedgerPair ledgerPair = ledgerPersistencePort.findByIdempotencyKey(idempotencyKey)
+            .orElseThrow(() -> new LedgerNotFoundException(Map.of("idempotencyKey", idempotencyKey.value())));
         ledgerPair.markFailed(reason, Instant.now());
         LedgerPair updated = ledgerPersistencePort.saveAndFlush(ledgerPair);
         return updated.toSnapshot();
     }
 
     @Override
-    public LedgerPairSnapshot markTransferSettled(TransferId transferId, Instant settledAt) {
-        LedgerPair ledgerPair = ledgerPersistencePort.findByTransferId(transferId)
-            .orElseThrow(() -> new LedgerNotFoundException(Map.of("transferId", transferId.value())));
+    public LedgerPairSnapshot markTransferSettled(IdempotencyKey idempotencyKey, Instant settledAt) {
+        LedgerPair ledgerPair = ledgerPersistencePort.findByIdempotencyKey(idempotencyKey)
+            .orElseThrow(() -> new LedgerNotFoundException(Map.of("idempotencyKey", idempotencyKey.value())));
         ledgerPair.markSettled(settledAt);
         LedgerPair updated = ledgerPersistencePort.saveAndFlush(ledgerPair);
         return updated.toSnapshot();
@@ -136,8 +126,8 @@ public class LedgerServiceImpl implements LedgerService {
 
     @Override
     @Transactional(readOnly = true)
-    public TransferStatus getStatus(TransferId transferId) {
-        return ledgerPersistencePort.findByTransferId(transferId)
+    public TransferStatus getStatus(IdempotencyKey idempotencyKey) {
+        return ledgerPersistencePort.findByIdempotencyKey(idempotencyKey)
             .map(LedgerPair::getStatus)
             .orElse(TransferStatus.REQUESTED);
     }

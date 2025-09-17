@@ -7,13 +7,11 @@ import saviing.bank.transaction.domain.model.TransactionDirection;
 import saviing.bank.transaction.domain.model.TransferStatus;
 import saviing.bank.transaction.domain.model.TransferType;
 import saviing.bank.transaction.domain.vo.IdempotencyKey;
-import saviing.bank.transaction.domain.vo.TransferId;
 
 /**
  * LedgerPair의 상태를 조회하기 위한 스냅샷 모델.
  */
 public record LedgerPairSnapshot(
-    TransferId transferId,
     TransferType transferType,
     TransferStatus status,
     IdempotencyKey idempotencyKey,

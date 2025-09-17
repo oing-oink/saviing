@@ -10,7 +10,6 @@ import saviing.bank.transaction.domain.model.TransferType;
 import saviing.bank.transaction.domain.model.account.AccountSnapshot;
 import saviing.bank.transaction.domain.model.ledger.LedgerPairSnapshot;
 import saviing.bank.transaction.domain.vo.IdempotencyKey;
-import saviing.bank.transaction.domain.vo.TransferId;
 import saviing.bank.transaction.exception.InsufficientBalanceException;
 import saviing.bank.transaction.exception.TransferValidationException;
 
@@ -53,19 +52,19 @@ public class TransferDomainServiceImpl implements TransferDomainService {
 
     @Override
     /** {@inheritDoc} */
-    public void ensureIdempotency(TransferId transferId, IdempotencyKey idempotencyKey) {
-        // 멱등성 키와 transferId 매핑을 추적할 추가 저장소가 생기면 구현한다.
+    public void ensureIdempotency(IdempotencyKey idempotencyKey) {
+        // 멱등성 키 기반 중복 검증 로직을 추가할 수 있다.
     }
 
     @Override
     /** {@inheritDoc} */
-    public void onTransferSettled(TransferId transferId, LedgerPairSnapshot ledgerPair) {
+    public void onTransferSettled(IdempotencyKey idempotencyKey, LedgerPairSnapshot ledgerPair) {
         // 후속 처리(이벤트 발행 등)는 Application 계층에서 수행, 도메인에서는 체크만 수행
     }
 
     @Override
     /** {@inheritDoc} */
-    public void onTransferFailed(TransferId transferId, LedgerPairSnapshot ledgerPair, Throwable cause) {
+    public void onTransferFailed(IdempotencyKey idempotencyKey, LedgerPairSnapshot ledgerPair, Throwable cause) {
         // 실패 시 추가 정합성 체크 또는 보상 로직 훅을 위해 남겨둔 메서드
     }
 

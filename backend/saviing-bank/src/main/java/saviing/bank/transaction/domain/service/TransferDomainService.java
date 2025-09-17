@@ -7,7 +7,6 @@ import saviing.bank.transaction.domain.model.account.AccountSnapshot;
 import saviing.bank.transaction.domain.model.TransferType;
 import saviing.bank.transaction.domain.model.ledger.LedgerPairSnapshot;
 import saviing.bank.transaction.domain.vo.IdempotencyKey;
-import saviing.bank.transaction.domain.vo.TransferId;
 
 /**
  * 송금 도메인 규칙을 집중 관리하는 서비스 인터페이스.
@@ -26,17 +25,17 @@ public interface TransferDomainService {
     );
 
     /**
-     * 멱등 키와 TransferId 매핑을 검증한다.
+     * 멱등 키를 검증한다.
      */
-    void ensureIdempotency(TransferId transferId, IdempotencyKey idempotencyKey);
+    void ensureIdempotency(IdempotencyKey idempotencyKey);
 
     /**
      * 송금이 성공적으로 정산되었을 때 후속 처리를 수행한다.
      */
-    void onTransferSettled(TransferId transferId, LedgerPairSnapshot ledgerPair);
+    void onTransferSettled(IdempotencyKey idempotencyKey, LedgerPairSnapshot ledgerPair);
 
     /**
      * 송금 실패 시 후속 처리를 수행한다.
      */
-    void onTransferFailed(TransferId transferId, LedgerPairSnapshot ledgerPair, Throwable cause);
+    void onTransferFailed(IdempotencyKey idempotencyKey, LedgerPairSnapshot ledgerPair, Throwable cause);
 }

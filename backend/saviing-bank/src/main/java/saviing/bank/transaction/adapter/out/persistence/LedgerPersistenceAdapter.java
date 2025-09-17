@@ -13,7 +13,6 @@ import saviing.bank.transaction.adapter.out.persistence.repository.ledger.Ledger
 import saviing.bank.transaction.application.port.out.LedgerPersistencePort;
 import saviing.bank.transaction.domain.model.ledger.LedgerPair;
 import saviing.bank.transaction.domain.vo.IdempotencyKey;
-import saviing.bank.transaction.domain.vo.TransferId;
 import saviing.bank.transaction.exception.LedgerNotFoundException;
 
 import java.util.Map;
@@ -29,13 +28,6 @@ public class LedgerPersistenceAdapter implements LedgerPersistencePort {
 
     private final LedgerPairJpaRepository ledgerPairJpaRepository;
     private final LedgerMapper ledgerMapper;
-
-    @Override
-    @Transactional(readOnly = true)
-    public Optional<LedgerPair> findByTransferId(TransferId transferId) {
-        return ledgerPairJpaRepository.findByTransferId(transferId.value())
-            .map(ledgerMapper::toDomain);
-    }
 
     @Override
     @Transactional(readOnly = true)
@@ -57,9 +49,9 @@ public class LedgerPersistenceAdapter implements LedgerPersistencePort {
 
     @Override
     public LedgerPair saveAndFlush(LedgerPair ledgerPair) {
-        LedgerPairJpaEntity entity = ledgerPairJpaRepository.lockByTransferId(ledgerPair.getTransferId().value())
+        LedgerPairJpaEntity entity = ledgerPairJpaRepository.lockByIdempotencyKey(ledgerPair.getIdempotencyKey().value())
             .orElseThrow(() -> new LedgerNotFoundException(
-                Map.of("transferId", ledgerPair.getTransferId().value())
+                Map.of("idempotencyKey", ledgerPair.getIdempotencyKey().value())
             ));
         ledgerMapper.updateEntity(ledgerPair, entity);
         LedgerPairJpaEntity saved = ledgerPairJpaRepository.save(entity);

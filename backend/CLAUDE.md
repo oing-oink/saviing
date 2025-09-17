@@ -2,12 +2,17 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Rules
+- ALWAYS use UTF-8 Encoding
+- NEVER use emoji
+
 # Repository Guidelines
 
 ## Project Structure & Module Organization
 - Root Gradle multi-module: `saviing`
   - `saviing-common/` — shared config, filters, aspects, responses (no bootJar)
   - `saviing-bank/` — bank domain, services, Spring Boot app
+  - `saviing-bank-internal-procedure/` — internal API contracts for inter-domain communication (no bootJar)
   - `saviing-game/` — game service, Spring Boot app
   - `config/common/logback-spring.xml` — logging config
   - Resources per module: `src/main/resources/application*.yaml`
@@ -71,6 +76,16 @@ adapter/
 - **Money Handling**: Korean Won with overflow protection and business operations
 - **Product Association**: Account references Product (not ProductCategory directly)
 
+### Transaction Domain
+- **Transaction Model**: Central aggregate root tracking all account transactions (입금, 출금, 이체)
+- **Double-Entry Ledger**: LedgerPairSnapshot system for balanced transaction recording
+- **Transfer System**: Complete transfer functionality with domain services and event handling
+- **Transaction Types**: DEPOSIT, WITHDRAWAL, TRANSFER, REVERSAL with proper direction validation
+- **State Management**: Transaction status handling (POSTED, VOID) with proper state transitions
+- **Idempotency**: IdempotencyKey support for reliable transaction processing
+- **Domain Services**: TransferDomainService for complex transfer validation and processing
+- **Event-Driven**: Transfer events (TransferSettledEvent, TransferFailedEvent) for async processing
+
 ### Product Hierarchy
 - **ProductCategory**: Enum for major classifications (DEMAND_DEPOSIT, INSTALLMENT_SAVINGS)
 - **Product**: Entity with ID, category reference, name, and code
@@ -86,7 +101,7 @@ adapter/
 - Mocking: Mockito for domain service testing
 
 ## Coding Style & Naming Conventions
-- See `docs/CODE_CONVENTIONS.md` for comprehensive 650+ line rules (Korean)
+- **ALWAYS** See `docs/CODE_CONVENTIONS.md` for comprehensive 650+ line rules (Korean)
 - **Key Patterns**: Constructor injection with `@RequiredArgsConstructor`, static factory methods, defensive programming
 - **Korean Context**: Business logic comments and test names in Korean for domain clarity
 - **Value Objects**: Immutable with validation in constructors
@@ -111,11 +126,18 @@ adapter/
 - Input validation with proper exception handling
 - No sensitive information in logs
 
+## Inter-Module Communication
+- **Internal API Pattern**: `saviing-bank-internal-procedure` module defines contracts for inter-domain calls
+- **Account Internal API**: Provides withdraw, deposit, getAccount operations for transaction processing
+- **API Response Pattern**: Sealed success/failure responses with proper error handling
+- **Domain Isolation**: Transaction domain accesses Account domain only through internal API contracts
+
 ## Agent-Specific Notes
 - Keep changes minimal and module-scoped; follow this guide when editing files
 - Touch only necessary modules; update tests alongside code changes
 - When modifying domain models, ensure JPA entities and DTOs are updated accordingly
 - Product/ProductCategory changes require updates to: domain models, JPA entities, services, and tests
+- Transaction domain changes may require updates to both domain models and internal API contracts
 - Always run compilation and tests after domain model changes: `./gradlew :saviing-bank:compileJava :saviing-bank:test`
 
 ## important-instruction-reminders

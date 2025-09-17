@@ -34,7 +34,6 @@ import saviing.common.annotation.ExecutionTime;
 @Table(
     name = "ledger_pair",
     uniqueConstraints = {
-        @UniqueConstraint(name = "uk_transfer_id", columnNames = "transfer_id"),
         @UniqueConstraint(name = "uk_idempotency_key", columnNames = "idempotency_key")
     },
     indexes = {
@@ -50,9 +49,6 @@ public class LedgerPairJpaEntity {
     @Column(name = "ledger_pair_id")
     private Long id;
 
-    @Column(name = "transfer_id", nullable = false, length = 64)
-    private String transferId;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "transfer_type", nullable = false, length = 32)
     private TransferType transferType;
@@ -61,7 +57,7 @@ public class LedgerPairJpaEntity {
     @Column(name = "status", nullable = false, length = 32)
     private TransferStatus status;
 
-    @Column(name = "idempotency_key", length = 64)
+    @Column(name = "idempotency_key", nullable = false, length = 64)
     private String idempotencyKey;
 
     @Column(name = "failure_reason")
@@ -109,10 +105,6 @@ public class LedgerPairJpaEntity {
 
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
-    }
-
-    public void setTransferId(String transferId) {
-        this.transferId = transferId;
     }
 
     public void setTransferType(TransferType transferType) {

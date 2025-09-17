@@ -9,7 +9,6 @@ import saviing.bank.transaction.domain.model.TransferStatus;
  * 송금 처리 결과를 REST 응답으로 제공하기 위한 DTO.
  */
 public record TransferResponse(
-    String transferId,
     Long debitTransactionId,
     Long creditTransactionId,
     TransferStatus status,
@@ -21,7 +20,6 @@ public record TransferResponse(
      */
     public static TransferResponse from(TransferResult result) {
         return new TransferResponse(
-            result.transferId().value(),
             result.debitTransactionId() != null ? result.debitTransactionId().value() : null,
             result.creditTransactionId() != null ? result.creditTransactionId().value() : null,
             result.status(),

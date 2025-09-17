@@ -19,8 +19,8 @@ public class TransferEventListener {
      */
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleSettled(TransferSettledEvent event) {
-        log.info("[TransferSettled] transferId={}, debitTxId={}, creditTxId={}, amount={}, type={}, settledAt={}",
-            event.transferId().value(),
+        log.info("[TransferSettled] idempotencyKey={}, debitTxId={}, creditTxId={}, amount={}, type={}, settledAt={}",
+            event.idempotencyKey().value(),
             event.debitTransactionId() != null ? event.debitTransactionId().value() : null,
             event.creditTransactionId() != null ? event.creditTransactionId().value() : null,
             event.amount().amount(),
@@ -33,8 +33,8 @@ public class TransferEventListener {
      */
     @EventListener
     public void handleFailed(TransferFailedEvent event) {
-        log.warn("[TransferFailed] transferId={}, status={}, reason={}, failedAt={}, cause={}",
-            event.transferId().value(),
+        log.warn("[TransferFailed] idempotencyKey={}, status={}, reason={}, failedAt={}, cause={}",
+            event.idempotencyKey().value(),
             event.status(),
             event.reason(),
             event.failedAt(),

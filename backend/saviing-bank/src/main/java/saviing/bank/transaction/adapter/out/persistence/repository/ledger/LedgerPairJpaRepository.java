@@ -18,12 +18,9 @@ import saviing.bank.transaction.adapter.out.persistence.entity.ledger.LedgerPair
 public interface LedgerPairJpaRepository extends JpaRepository<LedgerPairJpaEntity, Long> {
 
     @EntityGraph(attributePaths = "entries")
-    Optional<LedgerPairJpaEntity> findByTransferId(String transferId);
-
-    @EntityGraph(attributePaths = "entries")
     Optional<LedgerPairJpaEntity> findByIdempotencyKey(String idempotencyKey);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("select lp from LedgerPairJpaEntity lp left join fetch lp.entries where lp.transferId = :transferId")
-    Optional<LedgerPairJpaEntity> lockByTransferId(@Param("transferId") String transferId);
+    @Query("select lp from LedgerPairJpaEntity lp left join fetch lp.entries where lp.idempotencyKey = :idempotencyKey")
+    Optional<LedgerPairJpaEntity> lockByIdempotencyKey(@Param("idempotencyKey") String idempotencyKey);
 }
