@@ -2,7 +2,10 @@ package saviing.bank.transaction.adapter.in.web.controller;
 
 import java.util.List;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +24,7 @@ import saviing.common.annotation.ExecutionTime;
 import saviing.common.response.ApiResult;
 
 @ExecutionTime
+@Validated
 @RestController
 @RequestMapping("/api/transactions")
 @RequiredArgsConstructor
@@ -39,27 +43,11 @@ public class TransactionController implements TransactionApi {
     }
 
     @Override
-    @GetMapping("/accounts/{accountNumber}")
+    @GetMapping("/accounts/{accountId}")
     public ApiResult<List<TransactionResponse>> getTransactionsByAccount(
-        @PathVariable String accountNumber,
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "20") int size
-    ) {
-        List<TransactionResult> results = getTransactionsByAccountUseCase
-            .getTransactionsByAccount(accountNumber, page, size);
-
-        List<TransactionResponse> responses = results.stream()
-            .map(TransactionResponse::from)
-            .toList();
-
-        return ApiResult.of(HttpStatus.OK, responses);
-    }
-
-    @GetMapping("/accounts/id/{accountId}")
-    public ApiResult<List<TransactionResponse>> getTransactionsByAccountId(
         @PathVariable Long accountId,
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "20") int size
+        @Min(0) @RequestParam(defaultValue = "0") int page,
+        @Min(1) @Max(30) @RequestParam(defaultValue = "20") int size
     ) {
         List<TransactionResult> results = getTransactionsByAccountUseCase
             .getTransactionsByAccount(accountId, page, size);

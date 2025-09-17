@@ -2,6 +2,8 @@ package saviing.bank.transaction.adapter.in.web;
 
 import java.util.List;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -48,7 +50,7 @@ public interface TransactionApi {
             ),
             @Parameter(
                 name = "size",
-                description = "페이지당 조회할 거래 수",
+                description = "페이지당 조회할 거래 수 (최대 30)",
                 example = "20"
             )
         }
@@ -64,8 +66,8 @@ public interface TransactionApi {
         content = @Content(schema = @Schema(implementation = ErrorResult.class))
     )
     ApiResult<List<TransactionResponse>> getTransactionsByAccount(
-        @Parameter(description = "조회할 계좌번호", example = "1234567890123456") @PathVariable String accountNumber,
-        @Parameter(description = "페이지 번호 (0부터 시작)") @RequestParam(defaultValue = "0") int page,
-        @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "20") int size
+        @Parameter(description = "조회할 계좌 ID", example = "1") @PathVariable Long accountId,
+        @Parameter(description = "페이지 번호 (0부터 시작)") @Min(0) @RequestParam(defaultValue = "0") int page,
+        @Parameter(description = "페이지 크기 (최대 30)") @Min(1) @Max(30) @RequestParam(defaultValue = "20") int size
     );
 }

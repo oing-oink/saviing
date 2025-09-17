@@ -7,8 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
-import saviing.bank.account.application.port.in.GetAccountUseCase;
-import saviing.bank.account.application.port.in.result.GetAccountResult;
 import saviing.bank.transaction.application.port.in.GetTransactionUseCase;
 import saviing.bank.transaction.application.port.in.GetTransactionsByAccountUseCase;
 import saviing.bank.transaction.application.port.in.result.TransactionResult;
@@ -29,7 +27,6 @@ import saviing.bank.transaction.domain.vo.TransactionId;
 public class TransactionQueryService implements GetTransactionUseCase, GetTransactionsByAccountUseCase {
 
     private final LoadTransactionPort loadTransactionPort;
-    private final GetAccountUseCase getAccountUseCase;
 
     /**
      * 거래 ID로 거래 정보를 조회한다
@@ -78,42 +75,6 @@ public class TransactionQueryService implements GetTransactionUseCase, GetTransa
             .toList();
     }
 
-    /**
-     * 계좌번호로 모든 거래 내역을 조회한다
-     *
-     * @param accountNumber 계좌번호
-     * @return 거래 내역 목록
-     */
-    @Override
-    public List<TransactionResult> getTransactionsByAccount(String accountNumber) {
-        Long accountId = getAccountIdByNumber(accountNumber);
-        return getTransactionsByAccount(accountId);
-    }
-
-    /**
-     * 계좌번호로 거래 내역을 페이지롌이션하여 조회한다
-     *
-     * @param accountNumber 계좌번호
-     * @param page 페이지 번호 (0부터 시작)
-     * @param size 페이지 크기
-     * @return 거래 내역 목록
-     */
-    @Override
-    public List<TransactionResult> getTransactionsByAccount(String accountNumber, int page, int size) {
-        Long accountId = getAccountIdByNumber(accountNumber);
-        return getTransactionsByAccount(accountId, page, size);
-    }
-
-    /**
-     * 계좌번호로 계좌 ID를 조회한다
-     *
-     * @param accountNumber 계좌번호
-     * @return 계좌 ID
-     */
-    private Long getAccountIdByNumber(String accountNumber) {
-        GetAccountResult account = getAccountUseCase.getAccountByNumber(accountNumber);
-        return account.accountId();
-    }
 
     /**
      * Transaction 도메인 엔티티를 TransactionResult DTO로 변환한다
