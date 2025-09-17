@@ -1,7 +1,7 @@
 package saviing.game.item.domain.event;
 
-import saviing.game.character.domain.event.DomainEvent;
 import saviing.game.item.domain.model.vo.ItemId;
+import saviing.game.item.domain.model.vo.ItemName;
 
 import java.time.LocalDateTime;
 
@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
  */
 public record ItemAvailabilityChangedEvent(
     ItemId itemId,
-    String itemName,
+    ItemName itemName,
     boolean isAvailable,
     String reason,
     LocalDateTime occurredOn
@@ -26,7 +26,7 @@ public record ItemAvailabilityChangedEvent(
      * @param reason 변경 사유
      * @return ItemAvailabilityChangedEvent 인스턴스
      */
-    public static ItemAvailabilityChangedEvent of(ItemId itemId, String itemName, boolean isAvailable, String reason) {
+    public static ItemAvailabilityChangedEvent of(ItemId itemId, ItemName itemName, boolean isAvailable, String reason) {
         return new ItemAvailabilityChangedEvent(
             itemId,
             itemName,
@@ -43,7 +43,7 @@ public record ItemAvailabilityChangedEvent(
      * @param itemName 아이템 이름
      * @return ItemAvailabilityChangedEvent 인스턴스
      */
-    public static ItemAvailabilityChangedEvent makeAvailable(ItemId itemId, String itemName) {
+    public static ItemAvailabilityChangedEvent makeAvailable(ItemId itemId, ItemName itemName) {
         return of(itemId, itemName, true, "아이템 판매 시작");
     }
 
@@ -55,7 +55,7 @@ public record ItemAvailabilityChangedEvent(
      * @param reason 판매 중단 사유
      * @return ItemAvailabilityChangedEvent 인스턴스
      */
-    public static ItemAvailabilityChangedEvent makeUnavailable(ItemId itemId, String itemName, String reason) {
+    public static ItemAvailabilityChangedEvent makeUnavailable(ItemId itemId, ItemName itemName, String reason) {
         return of(itemId, itemName, false, reason);
     }
 
@@ -76,4 +76,5 @@ public record ItemAvailabilityChangedEvent(
     public boolean isBecomingUnavailable() {
         return !isAvailable;
     }
+
 }

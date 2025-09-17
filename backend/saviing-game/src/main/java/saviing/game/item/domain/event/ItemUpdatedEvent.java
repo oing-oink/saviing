@@ -1,7 +1,7 @@
 package saviing.game.item.domain.event;
 
-import saviing.game.character.domain.event.DomainEvent;
 import saviing.game.item.domain.model.vo.ItemId;
+import saviing.game.item.domain.model.vo.ItemName;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -12,7 +12,7 @@ import java.util.Map;
  */
 public record ItemUpdatedEvent(
     ItemId itemId,
-    String itemName,
+    ItemName itemName,
     Map<String, Object> changedFields,
     LocalDateTime occurredOn
 ) implements DomainEvent {
@@ -25,7 +25,7 @@ public record ItemUpdatedEvent(
      * @param changedFields 변경된 필드들 (필드명 -> 새로운 값)
      * @return ItemUpdatedEvent 인스턴스
      */
-    public static ItemUpdatedEvent of(ItemId itemId, String itemName, Map<String, Object> changedFields) {
+    public static ItemUpdatedEvent of(ItemId itemId, ItemName itemName, Map<String, Object> changedFields) {
         return new ItemUpdatedEvent(
             itemId,
             itemName,
@@ -43,7 +43,7 @@ public record ItemUpdatedEvent(
      * @param newValue 새로운 값
      * @return ItemUpdatedEvent 인스턴스
      */
-    public static ItemUpdatedEvent ofSingleField(ItemId itemId, String itemName, String fieldName, Object newValue) {
+    public static ItemUpdatedEvent ofSingleField(ItemId itemId, ItemName itemName, String fieldName, Object newValue) {
         return new ItemUpdatedEvent(
             itemId,
             itemName,
@@ -71,4 +71,5 @@ public record ItemUpdatedEvent(
     public Object getChangedValue(String fieldName) {
         return changedFields.get(fieldName);
     }
+
 }

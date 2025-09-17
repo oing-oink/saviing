@@ -1,7 +1,9 @@
 package saviing.game.item.domain.event;
 
-import saviing.game.character.domain.event.DomainEvent;
+import saviing.game.item.domain.model.enums.ItemType;
+import saviing.game.item.domain.model.enums.category.Category;
 import saviing.game.item.domain.model.vo.ItemId;
+import saviing.game.item.domain.model.vo.ItemName;
 
 import java.time.LocalDateTime;
 
@@ -11,9 +13,9 @@ import java.time.LocalDateTime;
  */
 public record ItemRegisteredEvent(
     ItemId itemId,
-    String itemName,
-    String itemType,
-    String itemCategory,
+    ItemName itemName,
+    ItemType itemType,
+    Category itemCategory,
     LocalDateTime occurredOn
 ) implements DomainEvent {
 
@@ -26,7 +28,7 @@ public record ItemRegisteredEvent(
      * @param itemCategory 아이템 카테고리
      * @return ItemRegisteredEvent 인스턴스
      */
-    public static ItemRegisteredEvent of(ItemId itemId, String itemName, String itemType, String itemCategory) {
+    public static ItemRegisteredEvent of(ItemId itemId, ItemName itemName, ItemType itemType, Category itemCategory) {
         return new ItemRegisteredEvent(
             itemId,
             itemName,
