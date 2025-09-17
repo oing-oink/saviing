@@ -11,12 +11,16 @@ import GachaPage from '@/pages/GachaPage';
 import GachaRollingPage from '@/pages/GachaRollingPage';
 import DecoPage from '@/pages/DecoPage';
 import SavingsLayout from '@/features/savings/components/SavingsLayout';
+import WalletPage from '@/pages/WalletPage';
 
 export const router = createBrowserRouter([
   {
     path: PAGE_PATH.HOME,
     element: <SavingsLayout />,
-    children: [{ index: true, element: <HomePage /> }],
+    children: [
+      { index: true, element: <HomePage /> },
+      { path: PAGE_PATH.WALLET, element: <WalletPage /> },
+    ],
   },
   { path: PAGE_PATH.LOGIN, element: <LoginPage /> },
   { path: PAGE_PATH.SAVINGS, element: <SavingsPage /> },
