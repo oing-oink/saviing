@@ -16,7 +16,11 @@ interface SavingsDetailCardProps {
   error: Error | null;
 }
 
-const SavingsDetailCard = ({ data: savingsData, isLoading, error }: SavingsDetailCardProps) => {
+const SavingsDetailCard = ({
+  data: savingsData,
+  isLoading,
+  error,
+}: SavingsDetailCardProps) => {
   const navigate = useNavigate();
 
   if (isLoading) {
@@ -104,10 +108,7 @@ const SavingsDetailCard = ({ data: savingsData, isLoading, error }: SavingsDetai
             >
               설정 변경
             </Button>
-            <Button
-              className="flex-1"
-              onClick={() => navigate(PAGE_PATH.HOME)}
-            >
+            <Button className="flex-1" onClick={() => navigate(PAGE_PATH.HOME)}>
               입금
             </Button>
           </div>

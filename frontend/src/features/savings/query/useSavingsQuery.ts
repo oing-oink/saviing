@@ -1,7 +1,14 @@
-import { useQuery } from '@tanstack/react-query';
-import { getSavingsAccount } from '@/features/savings/api/savingsApi';
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
+import {
+  getSavingsAccount,
+  getSavingsTransactions,
+} from '@/features/savings/api/savingsApi';
 import { savingsKeys } from '@/features/savings/query/savingsKeys';
-import type { SavingsDisplayData } from '@/features/savings/types/savingsTypes';
+import type {
+  SavingsDisplayData,
+  TransactionDisplayData,
+} from '@/features/savings/types/savingsTypes';
+import { useMemo } from 'react';
 
 /**
  * 적금 계좌 상세 정보를 조회하는 React Query 훅
@@ -39,5 +46,86 @@ export const useSavingsDisplayData = (accountId: string) => {
   return {
     ...query,
     data: displayData,
+  };
+};
+
+/**
+ * 적금 계좌의 거래 내역을 무한 스크롤로 조회하는 React Query 훅
+ *
+ * 올리브영 방식을 참고하여 useInfiniteQuery를 활용한 무한 스크롤을 구현합니다.
+ * 페이지당 20개의 거래 내역을 가져오며, 최신 날짜순으로 정렬됩니다.
+ *
+ * @param accountId - 조회할 적금 계좌의 ID
+ * @returns 무한 스크롤 거래 내역 쿼리 결과
+ */
+export const useSavingsTransactions = (accountId: string) => {
+  const TRANSACTIONS_PER_PAGE = 20;
+
+  return useInfiniteQuery({
+    queryKey: savingsKeys.transactionsList(accountId),
+    queryFn: ({ pageParam = 1 }) =>
+      getSavingsTransactions(accountId, {
+        page: pageParam,
+        size: TRANSACTIONS_PER_PAGE,
+      }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => {
+      // 현재 로드된 총 아이템 수 계산
+      const totalLoadedItems = allPages.flat().length;
+
+      // Mock 데이터 제한(250개) 또는 페이지 크기보다 작으면 종료
+      if (
+        !lastPage ||
+        lastPage.length < TRANSACTIONS_PER_PAGE ||
+        totalLoadedItems >= 250
+      ) {
+        return undefined;
+      }
+
+      return allPages.length + 1;
+    },
+    staleTime: 1000 * 60, // 1분
+    gcTime: 1000 * 60 * 5, // 5분
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
+  });
+};
+
+/**
+ * 거래 내역 데이터를 UI용으로 가공하여 반환하는 훅
+ *
+ * 서버에서 받은 거래 내역 데이터에서 UI에 필요한 필드만 추출하고 변환합니다.
+ * direction, amount, postedAt, description 필드만 사용합니다.
+ *
+ * @param accountId - 조회할 적금 계좌의 ID
+ * @returns 가공된 거래 내역 데이터와 무한 스크롤 상태
+ */
+export const useSavingsTransactionsDisplay = (accountId: string) => {
+  const query = useSavingsTransactions(accountId);
+
+  const transactions = useMemo(() => {
+    if (!query.data) {
+      return [];
+    }
+
+    // 모든 페이지의 거래 내역을 하나의 배열로 합치기
+    const allTransactions = query.data.pages.flat();
+
+    // UI용 데이터로 변환
+    return allTransactions.map(
+      (transaction): TransactionDisplayData => ({
+        transactionId: transaction.transactionId,
+        direction: transaction.direction,
+        amount: transaction.amount,
+        postedAt: transaction.postedAt,
+        description: transaction.description,
+      }),
+    );
+  }, [query.data]);
+
+  return {
+    ...query,
+    data: transactions,
   };
 };
