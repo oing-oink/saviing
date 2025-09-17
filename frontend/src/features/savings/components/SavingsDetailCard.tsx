@@ -1,24 +1,23 @@
-import { useParams } from 'react-router-dom';
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from '@/shared/components/ui/card';
-import { useSavingsDisplayData } from '@/features/savings/query/useSavingsQuery';
 import { Progress } from '@/shared/components/ui/progress';
 import { Button } from '@/shared/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { PAGE_PATH } from '@/shared/constants/path';
+import type { SavingsDisplayData } from '@/features/savings/types/savingsTypes';
 
-const SavingsDetailCard = () => {
+interface SavingsDetailCardProps {
+  data?: SavingsDisplayData;
+  isLoading: boolean;
+  error: Error | null;
+}
+
+const SavingsDetailCard = ({ data: savingsData, isLoading, error }: SavingsDetailCardProps) => {
   const navigate = useNavigate();
-  const { accountId } = useParams<{ accountId: string }>();
-  const {
-    data: savingsData,
-    isLoading,
-    error,
-  } = useSavingsDisplayData(accountId!);
 
   if (isLoading) {
     return (
