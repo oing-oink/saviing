@@ -2,5 +2,5 @@ rootProject.name = 'saviing'
 
 include 'saviing-common'
 include 'saviing-bank'
-include 'saviing-bank-usecase-api'
+include 'saviing-bank-internal-procedure'
 include 'saviing-game'

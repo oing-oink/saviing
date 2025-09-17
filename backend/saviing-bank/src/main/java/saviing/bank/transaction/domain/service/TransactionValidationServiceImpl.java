@@ -46,6 +46,29 @@ public class TransactionValidationServiceImpl implements TransactionValidationSe
     }
 
     @Override
+    public void validateAccountStatusByString(String status) {
+        if (!"ACTIVE".equals(status)) {
+            throw new InvalidAccountStateException(
+                Map.of(
+                    "currentStatus", status
+                )
+            );
+        }
+    }
+
+    @Override
+    public void validateDebitTransactionByBalance(MoneyWon balance, MoneyWon amount) {
+        if (balance.isLessThan(amount)) {
+            throw new InsufficientBalanceException(
+                Map.of(
+                    "requestAmount", amount.amount(),
+                    "currentBalance", balance.amount()
+                )
+            );
+        }
+    }
+
+    @Override
     public void validateTransactionAmount(MoneyWon amount, TransactionType transactionType) {
         if (amount == null || amount.amount() <= 0) {
             throw new InvalidTransactionAmountException(

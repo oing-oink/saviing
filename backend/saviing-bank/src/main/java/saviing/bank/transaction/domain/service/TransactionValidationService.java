@@ -12,6 +12,10 @@ public interface TransactionValidationService {
 
     void validateAccountStatus(Account account);
 
+    void validateAccountStatusByString(String status);
+
+    void validateDebitTransactionByBalance(MoneyWon balance, MoneyWon amount);
+
     void validateTransactionAmount(MoneyWon amount, TransactionType transactionType);
 
     void validateValueDate(LocalDate valueDate);

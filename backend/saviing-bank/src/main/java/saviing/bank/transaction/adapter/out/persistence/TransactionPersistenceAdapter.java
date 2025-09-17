@@ -15,12 +15,10 @@ import saviing.bank.transaction.application.port.out.SaveTransactionPort;
 import saviing.bank.transaction.domain.model.Transaction;
 import saviing.bank.transaction.domain.vo.IdempotencyKey;
 import saviing.bank.transaction.domain.vo.TransactionId;
-import saviing.common.annotation.ExecutionTime;
 import saviing.bank.transaction.exception.TransactionNotFoundException;
 
 import java.util.Map;
 
-@ExecutionTime
 @Component
 @RequiredArgsConstructor
 public class TransactionPersistenceAdapter implements LoadTransactionPort, SaveTransactionPort {
