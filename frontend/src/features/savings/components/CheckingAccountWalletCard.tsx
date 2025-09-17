@@ -11,7 +11,7 @@ const CheckingAccountWalletCard = () => {
             <p className="text-2xl font-bold text-primary">750,000원</p>
             <p className="text-md text-gray-500">입출금 통장</p>
           </div>
-          <div className="flex items-center gap-1 text-gray-400">
+          <div className="flex items-center gap-1 pt-1 text-gray-400">
             <p className="text-sm">1042-001-532620</p>
             <CopyToClipboard
               text="1042-001-532620"
@@ -29,7 +29,7 @@ const CheckingAccountWalletCard = () => {
       </div>
 
       {/* 하단 버튼 */}
-      <div className="flex justify-center pt-3">
+      <div className="flex justify-center pt-1">
         <div className="w-6/7 border-t border-gray-200 pt-2" />
       </div>
       <button className="mb-3 w-full py-2 text-center font-bold text-primary">
