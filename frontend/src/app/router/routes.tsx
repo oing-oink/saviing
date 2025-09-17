@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router-dom';
 import HomePage from '@/pages/HomePage';
 import LoginPage from '@/pages/LoginPage';
 import SavingsPage from '@/pages/SavingsPage';
+import SavingsDetailPage from '@/pages/SavingsDetailPage';
 import GamePage from '@/pages/GamePage';
 import NotFoundPage from '@/pages/NotFoundPage';
 import ColorTestPage from '@/pages/ColorTestPage';
@@ -11,6 +12,7 @@ import GachaPage from '@/pages/GachaPage';
 import GachaRollingPage from '@/pages/GachaRollingPage';
 import DecoPage from '@/pages/DecoPage';
 import SavingsLayout from '@/features/savings/components/SavingsLayout';
+import SavingsDetailLayout from '@/features/savings/components/SavingsDetailLayout';
 
 export const router = createBrowserRouter([
   {
@@ -20,6 +22,11 @@ export const router = createBrowserRouter([
   },
   { path: PAGE_PATH.LOGIN, element: <LoginPage /> },
   { path: PAGE_PATH.SAVINGS, element: <SavingsPage /> },
+  {
+    path: PAGE_PATH.SAVINGS_DETAIL,
+    element: <SavingsDetailLayout title="적금 상세" />,
+    children: [{ index: true, element: <SavingsDetailPage /> }],
+  },
   { path: PAGE_PATH.GAME, element: <GamePage /> },
   { path: PAGE_PATH.SHOP, element: <ShopPage /> },
   { path: PAGE_PATH.GACHA, element: <GachaPage /> },

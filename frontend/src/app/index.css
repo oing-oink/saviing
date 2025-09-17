@@ -197,15 +197,9 @@
 
 /* 금융 테마 */
 .saving {
-  /* 푸른색 */
-  --bg: oklch(0.939 0.0326 295.32);
-  --primary: oklch(0.5181 0.2408 283.43);
+  --bg: var(--color-violet-500);
+  --primary: var(--color-violet-50);
   --secondary: oklch(0.8 0.2408 283.43);
-
-  /* 보라색 */
-  /* --bg: oklch(0.9279 0.0203 292.13);
-  --primary: oklch(0.51 0.1142 314.52);
-  --secondary: oklch(0.8 0.1142 314.52); */
 
   --white: oklch(0.9919 0.003956 286.3273);
   --gray: oklch(0.8853 0 0);

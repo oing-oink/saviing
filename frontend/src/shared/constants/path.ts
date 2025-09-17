@@ -2,6 +2,7 @@ export const PAGE_PATH = {
   HOME: '/',
   LOGIN: '/login',
   SAVINGS: '/savings',
+  SAVINGS_DETAIL: '/savings/:accountId',
   GAME: '/game',
   SHOP: '/shop',
   GACHA: '/gacha',
