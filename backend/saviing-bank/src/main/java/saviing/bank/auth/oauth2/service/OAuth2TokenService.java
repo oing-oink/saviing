@@ -95,28 +95,23 @@ public class OAuth2TokenService {
         String referer = request.getHeader("Referer");
         String[] allowedUris = googleRedirectUri.split(",");
 
+        log.info("Referer 헤더: {}, 허용된 URI들: {}", referer, googleRedirectUri);
+
         // Referer 헤더가 없거나 빈 문자열인 경우 첫 번째 URI 사용
         if (referer == null || referer.trim().isEmpty()) {
             log.warn("Referer 헤더가 없습니다. 기본 redirect URI 사용: {}", allowedUris[0].trim());
             return allowedUris[0].trim();
         }
 
-        // Referer에 따라 매핑
-        if (referer.contains("localhost") || referer.contains("127.0.0.1")) {
-            // 로컬 환경
-            for (String uri : allowedUris) {
-                if (uri.trim().contains("localhost")) {
-                    log.debug("로컬 환경 감지, redirect URI: {}", uri.trim());
-                    return uri.trim();
-                }
+        // Referer에 매칭되는 URI 찾기
+        for (String uri : allowedUris) {
+            if (uri.trim().contains("localhost") && (referer.contains("localhost") || referer.contains("127.0.0.1"))) {
+                log.info("로컬 환경 감지, redirect URI: {}", uri.trim());
+                return uri.trim();
             }
-        } else if (referer.contains("dev.saviing.life")) {
-            // 개발 서버 환경
-            for (String uri : allowedUris) {
-                if (uri.trim().contains("dev.saviing.life")) {
-                    log.debug("개발 서버 환경 감지, redirect URI: {}", uri.trim());
-                    return uri.trim();
-                }
+            if (uri.trim().contains("dev.saviing.life") && referer.contains("dev.saviing.life")) {
+                log.info("개발 서버 환경 감지, redirect URI: {}", uri.trim());
+                return uri.trim();
             }
         }
 
