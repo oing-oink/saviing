@@ -12,7 +12,7 @@ import GachaRollingPage from '@/pages/GachaRollingPage';
 import DecoPage from '@/pages/DecoPage';
 import SavingsLayout from '@/features/savings/components/SavingsLayout';
 import WalletPage from '@/pages/WalletPage';
-import GetAccountFunnel from '@/features/savings/components/GetAccountFunnel';
+import AccountCreationFunnel from '@/features/savings/components/AccountCreationFunnel';
 
 export const router = createBrowserRouter([
   {

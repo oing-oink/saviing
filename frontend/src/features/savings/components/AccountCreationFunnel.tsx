@@ -1,14 +1,16 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import FunnelStep from '@/features/savings/components/FunnelStep';
-import StartStep from '@/features/savings/components/funnelSteps/StartStep';
-import AccountTypeStep from '@/features/savings/components/funnelSteps/AccountTypeStep';
-import UserInfoStep from '@/features/savings/components/funnelSteps/UserInfoStep';
-import AuthStep from '@/features/savings/components/funnelSteps/AuthStep';
-import TermsStep from '@/features/savings/components/funnelSteps/TermsStep';
-import SetConditionStep from '@/features/savings/components/funnelSteps/SetConditionStep';
-import ConfirmStep from '@/features/savings/components/funnelSteps/ConfirmStep';
-import CompleteStep from '@/features/savings/components/funnelSteps/CompleteStep';
+import {
+  StartStep,
+  AccountTypeStep,
+  UserInfoStep,
+  AuthStep,
+  TermsStep,
+  SetConditionStep,
+  ConfirmStep,
+  CompleteStep,
+} from '@/features/savings/components/funnelSteps';
 import FunnelProgressBar from '@/features/savings/components/FunnelProgressBar';
 import { useGetAccountStore } from '@/features/savings/store/useGetAccountStore';
 import {
@@ -16,7 +18,7 @@ import {
   type AccountType,
 } from '@/features/savings/constants/accountTypes';
 
-const GetAccountFunnel = () => {
+const AccountCreationFunnel = () => {
   const [searchParams] = useSearchParams();
   const { setForm, setStep } = useGetAccountStore();
 
@@ -67,4 +69,4 @@ const GetAccountFunnel = () => {
   );
 };
 
-export default GetAccountFunnel;
+export default AccountCreationFunnel;
