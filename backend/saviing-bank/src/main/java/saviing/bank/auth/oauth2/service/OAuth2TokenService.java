@@ -134,6 +134,25 @@ public class OAuth2TokenService {
     }
 
     /**
+     * 로그아웃 처리 - Refresh Token 검증 및 쿠키 삭제
+     */
+    public ResponseCookie logout(String refreshToken) {
+        // 1. Refresh Token 유효성 검증 (JwtConfig에서 처리)
+        if (!jwtConfig.isTokenValid(refreshToken) || !jwtConfig.isRefreshToken(refreshToken)) {
+            throw new BusinessException(AuthErrorCode.INVALID_REFRESH_TOKEN);
+        }
+
+        // 2. Refresh Token에서 customerId 추출
+        String customerId = jwtConfig.getSubjectFromToken(refreshToken);
+
+        // 3. 로그 기록
+        log.info("사용자 {} 로그아웃 처리 - Refresh Token 쿠키 삭제", customerId);
+
+        // 4. 쿠키 삭제 (JwtConfig에서 처리)
+        return jwtConfig.createExpiredRefreshTokenCookie();
+    }
+
+    /**
      * Authorization Code를 Google Access Token으로 교환
      */
     private String exchangeCodeForAccessToken(String authorizationCode) {
