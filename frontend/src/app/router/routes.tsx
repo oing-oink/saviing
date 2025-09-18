@@ -2,6 +2,8 @@ import { createBrowserRouter } from 'react-router-dom';
 import HomePage from '@/pages/HomePage';
 import LoginPage from '@/pages/LoginPage';
 import SavingsPage from '@/pages/SavingsPage';
+import DepositPage from '@/pages/DepositPage';
+import DepositResultPage from '@/pages/DepositResultPage';
 import GamePage from '@/pages/GamePage';
 import NotFoundPage from '@/pages/NotFoundPage';
 import ColorTestPage from '@/pages/ColorTestPage';
@@ -24,6 +26,8 @@ export const router = createBrowserRouter([
   },
   { path: PAGE_PATH.LOGIN, element: <LoginPage /> },
   { path: PAGE_PATH.SAVINGS, element: <SavingsPage /> },
+  { path: PAGE_PATH.DEPOSIT, element: <DepositPage /> },
+  { path: PAGE_PATH.DEPOSIT_RESULT, element: <DepositResultPage /> },
   { path: PAGE_PATH.GAME, element: <GamePage /> },
   { path: PAGE_PATH.SHOP, element: <ShopPage /> },
   { path: PAGE_PATH.GACHA, element: <GachaPage /> },
