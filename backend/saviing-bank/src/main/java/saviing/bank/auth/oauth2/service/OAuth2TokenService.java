@@ -105,12 +105,8 @@ public class OAuth2TokenService {
 
         // Referer에 매칭되는 URI 찾기
         for (String uri : allowedUris) {
-            if (uri.trim().contains("localhost") && (referer.contains("localhost") || referer.contains("127.0.0.1"))) {
-                log.info("로컬 환경 감지, redirect URI: {}", uri.trim());
-                return uri.trim();
-            }
-            if (uri.trim().contains("dev.saviing.life") && referer.contains("dev.saviing.life")) {
-                log.info("개발 서버 환경 감지, redirect URI: {}", uri.trim());
+            if (uri.contains(referer)) {
+                log.info("환경 감지, redirect URI: {}", uri.trim());
                 return uri.trim();
             }
         }
