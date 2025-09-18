@@ -5,7 +5,7 @@ import SavingsPage from '@/pages/SavingsPage';
 import GamePage from '@/pages/GamePage';
 import NotFoundPage from '@/pages/NotFoundPage';
 import ColorTestPage from '@/pages/ColorTestPage';
-import { PAGE_PATH, ACCOUNT_CREATION_STEPS_PATH } from '@/shared/constants/path';
+import { PAGE_PATH } from '@/shared/constants/path';
 import ShopPage from '@/pages/ShopPage';
 import GachaPage from '@/pages/GachaPage';
 import GachaRollingPage from '@/pages/GachaRollingPage';
@@ -24,7 +24,10 @@ export const router = createBrowserRouter([
     ],
   },
   // Account Creation Funnel Routes
-  { path: `${PAGE_PATH.ACCOUNT_CREATION}/*`, element: <AccountCreationFunnel /> },
+  {
+    path: `${PAGE_PATH.ACCOUNT_CREATION}/*`,
+    element: <AccountCreationFunnel />,
+  },
   { path: PAGE_PATH.LOGIN, element: <LoginPage /> },
   { path: PAGE_PATH.SAVINGS, element: <SavingsPage /> },
   { path: PAGE_PATH.GAME, element: <GamePage /> },

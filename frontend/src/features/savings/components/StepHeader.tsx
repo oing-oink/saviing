@@ -5,7 +5,7 @@ import { PAGE_PATH } from '@/shared/constants/path';
 
 const StepHeader = () => {
   const navigate = useNavigate();
-  const { currentStepFromUrl, goToPreviousStep, canGoBack } = useStepProgress();
+  const { currentStepFromUrl, goToPreviousStep } = useStepProgress();
 
   const handleBackClick = () => {
     if (currentStepFromUrl === 'START') {
