@@ -1,7 +1,5 @@
 import { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import FunnelStep from '@/features/savings/components/FunnelStep';
-import FunnelLayout from '@/features/savings/components/FunnelLayout';
+import { useSearchParams, useLocation, useNavigate } from 'react-router-dom';
 import {
   StartStep,
   AccountTypeStep,
@@ -13,61 +11,71 @@ import {
   CompleteStep,
 } from '@/features/savings/components/funnelSteps';
 import FunnelProgressBar from '@/features/savings/components/FunnelProgressBar';
+import FunnelLayout from '@/features/savings/components/FunnelLayout';
 import { useAccountCreationStore } from '@/features/savings/store/useAccountCreationStore';
+import { useStepProgress } from '@/features/savings/hooks/useStepProgress';
 import {
   ACCOUNT_TYPES,
   type AccountType,
 } from '@/features/savings/constants/accountTypes';
+import { ACCOUNT_CREATION_STEPS_PATH } from '@/shared/constants/path';
 
 const AccountCreationFunnel = () => {
   const [searchParams] = useSearchParams();
-  const { setForm, setStep } = useAccountCreationStore();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { setForm } = useAccountCreationStore();
+  const { currentStepFromUrl } = useStepProgress();
 
+  // URL 초기화 처리
   useEffect(() => {
-    const typeParam = searchParams.get('type') as AccountType;
-    if (typeParam && Object.values(ACCOUNT_TYPES).includes(typeParam)) {
-      setForm({ productType: typeParam });
-      setStep('PRODUCT_TYPE'); // 타입이 미리 선택되었으면 해당 단계로
+    if (location.pathname === '/account-creation') {
+      navigate(ACCOUNT_CREATION_STEPS_PATH.START, { replace: true });
+      return;
     }
-  }, [searchParams, setForm, setStep]);
+
+    // 타입 파라미터 처리 (form에만 저장, 화면은 START에서 시작)
+    const typeParam = searchParams.get('type');
+    const isValidAccountType = (value: string | null): value is AccountType => {
+      return (
+        value !== null &&
+        Object.values(ACCOUNT_TYPES).includes(value as AccountType)
+      );
+    };
+
+    if (isValidAccountType(typeParam) && location.pathname.includes('/start')) {
+      setForm({ productType: typeParam });
+    }
+  }, [location.pathname, searchParams, navigate, setForm]);
+
+  // 현재 단계에 따라 컴포넌트 렌더링
+  const renderCurrentStep = () => {
+    switch (currentStepFromUrl) {
+      case 'START':
+        return <StartStep />;
+      case 'PRODUCT_TYPE':
+        return <AccountTypeStep />;
+      case 'USER_INFO':
+        return <UserInfoStep />;
+      case 'AUTH':
+        return <AuthStep />;
+      case 'TERMS':
+        return <TermsStep />;
+      case 'SET_CONDITION':
+        return <SetConditionStep />;
+      case 'CONFIRM':
+        return <ConfirmStep />;
+      case 'COMPLETE':
+        return <CompleteStep />;
+      default:
+        return <StartStep />;
+    }
+  };
 
   return (
     <div className="saving min-h-screen bg-gray-50">
       <FunnelProgressBar />
-
-      <FunnelLayout>
-        <FunnelStep name="START">
-          <StartStep />
-        </FunnelStep>
-
-        <FunnelStep name="PRODUCT_TYPE">
-          <AccountTypeStep />
-        </FunnelStep>
-
-        <FunnelStep name="USER_INFO">
-          <UserInfoStep />
-        </FunnelStep>
-
-        <FunnelStep name="AUTH">
-          <AuthStep />
-        </FunnelStep>
-
-        <FunnelStep name="TERMS">
-          <TermsStep />
-        </FunnelStep>
-
-        <FunnelStep name="SET_CONDITION">
-          <SetConditionStep />
-        </FunnelStep>
-
-        <FunnelStep name="CONFIRM">
-          <ConfirmStep />
-        </FunnelStep>
-
-        <FunnelStep name="COMPLETE">
-          <CompleteStep />
-        </FunnelStep>
-      </FunnelLayout>
+      <FunnelLayout>{renderCurrentStep()}</FunnelLayout>
     </div>
   );
 };

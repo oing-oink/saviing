@@ -16,13 +16,13 @@ export const useWalletButtons = (): { buttons: WalletButtonConfig[] } => {
       icon: Landmark,
       label: '자유적금 개설',
       onClick: () =>
-        navigate(`${PAGE_PATH.GET_ACCOUNT}?type=${ACCOUNT_TYPES.SAVINGS}`),
+        navigate(`${PAGE_PATH.ACCOUNT_CREATION}/start?type=${ACCOUNT_TYPES.SAVINGS}`),
     },
     {
       icon: Wallet,
       label: '입출금계좌 개설',
       onClick: () =>
-        navigate(`${PAGE_PATH.GET_ACCOUNT}?type=${ACCOUNT_TYPES.CHECKING}`),
+        navigate(`${PAGE_PATH.ACCOUNT_CREATION}/start?type=${ACCOUNT_TYPES.CHECKING}`),
     },
   ];
 

@@ -1,12 +1,12 @@
-import { useAccountCreationStore } from '@/features/savings/store/useAccountCreationStore';
+import { useStepProgress } from '@/features/savings/hooks/useStepProgress';
 import { Landmark } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
 
 const StartStep = () => {
-  const setStep = useAccountCreationStore(state => state.setStep);
+  const { goToNextStep } = useStepProgress();
 
   const handleNext = () => {
-    setStep('PRODUCT_TYPE');
+    goToNextStep();
   };
 
   return (

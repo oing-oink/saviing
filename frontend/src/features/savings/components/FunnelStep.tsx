@@ -1,14 +1,14 @@
 import type { ReactNode } from 'react';
-import { useGetAccountStore } from '@/features/savings/store/useGetAccountStore';
-import type { GetAccountStep } from '@/features/savings/constants/getAccountSteps';
+import { useAccountCreationStore } from '@/features/savings/store/useAccountCreationStore';
+import type { AccountCreationStep } from '@/features/savings/constants/accountCreationSteps';
 
 interface FunnelStepProps {
-  name: GetAccountStep;
+  name: AccountCreationStep;
   children: ReactNode;
 }
 
 const FunnelStep = ({ name, children }: FunnelStepProps) => {
-  const step = useGetAccountStore(state => state.step);
+  const step = useAccountCreationStore(state => state.step);
   if (step !== name) {
     return null;
   }
