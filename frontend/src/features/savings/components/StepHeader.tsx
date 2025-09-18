@@ -1,12 +1,12 @@
 import { ChevronLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useStepProgress } from '@/features/savings/hooks/useStepProgress';
-import { useGetAccountStore } from '@/features/savings/store/useGetAccountStore';
+import { useAccountCreationStore } from '@/features/savings/store/useAccountCreationStore';
 import { PAGE_PATH } from '@/shared/constants/path';
 
 const StepHeader = () => {
   const navigate = useNavigate();
-  const { step } = useGetAccountStore();
+  const { step } = useAccountCreationStore();
   const { goToPreviousStep } = useStepProgress();
 
   const handleBackClick = () => {

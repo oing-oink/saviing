@@ -13,7 +13,7 @@ import {
   CompleteStep,
 } from '@/features/savings/components/funnelSteps';
 import FunnelProgressBar from '@/features/savings/components/FunnelProgressBar';
-import { useGetAccountStore } from '@/features/savings/store/useGetAccountStore';
+import { useAccountCreationStore } from '@/features/savings/store/useAccountCreationStore';
 import {
   ACCOUNT_TYPES,
   type AccountType,
@@ -21,7 +21,7 @@ import {
 
 const AccountCreationFunnel = () => {
   const [searchParams] = useSearchParams();
-  const { setForm, setStep } = useGetAccountStore();
+  const { setForm, setStep } = useAccountCreationStore();
 
   useEffect(() => {
     const typeParam = searchParams.get('type') as AccountType;

@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { useGetAccountStore } from '@/features/savings/store/useGetAccountStore';
+import { useAccountCreationStore } from '@/features/savings/store/useAccountCreationStore';
 import { useStepProgress } from '@/features/savings/hooks/useStepProgress';
 import { Button } from '@/shared/components/ui/button';
 
 const UserInfoStep = () => {
-  const { setForm, form } = useGetAccountStore();
+  const { setForm, form } = useAccountCreationStore();
   const { goToNextStep } = useStepProgress();
   const [name, setName] = useState(form.name || '');
   const [birth, setBirth] = useState(form.birth || '');

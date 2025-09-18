@@ -1,12 +1,12 @@
-import { useGetAccountStore } from '@/features/savings/store/useGetAccountStore';
+import { useAccountCreationStore } from '@/features/savings/store/useAccountCreationStore';
 import {
   SAVINGS_STEPS,
   CHECKING_STEPS,
-} from '@/features/savings/constants/getAccountSteps';
+} from '@/features/savings/constants/accountCreationSteps';
 import { ACCOUNT_TYPES } from '@/features/savings/constants/accountTypes';
 
 export const useStepProgress = () => {
-  const { step, setStep, form } = useGetAccountStore();
+  const { step, setStep, form } = useAccountCreationStore();
 
   // 계좌 타입에 따라 다른 스텝 배열 사용
   const isChecking = form.productType === ACCOUNT_TYPES.CHECKING;

@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { useGetAccountStore } from '@/features/savings/store/useGetAccountStore';
+import { useAccountCreationStore } from '@/features/savings/store/useAccountCreationStore';
 import { Button } from '@/shared/components/ui/button';
 
 const AuthStep = () => {
-  const { setStep, setForm } = useGetAccountStore();
+  const { setStep, setForm } = useAccountCreationStore();
   const [selected, setSelected] = useState(false);
 
   // 다음 단계로 이동

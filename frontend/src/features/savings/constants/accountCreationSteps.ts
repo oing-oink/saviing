@@ -22,4 +22,4 @@ export const CHECKING_STEPS = [
 
 export type SavingsStep = (typeof SAVINGS_STEPS)[number];
 export type CheckingStep = (typeof CHECKING_STEPS)[number];
-export type GetAccountStep = SavingsStep | CheckingStep;
+export type AccountCreationStep = SavingsStep | CheckingStep;

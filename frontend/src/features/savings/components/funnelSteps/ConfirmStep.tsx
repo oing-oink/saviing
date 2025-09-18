@@ -1,8 +1,8 @@
-import { useGetAccountStore } from '@/features/savings/store/useGetAccountStore';
+import { useAccountCreationStore } from '@/features/savings/store/useAccountCreationStore';
 import { Button } from '@/shared/components/ui/button';
 
 const ConfirmStep = () => {
-  const { form, setStep } = useGetAccountStore();
+  const { form, setStep } = useAccountCreationStore();
 
   // 예상 만기 금액 간단 계산 (임시)
   const maturityAmount =

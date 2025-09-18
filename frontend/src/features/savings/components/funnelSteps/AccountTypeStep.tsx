@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useGetAccountStore } from '@/features/savings/store/useGetAccountStore';
+import { useAccountCreationStore } from '@/features/savings/store/useAccountCreationStore';
 import { useStepProgress } from '@/features/savings/hooks/useStepProgress';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -8,7 +8,7 @@ import {
 } from '@/features/savings/constants/accountTypes';
 
 const AccountTypeStep = () => {
-  const { setForm, form } = useGetAccountStore();
+  const { setForm, form } = useAccountCreationStore();
   const { goToNextStep } = useStepProgress();
   const [selected, setSelected] = useState<AccountType | null>(
     form.productType || null,
