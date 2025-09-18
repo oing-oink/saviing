@@ -11,7 +11,6 @@ import ShopPage from '@/pages/ShopPage';
 import GachaPage from '@/pages/GachaPage';
 import GachaRollingPage from '@/pages/GachaRollingPage';
 import DecoPage from '@/pages/DecoPage';
-import SavingsLayout from '@/features/savings/components/SavingsLayout';
 import WalletPage from '@/pages/WalletPage';
 import AccountCreationFunnel from '@/features/savings/components/AccountCreationFunnel';
 import SavingsLayout from '@/features/savings/layouts/SavingsLayout';
