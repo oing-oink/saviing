@@ -5,7 +5,10 @@ import type { TabId } from 'src/features/game/shop/types/item';
 // [타입 정의]
 export type GridType = 'floor' | 'leftWall' | 'rightWall';
 
-interface Point { x: number; y: number; }
+interface Point {
+  x: number;
+  y: number;
+}
 
 interface UseGridProps {
   scale: number;
@@ -34,16 +37,16 @@ const AREAS_CONFIG: Partial<Record<GridType, [Point, Point, Point, Point]>> = {
     { x: 0.07, y: 0.67 }, // 좌하단
   ],
   rightWall: [
-    { x: 0.505, y: 0.04 },  // 좌상단
-    { x: 0.935, y: 0.32 },  // 우상단
-    { x: 0.935, y: 0.675 },  // 우하단
+    { x: 0.505, y: 0.04 }, // 좌상단
+    { x: 0.935, y: 0.32 }, // 우상단
+    { x: 0.935, y: 0.675 }, // 우하단
     { x: 0.505, y: 0.395 }, // 좌하단
   ],
   floor: [
     { x: 0.065, y: 0.68 }, // 좌
     { x: 0.5, y: 0.395 }, // 상
-    { x: 0.935, y: 0.68 },  // 우
-    { x: 0.5, y: 0.96 },  // 하
+    { x: 0.935, y: 0.68 }, // 우
+    { x: 0.5, y: 0.96 }, // 하
   ],
 };
 

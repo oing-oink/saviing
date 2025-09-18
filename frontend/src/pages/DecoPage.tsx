@@ -34,14 +34,14 @@ const DecoPage = () => {
         <div className="relative z-10 mt-4 flex items-center justify-between p-4">
           <button
             onClick={() => navigate(PAGE_PATH.GAME)}
-            className="cursor-pointer rounded-full bg-transparent p-0 focus:outline-none focus:ring-1 focus:ring-primary active:scale-95 active:brightness-90"
+            className="cursor-pointer rounded-full bg-transparent p-0 focus:ring-1 focus:ring-primary focus:outline-none active:scale-95 active:brightness-90"
           >
             <img src={backButton} alt="back" className="h-10 w-10" />
           </button>
           <Coin />
           <button
             onClick={() => navigate(PAGE_PATH.SHOP)}
-            className="cursor-pointer rounded-full bg-transparent p-0 focus:outline-none focus:ring-1 focus:ring-primary active:scale-95 active:brightness-90"
+            className="cursor-pointer rounded-full bg-transparent p-0 focus:ring-1 focus:ring-primary focus:outline-none active:scale-95 active:brightness-90"
           >
             <img src={storeButton} alt="store" className="h-10 w-10" />
           </button>
@@ -57,7 +57,7 @@ const DecoPage = () => {
           <div className="relative z-10 my-2 text-center">
             <button
               onClick={handleSaveClick}
-              className="rounded-lg bg-primary px-8 py-2 text-xl font-bold tracking-widest text-white shadow-lg focus:outline-none focus:ring-1 focus:ring-primary active:scale-95 active:brightness-90"
+              className="rounded-lg bg-primary px-8 py-2 text-xl font-bold tracking-widest text-white shadow-lg focus:ring-1 focus:ring-primary focus:outline-none active:scale-95 active:brightness-90"
             >
               SAVE
             </button>
@@ -67,7 +67,10 @@ const DecoPage = () => {
 
           {/* 인벤토리는 클릭된 탭의 ID를 onCategoryClick으로 알려줍니다. */}
           <div className="relative z-10">
-            <Inventory items={mockInventoryItems} onCategoryClick={setGridType} />
+            <Inventory
+              items={mockInventoryItems}
+              onCategoryClick={setGridType}
+            />
           </div>
         </div>
 

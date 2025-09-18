@@ -1,4 +1,4 @@
-import type { GridType } from '../../room/hooks/useGrid';
+import type { GridType } from '@/features/game/room/hooks/useGrid';
 
 export interface Item {
   id: number;

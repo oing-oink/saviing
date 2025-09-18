@@ -8,7 +8,7 @@ import ItemDetailModal from './ItemDetailModal';
 interface InventoryProps {
   items: Item[];
   // **외부(부모 컴포넌트)에서 전달받은 클릭 이벤트 감지하여 함수 호출(존재할 경우에만)
-  onCategoryClick?: (tabId: TabId) => void; 
+  onCategoryClick?: (tabId: TabId) => void;
 }
 
 const Inventory = ({ items, onCategoryClick }: InventoryProps) => {
