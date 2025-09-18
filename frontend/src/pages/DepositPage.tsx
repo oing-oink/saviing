@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import AccountSummaryCard from '@/features/savings/components/deposit/AccountSummaryCard';
 import SourceAccountList from '@/features/savings/components/deposit/SourceAccountList';
 import DepositAmountPanel from '@/features/savings/components/deposit/DepositAmountPanel';
-import DepositPinModal from '@/features/savings/components/dialogs/DepositPinModal';
+import DepositPinDrawer from '@/features/savings/components/dialogs/DepositPinDrawer';
 import { useSavingsTransferForm } from '@/features/savings/hooks/useSavingsTransferForm';
 import {
   Accordion,
@@ -37,8 +37,6 @@ const DepositPage = () => {
     }
     return `${selectedAccount.bankName} ${selectedAccount.productName}`;
   }, [selectedAccount]);
-
-  const selectedAccountMasked = selectedAccount?.maskedNumber ?? '-';
 
   const handleOpenDialog = () => {
     setIsDialogOpen(true);
@@ -149,11 +147,10 @@ const DepositPage = () => {
         </div>
       </div>
 
-      <DepositPinModal
+      <DepositPinDrawer
         open={isDialogOpen}
         amount={amount}
         fromAccountName={selectedAccountName}
-        fromAccountNumber={selectedAccountMasked}
         onConfirm={handlePinSubmit}
         onClose={handleCloseDialog}
       />
