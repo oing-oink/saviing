@@ -1,16 +1,26 @@
 import { useState } from 'react';
 import { useAccountCreationStore } from '@/features/savings/store/useAccountCreationStore';
+import { useStepProgress } from '@/features/savings/hooks/useStepProgress';
 import { Button } from '@/shared/components/ui/button';
 
 const SetConditionStep = () => {
-  const { setStep, setForm, form } = useAccountCreationStore();
+  const { setForm, form } = useAccountCreationStore();
+  const { goToNextStep } = useStepProgress();
 
   const [depositAmount, setDepositAmount] = useState(
-    form.depositAmount ? String(form.depositAmount) : '',
+    'depositAmount' in form && form.depositAmount
+      ? String(form.depositAmount)
+      : '',
   );
-  const [transferDate, setTransferDate] = useState(form.transferDate || '');
-  const [period, setPeriod] = useState(form.period ? String(form.period) : '');
-  const [autoAccount, setAutoAccount] = useState(form.autoAccount || '');
+  const [transferDate, setTransferDate] = useState(
+    'transferDate' in form ? form.transferDate || '' : '',
+  );
+  const [period, setPeriod] = useState(
+    'period' in form && form.period ? String(form.period) : '',
+  );
+  const [autoAccount, setAutoAccount] = useState(
+    'autoAccount' in form ? form.autoAccount || '' : '',
+  );
 
   const isValid =
     depositAmount.trim() !== '' && transferDate && period && autoAccount;
@@ -25,7 +35,7 @@ const SetConditionStep = () => {
       period: Number(period),
       autoAccount,
     });
-    setStep('CONFIRM');
+    goToNextStep();
   };
 
   return (

@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useAccountCreationStore } from '@/features/savings/store/useAccountCreationStore';
+import { useStepProgress } from '@/features/savings/hooks/useStepProgress';
 import { Button } from '@/shared/components/ui/button';
 
 const AuthStep = () => {
-  const { setStep, setForm } = useAccountCreationStore();
+  const { setForm } = useAccountCreationStore();
+  const { goToNextStep } = useStepProgress();
   const [selected, setSelected] = useState(false);
 
   // 다음 단계로 이동
@@ -12,7 +14,7 @@ const AuthStep = () => {
       return;
     }
     setForm({ authMethod: '휴대폰 본인인증' });
-    setStep('TERMS'); //
+    goToNextStep();
   };
 
   return (
