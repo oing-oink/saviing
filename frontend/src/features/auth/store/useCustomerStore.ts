@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { LoginResponse, Customer } from '../types/authTypes';
+import type { LoginResponse, Customer } from '@/features/auth/types/authTypes';
 
 interface CustomerStoreState {
   // 사용자 정보
@@ -26,7 +26,7 @@ const STORAGE_KEYS = {
 /**
  * Customer 정보와 인증 상태를 관리하는 Zustand 스토어
  */
-export const useCustomerStore = create<CustomerStoreState>((set, get) => ({
+export const useCustomerStore = create<CustomerStoreState>((set, _) => ({
   // 초기 상태
   customer: null,
   accessToken: null,

@@ -18,7 +18,9 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
   // 인증되지 않은 경우 온보딩 페이지로 리다이렉트
   if (!isAuthenticated) {
-    return <Navigate to={PAGE_PATH.ONBOARDING} state={{ from: location }} replace />;
+    return (
+      <Navigate to={PAGE_PATH.ONBOARDING} state={{ from: location }} replace />
+    );
   }
 
   return <>{children}</>;

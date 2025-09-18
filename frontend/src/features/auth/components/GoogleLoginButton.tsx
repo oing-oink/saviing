@@ -3,7 +3,10 @@ interface GoogleLoginButtonProps {
   disabled?: boolean;
 }
 
-const GoogleLoginButton = ({ onClick, disabled = false }: GoogleLoginButtonProps) => {
+const GoogleLoginButton = ({
+  onClick,
+  disabled = false,
+}: GoogleLoginButtonProps) => {
   return (
     <button
       onClick={onClick}

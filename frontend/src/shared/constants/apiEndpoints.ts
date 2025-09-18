@@ -12,7 +12,8 @@ const API_DOMAINS = {
 
 // 환경변수로 어떤 도메인과 환경을 사용할지 결정
 // VITE_API_DOMAIN=BANK, VITE_API_ENV=DEV 형태로 설정
-const selectedDomain = (import.meta.env.VITE_API_DOMAIN || 'BANK') as keyof typeof API_DOMAINS;
+const selectedDomain = (import.meta.env.VITE_API_DOMAIN ||
+  'BANK') as keyof typeof API_DOMAINS;
 const selectedEnv = (import.meta.env.VITE_API_ENV || 'DEV') as 'DEV' | 'PROD';
 
 // 현재 선택된 API URL

@@ -29,18 +29,18 @@ const OnboardingPage = () => {
     const getImageClass = (id: string) => {
       if (id === 'intro_2') {
         // intro_2는 가로가 긴 이미지 - 슬라이드에 꽉 채우기
-        return "mb-4 h-48 w-full object-cover object-top rounded-lg";
+        return 'mb-4 h-48 w-full object-cover object-top rounded-lg';
       }
       if (id === 'intro_4') {
         // intro_4(2번째) 이미지를 가로로 꽉 채우기
-        return "mb-4 h-48 w-full object-cover object-top rounded-lg";
+        return 'mb-4 h-48 w-full object-cover object-top rounded-lg';
       }
       if (id === 'intro_3') {
         // intro_3(4번째) 이미지 - 아래쪽 더 많이 자르기
-        return "mb-4 h-48 w-full object-cover object-top rounded-lg";
+        return 'mb-4 h-48 w-full object-cover object-top rounded-lg';
       }
       // intro_1은 세로가 긴 이미지 - 아래쪽 더 많이 자르기
-      return "mb-4 h-48 w-full object-cover object-top rounded-lg";
+      return 'mb-4 h-48 w-full object-cover object-top rounded-lg';
     };
 
     return (

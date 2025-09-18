@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { getGoogleOAuthUrl } from '../api/authApi';
+import { getGoogleOAuthUrl } from '@/features/auth/api/authApi';
 
 export const useGoogleLogin = () => {
   const startGoogleLogin = useCallback(() => {

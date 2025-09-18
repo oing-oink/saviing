@@ -31,7 +31,11 @@ const CustomCarousel = ({
   renderSlide,
   className = '',
 }: CustomCarouselProps) => {
-  const plugin = useRef(autoplay ? Autoplay({ delay: autoplayDelay, stopOnInteraction: true }) : null);
+  const plugin = useRef(
+    autoplay
+      ? Autoplay({ delay: autoplayDelay, stopOnInteraction: true })
+      : null,
+  );
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
 
@@ -51,7 +55,9 @@ const CustomCarousel = ({
     <div className="flex items-center justify-between rounded-2xl bg-white p-5">
       <div>
         <p className="text-sm font-bold text-black">{slide.title}</p>
-        {slide.subtitle && <p className="text-xs text-gray-600">{slide.subtitle}</p>}
+        {slide.subtitle && (
+          <p className="text-xs text-gray-600">{slide.subtitle}</p>
+        )}
       </div>
       <img
         src={slide.image}
@@ -72,7 +78,9 @@ const CustomCarousel = ({
         <CarouselContent className="-ml-2">
           {slides.map((slide, index) => (
             <CarouselItem key={slide.id} className="bg-transparent pl-2">
-              {renderSlide ? renderSlide(slide, index) : defaultRenderSlide(slide)}
+              {renderSlide
+                ? renderSlide(slide, index)
+                : defaultRenderSlide(slide)}
             </CarouselItem>
           ))}
         </CarouselContent>

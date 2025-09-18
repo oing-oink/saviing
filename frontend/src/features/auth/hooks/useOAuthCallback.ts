@@ -27,13 +27,21 @@ export const useOAuthCallback = () => {
 
       // OAuth 에러가 있는 경우
       if (error) {
-        setState({ isLoading: false, error: 'Google 로그인이 취소되었습니다.', isSuccess: false });
+        setState({
+          isLoading: false,
+          error: 'Google 로그인이 취소되었습니다.',
+          isSuccess: false,
+        });
         return;
       }
 
       // 코드가 없는 경우
       if (!code) {
-        setState({ isLoading: false, error: '인증 코드를 찾을 수 없습니다.', isSuccess: false });
+        setState({
+          isLoading: false,
+          error: '인증 코드를 찾을 수 없습니다.',
+          isSuccess: false,
+        });
         return;
       }
 
@@ -50,7 +58,6 @@ export const useOAuthCallback = () => {
 
         // 홈페이지로 리다이렉트
         navigate('/');
-
       } catch (error) {
         console.error('로그인 실패:', error);
         setState({

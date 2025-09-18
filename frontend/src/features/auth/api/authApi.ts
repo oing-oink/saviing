@@ -1,6 +1,6 @@
 import { api } from '@/shared/services/api/axiosClient';
 import { API_ENDPOINTS } from '@/shared/constants/apiEndpoints';
-import type { LoginResponse } from '../types/authTypes';
+import type { LoginResponse } from '@/features/auth/types/authTypes';
 
 /**
  * 구글 OAuth 코드로 로그인
