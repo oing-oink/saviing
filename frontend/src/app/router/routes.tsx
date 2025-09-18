@@ -4,6 +4,7 @@ import { useCustomerStore } from '@/features/auth/store/useCustomerStore';
 import ProtectedRoute from '@/shared/components/common/ProtectedRoute';
 import SavingsLayout from '@/features/savings/components/SavingsLayout';
 import { PAGE_PATH } from '@/shared/constants/path';
+import AccountCreationFunnel from '@/features/savings/components/AccountCreationFunnel';
 
 // Pages
 import HomePage from '@/pages/HomePage';
@@ -45,6 +46,7 @@ const protectedRoutesWithoutLayout = [
   { path: PAGE_PATH.GACHA, element: <GachaPage /> },
   { path: PAGE_PATH.GACHA_ROLLING, element: <GachaRollingPage /> },
   { path: PAGE_PATH.DECO, element: <DecoPage /> },
+  { path: PAGE_PATH.ACCOUNT_CREATION, element: <AccountCreationFunnel /> },
 ];
 
 // 공개 라우트 정의 (인증 불필요)
