@@ -2,6 +2,7 @@ package saviing.bank.auth.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -50,7 +51,7 @@ public class AuthController {
     @PostMapping("/logout")
     public ApiResult<Void> logout(@CookieValue("refresh_token") String refreshToken) {
         // Refresh Token 검증 및 쿠키 삭제
-        var expiredCookie = oAuth2TokenService.logout(refreshToken);
+        ResponseCookie expiredCookie = oAuth2TokenService.logout(refreshToken);
 
         return ApiResult.ok(null)
             .cookie(expiredCookie);
