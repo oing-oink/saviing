@@ -58,7 +58,6 @@ const TermsStep = () => {
 
   return (
     <FunnelLayout>
-
       {/* 메인 컨텐츠 */}
       <div className="flex flex-1 flex-col px-6 py-8">
         <h1 className="mb-2 text-xl font-bold text-gray-900">

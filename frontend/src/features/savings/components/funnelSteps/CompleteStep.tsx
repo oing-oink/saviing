@@ -13,7 +13,6 @@ const CompleteStep = () => {
 
   return (
     <FunnelLayout>
-
       {/* 메인 컨텐츠 */}
       <div className="flex flex-1 flex-col items-center justify-center px-6 py-12 text-center">
         {/* 체크 아이콘 */}
