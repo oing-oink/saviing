@@ -76,7 +76,7 @@ public class ShopService {
             return PurchaseResult.builder()
                 .item(item)
                 .character(characterResult)
-                .paymentMethod(command.paymentMethod())
+                .paymentMethod(command.paymentMethod().getCurrency())
                 .build();
 
         } catch (PurchaseException e) {
@@ -103,12 +103,13 @@ public class ShopService {
      * @return 저장된 구매 기록
      */
     private PurchaseRecord savePurchaseRecord(PurchaseItemCommand command, ItemResult item, Integer paidAmount) {
-        String paidCurrency = "COIN".equals(command.paymentMethod()) ? "COIN" : "FISH_COIN";
+        PaymentMethod paymentMethod = command.paymentMethod();
+        String paidCurrency = paymentMethod.getCurrency();
 
         PurchaseRecord purchaseRecord = PurchaseRecord.builder()
             .characterId(command.characterId())
             .itemId(command.itemId())
-            .paymentMethod(PaymentMethod.valueOf(command.paymentMethod()))
+            .paymentMethod(paymentMethod)
             .paidAmount(paidAmount)
             .paidCurrency(paidCurrency)
             .build();
@@ -128,18 +129,19 @@ public class ShopService {
         log.info("아이템 검증 시작: itemId={}", command.itemId());
 
         try {
+            PaymentMethod paymentMethod = command.paymentMethod();
             ItemResult item = itemQueryService.getItem(GetItemQuery.builder().itemId(command.itemId()).build());
 
             if (!item.isAvailable()) {
                 throw PurchaseException.itemUnavailable(command.itemId());
             }
 
-            if ("COIN".equals(command.paymentMethod()) && (item.coin() == null || item.coin() <= 0)) {
-                throw PurchaseException.paymentMethodNotSupported(command.itemId(), "COIN");
+            if (paymentMethod.isCoin() && (item.coin() == null || item.coin() <= 0)) {
+                throw PurchaseException.paymentMethodNotSupported(command.itemId(), paymentMethod);
             }
 
-            if ("FISH_COIN".equals(command.paymentMethod()) && (item.fishCoin() == null || item.fishCoin() <= 0)) {
-                throw PurchaseException.paymentMethodNotSupported(command.itemId(), "FISH_COIN");
+            if (paymentMethod.isFishCoin() && (item.fishCoin() == null || item.fishCoin() <= 0)) {
+                throw PurchaseException.paymentMethodNotSupported(command.itemId(), paymentMethod);
             }
 
             log.info("아이템 검증 완료: itemId={}, itemName={}", item.itemId(), item.itemName());
@@ -164,18 +166,19 @@ public class ShopService {
         log.info("자금 차감 시작: characterId={}, paymentMethod={}", command.characterId(), command.paymentMethod());
 
         try {
+            PaymentMethod paymentMethod = command.paymentMethod();
             Integer coinAmount = null;
             Integer fishCoinAmount = null;
 
-            if ("COIN".equals(command.paymentMethod())) {
+            if (paymentMethod.isCoin()) {
                 coinAmount = item.coin();
-            } else if ("FISH_COIN".equals(command.paymentMethod())) {
+            } else if (paymentMethod.isFishCoin()) {
                 fishCoinAmount = item.fishCoin();
             }
 
             // 잔액 확인
             if (!characterQueryService.hasSufficientFunds(command.characterId(), coinAmount, fishCoinAmount)) {
-                throw PurchaseException.insufficientFunds(command.characterId(), command.paymentMethod());
+                throw PurchaseException.insufficientFunds(command.characterId(), paymentMethod);
             }
 
             // 자금 차감
