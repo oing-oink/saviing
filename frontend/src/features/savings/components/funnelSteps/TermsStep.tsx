@@ -15,17 +15,13 @@ const TermsStep = () => {
   const { goToNextStep } = useStepProgress();
 
   const [allChecked, setAllChecked] = useState(
-    Boolean(
-      form.terms?.service && form.terms?.privacy && form.terms?.marketing,
-    ),
+    Boolean(form.terms.service && form.terms.privacy && form.terms.marketing),
   );
   const [requiredChecked, setRequiredChecked] = useState({
-    service: form.terms?.service || false,
-    privacy: form.terms?.privacy || false,
+    service: form.terms.service,
+    privacy: form.terms.privacy,
   });
-  const [optionalChecked, setOptionalChecked] = useState(
-    form.terms?.marketing || false,
-  );
+  const [optionalChecked, setOptionalChecked] = useState(form.terms.marketing);
   const [openDialog, setOpenDialog] = useState<
     null | 'service' | 'privacy' | 'marketing'
   >(null);

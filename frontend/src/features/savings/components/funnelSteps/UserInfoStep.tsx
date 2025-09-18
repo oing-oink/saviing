@@ -6,9 +6,9 @@ import { Button } from '@/shared/components/ui/button';
 const UserInfoStep = () => {
   const { setForm, form } = useAccountCreationStore();
   const { goToNextStep } = useStepProgress();
-  const [name, setName] = useState(form.name || '');
-  const [birth, setBirth] = useState(form.birth || '');
-  const [phone, setPhone] = useState(form.phone || '');
+  const [name, setName] = useState(form.name);
+  const [birth, setBirth] = useState(form.birth);
+  const [phone, setPhone] = useState(form.phone);
 
   const isValid = name.trim() && birth.trim() && phone.trim();
 

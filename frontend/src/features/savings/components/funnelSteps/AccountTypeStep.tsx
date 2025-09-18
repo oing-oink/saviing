@@ -11,7 +11,7 @@ const AccountTypeStep = () => {
   const { setForm, form } = useAccountCreationStore();
   const { goToNextStep } = useStepProgress();
   const [selected, setSelected] = useState<AccountType | null>(
-    form.productType || null,
+    form.productType,
   );
 
   const handleNext = () => {
