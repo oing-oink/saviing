@@ -1,7 +1,5 @@
 package saviing.bank.transaction.adapter.in.web.dto.request;
 
-import java.time.LocalDate;
-
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
@@ -14,10 +12,8 @@ public record TransferRequest(
     @NotNull @Positive Long sourceAccountId,
     @NotNull @Positive Long targetAccountId,
     @NotNull @Positive Long amount,
-    @NotNull LocalDate valueDate,
     String memo,
-    String idempotencyKey,
-    String transferType
+    String idempotencyKey
 ) {
 
     /**
@@ -28,8 +24,6 @@ public record TransferRequest(
             sourceAccountId,
             targetAccountId,
             amount,
-            valueDate,
-            transferType,
             memo,
             idempotencyKey
         );

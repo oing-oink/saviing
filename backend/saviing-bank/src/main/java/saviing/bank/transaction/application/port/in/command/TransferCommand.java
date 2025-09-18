@@ -42,8 +42,6 @@ public record TransferCommand(
         Long sourceAccountId,
         Long targetAccountId,
         Long amount,
-        LocalDate valueDate,
-        String transferType,
         String memo,
         String idempotencyKey
     ) {
@@ -51,13 +49,31 @@ public record TransferCommand(
             .sourceAccountId(sourceAccountId)
             .targetAccountId(targetAccountId)
             .amount(MoneyWon.of(amount))
-            .valueDate(valueDate)
-            .transferType(transferType != null ?
-                TransferType.valueOf(transferType) : TransferType.INTERNAL)
             .memo(memo)
-            .idempotencyKey(idempotencyKey != null ?
-                IdempotencyKey.of(idempotencyKey) : null)
-            .requestedAt(Instant.now())
+            .idempotencyKey(idempotencyKey != null ? IdempotencyKey.of(idempotencyKey) : null)
             .build();
+    }
+
+    public static class TransferCommandBuilder {
+        private LocalDate valueDate;
+        private TransferType transferType;
+        private Instant requestedAt;
+
+        public TransferCommand build() {
+            LocalDate resolvedValueDate = valueDate != null ? valueDate : LocalDate.now();
+            TransferType resolvedTransferType = transferType != null ? transferType : TransferType.INTERNAL;
+            Instant resolvedRequestedAt = requestedAt != null ? requestedAt : Instant.now();
+
+            return new TransferCommand(
+                sourceAccountId,
+                targetAccountId,
+                amount,
+                resolvedValueDate,
+                resolvedTransferType,
+                memo,
+                idempotencyKey,
+                resolvedRequestedAt
+            );
+        }
     }
 }

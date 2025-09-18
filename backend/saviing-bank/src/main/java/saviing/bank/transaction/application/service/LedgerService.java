@@ -43,15 +43,18 @@ public class LedgerService {
         LocalDate valueDate,
         TransferType transferType
     ) {
+        if (sourceAccountId == null) {
+            throw new IllegalArgumentException("sourceAccountId must not be null");
+        }
+
         Transfer ledgerPair = null;
 
-        if (idempotencyKey != null) {
-            ledgerPair = ledgerPersistencePort.findByIdempotencyKey(idempotencyKey)
+        if (idempotencyKey != null && sourceAccountId != null) {
+            ledgerPair = ledgerPersistencePort.findBySourceAccountIdAndIdempotencyKey(sourceAccountId, idempotencyKey)
                 .orElse(null);
         }
 
         if (ledgerPair == null) {
-            // 새 송금의 첫 호출이면 Transfer를 생성한다.
             ledgerPair = createNewPair(
                 sourceAccountId,
                 targetAccountId,
@@ -92,13 +95,22 @@ public class LedgerService {
      * 출금/입금 엔트리가 POSTED 상태가 되었음을 기록한다.
      */
     public TransferSnapshot markEntryPosted(
+        Long sourceAccountId,
         IdempotencyKey idempotencyKey,
         TransactionDirection direction,
         TransactionId transactionId,
         Instant postedAt
     ) {
-        Transfer ledgerPair = ledgerPersistencePort.findByIdempotencyKey(idempotencyKey)
-            .orElseThrow(() -> new LedgerNotFoundException(Map.of("idempotencyKey", idempotencyKey.value())));
+        if (sourceAccountId == null) {
+            throw new IllegalArgumentException("sourceAccountId must not be null");
+        }
+        Transfer ledgerPair = ledgerPersistencePort.findBySourceAccountIdAndIdempotencyKey(sourceAccountId, idempotencyKey)
+            .orElseThrow(() -> new LedgerNotFoundException(
+                Map.of(
+                    "sourceAccountId", String.valueOf(sourceAccountId),
+                    "idempotencyKey", idempotencyKey.value()
+                )
+            ));
 
         if (ledgerPair.getStatus() == TransferStatus.FAILED || ledgerPair.getStatus() == TransferStatus.VOID) {
             throw new InvalidLedgerStateException("Cannot post entry for transfer in status " + ledgerPair.getStatus());
@@ -112,9 +124,17 @@ public class LedgerService {
     /**
      * 송금이 실패했음을 기록한다.
      */
-    public TransferSnapshot markTransferFailed(IdempotencyKey idempotencyKey, String reason) {
-        Transfer ledgerPair = ledgerPersistencePort.findByIdempotencyKey(idempotencyKey)
-            .orElseThrow(() -> new LedgerNotFoundException(Map.of("idempotencyKey", idempotencyKey.value())));
+    public TransferSnapshot markTransferFailed(Long sourceAccountId, IdempotencyKey idempotencyKey, String reason) {
+        if (sourceAccountId == null) {
+            throw new IllegalArgumentException("sourceAccountId must not be null");
+        }
+        Transfer ledgerPair = ledgerPersistencePort.findBySourceAccountIdAndIdempotencyKey(sourceAccountId, idempotencyKey)
+            .orElseThrow(() -> new LedgerNotFoundException(
+                Map.of(
+                    "sourceAccountId", String.valueOf(sourceAccountId),
+                    "idempotencyKey", idempotencyKey.value()
+                )
+            ));
         ledgerPair.markFailed(reason, Instant.now());
         Transfer updated = ledgerPersistencePort.saveAndFlush(ledgerPair);
         return updated.toSnapshot();
@@ -123,9 +143,17 @@ public class LedgerService {
     /**
      * 송금이 성공적으로 정산되었음을 기록한다.
      */
-    public TransferSnapshot markTransferSettled(IdempotencyKey idempotencyKey, Instant settledAt) {
-        Transfer ledgerPair = ledgerPersistencePort.findByIdempotencyKey(idempotencyKey)
-            .orElseThrow(() -> new LedgerNotFoundException(Map.of("idempotencyKey", idempotencyKey.value())));
+    public TransferSnapshot markTransferSettled(Long sourceAccountId, IdempotencyKey idempotencyKey, Instant settledAt) {
+        if (sourceAccountId == null) {
+            throw new IllegalArgumentException("sourceAccountId must not be null");
+        }
+        Transfer ledgerPair = ledgerPersistencePort.findBySourceAccountIdAndIdempotencyKey(sourceAccountId, idempotencyKey)
+            .orElseThrow(() -> new LedgerNotFoundException(
+                Map.of(
+                    "sourceAccountId", String.valueOf(sourceAccountId),
+                    "idempotencyKey", idempotencyKey.value()
+                )
+            ));
         ledgerPair.markSettled(settledAt);
         Transfer updated = ledgerPersistencePort.saveAndFlush(ledgerPair);
         return updated.toSnapshot();
@@ -135,8 +163,11 @@ public class LedgerService {
      * 현재 송금 상태를 조회한다.
      */
     @Transactional(readOnly = true)
-    public TransferStatus getStatus(IdempotencyKey idempotencyKey) {
-        return ledgerPersistencePort.findByIdempotencyKey(idempotencyKey)
+    public TransferStatus getStatus(Long sourceAccountId, IdempotencyKey idempotencyKey) {
+        if (sourceAccountId == null) {
+            throw new IllegalArgumentException("sourceAccountId must not be null");
+        }
+        return ledgerPersistencePort.findBySourceAccountIdAndIdempotencyKey(sourceAccountId, idempotencyKey)
             .map(Transfer::getStatus)
             .orElse(TransferStatus.REQUESTED);
     }

@@ -18,7 +18,6 @@ public record LedgerEntrySnapshot(
     LedgerEntryStatus status,
     LocalDate valueDate,
     Instant postedAt,
-    IdempotencyKey idempotencyKey,
     TransactionId transactionId,
     Instant createdAt,
     Instant updatedAt

@@ -3,6 +3,8 @@ package saviing.bank.transaction.application.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -71,7 +73,6 @@ class TransferServiceTest {
             LedgerEntryStatus.POSTED,
             LocalDate.now(),
             Instant.now(),
-            null,
             TransactionId.of(10L),
             Instant.now(),
             Instant.now()
@@ -84,7 +85,6 @@ class TransferServiceTest {
             LedgerEntryStatus.POSTED,
             LocalDate.now(),
             Instant.now(),
-            null,
             TransactionId.of(11L),
             Instant.now(),
             Instant.now()
@@ -93,6 +93,10 @@ class TransferServiceTest {
             TransferType.INTERNAL,
             TransferStatus.SETTLED,
             idempotencyKey,
+            100L,
+            200L,
+            MoneyWon.of(1000L),
+            LocalDate.now(),
             List.of(debitSnapshot, creditSnapshot),
             Instant.now().minusSeconds(5),
             Instant.now(),
@@ -123,9 +127,16 @@ class TransferServiceTest {
         TransferResult result = transferService.transfer(command);
 
         // then
+        assertThat(result.idempotencyKey()).isEqualTo(idempotencyKey);
+        assertThat(result.sourceAccountId()).isEqualTo(100L);
+        assertThat(result.targetAccountId()).isEqualTo(200L);
+        assertThat(result.amount().amount()).isEqualTo(1000L);
+        assertThat(result.valueDate()).isEqualTo(settledSnapshot.valueDate());
         assertThat(result.status()).isEqualTo(TransferStatus.SETTLED);
         assertThat(result.debitTransactionId()).isEqualTo(TransactionId.of(10L));
         assertThat(result.creditTransactionId()).isEqualTo(TransactionId.of(11L));
+        assertThat(result.requestedAt()).isEqualTo(settledSnapshot.createdAt());
+        assertThat(result.completedAt()).isEqualTo(settledSnapshot.updatedAt());
         verifyNoInteractions(accountInternalApi, saveTransactionPort);
     }
 
@@ -169,7 +180,7 @@ class TransferServiceTest {
             .thenThrow(new RuntimeException("Transaction creation failed")) // 첫 번째 호출
             .thenReturn(TransactionId.of(999L)); // 두 번째 호출 (보상)
 
-        when(ledgerService.markTransferFailed(any(), any()))
+        when(ledgerService.markTransferFailed(anyLong(), any(), anyString()))
             .thenReturn(failedSnapshot);
 
         TransferCommand command = TransferCommand.builder()
@@ -190,7 +201,7 @@ class TransferServiceTest {
 
         // then - 보상 트랜잭션이 실행되었는지 확인
         verify(accountInternalApi).deposit(DepositAccountRequest.of(100L, 1000L));
-        verify(ledgerService).markTransferFailed(eq(idempotencyKey), any(String.class));
+        verify(ledgerService).markTransferFailed(eq(100L), eq(idempotencyKey), any(String.class));
     }
 
     @Test
@@ -228,7 +239,7 @@ class TransferServiceTest {
                 new BalanceUpdateResponse(100L, 4000L, 5000L, 1000L)
             ));
 
-        when(ledgerService.markTransferFailed(any(), any()))
+        when(ledgerService.markTransferFailed(anyLong(), any(), anyString()))
             .thenReturn(failedSnapshot);
 
         TransferCommand command = TransferCommand.builder()
@@ -274,7 +285,7 @@ class TransferServiceTest {
         when(accountInternalApi.withdraw(any(WithdrawAccountRequest.class)))
             .thenThrow(new RuntimeException("Insufficient balance"));
 
-        when(ledgerService.markTransferFailed(any(), any()))
+        when(ledgerService.markTransferFailed(anyLong(), any(), anyString()))
             .thenReturn(failedSnapshot);
 
         TransferCommand command = TransferCommand.builder()
@@ -300,34 +311,52 @@ class TransferServiceTest {
     private TransferSnapshot createRequestedSnapshot(IdempotencyKey idempotencyKey) {
         LedgerEntrySnapshot debitSnapshot = new LedgerEntrySnapshot(
             1L, 100L, TransactionDirection.DEBIT, MoneyWon.of(1000L),
-            LedgerEntryStatus.REQUESTED, LocalDate.now(), null, null, null,
+            LedgerEntryStatus.REQUESTED, LocalDate.now(), null, null,
             Instant.now(), Instant.now()
         );
         LedgerEntrySnapshot creditSnapshot = new LedgerEntrySnapshot(
             2L, 200L, TransactionDirection.CREDIT, MoneyWon.of(1000L),
-            LedgerEntryStatus.REQUESTED, LocalDate.now(), null, null, null,
+            LedgerEntryStatus.REQUESTED, LocalDate.now(), null, null,
             Instant.now(), Instant.now()
         );
         return new TransferSnapshot(
-            TransferType.INTERNAL, TransferStatus.REQUESTED, idempotencyKey,
-            List.of(debitSnapshot, creditSnapshot), Instant.now(), Instant.now(), null
+            TransferType.INTERNAL,
+            TransferStatus.REQUESTED,
+            idempotencyKey,
+            100L,
+            200L,
+            MoneyWon.of(1000L),
+            LocalDate.now(),
+            List.of(debitSnapshot, creditSnapshot),
+            Instant.now(),
+            Instant.now(),
+            null
         );
     }
 
     private TransferSnapshot createFailedSnapshot(IdempotencyKey idempotencyKey) {
         LedgerEntrySnapshot debitSnapshot = new LedgerEntrySnapshot(
             1L, 100L, TransactionDirection.DEBIT, MoneyWon.of(1000L),
-            LedgerEntryStatus.FAILED, LocalDate.now(), null, null, null,
+            LedgerEntryStatus.FAILED, LocalDate.now(), null, null,
             Instant.now(), Instant.now()
         );
         LedgerEntrySnapshot creditSnapshot = new LedgerEntrySnapshot(
             2L, 200L, TransactionDirection.CREDIT, MoneyWon.of(1000L),
-            LedgerEntryStatus.FAILED, LocalDate.now(), null, null, null,
+            LedgerEntryStatus.FAILED, LocalDate.now(), null, null,
             Instant.now(), Instant.now()
         );
         return new TransferSnapshot(
-            TransferType.INTERNAL, TransferStatus.FAILED, idempotencyKey,
-            List.of(debitSnapshot, creditSnapshot), Instant.now(), Instant.now(), "Test failure"
+            TransferType.INTERNAL,
+            TransferStatus.FAILED,
+            idempotencyKey,
+            100L,
+            200L,
+            MoneyWon.of(1000L),
+            LocalDate.now(),
+            List.of(debitSnapshot, creditSnapshot),
+            Instant.now(),
+            Instant.now(),
+            "Test failure"
         );
     }
 }

@@ -23,6 +23,10 @@ public class Transfer {
     private final TransferType transferType;
     private TransferStatus status;
     private final IdempotencyKey idempotencyKey;
+    private final Long sourceAccountId;
+    private final Long targetAccountId;
+    private final MoneyWon amount;
+    private final LocalDate valueDate;
     private final List<LedgerEntry> entries;
     private final Instant createdAt;
     private Instant updatedAt;
@@ -43,6 +47,10 @@ public class Transfer {
         TransferType transferType,
         TransferStatus status,
         IdempotencyKey idempotencyKey,
+        Long sourceAccountId,
+        Long targetAccountId,
+        MoneyWon amount,
+        LocalDate valueDate,
         List<LedgerEntry> entries,
         Instant createdAt,
         Instant updatedAt,
@@ -51,10 +59,15 @@ public class Transfer {
         this.transferType = Objects.requireNonNull(transferType, "transferType must not be null");
         this.status = Objects.requireNonNull(status, "status must not be null");
         this.idempotencyKey = idempotencyKey;
+        this.sourceAccountId = Objects.requireNonNull(sourceAccountId, "sourceAccountId must not be null");
+        this.targetAccountId = Objects.requireNonNull(targetAccountId, "targetAccountId must not be null");
+        this.amount = Objects.requireNonNull(amount, "amount must not be null");
+        this.valueDate = Objects.requireNonNull(valueDate, "valueDate must not be null");
         this.entries = new ArrayList<>(Objects.requireNonNull(entries, "entries must not be null"));
         this.createdAt = Objects.requireNonNull(createdAt, "createdAt must not be null");
         this.updatedAt = Objects.requireNonNull(updatedAt, "updatedAt must not be null");
         this.failureReason = failureReason;
+        validateEntriesConsistency();
     }
 
     /**
@@ -83,7 +96,6 @@ public class Transfer {
             TransactionDirection.DEBIT,
             amount,
             valueDate,
-            idempotencyKey,
             now
         );
         LedgerEntry credit = LedgerEntry.create(
@@ -91,13 +103,16 @@ public class Transfer {
             TransactionDirection.CREDIT,
             amount,
             valueDate,
-            idempotencyKey,
             now
         );
         return new Transfer(
             transferType,
             TransferStatus.REQUESTED,
             idempotencyKey,
+            sourceAccountId,
+            targetAccountId,
+            amount,
+            valueDate,
             List.of(debit, credit),
             now,
             now,
@@ -111,6 +126,10 @@ public class Transfer {
      * @param transferType 송금 유형
      * @param status 송금 상태
      * @param idempotencyKey 멱등키
+     * @param sourceAccountId 출금 계좌 ID
+     * @param targetAccountId 입금 계좌 ID
+     * @param amount 송금 금액
+     * @param valueDate 가치일
      * @param entries 원장 엔트리 목록
      * @param createdAt 생성 시각
      * @param updatedAt 수정 시각
@@ -121,12 +140,28 @@ public class Transfer {
         TransferType transferType,
         TransferStatus status,
         IdempotencyKey idempotencyKey,
+        Long sourceAccountId,
+        Long targetAccountId,
+        MoneyWon amount,
+        LocalDate valueDate,
         List<LedgerEntry> entries,
         Instant createdAt,
         Instant updatedAt,
         String failureReason
     ) {
-        return new Transfer(transferType, status, idempotencyKey, entries, createdAt, updatedAt, failureReason);
+        return new Transfer(
+            transferType,
+            status,
+            idempotencyKey,
+            sourceAccountId,
+            targetAccountId,
+            amount,
+            valueDate,
+            entries,
+            createdAt,
+            updatedAt,
+            failureReason
+        );
     }
 
 
@@ -137,6 +172,34 @@ public class Transfer {
      */
     public TransferType getTransferType() {
         return transferType;
+    }
+
+    /**
+     * 출금 계좌 ID를 반환한다
+     */
+    public Long getSourceAccountId() {
+        return sourceAccountId;
+    }
+
+    /**
+     * 입금 계좌 ID를 반환한다
+     */
+    public Long getTargetAccountId() {
+        return targetAccountId;
+    }
+
+    /**
+     * 송금 금액을 반환한다
+     */
+    public MoneyWon getAmount() {
+        return amount;
+    }
+
+    /**
+     * 가치일을 반환한다
+     */
+    public LocalDate getValueDate() {
+        return valueDate;
     }
 
     /**
@@ -191,6 +254,30 @@ public class Transfer {
      */
     public String getFailureReason() {
         return failureReason;
+    }
+
+    private void validateEntriesConsistency() {
+        if (entries.size() != 2) {
+            throw new InvalidLedgerStateException("Transfer must have exactly two ledger entries");
+        }
+
+        LedgerEntry debit = getEntry(TransactionDirection.DEBIT);
+        LedgerEntry credit = getEntry(TransactionDirection.CREDIT);
+
+        if (!Objects.equals(debit.getAccountId(), sourceAccountId)) {
+            throw new InvalidLedgerStateException("Debit entry account does not match sourceAccountId");
+        }
+        if (!Objects.equals(credit.getAccountId(), targetAccountId)) {
+            throw new InvalidLedgerStateException("Credit entry account does not match targetAccountId");
+        }
+
+        if (!debit.getAmount().equals(amount) || !credit.getAmount().equals(amount)) {
+            throw new InvalidLedgerStateException("Ledger entry amounts do not match transfer amount");
+        }
+
+        if (!debit.getValueDate().equals(valueDate) || !credit.getValueDate().equals(valueDate)) {
+            throw new InvalidLedgerStateException("Ledger entry value dates do not match transfer value date");
+        }
     }
 
     /**
@@ -268,6 +355,10 @@ public class Transfer {
             transferType,
             status,
             idempotencyKey,
+            sourceAccountId,
+            targetAccountId,
+            amount,
+            valueDate,
             snapshots,
             createdAt,
             updatedAt,

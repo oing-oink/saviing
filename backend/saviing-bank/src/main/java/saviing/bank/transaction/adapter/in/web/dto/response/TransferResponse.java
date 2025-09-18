@@ -1,6 +1,7 @@
 package saviing.bank.transaction.adapter.in.web.dto.response;
 
 import java.time.Instant;
+import java.time.LocalDate;
 
 import saviing.bank.transaction.application.port.in.result.TransferResult;
 
@@ -8,10 +9,15 @@ import saviing.bank.transaction.application.port.in.result.TransferResult;
  * 송금 처리 결과를 REST 응답으로 제공하기 위한 DTO.
  */
 public record TransferResponse(
-    Long debitTransactionId,
-    Long creditTransactionId,
+    String idempotencyKey,
+    Long sourceAccountId,
+    Long targetAccountId,
+    Long amount,
+    LocalDate valueDate,
     String status,
-    Instant completedAt
+    Instant requestedAt,
+    Instant completedAt,
+    String failureReason
 ) {
 
     /**
@@ -19,10 +25,15 @@ public record TransferResponse(
      */
     public static TransferResponse from(TransferResult result) {
         return new TransferResponse(
-            result.debitTransactionId() != null ? result.debitTransactionId().value() : null,
-            result.creditTransactionId() != null ? result.creditTransactionId().value() : null,
+            result.idempotencyKey() != null ? result.idempotencyKey().value() : null,
+            result.sourceAccountId(),
+            result.targetAccountId(),
+            result.amount() != null ? result.amount().amount() : null,
+            result.valueDate(),
             result.status().name(),
-            result.completedAt()
+            result.requestedAt(),
+            result.completedAt(),
+            result.failureReason()
         );
     }
 }

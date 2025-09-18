@@ -1,6 +1,7 @@
 package saviing.bank.transaction.adapter.out.persistence.entity.ledger;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,10 +35,12 @@ import saviing.common.annotation.ExecutionTime;
 @Table(
     name = "transfer",
     uniqueConstraints = {
-        @UniqueConstraint(name = "uk_idempotency_key", columnNames = "idempotency_key")
+        @UniqueConstraint(name = "uk_transfer_source_idem", columnNames = {"source_account_id", "idempotency_key"})
     },
     indexes = {
-        @Index(name = "idx_transfer_status", columnList = "status")
+        @Index(name = "idx_transfer_status", columnList = "status"),
+        @Index(name = "idx_transfer_source_account", columnList = "source_account_id"),
+        @Index(name = "idx_transfer_target_account", columnList = "target_account_id")
     }
 )
 @Getter
@@ -56,6 +59,21 @@ public class TransferJpaEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 32)
     private TransferStatus status;
+
+    @Column(name = "source_account_id", nullable = false)
+    private Long sourceAccountId;
+
+    @Column(name = "target_account_id", nullable = false)
+    private Long targetAccountId;
+
+    @Column(name = "amount", nullable = false)
+    private Long amount;
+
+    @Column(name = "currency", nullable = false, length = 3)
+    private String currency = "KRW";
+
+    @Column(name = "value_date", nullable = false)
+    private LocalDate valueDate;
 
     @Column(name = "idempotency_key", nullable = false, length = 64)
     private String idempotencyKey;
@@ -109,6 +127,26 @@ public class TransferJpaEntity {
 
     public void setTransferType(TransferType transferType) {
         this.transferType = transferType;
+    }
+
+    public void setSourceAccountId(Long sourceAccountId) {
+        this.sourceAccountId = sourceAccountId;
+    }
+
+    public void setTargetAccountId(Long targetAccountId) {
+        this.targetAccountId = targetAccountId;
+    }
+
+    public void setAmount(Long amount) {
+        this.amount = amount;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
+    public void setValueDate(LocalDate valueDate) {
+        this.valueDate = valueDate;
     }
 
     public void setIdempotencyKey(String idempotencyKey) {

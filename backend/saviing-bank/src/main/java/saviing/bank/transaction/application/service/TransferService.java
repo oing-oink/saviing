@@ -129,6 +129,7 @@ public class TransferService implements TransferUseCase {
                 startedAt
             );
             currentSnapshot = ledgerService.markEntryPosted(
+                command.sourceAccountId(),
                 idempotencyKey,
                 TransactionDirection.DEBIT,
                 debitTransactionId,
@@ -146,13 +147,14 @@ public class TransferService implements TransferUseCase {
                 Instant.now()
             );
             currentSnapshot = ledgerService.markEntryPosted(
+                command.sourceAccountId(),
                 idempotencyKey,
                 TransactionDirection.CREDIT,
                 creditTransactionId,
                 Instant.now()
             );
 
-            currentSnapshot = ledgerService.markTransferSettled(idempotencyKey, Instant.now());
+            currentSnapshot = ledgerService.markTransferSettled(command.sourceAccountId(), idempotencyKey, Instant.now());
             linkTransactions(debitTransactionId, creditTransactionId);
             transferDomainService.onTransferSettled(idempotencyKey, currentSnapshot);
             log.info("송금 완료: idempotencyKey={}, debitTxId={}, creditTxId={}, status={}",
@@ -167,7 +169,7 @@ public class TransferService implements TransferUseCase {
                 failureReason += attemptDebitCompensation(command, idempotencyKey);
             }
             // 예외 발생 시 Ledger 상태를 FAILED로 전환하고 도메인 후처리를 실행한다.
-            TransferSnapshot failedSnapshot = ledgerService.markTransferFailed(idempotencyKey, failureReason);
+            TransferSnapshot failedSnapshot = ledgerService.markTransferFailed(command.sourceAccountId(), idempotencyKey, failureReason);
             transferDomainService.onTransferFailed(idempotencyKey, failedSnapshot, ex);
             log.warn("송금 실패: idempotencyKey={}, status={}, reason={}", idempotencyKey.value(),
                 failedSnapshot.status(), failedSnapshot.failureReason(), ex);
@@ -277,10 +279,17 @@ public class TransferService implements TransferUseCase {
         TransactionId debitId = snapshot.debitEntry() != null ? snapshot.debitEntry().transactionId() : null;
         TransactionId creditId = snapshot.creditEntry() != null ? snapshot.creditEntry().transactionId() : null;
         return TransferResult.builder()
+            .idempotencyKey(snapshot.idempotencyKey())
+            .sourceAccountId(snapshot.sourceAccountId())
+            .targetAccountId(snapshot.targetAccountId())
+            .amount(snapshot.amount())
+            .valueDate(snapshot.valueDate())
             .debitTransactionId(debitId)
             .creditTransactionId(creditId)
+            .requestedAt(snapshot.createdAt())
             .status(snapshot.status())
             .completedAt(snapshot.updatedAt())
+            .failureReason(snapshot.failureReason())
             .build();
     }
 

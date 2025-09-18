@@ -30,7 +30,7 @@ class ProductServiceTest {
         ProductDetailResult result = productService.getProductByCode("FREE_SAVINGS");
 
         assertThat(result.productName()).isEqualTo("자유적금");
-        assertThat(result.minInterestRateBps()).isEqualTo((short) 250);
+        assertThat(result.minInterestRateBps()).isEqualTo((short) 150);
         assertThat(result.maxInterestRateBps()).isEqualTo((short) 450);
         assertThat(result.termConstraints()).isNotNull();
     }

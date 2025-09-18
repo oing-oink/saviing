@@ -18,7 +18,7 @@ import saviing.bank.transaction.adapter.in.web.dto.response.TransactionResponse;
 import saviing.common.response.ApiResult;
 import saviing.common.response.ErrorResult;
 
-@Tag(name = "거래 관리", description = "송금 거래 조회 API")
+@Tag(name = "거래", description = "거래 조회 및 송금 API")
 public interface TransactionApi {
 
     @Operation(

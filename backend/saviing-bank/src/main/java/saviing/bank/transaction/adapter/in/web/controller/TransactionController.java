@@ -26,7 +26,7 @@ import saviing.common.response.ApiResult;
 @ExecutionTime
 @Validated
 @RestController
-@RequestMapping("/api/transactions")
+@RequestMapping("/v1/transactions")
 @RequiredArgsConstructor
 public class TransactionController implements TransactionApi {
 

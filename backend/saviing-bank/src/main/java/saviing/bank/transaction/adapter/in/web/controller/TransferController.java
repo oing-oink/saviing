@@ -24,7 +24,7 @@ import saviing.common.response.ApiResult;
  */
 @ExecutionTime
 @RestController
-@RequestMapping("/api/transactions")
+@RequestMapping("/v1/transactions")
 @RequiredArgsConstructor
 public class TransferController implements TransferApi {
 

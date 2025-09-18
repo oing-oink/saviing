@@ -16,7 +16,7 @@ import saviing.common.response.ErrorResult;
 /**
  * 송금 REST API 계약을 정의하는 인바운드 포트.
  */
-@Tag(name = "송금", description = "계좌 간 송금 API")
+@Tag(name = "거래")
 public interface TransferApi {
 
     @Operation(

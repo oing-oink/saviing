@@ -1,8 +1,10 @@
 package saviing.bank.transaction.domain.vo;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 
+import saviing.bank.common.vo.MoneyWon;
 import saviing.bank.transaction.domain.model.TransactionDirection;
 import saviing.bank.transaction.domain.model.transfer.TransferStatus;
 import saviing.bank.transaction.domain.model.transfer.TransferType;
@@ -14,6 +16,10 @@ public record TransferSnapshot(
     TransferType transferType,
     TransferStatus status,
     IdempotencyKey idempotencyKey,
+    Long sourceAccountId,
+    Long targetAccountId,
+    MoneyWon amount,
+    LocalDate valueDate,
     List<LedgerEntrySnapshot> entries,
     Instant createdAt,
     Instant updatedAt,

@@ -11,9 +11,9 @@ import saviing.bank.transaction.domain.vo.IdempotencyKey;
 public interface LedgerPersistencePort {
 
     /**
-     * 멱등 키로 Transfer를 조회한다.
+     * 출금 계좌와 멱등 키 조합으로 Transfer를 조회한다.
      */
-    Optional<Transfer> findByIdempotencyKey(IdempotencyKey idempotencyKey);
+    Optional<Transfer> findBySourceAccountIdAndIdempotencyKey(Long sourceAccountId, IdempotencyKey idempotencyKey);
 
     /**
      * Transfer를 저장한다.

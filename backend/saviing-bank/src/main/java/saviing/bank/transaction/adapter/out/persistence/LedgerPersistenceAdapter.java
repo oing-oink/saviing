@@ -31,11 +31,11 @@ public class LedgerPersistenceAdapter implements LedgerPersistencePort {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Transfer> findByIdempotencyKey(IdempotencyKey idempotencyKey) {
-        if (idempotencyKey == null) {
+    public Optional<Transfer> findBySourceAccountIdAndIdempotencyKey(Long sourceAccountId, IdempotencyKey idempotencyKey) {
+        if (sourceAccountId == null || idempotencyKey == null) {
             return Optional.empty();
         }
-        return ledgerPairJpaRepository.findByIdempotencyKey(idempotencyKey.value())
+        return ledgerPairJpaRepository.findBySourceAccountIdAndIdempotencyKey(sourceAccountId, idempotencyKey.value())
             .map(ledgerMapper::toDomain);
     }
 
@@ -49,9 +49,27 @@ public class LedgerPersistenceAdapter implements LedgerPersistencePort {
 
     @Override
     public Transfer saveAndFlush(Transfer ledgerPair) {
-        TransferJpaEntity entity = ledgerPairJpaRepository.lockByIdempotencyKey(ledgerPair.getIdempotencyKey().value())
+        IdempotencyKey idempotencyKey = ledgerPair.getIdempotencyKey();
+        Long sourceAccountId = ledgerPair.getSourceAccountId();
+
+        if (idempotencyKey == null || sourceAccountId == null) {
+            throw new LedgerNotFoundException(
+                Map.of(
+                    "idempotencyKey", idempotencyKey != null ? idempotencyKey.value() : "null",
+                    "sourceAccountId", String.valueOf(sourceAccountId)
+                )
+            );
+        }
+
+        TransferJpaEntity entity = ledgerPairJpaRepository.lockBySourceAccountIdAndIdempotencyKey(
+                sourceAccountId,
+                idempotencyKey.value()
+            )
             .orElseThrow(() -> new LedgerNotFoundException(
-                Map.of("idempotencyKey", ledgerPair.getIdempotencyKey().value())
+                Map.of(
+                    "idempotencyKey", idempotencyKey.value(),
+                    "sourceAccountId", String.valueOf(sourceAccountId)
+                )
             ));
         ledgerMapper.updateEntity(ledgerPair, entity);
         TransferJpaEntity saved = ledgerPairJpaRepository.save(entity);

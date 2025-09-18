@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 
 import saviing.bank.common.vo.MoneyWon;
 import saviing.bank.transaction.domain.model.TransactionDirection;
-import saviing.bank.transaction.domain.vo.IdempotencyKey;
 import saviing.bank.transaction.domain.vo.TransactionId;
 import saviing.bank.transaction.exception.InvalidLedgerStateException;
 
@@ -29,7 +28,6 @@ public class LedgerEntry {
     private LedgerEntryStatus status;
     private LocalDate valueDate;
     private Instant postedAt;
-    private IdempotencyKey idempotencyKey;
     private TransactionId transactionId;
     private Instant createdAt;
     private Instant updatedAt;
@@ -41,7 +39,6 @@ public class LedgerEntry {
      * @param direction 거래 방향 (출금/입금)
      * @param amount 거래 금액
      * @param valueDate 가치일
-     * @param idempotencyKey 멱등키
      * @param now 생성 시각
      */
     private LedgerEntry(
@@ -49,14 +46,12 @@ public class LedgerEntry {
         TransactionDirection direction,
         MoneyWon amount,
         LocalDate valueDate,
-        IdempotencyKey idempotencyKey,
         Instant now
     ) {
         this.accountId = Objects.requireNonNull(accountId, "accountId must not be null");
         this.direction = Objects.requireNonNull(direction, "direction must not be null");
         this.amount = Objects.requireNonNull(amount, "amount must not be null");
         this.valueDate = Objects.requireNonNull(valueDate, "valueDate must not be null");
-        this.idempotencyKey = idempotencyKey;
         this.status = LedgerEntryStatus.REQUESTED;
         this.createdAt = now;
         this.updatedAt = now;
@@ -69,7 +64,6 @@ public class LedgerEntry {
      * @param direction 거래 방향
      * @param amount 거래 금액
      * @param valueDate 가치일
-     * @param idempotencyKey 멱등키
      * @param now 생성 시각
      * @return 생성된 원장 엔트리
      */
@@ -78,10 +72,9 @@ public class LedgerEntry {
         TransactionDirection direction,
         MoneyWon amount,
         LocalDate valueDate,
-        IdempotencyKey idempotencyKey,
         Instant now
     ) {
-        return new LedgerEntry(accountId, direction, amount, valueDate, idempotencyKey, now);
+        return new LedgerEntry(accountId, direction, amount, valueDate, now);
     }
 
     /**
@@ -94,7 +87,6 @@ public class LedgerEntry {
      * @param status 엔트리 상태
      * @param valueDate 가치일
      * @param postedAt 처리 시각
-     * @param idempotencyKey 멱등키
      * @param transactionId 거래 ID
      * @param createdAt 생성 시각
      * @param updatedAt 수정 시각
@@ -108,12 +100,11 @@ public class LedgerEntry {
         LedgerEntryStatus status,
         LocalDate valueDate,
         Instant postedAt,
-        IdempotencyKey idempotencyKey,
         TransactionId transactionId,
         Instant createdAt,
         Instant updatedAt
     ) {
-        LedgerEntry entry = new LedgerEntry(accountId, direction, amount, valueDate, idempotencyKey, createdAt);
+        LedgerEntry entry = new LedgerEntry(accountId, direction, amount, valueDate, createdAt);
         entry.id = id;
         entry.status = status;
         entry.postedAt = postedAt;
@@ -181,7 +172,6 @@ public class LedgerEntry {
             status,
             valueDate,
             postedAt,
-            idempotencyKey,
             transactionId,
             createdAt,
             updatedAt

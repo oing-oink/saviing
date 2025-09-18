@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import saviing.bank.common.vo.MoneyWon;
 import saviing.bank.transaction.adapter.out.persistence.entity.ledger.LedgerEntryJpaEntity;
 import saviing.bank.transaction.adapter.out.persistence.entity.ledger.TransferJpaEntity;
+import saviing.bank.transaction.domain.model.TransactionDirection;
 import saviing.bank.transaction.domain.model.transfer.LedgerEntry;
 import saviing.bank.transaction.domain.model.transfer.Transfer;
 import saviing.bank.transaction.domain.vo.IdempotencyKey;
@@ -22,10 +23,15 @@ public class LedgerMapper {
         List<LedgerEntry> entries = entity.getEntries().stream()
             .map(this::toDomainEntry)
             .toList();
+
         return Transfer.restore(
             entity.getTransferType(),
             entity.getStatus(),
             entity.getIdempotencyKey() != null ? IdempotencyKey.of(entity.getIdempotencyKey()) : null,
+            entity.getSourceAccountId(),
+            entity.getTargetAccountId(),
+            MoneyWon.of(entity.getAmount()),
+            entity.getValueDate(),
             entries,
             entity.getCreatedAt(),
             entity.getUpdatedAt(),
@@ -40,6 +46,10 @@ public class LedgerMapper {
         entity.setCreatedAt(ledgerPair.getCreatedAt());
         entity.setUpdatedAt(ledgerPair.getUpdatedAt());
         entity.setFailureReason(ledgerPair.getFailureReason());
+        entity.setSourceAccountId(ledgerPair.getSourceAccountId());
+        entity.setTargetAccountId(ledgerPair.getTargetAccountId());
+        entity.setAmount(ledgerPair.getAmount().amount());
+        entity.setValueDate(ledgerPair.getValueDate());
         if (ledgerPair.getIdempotencyKey() != null) {
             entity.setIdempotencyKey(ledgerPair.getIdempotencyKey().value());
         }
@@ -53,6 +63,10 @@ public class LedgerMapper {
         entity.setStatus(ledgerPair.getStatus());
         entity.setUpdatedAt(ledgerPair.getUpdatedAt());
         entity.setFailureReason(ledgerPair.getFailureReason());
+        entity.setSourceAccountId(ledgerPair.getSourceAccountId());
+        entity.setTargetAccountId(ledgerPair.getTargetAccountId());
+        entity.setAmount(ledgerPair.getAmount().amount());
+        entity.setValueDate(ledgerPair.getValueDate());
         List<LedgerEntryJpaEntity> updated = ledgerPair.getEntries().stream()
             .map(entry -> updateOrCreateEntry(entity, entry))
             .toList();
@@ -68,7 +82,6 @@ public class LedgerMapper {
             entity.getStatus(),
             entity.getValueDate(),
             entity.getPostedAt(),
-            entity.getIdempotencyKey() != null ? IdempotencyKey.of(entity.getIdempotencyKey()) : null,
             entity.getTransactionId() != null ? TransactionId.of(entity.getTransactionId()) : null,
             entity.getCreatedAt(),
             entity.getUpdatedAt()
@@ -105,7 +118,6 @@ public class LedgerMapper {
         entity.setValueDate(entry.getValueDate());
         entity.setPostedAt(entry.getPostedAt());
         entity.setTransactionId(entry.getTransactionId() != null ? entry.getTransactionId().value() : null);
-        entity.setIdempotencyKey(entry.getIdempotencyKey() != null ? entry.getIdempotencyKey().value() : null);
         entity.setCreatedAt(entry.getCreatedAt());
         entity.setUpdatedAt(entry.getUpdatedAt());
     }

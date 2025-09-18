@@ -18,9 +18,12 @@ import saviing.bank.transaction.adapter.out.persistence.entity.ledger.TransferJp
 public interface TransferJpaRepository extends JpaRepository<TransferJpaEntity, Long> {
 
     @EntityGraph(attributePaths = "entries")
-    Optional<TransferJpaEntity> findByIdempotencyKey(String idempotencyKey);
+    Optional<TransferJpaEntity> findBySourceAccountIdAndIdempotencyKey(Long sourceAccountId, String idempotencyKey);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("select lp from TransferJpaEntity lp left join fetch lp.entries where lp.idempotencyKey = :idempotencyKey")
-    Optional<TransferJpaEntity> lockByIdempotencyKey(@Param("idempotencyKey") String idempotencyKey);
+    @Query("select lp from TransferJpaEntity lp left join fetch lp.entries where lp.sourceAccountId = :sourceAccountId and lp.idempotencyKey = :idempotencyKey")
+    Optional<TransferJpaEntity> lockBySourceAccountIdAndIdempotencyKey(
+        @Param("sourceAccountId") Long sourceAccountId,
+        @Param("idempotencyKey") String idempotencyKey
+    );
 }
