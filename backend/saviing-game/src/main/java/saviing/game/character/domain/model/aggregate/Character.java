@@ -192,6 +192,47 @@ public class Character {
     }
 
     /**
+     * 코인을 차감합니다.
+     *
+     * @param amount 차감할 코인 수량
+     * @throws IllegalArgumentException amount가 0 이하이거나 잔액이 부족한 경우
+     */
+    public void debitCoin(Integer amount) {
+        if (amount <= 0) {
+            throw InvalidCharacterStateException.invalidCoinAmount("차감할 코인 수량은 양수여야 합니다");
+        }
+
+        this.gameStatus = gameStatus.debitCoin(amount);
+        updateLifecycle();
+    }
+
+    /**
+     * 피쉬 코인을 차감합니다.
+     *
+     * @param amount 차감할 피쉬 코인 수량
+     * @throws IllegalArgumentException amount가 0 이하이거나 잔액이 부족한 경우
+     */
+    public void debitFishCoin(Integer amount) {
+        if (amount <= 0) {
+            throw InvalidCharacterStateException.invalidFishCoinAmount("차감할 피쉬 코인 수량은 양수여야 합니다");
+        }
+
+        this.gameStatus = gameStatus.debitFishCoin(amount);
+        updateLifecycle();
+    }
+
+    /**
+     * 잔액이 충분한지 확인합니다.
+     *
+     * @param coinAmount 필요한 코인 수량
+     * @param fishCoinAmount 필요한 피쉬 코인 수량
+     * @return 잔액 충분 여부
+     */
+    public boolean hasSufficientFunds(Integer coinAmount, Integer fishCoinAmount) {
+        return gameStatus.hasSufficientFunds(coinAmount, fishCoinAmount);
+    }
+
+    /**
      * 캐릭터를 비활성화합니다.
      */
     public void deactivate() {

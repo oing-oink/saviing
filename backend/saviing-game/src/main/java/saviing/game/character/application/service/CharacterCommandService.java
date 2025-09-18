@@ -10,6 +10,7 @@ import saviing.game.character.application.dto.command.CompleteAccountConnectionC
 import saviing.game.character.application.dto.command.ConnectAccountCommand;
 import saviing.game.character.application.dto.command.CreateCharacterCommand;
 import saviing.game.character.application.dto.command.DeactivateCharacterCommand;
+import saviing.game.character.application.dto.command.DebitCoinsCommand;
 import saviing.game.character.application.dto.command.HandleAccountTerminatedCommand;
 import saviing.game.character.application.dto.command.IncreaseRoomCountCommand;
 import saviing.game.character.application.dto.result.CharacterCreatedResult;
@@ -124,6 +125,33 @@ public class CharacterCommandService {
         publishDomainEvents(savedCharacter);
 
         log.info("Coins added to character: {}", command.characterId().value());
+        return VoidResult.success();
+    }
+
+    /**
+     * 코인을 차감합니다.
+     *
+     * @param command 코인 차감 Command
+     * @return VoidResult
+     */
+    @Transactional
+    public VoidResult debitCoins(DebitCoinsCommand command) {
+        log.info("Debiting coins from character: {}, coin: {}, fishCoin: {}",
+                command.characterId().value(), command.coinAmount(), command.fishCoinAmount());
+
+        Character character = findCharacterById(command.characterId());
+
+        if (command.coinAmount() > 0) {
+            character.debitCoin(command.coinAmount());
+        }
+        if (command.fishCoinAmount() > 0) {
+            character.debitFishCoin(command.fishCoinAmount());
+        }
+
+        Character savedCharacter = characterRepository.save(character);
+        publishDomainEvents(savedCharacter);
+
+        log.info("Coins debited from character: {}", command.characterId().value());
         return VoidResult.success();
     }
 

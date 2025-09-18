@@ -83,10 +83,56 @@ public record GameStatus(
 
     /**
      * 캐릭터를 비활성화합니다.
-     * 
+     *
      * @return 비활성화된 새로운 GameStatus
      */
     public GameStatus deactivate() {
         return new GameStatus(coin, fishCoin, roomCount, false);
+    }
+
+    /**
+     * 코인을 차감합니다.
+     *
+     * @param amount 차감할 코인 수량 (양수)
+     * @return 코인이 차감된 새로운 GameStatus
+     * @throws IllegalArgumentException amount가 음수이거나 잔액이 부족한 경우
+     */
+    public GameStatus debitCoin(Integer amount) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("차감할 코인 수량은 양수여야 합니다");
+        }
+        if (coin < amount) {
+            throw new IllegalArgumentException("코인 잔액이 부족합니다. 현재: " + coin + ", 필요: " + amount);
+        }
+        return new GameStatus(coin - amount, fishCoin, roomCount, isActive);
+    }
+
+    /**
+     * 피쉬 코인을 차감합니다.
+     *
+     * @param amount 차감할 피쉬 코인 수량 (양수)
+     * @return 피쉬 코인이 차감된 새로운 GameStatus
+     * @throws IllegalArgumentException amount가 음수이거나 잔액이 부족한 경우
+     */
+    public GameStatus debitFishCoin(Integer amount) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("차감할 피쉬 코인 수량은 양수여야 합니다");
+        }
+        if (fishCoin < amount) {
+            throw new IllegalArgumentException("피쉬 코인 잔액이 부족합니다. 현재: " + fishCoin + ", 필요: " + amount);
+        }
+        return new GameStatus(coin, fishCoin - amount, roomCount, isActive);
+    }
+
+    /**
+     * 잔액이 충분한지 확인합니다.
+     *
+     * @param coinAmount 필요한 코인 수량
+     * @param fishCoinAmount 필요한 피쉬 코인 수량
+     * @return 잔액 충분 여부
+     */
+    public boolean hasSufficientFunds(Integer coinAmount, Integer fishCoinAmount) {
+        return (coinAmount == null || coinAmount <= 0 || coin >= coinAmount) &&
+               (fishCoinAmount == null || fishCoinAmount <= 0 || fishCoin >= fishCoinAmount);
     }
 }
