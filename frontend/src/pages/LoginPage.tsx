@@ -1,9 +1,11 @@
 import GoogleLoginButton from '@/features/auth/components/GoogleLoginButton';
+import { useGoogleLogin } from '@/features/auth/hooks/useGoogleLogin';
 
 const LoginPage = () => {
+  const { startGoogleLogin } = useGoogleLogin();
+
   const handleGoogleLogin = () => {
-    // TODO: OAuth 2.0 구글 로그인 API 연동
-    console.log('Google 로그인 클릭');
+    startGoogleLogin();
   };
 
   return (

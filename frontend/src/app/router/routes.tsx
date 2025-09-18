@@ -1,6 +1,7 @@
 import { createBrowserRouter } from 'react-router-dom';
 import HomePage from '@/pages/HomePage';
 import LoginPage from '@/pages/LoginPage';
+import AuthCallbackPage from '@/pages/AuthCallbackPage';
 import SavingsPage from '@/pages/SavingsPage';
 import GamePage from '@/pages/GamePage';
 import NotFoundPage from '@/pages/NotFoundPage';
@@ -23,6 +24,7 @@ export const router = createBrowserRouter([
     ],
   },
   { path: PAGE_PATH.LOGIN, element: <LoginPage /> },
+  { path: PAGE_PATH.AUTH_CALLBACK, element: <AuthCallbackPage /> },
   { path: PAGE_PATH.SAVINGS, element: <SavingsPage /> },
   { path: PAGE_PATH.GAME, element: <GamePage /> },
   { path: PAGE_PATH.SHOP, element: <ShopPage /> },
