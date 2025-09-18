@@ -9,7 +9,7 @@ import saviing.bank.account.domain.vo.ProductId;
 import saviing.bank.account.domain.service.InterestAccrualService;
 import saviing.bank.account.domain.vo.AccountNumber;
 import saviing.bank.account.domain.vo.BasisPoints;
-import saviing.bank.account.domain.vo.MoneyWon;
+import saviing.bank.common.vo.MoneyWon;
 import saviing.bank.account.exception.InsufficientBalanceException;
 import saviing.bank.account.exception.InvalidAccountStateException;
 import saviing.bank.account.exception.InvalidAmountException;

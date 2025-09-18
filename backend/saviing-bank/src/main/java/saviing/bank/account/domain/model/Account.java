@@ -14,7 +14,7 @@ import saviing.bank.account.domain.service.InterestAccrualService;
 import saviing.bank.account.domain.vo.AccountId;
 import saviing.bank.account.domain.vo.AccountNumber;
 import saviing.bank.account.domain.vo.BasisPoints;
-import saviing.bank.account.domain.vo.MoneyWon;
+import saviing.bank.common.vo.MoneyWon;
 import saviing.bank.account.domain.vo.ProductId;
 import saviing.bank.account.domain.vo.TermPeriod;
 import saviing.bank.account.exception.InsufficientBalanceException;
@@ -381,6 +381,42 @@ public class Account {
             .toLocalDate()
             .plusDays(termPeriod.toDays());
 
+        this.updatedAt = now;
+    }
+
+    /**
+     * 적금 계좌의 목표 금액 및 만기 출금 계좌를 변경합니다.
+     *
+     * @param targetAmount 변경할 목표 금액 (null이면 변경하지 않음)
+     * @param maturityWithdrawalAccount 변경할 만기 출금 계좌 (null이면 해제)
+     * @param now 변경 시각
+     * @throws InvalidAccountStateException 적금 계좌가 아니거나 해지된 계좌인 경우
+     */
+    public void updateSavingsSettings(
+        MoneyWon targetAmount,
+        AccountNumber maturityWithdrawalAccount,
+        @NonNull Instant now
+    ) {
+        if (!isSavingsAccount()) {
+            throw new InvalidAccountStateException(Map.of(
+                "accountNumber", accountNumber,
+                "reason", "NOT_SAVINGS_ACCOUNT"
+            ));
+        }
+
+        if (status == AccountStatus.CLOSED) {
+            throw new InvalidAccountStateException(Map.of(
+                "accountNumber", accountNumber,
+                "currentStatus", status,
+                "action", "UPDATE_SAVINGS_SETTINGS"
+            ));
+        }
+
+        if (targetAmount != null) {
+            this.targetAmount = targetAmount;
+        }
+
+        this.maturityWithdrawalAccount = maturityWithdrawalAccount;
         this.updatedAt = now;
     }
 

@@ -8,6 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,7 +24,7 @@ import saviing.bank.account.domain.model.CompoundingType;
 import saviing.bank.account.domain.vo.AccountId;
 import saviing.bank.account.domain.vo.AccountNumber;
 import saviing.bank.account.domain.vo.BasisPoints;
-import saviing.bank.account.domain.vo.MoneyWon;
+import saviing.bank.common.vo.MoneyWon;
 import saviing.bank.account.domain.vo.ProductId;
 import saviing.bank.account.domain.vo.TermPeriod;
 import saviing.bank.account.domain.model.TermUnit;
@@ -103,6 +104,10 @@ public class AccountJpaEntity {
     
     @Column(name = "bonus_rate_bps", nullable = false)
     private Short bonusRateBps = 0;
+
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version;
     
     public static AccountJpaEntity fromDomain(Account account) {
         AccountJpaEntity entity = new AccountJpaEntity();
@@ -138,10 +143,47 @@ public class AccountJpaEntity {
         entity.interestAccrued = account.getInterestAccrued();
         entity.baseRateBps = account.getBaseRate().value();
         entity.bonusRateBps = account.getBonusRate().value();
-        
+
         return entity;
     }
     
+    public void updateFromDomain(Account account) {
+        this.accountNumber = account.getAccountNumber().value();
+        this.customerId = account.getCustomerId();
+        this.productId = account.getProductId().value();
+        this.compoundingType = account.getCompoundingType();
+
+        if (account.getMaturityWithdrawalAccount() != null) {
+            this.maturityWithdrawalAccount = account.getMaturityWithdrawalAccount().value();
+        } else {
+            this.maturityWithdrawalAccount = null;
+        }
+        if (account.getTargetAmount() != null) {
+            this.targetAmount = account.getTargetAmount().amount();
+        } else {
+            this.targetAmount = null;
+        }
+        if (account.getTermPeriod() != null) {
+            this.termPeriodValue = account.getTermPeriod().value();
+            this.termPeriodUnit = account.getTermPeriod().unit();
+        } else {
+            this.termPeriodValue = null;
+            this.termPeriodUnit = null;
+        }
+        this.maturityDate = account.getMaturityDate();
+        this.status = account.getStatus();
+        this.openedAt = account.getOpenedAt();
+        this.closedAt = account.getClosedAt();
+        this.lastAccrualTs = account.getLastAccrualTs();
+        this.lastRateChangeAt = account.getLastRateChangeAt();
+        this.createdAt = account.getCreatedAt();
+        this.updatedAt = account.getUpdatedAt();
+        this.balance = account.getBalance().amount();
+        this.interestAccrued = account.getInterestAccrued();
+        this.baseRateBps = account.getBaseRate().value();
+        this.bonusRateBps = account.getBonusRate().value();
+    }
+
     public Account toDomain() {
         return Account.restore(
             id != null ? AccountId.of(id) : null,

@@ -18,7 +18,8 @@ public enum AccountErrorType {
     // 상품 관련 에러
     INVALID_PRODUCT_TYPE("요청한 계좌 타입과 상품 타입이 일치하지 않습니다"),
     INVALID_SAVINGS_TERM("유효하지 않은 적금 기간입니다"),
-    INVALID_TARGET_AMOUNT("유효하지 않은 목표금액입니다");
+    INVALID_TARGET_AMOUNT("유효하지 않은 목표금액입니다"),
+    INVALID_WITHDRAWAL_ACCOUNT("유효하지 않은 출금 계좌입니다");
     
     private final String message;
     

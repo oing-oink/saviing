@@ -3,6 +3,7 @@ package saviing.bank.account.domain.vo;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import saviing.bank.common.vo.MoneyWon;
 import static org.assertj.core.api.Assertions.*;
 
 class MoneyWonTests {
