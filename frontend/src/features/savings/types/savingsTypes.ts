@@ -71,6 +71,7 @@ export interface TransactionData {
   description: string;
   createdAt: string;
   updatedAt: string;
+  balance: number;
 }
 
 /**
@@ -82,6 +83,7 @@ export interface TransactionDisplayData {
   amount: number;
   postedAt: string;
   description: string;
+  balance: number;
 }
 
 /**

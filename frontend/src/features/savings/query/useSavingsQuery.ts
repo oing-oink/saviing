@@ -96,7 +96,7 @@ export const useSavingsTransactions = (accountId: string) => {
  * 거래 내역 데이터를 UI용으로 가공하여 반환하는 훅
  *
  * 서버에서 받은 거래 내역 데이터에서 UI에 필요한 필드만 추출하고 변환합니다.
- * direction, amount, postedAt, description 필드만 사용합니다.
+ * direction, amount, postedAt, description, balance 필드만 사용합니다.
  *
  * @param accountId - 조회할 적금 계좌의 ID
  * @returns 가공된 거래 내역 데이터와 무한 스크롤 상태
@@ -120,6 +120,7 @@ export const useSavingsTransactionsDisplay = (accountId: string) => {
         amount: transaction.amount,
         postedAt: transaction.postedAt,
         description: transaction.description,
+        balance: transaction.balance,
       }),
     );
   }, [query.data]);

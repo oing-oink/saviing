@@ -1,4 +1,5 @@
 import type { TransactionDisplayData } from '@/features/savings/types/savingsTypes';
+import { Card, CardContent } from '@/shared/components/ui/card';
 
 interface SavingsTransactionItemProps {
   transaction: TransactionDisplayData;
@@ -7,7 +8,7 @@ interface SavingsTransactionItemProps {
 const SavingsTransactionItem = ({
   transaction,
 }: SavingsTransactionItemProps) => {
-  const { direction, amount, postedAt, description } = transaction;
+  const { direction, amount, postedAt, description, balance } = transaction;
 
   // 입금/출금 구분
   const isDeposit = direction === 'DEBIT';
@@ -24,26 +25,30 @@ const SavingsTransactionItem = ({
   };
 
   return (
-    <div className="flex items-center justify-between border-b border-gray-100 p-4">
-      <div className="flex-1">
-        <p className="text-sm font-medium text-gray-900">{description}</p>
-        <p className="mt-1 text-xs text-gray-500">{formatDate(postedAt)}</p>
-      </div>
+    <Card>
+      <CardContent>
+        <div className="flex items-center justify-between">
+          <div className="flex-1">
+            <p className="text-sm font-medium text-gray-900">{description}</p>
+            <p className="mt-1 text-xs text-gray-500">{formatDate(postedAt)}</p>
+          </div>
 
-      <div className="text-right">
-        <p
-          className={`text-sm font-semibold ${
-            isDeposit ? 'text-blue-600' : 'text-red-600'
-          }`}
-        >
-          {isDeposit ? '+' : '-'}
-          {amount.toLocaleString()}원
-        </p>
-        <p className="mt-1 text-xs text-gray-400">
-          {isDeposit ? '입금' : '출금'}
-        </p>
-      </div>
-    </div>
+          <div className="text-right">
+            <p
+              className={`text-sm font-semibold ${
+                isDeposit ? 'text-blue-600' : 'text-red-600'
+              }`}
+            >
+              {isDeposit ? '+' : '-'}
+              {amount.toLocaleString()}원
+            </p>
+            <p className="mt-1 text-xs text-gray-400">
+              잔액: {balance.toLocaleString()}원
+            </p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
