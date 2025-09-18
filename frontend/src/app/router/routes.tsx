@@ -14,6 +14,7 @@ import GachaRollingPage from '@/pages/GachaRollingPage';
 import DecoPage from '@/pages/DecoPage';
 import SavingsLayout from '@/features/savings/components/SavingsLayout';
 import WalletPage from '@/pages/WalletPage';
+import AccountCreationFunnel from '@/features/savings/components/AccountCreationFunnel';
 
 export const router = createBrowserRouter([
   {
@@ -23,6 +24,11 @@ export const router = createBrowserRouter([
       { index: true, element: <HomePage /> },
       { path: PAGE_PATH.WALLET, element: <WalletPage /> },
     ],
+  },
+  // Account Creation Funnel Routes
+  {
+    path: `${PAGE_PATH.ACCOUNT_CREATION}/*`,
+    element: <AccountCreationFunnel />,
   },
   { path: PAGE_PATH.LOGIN, element: <LoginPage /> },
   { path: PAGE_PATH.SAVINGS, element: <SavingsPage /> },
