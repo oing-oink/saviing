@@ -15,7 +15,7 @@ const DecoPage = () => {
   const navigate = useNavigate();
   const [showSaveModal, setShowSaveModal] = useState(false);
 
-  // DecoPage는 이제 어떤 그리드를 보여줄지 상태만 관리합니다.
+  // DecoPage는 어떤 그리드를 보여줄지 상태만 관리
   const [gridType, setGridType] = useState<TabId | null>(null);
 
   const handleSaveClick = () => setShowSaveModal(true);
@@ -48,7 +48,7 @@ const DecoPage = () => {
         </div>
 
         <div className="flex flex-1 flex-col">
-          {/* 재사용 가능한 Room 컴포넌트는 gridType prop으로 제어됩니다. */}
+          {/* Room (해당 컴포넌트는 gridType prop으로 제어) */}
           <div className="relative">
             <Room gridType={gridType} />
           </div>
@@ -65,7 +65,7 @@ const DecoPage = () => {
 
           <div className="flex-grow" />
 
-          {/* 인벤토리는 클릭된 탭의 ID를 onCategoryClick으로 알려줍니다. */}
+          {/* 인벤토리 (클릭된 탭의 ID를 onCategoryClick으로 알려줌.) */}
           <div className="relative z-10">
             <Inventory
               items={mockInventoryItems}

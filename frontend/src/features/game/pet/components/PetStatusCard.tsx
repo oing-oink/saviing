@@ -4,6 +4,7 @@ import { Button } from '@/shared/components/ui/button';
 import StatusProgress from './StatusProgress';
 import { usePetStore } from '@/features/game/pet/store/usePetStore';
 import { usePetStatusCard } from '@/features/game/pet/hooks/usePetStatusCard';
+import { usePetInteraction } from '@/features/game/pet/query/usePetInteraction';
 import feed from '@/assets/game_pet/feed.png';
 import play from '@/assets/game_pet/play.png';
 import { Loader2 } from 'lucide-react';
@@ -20,10 +21,23 @@ interface PetStatusCardProps {
 const PetStatusCard = ({ petId }: PetStatusCardProps) => {
   const { inventory } = usePetStore();
   const { petData, isLoading, error, levelClass } = usePetStatusCard(petId);
+  const petInteraction = usePetInteraction(petId);
+
+  const handleFeedClick = () => {
+    if (inventory.feed > 0 && !petInteraction.isPending) {
+      petInteraction.mutate({ type: 'feed' });
+    }
+  };
+
+  const handlePlayClick = () => {
+    if (inventory.toy > 0 && !petInteraction.isPending) {
+      petInteraction.mutate({ type: 'play' });
+    }
+  };
 
   if (isLoading) {
     return (
-      <Card className="mx-5 flex min-h-64 items-center justify-center rounded-t-2xl p-5">
+      <Card className="mx-5 flex min-h-60 items-center justify-center rounded-t-2xl p-4">
         <div className="flex h-full items-center justify-center">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           <span className="ml-2 text-sm text-muted-foreground">
@@ -36,7 +50,7 @@ const PetStatusCard = ({ petId }: PetStatusCardProps) => {
 
   if (error || !petData) {
     return (
-      <Card className="mx-5 flex min-h-64 items-center justify-center rounded-t-2xl p-5">
+      <Card className="mx-5 flex min-h-60 items-center justify-center rounded-t-2xl p-4">
         <div className="flex h-full items-center justify-center">
           <div className="text-red-500">데이터를 불러올 수 없습니다</div>
         </div>
@@ -45,13 +59,13 @@ const PetStatusCard = ({ petId }: PetStatusCardProps) => {
   }
 
   return (
-    <Card className="mx-5 min-h-64 rounded-t-2xl p-5">
+    <Card className="mx-5 min-h-60 rounded-t-2xl p-4">
       <div className="flex items-center gap-3">
         <Badge className={`${levelClass}`}>Lv{petData.level}</Badge>
         <div>{petData.name}</div>
       </div>
-      <div className="space-y-4">
-        <div className="flex gap-4">
+      <div className="space-y-3">
+        <div className="flex gap-3">
           <StatusProgress
             label="포만감"
             value={petData.energy}
@@ -74,12 +88,22 @@ const PetStatusCard = ({ petId }: PetStatusCardProps) => {
           />
         </div>
       </div>
-      <div className="flex justify-center gap-5">
-        <Button variant="secondary" className="h-20 flex-1 flex-col gap-2">
+      <div className="flex justify-center gap-4">
+        <Button
+          variant="secondary"
+          className="h-20 flex-1 flex-col gap-2"
+          onClick={handleFeedClick}
+          disabled={inventory.feed <= 0 || petInteraction.isPending}
+        >
           <img src={feed} className="h-8 w-8" />
           {inventory.feed}개
         </Button>
-        <Button variant="secondary" className="h-20 flex-1 flex-col gap-2">
+        <Button
+          variant="secondary"
+          className="h-20 flex-1 flex-col gap-2"
+          onClick={handlePlayClick}
+          disabled={inventory.toy <= 0 || petInteraction.isPending}
+        >
           <img src={play} className="h-8 w-8" />
           {inventory.toy}개
         </Button>

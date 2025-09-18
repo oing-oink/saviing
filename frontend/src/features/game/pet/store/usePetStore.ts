@@ -1,37 +1,50 @@
 import { create } from 'zustand';
-import type { PetInventory } from '@/features/game/pet/types/petTypes';
+import type {
+  PetInventory,
+  PetBehaviorState,
+} from '@/features/game/pet/types/petTypes';
 
 /**
- * 펫 관련 인벤토리 상태를 관리하는 인터페이스
+ * 펫 관련 상태를 관리하는 Zustand 스토어 인터페이스
+ *
+ * 펫에게 주는 사료과 장난감의 개수, 펫의 행동 상태를 추적하고,
+ * 서버 기반 인벤토리 동기화를 제공합니다.
  */
-interface PetInventoryState {
+interface PetStoreState {
+  /** 현재 인벤토리 상태 (사료, 장난감 개수) */
   inventory: PetInventory;
-  useFeed: () => void;
-  useToy: () => void;
+  /** 펫의 행동 상태 */
+  behavior: PetBehaviorState;
+  /** 인벤토리 전체를 설정하는 액션 */
+  setInventory: (inventory: PetInventory) => void;
+  /** 펫의 행동 상태를 설정하는 액션 */
+  setBehavior: (behavior: PetBehaviorState) => void;
 }
 
 /**
- * 펫 관련 인벤토리를 전역으로 관리
+ * 펫 관련 상태를 전역 상태로 관리하는 Zustand 스토어
+ *
+ * 펫에게 주는 사료과 장난감의 수량, 펫의 행동 상태를 관리하고,
+ * 서버 기반 인벤토리 동기화를 제공합니다.
  */
-export const usePetStore = create<PetInventoryState>(set => ({
-  // TODO: API 연결 후 실제 인벤토리 데이터로 교체 필요
+export const usePetStore = create<PetStoreState>(set => ({
+  // TODO: 사용자 데이터로 변경 필요
   inventory: { feed: 3, toy: 2 },
 
-  // 먹이 사용 (1개 감소, 음수 방지)
-  useFeed: () =>
-    set(state => ({
-      inventory: {
-        ...state.inventory,
-        feed: Math.max(0, state.inventory.feed - 1),
-      },
+  // 펫의 초기 행동 상태
+  behavior: {
+    currentAnimation: 'idle',
+  },
+
+  // 인벤토리 전체 설정 (서버 응답 기반)
+  setInventory: (inventory: PetInventory) =>
+    set(() => ({
+      inventory,
     })),
 
-  // 장난감 사용 (1개 감소, 음수 방지)
-  useToy: () =>
-    set(state => ({
-      inventory: {
-        ...state.inventory,
-        toy: Math.max(0, state.inventory.toy - 1),
-      },
+  // 펫의 행동 상태 설정
+  setBehavior: (behavior: PetBehaviorState) =>
+    set(() => ({
+      behavior,
     })),
 }));

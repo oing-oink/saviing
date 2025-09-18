@@ -14,4 +14,12 @@ export const petKeys = {
    * @returns ['pet', petId] - 특정 펫의 쿼리 키
    */
   detail: (petId: number) => [...petKeys.all, petId] as const,
+
+  /**
+   * 펫 상호작용 뮤테이션 키 생성
+   * @param petId - 펫의 고유 식별자
+   * @returns ['pet', petId, 'interaction'] - 펫 상호작용 뮤테이션 키
+   */
+  interaction: (petId: number) =>
+    [...petKeys.detail(petId), 'interaction'] as const,
 };
