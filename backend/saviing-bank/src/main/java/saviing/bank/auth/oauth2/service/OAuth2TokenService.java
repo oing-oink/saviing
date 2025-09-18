@@ -58,9 +58,9 @@ public class OAuth2TokenService {
      * OAuth2 로그인 처리 - Access Token과 Refresh Token 쿠키를 포함한 완전한 로그인 응답 생성
      */
     @Transactional
-    public LoginResponseWithCookie processLogin(String authorizationCode) {
+    public LoginResponseWithCookie processLogin(String authorizationCode, String redirectUri) {
         // 1. Authorization Code → Google Access Token
-        String googleAccessToken = exchangeCodeForAccessToken(authorizationCode);
+        String googleAccessToken = exchangeCodeForAccessToken(authorizationCode, redirectUri);
 
         // 2. Google Access Token → 사용자 정보
         OAuth2UserInfo userInfo = getUserInfo(googleAccessToken);
@@ -88,9 +88,9 @@ public class OAuth2TokenService {
      * OAuth2 Authorization Code를 처리하여 Customer를 생성/조회하고 JWT 토큰 발급
      */
     @Transactional
-    public TokenResponse exchangeCodeForToken(String authorizationCode) {
+    public TokenResponse exchangeCodeForToken(String authorizationCode, String redirectUri) {
         // 1. Authorization Code → Google Access Token
-        String googleAccessToken = exchangeCodeForAccessToken(authorizationCode);
+        String googleAccessToken = exchangeCodeForAccessToken(authorizationCode, redirectUri);
 
         // 2. Google Access Token → 사용자 정보
         OAuth2UserInfo userInfo = getUserInfo(googleAccessToken);
@@ -155,14 +155,16 @@ public class OAuth2TokenService {
     /**
      * Authorization Code를 Google Access Token으로 교환
      */
-    private String exchangeCodeForAccessToken(String authorizationCode) {
+    private String exchangeCodeForAccessToken(String authorizationCode, String redirectUri) {
+        // 허용된 redirect URI인지 검증
+        validateRedirectUri(redirectUri);
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("client_id", googleClientId);
         params.add("client_secret", googleClientSecret);
         params.add("code", authorizationCode);
         params.add("grant_type", "authorization_code");
-        params.add("redirect_uri", googleRedirectUri);
+        params.add("redirect_uri", redirectUri);
 
         return Optional.ofNullable(
             webClient.post()
@@ -176,6 +178,21 @@ public class OAuth2TokenService {
             .filter(response -> response.containsKey("access_token"))
             .map(response -> (String) response.get("access_token"))
             .orElseThrow(() -> new BusinessException(OAuth2ErrorCode.TOKEN_EXCHANGE_FAILED));
+    }
+
+    /**
+     * Redirect URI 유효성 검증
+     */
+    private void validateRedirectUri(String redirectUri) {
+        String[] allowedUris = googleRedirectUri.split(",");
+        for (String allowedUri : allowedUris) {
+            if (allowedUri.trim().equals(redirectUri)) {
+                return;
+            }
+        }
+
+        log.warn("허용되지 않은 redirect URI 접근 시도: {}. 허용된 URI: {}", redirectUri, googleRedirectUri);
+        throw new BusinessException(OAuth2ErrorCode.INVALID_REDIRECT_URI);
     }
 
     /**
