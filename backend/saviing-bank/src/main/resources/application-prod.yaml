@@ -30,6 +30,13 @@ spring:
     restart:
       enabled: false
 
+# OAuth2 설정
+oauth2:
+  google:
+    client-id: ${OAUTH2_GOOGLE_CLIENT_ID}
+    client-secret: ${OAUTH2_GOOGLE_CLIENT_SECRET}
+    redirect-uri: ${OAUTH2_GOOGLE_REDIRECT_URI}
+
 logging:
   level:
     root: INFO

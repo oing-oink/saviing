@@ -10,6 +10,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import jakarta.servlet.http.HttpServletRequest;
 import saviing.bank.auth.oauth2.userinfo.OAuth2UserInfo;
 import saviing.bank.auth.oauth2.userinfo.OAuth2UserInfoFactory;
 import saviing.bank.auth.oauth2.exception.OAuth2ErrorCode;
@@ -58,23 +59,26 @@ public class OAuth2TokenService {
      * OAuth2 로그인 처리 - Access Token과 Refresh Token 쿠키를 포함한 완전한 로그인 응답 생성
      */
     @Transactional
-    public LoginResponseWithCookie processLogin(String authorizationCode) {
-        // 1. Authorization Code → Google Access Token
-        String googleAccessToken = exchangeCodeForAccessToken(authorizationCode);
+    public LoginResponseWithCookie processLogin(String authorizationCode, HttpServletRequest request) {
+        // 1. Referer 헤더 기반으로 적절한 redirect URI 선택
+        String redirectUri = selectRedirectUri(request);
 
-        // 2. Google Access Token → 사용자 정보
+        // 2. Authorization Code → Google Access Token
+        String googleAccessToken = exchangeCodeForAccessToken(authorizationCode, redirectUri);
+
+        // 3. Google Access Token → 사용자 정보
         OAuth2UserInfo userInfo = getUserInfo(googleAccessToken);
 
-        // 3. Customer 생성 또는 조회
+        // 4. Customer 생성 또는 조회
         Customer customer = processCustomer(userInfo);
 
-        // 4. JWT Access Token 생성
+        // 5. JWT Access Token 생성
         String accessToken = createAccessToken(customer);
 
-        // 5. Refresh Token 생성 및 쿠키 설정
+        // 6. Refresh Token 생성 및 쿠키 설정
         ResponseCookie refreshTokenCookie = createRefreshTokenCookie(customer);
 
-        // 6. 로그인 응답 생성
+        // 7. 로그인 응답 생성
         LoginResponse loginResponse = LoginResponse.of(
             accessToken,
             customer.getCustomerId(),
@@ -85,21 +89,31 @@ public class OAuth2TokenService {
     }
 
     /**
-     * OAuth2 Authorization Code를 처리하여 Customer를 생성/조회하고 JWT 토큰 발급
+     * Referer 헤더를 기반으로 적절한 redirect URI 선택
      */
-    @Transactional
-    public TokenResponse exchangeCodeForToken(String authorizationCode) {
-        // 1. Authorization Code → Google Access Token
-        String googleAccessToken = exchangeCodeForAccessToken(authorizationCode);
+    private String selectRedirectUri(HttpServletRequest request) {
+        String referer = request.getHeader("Referer");
+        String[] allowedUris = googleRedirectUri.split(",");
 
-        // 2. Google Access Token → 사용자 정보
-        OAuth2UserInfo userInfo = getUserInfo(googleAccessToken);
+        log.info("Referer 헤더: {}, 허용된 URI들: {}", referer, googleRedirectUri);
 
-        // 3. Customer 생성 또는 조회
-        Customer customer = processCustomer(userInfo);
+        // Referer 헤더가 없거나 빈 문자열인 경우 첫 번째 URI 사용
+        if (referer == null || referer.trim().isEmpty()) {
+            log.warn("Referer 헤더가 없습니다. 기본 redirect URI 사용: {}", allowedUris[0].trim());
+            return allowedUris[0].trim();
+        }
 
-        // 4. JWT 토큰 응답 생성
-        return createTokenResponse(customer);
+        // Referer에 매칭되는 URI 찾기
+        for (String uri : allowedUris) {
+            if (uri.contains(referer)) {
+                log.info("환경 감지, redirect URI: {}", uri.trim());
+                return uri.trim();
+            }
+        }
+
+        // 매칭되는 것이 없으면 첫 번째 URI 사용
+        log.warn("Referer '{}'에 매칭되는 redirect URI를 찾을 수 없습니다. 기본 URI 사용: {}", referer, allowedUris[0].trim());
+        return allowedUris[0].trim();
     }
 
     /**
@@ -155,14 +169,15 @@ public class OAuth2TokenService {
     /**
      * Authorization Code를 Google Access Token으로 교환
      */
-    private String exchangeCodeForAccessToken(String authorizationCode) {
+    private String exchangeCodeForAccessToken(String authorizationCode, String redirectUri) {
+        log.debug("Google OAuth2 토큰 교환 시작 - redirect URI: {}", redirectUri);
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("client_id", googleClientId);
         params.add("client_secret", googleClientSecret);
         params.add("code", authorizationCode);
         params.add("grant_type", "authorization_code");
-        params.add("redirect_uri", googleRedirectUri);
+        params.add("redirect_uri", redirectUri);
 
         return Optional.ofNullable(
             webClient.post()
