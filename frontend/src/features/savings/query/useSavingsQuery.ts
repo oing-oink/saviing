@@ -39,6 +39,7 @@ export const useSavingsDisplayData = (accountId: string) => {
         interestRate: (query.data.baseRate + query.data.bonusRate) / 100.0,
         targetAmount: query.data.savings.targetAmount,
         maturityDate: query.data.savings.maturityDate,
+        createdAt: query.data.createdAt,
         balance: query.data.balance,
       }
     : undefined;

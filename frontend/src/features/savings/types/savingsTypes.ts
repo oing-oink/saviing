@@ -18,6 +18,7 @@ export interface SavingsInfo {
   termPeriod: number;
   termPeriodUnit: string;
   maturityDate: string;
+  createdAt: number;
 }
 
 /**
@@ -52,6 +53,7 @@ export interface SavingsDisplayData {
   interestRate: number; // (baseRate + bonusRate) / 100.0
   targetAmount: number;
   maturityDate: string;
+  createdAt: string;
   balance: number;
 }
 

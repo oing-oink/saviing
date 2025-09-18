@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { useInView } from 'react-intersection-observer';
+import { useEffect, useRef } from 'react';
+import { useScroll } from '@/shared/hooks/useScroll';
 import { useSavingsTransactionsDisplay } from '@/features/savings/query/useSavingsQuery';
 import SavingsTransactionItem from './SavingsTransactionItem';
 import SavingsTransactionSkeleton from './SavingsTransactionSkeleton';
@@ -18,14 +18,15 @@ const SavingsTransactionList = ({ accountId }: SavingsTransactionListProps) => {
     isFetchingNextPage,
   } = useSavingsTransactionsDisplay(accountId);
 
-  const { ref, inView } = useInView();
+  const { isAtBottom } = useScroll();
+  const triggerRef = useRef<HTMLDivElement>(null);
 
-  // inView가 true가 되면 다음 페이지 로드
+  // 페이지 맨 아래에 도달하면 다음 페이지 로드
   useEffect(() => {
-    if (inView && hasNextPage) {
+    if (isAtBottom && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
-  }, [inView, hasNextPage, fetchNextPage]);
+  }, [isAtBottom, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   if (isError) {
     return (
@@ -64,13 +65,11 @@ const SavingsTransactionList = ({ accountId }: SavingsTransactionListProps) => {
                 />
               ))}
 
-              {/* 무한 스크롤 트리거 또는 로딩 스켈레톤 */}
-              {isFetchingNextPage ? (
-                <SavingsTransactionSkeleton />
-              ) : (
-                // 다음 페이지가 있을 때만 ref 요소 표시
-                hasNextPage && <div ref={ref} className="h-4" />
-              )}
+              {/* 무한 스크롤 로딩 스켈레톤 */}
+              {isFetchingNextPage && <SavingsTransactionSkeleton />}
+
+              {/* 무한 스크롤 트리거 요소 */}
+              {hasNextPage && <div ref={triggerRef} className="h-4" />}
             </div>
           )}
         </>
