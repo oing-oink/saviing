@@ -2,8 +2,8 @@ import type { RefObject } from 'react';
 import { useState, useRef, useEffect } from 'react';
 
 interface UseGesturesProps {
-  containerRef: RefObject<HTMLElement>;
-  targetRef: RefObject<HTMLElement>;
+  containerRef: RefObject<HTMLElement | null>;
+  targetRef: RefObject<HTMLElement | null>;
   minScale?: number;
   maxScale?: number;
 }

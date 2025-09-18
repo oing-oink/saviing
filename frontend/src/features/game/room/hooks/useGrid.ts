@@ -13,8 +13,8 @@ interface Point {
 interface UseGridProps {
   scale: number;
   position: { x: number; y: number };
-  roomImageRef: RefObject<HTMLImageElement>;
-  containerRef: RefObject<HTMLDivElement>;
+  roomImageRef: RefObject<HTMLImageElement | null>;
+  containerRef: RefObject<HTMLDivElement | null>;
   gridType: TabId | null;
 }
 
