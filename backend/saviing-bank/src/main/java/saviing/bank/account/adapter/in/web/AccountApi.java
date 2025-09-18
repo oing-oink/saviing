@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.List;
 
 import saviing.bank.account.adapter.in.web.dto.request.CreateAccountRequest;
+import saviing.bank.account.adapter.in.web.dto.request.UpdateAccountStatusRequest;
+import saviing.bank.account.adapter.in.web.dto.request.UpdateSavingsAccountRequest;
 import saviing.bank.account.adapter.in.web.dto.response.CreateAccountResponse;
 import saviing.bank.account.adapter.in.web.dto.response.GetAccountResponse;
 import saviing.common.response.ApiResult;
@@ -133,5 +135,35 @@ public interface AccountApi {
     ApiResult<GetAccountResponse> getAccountById(
         @Parameter(description = "조회할 계좌 ID", example = "1")
         @PathVariable Long accountId
+    );
+
+    @Operation(
+        summary = "적금 계좌 설정 수정",
+        description = "목표 금액과 만기 출금 계좌를 수정합니다."
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "수정 성공",
+        useReturnTypeSchema = true
+    )
+    ApiResult<GetAccountResponse> updateSavingsAccount(
+        @Parameter(description = "수정할 계좌 ID", example = "10")
+        @PathVariable Long accountId,
+        @Valid @RequestBody UpdateSavingsAccountRequest request
+    );
+
+    @Operation(
+        summary = "적금 계좌 해지",
+        description = "계좌 상태를 CLOSED로 변경하여 적금을 해지합니다."
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "해지 성공",
+        useReturnTypeSchema = true
+    )
+    ApiResult<GetAccountResponse> updateAccountStatus(
+        @Parameter(description = "해지할 계좌 ID", example = "10")
+        @PathVariable Long accountId,
+        @Valid @RequestBody UpdateAccountStatusRequest request
     );
 }

@@ -385,6 +385,42 @@ public class Account {
     }
 
     /**
+     * 적금 계좌의 목표 금액 및 만기 출금 계좌를 변경합니다.
+     *
+     * @param targetAmount 변경할 목표 금액 (null이면 변경하지 않음)
+     * @param maturityWithdrawalAccount 변경할 만기 출금 계좌 (null이면 해제)
+     * @param now 변경 시각
+     * @throws InvalidAccountStateException 적금 계좌가 아니거나 해지된 계좌인 경우
+     */
+    public void updateSavingsSettings(
+        MoneyWon targetAmount,
+        AccountNumber maturityWithdrawalAccount,
+        @NonNull Instant now
+    ) {
+        if (!isSavingsAccount()) {
+            throw new InvalidAccountStateException(Map.of(
+                "accountNumber", accountNumber,
+                "reason", "NOT_SAVINGS_ACCOUNT"
+            ));
+        }
+
+        if (status == AccountStatus.CLOSED) {
+            throw new InvalidAccountStateException(Map.of(
+                "accountNumber", accountNumber,
+                "currentStatus", status,
+                "action", "UPDATE_SAVINGS_SETTINGS"
+            ));
+        }
+
+        if (targetAmount != null) {
+            this.targetAmount = targetAmount;
+        }
+
+        this.maturityWithdrawalAccount = maturityWithdrawalAccount;
+        this.updatedAt = now;
+    }
+
+    /**
      * 적금의 목표 달성률을 계산합니다.
      *
      * @return 목표 대비 현재 잔액 비율 (0.0 ~ 1.0 이상)

@@ -35,6 +35,7 @@ public class WebExceptionHandler {
             case INVALID_PRODUCT_TYPE -> WebErrorCode.ACCOUNT_INVALID_PRODUCT_TYPE;
             case INVALID_SAVINGS_TERM -> WebErrorCode.ACCOUNT_INVALID_SAVINGS_TERM;
             case INVALID_TARGET_AMOUNT -> WebErrorCode.ACCOUNT_INVALID_TARGET_AMOUNT;
+            case INVALID_WITHDRAWAL_ACCOUNT -> WebErrorCode.ACCOUNT_INVALID_WITHDRAWAL_ACCOUNT;
         };
     }
 
