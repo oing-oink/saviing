@@ -60,16 +60,13 @@ public class ItemRepositoryImpl implements ItemRepository {
         String coinType
     ) {
         String categoryString = category != null ? formatCategoryForQuery(category) : null;
+        String itemTypeString = itemType != null ? itemType.name() : null;
+        String rarityString = rarity != null ? rarity.name() : null;
 
+        // 단일 동적 쿼리로 모든 경우의 수 처리
         List<ItemEntity> entities = itemJpaRepository.findItemsWithDynamicQuery(
-            itemType != null ? itemType.name() : null,
-            categoryString,
-            rarity != null ? rarity.name() : null,
-            keyword,
-            available,
-            sortField != null ? sortField : "NAME",
-            sortDirection != null ? sortDirection : "ASC",
-            coinType != null ? coinType : "COIN"
+            itemTypeString, categoryString, rarityString, keyword, available,
+            sortField, sortDirection, coinType
         );
 
         return entities.stream()
@@ -81,17 +78,9 @@ public class ItemRepositoryImpl implements ItemRepository {
      * Category를 데이터베이스 쿼리용 문자열로 변환합니다.
      *
      * @param category Category 객체
-     * @return 쿼리용 문자열
+     * @return 쿼리용 문자열 (enum 상수명)
      */
     private String formatCategoryForQuery(Category category) {
-        if (category instanceof saviing.game.item.domain.model.enums.Pet pet) {
-            return "Pet." + pet.name();
-        } else if (category instanceof saviing.game.item.domain.model.enums.Accessory accessory) {
-            return "Accessory." + accessory.name();
-        } else if (category instanceof saviing.game.item.domain.model.enums.Decoration decoration) {
-            return "Decoration." + decoration.name();
-        } else {
-            throw new IllegalArgumentException("지원하지 않는 카테고리 타입: " + category.getClass());
-        }
+        return category.name();
     }
 }

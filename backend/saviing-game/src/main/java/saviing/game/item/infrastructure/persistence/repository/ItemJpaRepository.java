@@ -16,14 +16,16 @@ public interface ItemJpaRepository extends JpaRepository<ItemEntity, Long> {
 
     /**
      * 동적 조건과 정렬을 적용하여 아이템을 조회합니다.
+     * 모든 정렬 조합(12가지)을 단일 쿼리로 처리합니다.
      *
      * @param itemType 아이템 타입
      * @param category 아이템 카테고리
      * @param rarity 희귀도
      * @param keyword 이름 검색 키워드
      * @param available 판매 가능 여부
-     * @param sortField 정렬 필드
-     * @param sortDirection 정렬 방향
+     * @param sortField 정렬 필드 (NAME, PRICE, RARITY, CREATED_AT, UPDATED_AT)
+     * @param sortDirection 정렬 방향 (ASC, DESC)
+     * @param coinType 코인 타입 (COIN, FISH_COIN) - PRICE 정렬시 필요
      * @return 조건에 맞는 아이템 목록
      */
     @Query("SELECT i FROM ItemEntity i WHERE " +
@@ -35,10 +37,10 @@ public interface ItemJpaRepository extends JpaRepository<ItemEntity, Long> {
            "ORDER BY " +
            "CASE WHEN :sortField = 'NAME' AND :sortDirection = 'ASC' THEN i.itemName END ASC, " +
            "CASE WHEN :sortField = 'NAME' AND :sortDirection = 'DESC' THEN i.itemName END DESC, " +
-           "CASE WHEN :sortField = 'PRICE' AND :sortDirection = 'ASC' AND :coinType = 'COIN' THEN i.coin END ASC, " +
-           "CASE WHEN :sortField = 'PRICE' AND :sortDirection = 'DESC' AND :coinType = 'COIN' THEN i.coin END DESC, " +
-           "CASE WHEN :sortField = 'PRICE' AND :sortDirection = 'ASC' AND :coinType = 'FISH_COIN' THEN i.fishCoin END ASC, " +
-           "CASE WHEN :sortField = 'PRICE' AND :sortDirection = 'DESC' AND :coinType = 'FISH_COIN' THEN i.fishCoin END DESC, " +
+           "CASE WHEN :sortField = 'PRICE' AND :coinType = 'COIN' AND :sortDirection = 'ASC' THEN i.coin END ASC, " +
+           "CASE WHEN :sortField = 'PRICE' AND :coinType = 'COIN' AND :sortDirection = 'DESC' THEN i.coin END DESC, " +
+           "CASE WHEN :sortField = 'PRICE' AND :coinType = 'FISH_COIN' AND :sortDirection = 'ASC' THEN i.fishCoin END ASC, " +
+           "CASE WHEN :sortField = 'PRICE' AND :coinType = 'FISH_COIN' AND :sortDirection = 'DESC' THEN i.fishCoin END DESC, " +
            "CASE WHEN :sortField = 'RARITY' AND :sortDirection = 'ASC' THEN i.rarity END ASC, " +
            "CASE WHEN :sortField = 'RARITY' AND :sortDirection = 'DESC' THEN i.rarity END DESC, " +
            "CASE WHEN :sortField = 'CREATED_AT' AND :sortDirection = 'ASC' THEN i.createdAt END ASC, " +

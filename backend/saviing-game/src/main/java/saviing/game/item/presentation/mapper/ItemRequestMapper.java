@@ -1,6 +1,5 @@
 package saviing.game.item.presentation.mapper;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import saviing.game.item.application.dto.query.GetItemQuery;
 import saviing.game.item.application.dto.enums.CoinType;
@@ -18,7 +17,6 @@ import saviing.game.item.domain.model.enums.category.Category;
  * Presentation layer Request를 Application layer Query로 변환하는 Mapper
  * 요청 파라미터를 적절한 Query 객체로 변환합니다.
  */
-@Slf4j
 @Component
 public class ItemRequestMapper {
 
@@ -71,10 +69,9 @@ public class ItemRequestMapper {
             return null;
         }
         try {
-            return ItemType.valueOf(type.toUpperCase());
+            return ItemType.valueOf(type);
         } catch (IllegalArgumentException e) {
-            log.warn("유효하지 않은 아이템 타입: {}", type);
-            return null;
+            throw new IllegalArgumentException("유효하지 않은 아이템 타입: " + type + ". 사용 가능한 값: PET, ACCESSORY, DECORATION");
         }
     }
 
@@ -86,30 +83,22 @@ public class ItemRequestMapper {
             return null;
         }
 
+        // PET 카테고리 시도
         try {
-            String upperCategory = category.toUpperCase();
+            return Pet.valueOf(category);
+        } catch (IllegalArgumentException ignored) {}
 
-            // PET 카테고리 시도
-            try {
-                return Pet.valueOf(upperCategory);
-            } catch (IllegalArgumentException ignored) {}
+        // ACCESSORY 카테고리 시도
+        try {
+            return Accessory.valueOf(category);
+        } catch (IllegalArgumentException ignored) {}
 
-            // ACCESSORY 카테고리 시도
-            try {
-                return Accessory.valueOf(upperCategory);
-            } catch (IllegalArgumentException ignored) {}
+        // DECORATION 카테고리 시도
+        try {
+            return Decoration.valueOf(category);
+        } catch (IllegalArgumentException ignored) {}
 
-            // DECORATION 카테고리 시도
-            try {
-                return Decoration.valueOf(upperCategory);
-            } catch (IllegalArgumentException ignored) {}
-
-            log.warn("유효하지 않은 카테고리: {}", category);
-            return null;
-        } catch (Exception e) {
-            log.warn("카테고리 파싱 오류: {}", category, e);
-            return null;
-        }
+        throw new IllegalArgumentException("유효하지 않은 카테고리: " + category + ". 사용 가능한 값: CAT (펫); HAT (액세서리); LEFT, RIGHT, BOTTOM, ROOM_COLOR (데코레이션)");
     }
 
     /**
@@ -120,10 +109,9 @@ public class ItemRequestMapper {
             return null;
         }
         try {
-            return Rarity.valueOf(rarity.toUpperCase());
+            return Rarity.valueOf(rarity);
         } catch (IllegalArgumentException e) {
-            log.warn("유효하지 않은 희귀도: {}", rarity);
-            return null;
+            throw new IllegalArgumentException("유효하지 않은 희귀도: " + rarity + ". 사용 가능한 값: COMMON, RARE, EPIC, LEGENDARY");
         }
     }
 
@@ -132,23 +120,12 @@ public class ItemRequestMapper {
      */
     private SortField parseSortField(String sortField) {
         if (sortField == null || sortField.isBlank()) {
-            return SortField.NAME; // 기본값
+            return SortField.NAME;
         }
         try {
-            return switch (sortField.toLowerCase()) {
-                case "name" -> SortField.NAME;
-                case "price" -> SortField.PRICE;
-                case "rarity" -> SortField.RARITY;
-                case "createdat" -> SortField.CREATED_AT;
-                case "updatedat" -> SortField.UPDATED_AT;
-                default -> {
-                    log.warn("유효하지 않은 정렬 필드: {}", sortField);
-                    yield SortField.NAME;
-                }
-            };
-        } catch (Exception e) {
-            log.warn("정렬 필드 파싱 오류: {}", sortField, e);
-            return SortField.NAME;
+            return SortField.valueOf(sortField);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("유효하지 않은 정렬 필드: " + sortField + ". 사용 가능한 값: NAME, PRICE, RARITY, CREATED_AT, UPDATED_AT");
         }
     }
 
@@ -157,20 +134,12 @@ public class ItemRequestMapper {
      */
     private SortDirection parseSortDirection(String sortDirection) {
         if (sortDirection == null || sortDirection.isBlank()) {
-            return SortDirection.ASC; // 기본값
+            return SortDirection.ASC;
         }
         try {
-            return switch (sortDirection.toLowerCase()) {
-                case "asc" -> SortDirection.ASC;
-                case "desc" -> SortDirection.DESC;
-                default -> {
-                    log.warn("유효하지 않은 정렬 방향: {}", sortDirection);
-                    yield SortDirection.ASC;
-                }
-            };
-        } catch (Exception e) {
-            log.warn("정렬 방향 파싱 오류: {}", sortDirection, e);
-            return SortDirection.ASC;
+            return SortDirection.valueOf(sortDirection);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("유효하지 않은 정렬 방향: " + sortDirection + ". 사용 가능한 값: ASC, DESC");
         }
     }
 
@@ -179,20 +148,12 @@ public class ItemRequestMapper {
      */
     private CoinType parseCoinType(String coinType) {
         if (coinType == null || coinType.isBlank()) {
-            return CoinType.COIN; // 기본값
+            return CoinType.COIN;
         }
         try {
-            return switch (coinType.toLowerCase()) {
-                case "coin" -> CoinType.COIN;
-                case "fishcoin" -> CoinType.FISH_COIN;
-                default -> {
-                    log.warn("유효하지 않은 코인 타입: {}", coinType);
-                    yield CoinType.COIN;
-                }
-            };
-        } catch (Exception e) {
-            log.warn("코인 타입 파싱 오류: {}", coinType, e);
-            return CoinType.COIN;
+            return CoinType.valueOf(coinType);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("유효하지 않은 코인 타입: " + coinType + ". 사용 가능한 값: COIN, FISH_COIN");
         }
     }
 }

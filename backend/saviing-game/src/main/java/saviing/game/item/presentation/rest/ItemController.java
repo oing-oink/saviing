@@ -37,8 +37,8 @@ public class ItemController implements ItemApi {
         @RequestParam(required = false) String rarity,
         @RequestParam(required = false) String keyword,
         @RequestParam(required = false) Boolean available,
-        @RequestParam(defaultValue = "name") String sort,
-        @RequestParam(defaultValue = "asc") String order,
+        @RequestParam(defaultValue = "NAME") String sort,
+        @RequestParam(defaultValue = "ASC") String order,
         @RequestParam(required = false) String coinType
     ) {
         log.info("아이템 목록 조회 요청: type={}, category={}, rarity={}, sort={}, order={}",

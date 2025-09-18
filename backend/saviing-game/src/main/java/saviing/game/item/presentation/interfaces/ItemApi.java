@@ -53,13 +53,13 @@ public interface ItemApi {
         @Parameter(description = "판매 가용성 (true: 판매중, false: 판매중단)", example = "true")
         Boolean available,
 
-        @Parameter(description = "정렬 필드 (name, price, rarity, createdAt)", example = "price")
+        @Parameter(description = "정렬 필드 (NAME, PRICE, RARITY, CREATED_AT, UPDATED_AT)", example = "NAME")
         String sort,
 
-        @Parameter(description = "정렬 방향 (asc, desc)", example = "asc")
+        @Parameter(description = "정렬 방향 (ASC, DESC)", example = "ASC")
         String order,
 
-        @Parameter(description = "가격 정렬시 코인 타입 (coin, fishCoin)", example = "coin")
+        @Parameter(description = "가격 정렬시 코인 타입 (COIN, FISH_COIN)", example = "COIN")
         String coinType
     );
 
