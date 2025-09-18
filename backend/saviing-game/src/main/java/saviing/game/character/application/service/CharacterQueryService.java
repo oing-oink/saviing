@@ -69,6 +69,19 @@ public class CharacterQueryService {
     }
 
     /**
+     * 캐릭터의 잔액이 충분한지 확인합니다.
+     *
+     * @param characterId 캐릭터 ID
+     * @param coinAmount 필요한 코인 수량
+     * @param fishCoinAmount 필요한 피쉬 코인 수량
+     * @return 잔액 충분 여부
+     */
+    public boolean hasSufficientFunds(Long characterId, Integer coinAmount, Integer fishCoinAmount) {
+        Character character = findCharacterById(CharacterId.of(characterId));
+        return character.hasSufficientFunds(coinAmount, fishCoinAmount);
+    }
+
+    /**
      * 캐릭터 ID로 캐릭터를 조회합니다.
      *
      * @param characterId 캐릭터 ID
