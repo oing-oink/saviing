@@ -18,7 +18,6 @@ export interface SavingsInfo {
   termPeriod: number;
   termPeriodUnit: string;
   maturityDate: string;
-  createdAt: number;
 }
 
 /**

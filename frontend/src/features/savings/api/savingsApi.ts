@@ -14,7 +14,8 @@ import {
  *
  * development 모드에서는 true, production에서는 false로 설정됩니다.
  */
-const USE_MOCK = import.meta.env.MODE === 'development';
+//const USE_MOCK = import.meta.env.MODE === 'development';
+const USE_MOCK = false;
 
 /**
  * 특정 적금 계좌의 상세 정보를 조회하는 API 함수
@@ -37,7 +38,7 @@ export const getSavingsAccount = async (
 
   // 실제 API 호출
   const response = await http.get<SavingsAccountData>(
-    `/v1/savings/accounts/${accountId}`,
+    `/v1/accounts/id/${accountId}`,
   );
   return response.body!;
 };
@@ -65,7 +66,7 @@ export const getSavingsTransactions = async (
 
   // 실제 API 호출
   const response = await http.get<TransactionData[]>(
-    `/v1/savings/transactions/${accountId}`,
+    `/v1/transactions/accounts/${accountId}`,
     {
       params: {
         accountId,
