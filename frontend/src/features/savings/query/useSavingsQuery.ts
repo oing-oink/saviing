@@ -2,6 +2,7 @@ import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import {
   getSavingsAccount,
   getSavingsTransactions,
+  getAllAccounts,
 } from '@/features/savings/api/savingsApi';
 import { savingsKeys } from '@/features/savings/query/savingsKeys';
 import type {
@@ -9,6 +10,18 @@ import type {
   TransactionDisplayData,
 } from '@/features/savings/types/savingsTypes';
 import { useMemo } from 'react';
+
+/**
+ * 고객의 모든 계좌 목록을 조회하는 React Query 훅
+ *
+ * @returns 계좌 목록 쿼리 결과
+ */
+export const useAccountsList = () => {
+  return useQuery({
+    queryKey: savingsKeys.accountsList(),
+    queryFn: () => getAllAccounts(),
+  });
+};
 
 /**
  * 적금 계좌 상세 정보를 조회하는 React Query 훅
