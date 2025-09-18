@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useGetAccountStore } from '@/features/savings/store/useGetAccountStore';
 import { useStepProgress } from '@/features/savings/hooks/useStepProgress';
 import { Button } from '@/shared/components/ui/button';
-import FunnelLayout from '@/features/savings/components/FunnelLayout';
 
 const UserInfoStep = () => {
   const { setForm, form } = useGetAccountStore();
@@ -22,7 +21,7 @@ const UserInfoStep = () => {
   };
 
   return (
-    <FunnelLayout>
+    <>
       {/* 메인 컨텐츠 */}
       <div className="flex flex-1 flex-col px-6 py-8">
         <h1 className="mb-2 text-xl font-bold text-gray-900">
@@ -83,7 +82,7 @@ const UserInfoStep = () => {
           자격 확인하기
         </Button>
       </div>
-    </FunnelLayout>
+    </>
   );
 };
 

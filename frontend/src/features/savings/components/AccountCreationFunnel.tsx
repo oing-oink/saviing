@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import FunnelStep from '@/features/savings/components/FunnelStep';
+import FunnelLayout from '@/features/savings/components/FunnelLayout';
 import {
   StartStep,
   AccountTypeStep,
@@ -34,37 +35,39 @@ const AccountCreationFunnel = () => {
     <div className="saving min-h-screen bg-gray-50">
       <FunnelProgressBar />
 
-      <FunnelStep name="START">
-        <StartStep />
-      </FunnelStep>
+      <FunnelLayout>
+        <FunnelStep name="START">
+          <StartStep />
+        </FunnelStep>
 
-      <FunnelStep name="PRODUCT_TYPE">
-        <AccountTypeStep />
-      </FunnelStep>
+        <FunnelStep name="PRODUCT_TYPE">
+          <AccountTypeStep />
+        </FunnelStep>
 
-      <FunnelStep name="USER_INFO">
-        <UserInfoStep />
-      </FunnelStep>
+        <FunnelStep name="USER_INFO">
+          <UserInfoStep />
+        </FunnelStep>
 
-      <FunnelStep name="AUTH">
-        <AuthStep />
-      </FunnelStep>
+        <FunnelStep name="AUTH">
+          <AuthStep />
+        </FunnelStep>
 
-      <FunnelStep name="TERMS">
-        <TermsStep />
-      </FunnelStep>
+        <FunnelStep name="TERMS">
+          <TermsStep />
+        </FunnelStep>
 
-      <FunnelStep name="SET_CONDITION">
-        <SetConditionStep />
-      </FunnelStep>
+        <FunnelStep name="SET_CONDITION">
+          <SetConditionStep />
+        </FunnelStep>
 
-      <FunnelStep name="CONFIRM">
-        <ConfirmStep />
-      </FunnelStep>
+        <FunnelStep name="CONFIRM">
+          <ConfirmStep />
+        </FunnelStep>
 
-      <FunnelStep name="COMPLETE">
-        <CompleteStep />
-      </FunnelStep>
+        <FunnelStep name="COMPLETE">
+          <CompleteStep />
+        </FunnelStep>
+      </FunnelLayout>
     </div>
   );
 };

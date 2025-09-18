@@ -1,7 +1,6 @@
 import { useGetAccountStore } from '@/features/savings/store/useGetAccountStore';
 import { Landmark } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
-import FunnelLayout from '@/features/savings/components/FunnelLayout';
 
 const StartStep = () => {
   const setStep = useGetAccountStore(state => state.setStep);
@@ -11,7 +10,7 @@ const StartStep = () => {
   };
 
   return (
-    <FunnelLayout>
+    <>
       {/* 메인 컨텐츠 */}
       <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
         <h1 className="mb-2 text-xl font-bold text-gray-900">
@@ -39,7 +38,7 @@ const StartStep = () => {
           시작하기
         </Button>
       </div>
-    </FunnelLayout>
+    </>
   );
 };
 

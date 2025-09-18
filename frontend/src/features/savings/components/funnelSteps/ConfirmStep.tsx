@@ -1,6 +1,5 @@
 import { useGetAccountStore } from '@/features/savings/store/useGetAccountStore';
 import { Button } from '@/shared/components/ui/button';
-import FunnelLayout from '@/features/savings/components/FunnelLayout';
 
 const ConfirmStep = () => {
   const { form, setStep } = useGetAccountStore();
@@ -18,7 +17,7 @@ const ConfirmStep = () => {
   };
 
   return (
-    <FunnelLayout>
+    <>
       {/* 메인 컨텐츠 */}
       <div className="flex flex-1 flex-col px-6 py-8">
         <h1 className="mb-2 text-xl font-bold text-gray-900">
@@ -79,7 +78,7 @@ const ConfirmStep = () => {
           계좌 개설하기
         </Button>
       </div>
-    </FunnelLayout>
+    </>
   );
 };
 

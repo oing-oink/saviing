@@ -2,7 +2,6 @@ import { Check } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { PAGE_PATH } from '@/shared/constants/path';
-import FunnelLayout from '@/features/savings/components/FunnelLayout';
 
 const CompleteStep = () => {
   const navigate = useNavigate();
@@ -12,7 +11,7 @@ const CompleteStep = () => {
   };
 
   return (
-    <FunnelLayout>
+    <>
       {/* 메인 컨텐츠 */}
       <div className="flex flex-1 flex-col items-center justify-center px-6 py-12 text-center">
         {/* 체크 아이콘 */}
@@ -38,7 +37,7 @@ const CompleteStep = () => {
           메인으로 가기
         </Button>
       </div>
-    </FunnelLayout>
+    </>
   );
 };
 

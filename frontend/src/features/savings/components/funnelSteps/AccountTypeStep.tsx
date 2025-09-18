@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useGetAccountStore } from '@/features/savings/store/useGetAccountStore';
 import { useStepProgress } from '@/features/savings/hooks/useStepProgress';
 import { Button } from '@/shared/components/ui/button';
-import FunnelLayout from '@/features/savings/components/FunnelLayout';
 import {
   ACCOUNT_TYPE_OPTIONS,
   type AccountType,
@@ -24,7 +23,7 @@ const AccountTypeStep = () => {
   };
 
   return (
-    <FunnelLayout>
+    <>
       {/* 메인 컨텐츠 */}
       <div className="flex flex-1 flex-col px-6 py-8">
         <h1 className="mb-2 text-xl font-bold text-gray-900">
@@ -67,7 +66,7 @@ const AccountTypeStep = () => {
           다음
         </Button>
       </div>
-    </FunnelLayout>
+    </>
   );
 };
 

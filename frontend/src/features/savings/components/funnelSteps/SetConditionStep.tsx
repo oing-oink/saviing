@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useGetAccountStore } from '@/features/savings/store/useGetAccountStore';
 import { Button } from '@/shared/components/ui/button';
-import FunnelLayout from '@/features/savings/components/FunnelLayout';
 
 const SetConditionStep = () => {
   const { setStep, setForm, form } = useGetAccountStore();
@@ -30,7 +29,7 @@ const SetConditionStep = () => {
   };
 
   return (
-    <FunnelLayout>
+    <>
       {/* 메인 컨텐츠 */}
       <div className="flex flex-1 flex-col px-6 py-8">
         <h1 className="mb-2 text-xl font-bold text-gray-900">
@@ -120,7 +119,7 @@ const SetConditionStep = () => {
           설정 완료
         </Button>
       </div>
-    </FunnelLayout>
+    </>
   );
 };
 
