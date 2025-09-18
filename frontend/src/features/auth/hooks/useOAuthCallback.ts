@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { loginWithGoogleCode } from '../api/authApi';
+import { loginWithGoogleCode } from '@/features/auth/api/authApi';
 import { useCustomerStore } from '@/features/auth/store/useCustomerStore';
 
 interface UseOAuthCallbackState {
