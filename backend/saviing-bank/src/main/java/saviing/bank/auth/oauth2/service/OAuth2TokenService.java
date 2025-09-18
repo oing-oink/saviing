@@ -10,6 +10,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import jakarta.servlet.http.HttpServletRequest;
 import saviing.bank.auth.oauth2.userinfo.OAuth2UserInfo;
 import saviing.bank.auth.oauth2.userinfo.OAuth2UserInfoFactory;
 import saviing.bank.auth.oauth2.exception.OAuth2ErrorCode;
@@ -58,23 +59,26 @@ public class OAuth2TokenService {
      * OAuth2 로그인 처리 - Access Token과 Refresh Token 쿠키를 포함한 완전한 로그인 응답 생성
      */
     @Transactional
-    public LoginResponseWithCookie processLogin(String authorizationCode, String redirectUri) {
-        // 1. Authorization Code → Google Access Token
+    public LoginResponseWithCookie processLogin(String authorizationCode, HttpServletRequest request) {
+        // 1. Referer 헤더 기반으로 적절한 redirect URI 선택
+        String redirectUri = selectRedirectUri(request);
+
+        // 2. Authorization Code → Google Access Token
         String googleAccessToken = exchangeCodeForAccessToken(authorizationCode, redirectUri);
 
-        // 2. Google Access Token → 사용자 정보
+        // 3. Google Access Token → 사용자 정보
         OAuth2UserInfo userInfo = getUserInfo(googleAccessToken);
 
-        // 3. Customer 생성 또는 조회
+        // 4. Customer 생성 또는 조회
         Customer customer = processCustomer(userInfo);
 
-        // 4. JWT Access Token 생성
+        // 5. JWT Access Token 생성
         String accessToken = createAccessToken(customer);
 
-        // 5. Refresh Token 생성 및 쿠키 설정
+        // 6. Refresh Token 생성 및 쿠키 설정
         ResponseCookie refreshTokenCookie = createRefreshTokenCookie(customer);
 
-        // 6. 로그인 응답 생성
+        // 7. 로그인 응답 생성
         LoginResponse loginResponse = LoginResponse.of(
             accessToken,
             customer.getCustomerId(),
@@ -85,21 +89,40 @@ public class OAuth2TokenService {
     }
 
     /**
-     * OAuth2 Authorization Code를 처리하여 Customer를 생성/조회하고 JWT 토큰 발급
+     * Referer 헤더를 기반으로 적절한 redirect URI 선택
      */
-    @Transactional
-    public TokenResponse exchangeCodeForToken(String authorizationCode, String redirectUri) {
-        // 1. Authorization Code → Google Access Token
-        String googleAccessToken = exchangeCodeForAccessToken(authorizationCode, redirectUri);
+    private String selectRedirectUri(HttpServletRequest request) {
+        String referer = request.getHeader("Referer");
+        String[] allowedUris = googleRedirectUri.split(",");
 
-        // 2. Google Access Token → 사용자 정보
-        OAuth2UserInfo userInfo = getUserInfo(googleAccessToken);
+        // Referer 헤더가 없거나 빈 문자열인 경우 첫 번째 URI 사용
+        if (referer == null || referer.trim().isEmpty()) {
+            log.warn("Referer 헤더가 없습니다. 기본 redirect URI 사용: {}", allowedUris[0].trim());
+            return allowedUris[0].trim();
+        }
 
-        // 3. Customer 생성 또는 조회
-        Customer customer = processCustomer(userInfo);
+        // Referer에 따라 매핑
+        if (referer.contains("localhost") || referer.contains("127.0.0.1")) {
+            // 로컬 환경
+            for (String uri : allowedUris) {
+                if (uri.trim().contains("localhost")) {
+                    log.debug("로컬 환경 감지, redirect URI: {}", uri.trim());
+                    return uri.trim();
+                }
+            }
+        } else if (referer.contains("dev.saviing.life")) {
+            // 개발 서버 환경
+            for (String uri : allowedUris) {
+                if (uri.trim().contains("dev.saviing.life")) {
+                    log.debug("개발 서버 환경 감지, redirect URI: {}", uri.trim());
+                    return uri.trim();
+                }
+            }
+        }
 
-        // 4. JWT 토큰 응답 생성
-        return createTokenResponse(customer);
+        // 매칭되는 것이 없으면 첫 번째 URI 사용
+        log.warn("Referer '{}'에 매칭되는 redirect URI를 찾을 수 없습니다. 기본 URI 사용: {}", referer, allowedUris[0].trim());
+        return allowedUris[0].trim();
     }
 
     /**
@@ -156,8 +179,7 @@ public class OAuth2TokenService {
      * Authorization Code를 Google Access Token으로 교환
      */
     private String exchangeCodeForAccessToken(String authorizationCode, String redirectUri) {
-        // 허용된 redirect URI인지 검증
-        validateRedirectUri(redirectUri);
+        log.debug("Google OAuth2 토큰 교환 시작 - redirect URI: {}", redirectUri);
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("client_id", googleClientId);
@@ -178,21 +200,6 @@ public class OAuth2TokenService {
             .filter(response -> response.containsKey("access_token"))
             .map(response -> (String) response.get("access_token"))
             .orElseThrow(() -> new BusinessException(OAuth2ErrorCode.TOKEN_EXCHANGE_FAILED));
-    }
-
-    /**
-     * Redirect URI 유효성 검증
-     */
-    private void validateRedirectUri(String redirectUri) {
-        String[] allowedUris = googleRedirectUri.split(",");
-        for (String allowedUri : allowedUris) {
-            if (allowedUri.trim().equals(redirectUri)) {
-                return;
-            }
-        }
-
-        log.warn("허용되지 않은 redirect URI 접근 시도: {}. 허용된 URI: {}", redirectUri, googleRedirectUri);
-        throw new BusinessException(OAuth2ErrorCode.INVALID_REDIRECT_URI);
     }
 
     /**
