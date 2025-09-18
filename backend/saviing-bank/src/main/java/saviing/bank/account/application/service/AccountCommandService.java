@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.Map;
 
+import saviing.bank.common.vo.MoneyWon;
 import saviing.common.annotation.ExecutionTime;
 import saviing.bank.account.application.port.in.CreateAccountUseCase;
 import saviing.bank.account.application.port.in.command.CreateAccountCommand;
@@ -62,6 +63,9 @@ public class AccountCommandService implements CreateAccountUseCase {
             command.productId(),
             Instant.now()
         );
+
+        // 자유입출금 계좌 1000만원 지급 (테스트)
+        account.deposit(MoneyWon.of(10_000_000L));
 
         // 상품별 기본 금리 설정 (자유입출금은 0%)
         setDefaultInterestRate(account, product);
