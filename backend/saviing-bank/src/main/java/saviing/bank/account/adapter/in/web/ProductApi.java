@@ -13,6 +13,7 @@ import java.util.List;
 import saviing.bank.account.adapter.in.web.dto.response.ProductDetailResponse;
 import saviing.bank.account.adapter.in.web.dto.response.ProductSummaryResponse;
 import saviing.common.response.ApiResult;
+import saviing.common.response.ErrorResult;
 
 @Tag(name = "상품 관리", description = "금융 상품 조회 API")
 public interface ProductApi {
@@ -40,8 +41,7 @@ public interface ProductApi {
     @ApiResponse(
         responseCode = "404",
         description = "상품을 찾을 수 없음",
-        content = @Content(
-            schema = @Schema(implementation = saviing.common.response.ErrorResult.class)
+        content = @Content(schema = @Schema(implementation = ErrorResult.class)
         )
     )
     ApiResult<ProductDetailResponse> getProductByCode(
