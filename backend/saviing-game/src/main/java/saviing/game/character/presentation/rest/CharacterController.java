@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/v1/games/characters")
+@RequestMapping("/v1/game/characters")
 public class CharacterController implements CharacterApi {
 
     private final CharacterCommandService characterCommandService;

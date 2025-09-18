@@ -23,7 +23,6 @@ public interface CharacterInternalApi {
     )
     @ApiResponse(responseCode = "400", description = "잘못된 계좌 연결 상태")
     @ApiResponse(responseCode = "404", description = "캐릭터를 찾을 수 없음")
-    @PutMapping("/{characterId}/account")
     ApiResult<Void> completeAccountConnection(
         @Parameter(description = "캐릭터 ID", required = true, example = "1")
         @PathVariable Long characterId,
@@ -37,7 +36,6 @@ public interface CharacterInternalApi {
     )
     @ApiResponse(responseCode = "400", description = "잘못된 코인 수량")
     @ApiResponse(responseCode = "404", description = "캐릭터를 찾을 수 없음")
-    @PostMapping("/{characterId}/transactions")
     ApiResult<Void> addCoins(
         @Parameter(description = "캐릭터 ID", required = true, example = "1")
         @PathVariable Long characterId,
@@ -50,7 +48,6 @@ public interface CharacterInternalApi {
         description = "Bank 서버에서 계좌가 해지되었을 때 Game 서버에 알립니다."
     )
     @ApiResponse(responseCode = "404", description = "캐릭터를 찾을 수 없음")
-    @PostMapping("/{characterId}/events")
     ApiResult<Void> handleAccountTerminated(
         @Parameter(description = "캐릭터 ID", required = true, example = "1")
         @PathVariable Long characterId,
@@ -64,7 +61,6 @@ public interface CharacterInternalApi {
     )
     @ApiResponse(responseCode = "400", description = "잘못된 캐릭터 상태")
     @ApiResponse(responseCode = "404", description = "캐릭터를 찾을 수 없음")
-    @PutMapping("/{characterId}/status")
     ApiResult<Void> deactivateCharacter(
         @Parameter(description = "캐릭터 ID", required = true, example = "1")
         @PathVariable Long characterId
