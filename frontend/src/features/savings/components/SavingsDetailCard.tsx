@@ -16,7 +16,7 @@ interface SavingsDetailCardProps {
   data?: SavingsDisplayData;
   isLoading: boolean;
   error: Error | null;
-  progressSectionRef?: React.RefObject<HTMLDivElement>;
+  progressSectionRef?: React.RefObject<HTMLDivElement | null>;
   isSticky?: boolean;
 }
 

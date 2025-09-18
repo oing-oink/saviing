@@ -17,15 +17,21 @@ const useBottomNav = () => {
 
   // 현재 URL 경로에 따라 활성 메뉴 결정
   const getActiveMenuFromPath = (pathname: string) => {
-    if (pathname === '/') return 'Home';
-    if (pathname.startsWith('/wallet')) return 'Wallet';
+    if (pathname === '/') {
+      return 'Home';
+    }
+    if (pathname.startsWith('/wallet')) {
+      return 'Wallet';
+    }
     // 게임, 쇼핑 등 다른 페이지들은 추후 추가 가능
     // if (pathname.startsWith('/game')) return 'Stats';
     // if (pathname.startsWith('/profile')) return 'Profile';
     return 'Home'; // 기본값
   };
 
-  const [active, setActive] = useState(() => getActiveMenuFromPath(location.pathname));
+  const [active, setActive] = useState(() =>
+    getActiveMenuFromPath(location.pathname),
+  );
 
   // URL 변경 시 활성 메뉴 업데이트 (뒤로가기/앞으로가기 대응)
   useEffect(() => {

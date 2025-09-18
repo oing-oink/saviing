@@ -33,7 +33,7 @@ export const router = createBrowserRouter([
   { path: PAGE_PATH.LOGIN, element: <LoginPage /> },
   { path: PAGE_PATH.SAVINGS, element: <SavingsPage /> },
   {
-    path: PAGE_PATH.SAVINGS_DETAIL,
+    path: PAGE_PATH.SAVINGS_DETAIL_WITH_ID,
     element: <SavingsDetailLayout title="적금 상세" />,
     children: [{ index: true, element: <SavingsDetailPage /> }],
   },

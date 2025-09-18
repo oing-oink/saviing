@@ -1,15 +1,12 @@
-import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Progress } from '@/shared/components/ui/progress';
 import { useAccountsList } from '@/features/savings/query/useSavingsQuery';
-import { useSavingsStore } from '@/features/savings/store/useSavingsStore';
 import saving from '@/assets/saving/saving.png';
 import freeSaving from '@/assets/saving/freeSaving.png';
-import { PAGE_PATH } from '@/shared/constants/path';
+import { createSavingsDetailPath } from '@/shared/constants/path';
 
 const SavingCard = () => {
   const { data: accounts, isLoading, error } = useAccountsList();
-  const { setCurrentAccount, currentAccountId } = useSavingsStore();
   const navigate = useNavigate();
 
   // 계좌 유형별로 분리
@@ -20,17 +17,11 @@ const SavingCard = () => {
     account => account.product.productCategory === 'DEMAND_DEPOSIT',
   );
 
-  // 적금 계좌 정보를 store에 저장
-  useEffect(() => {
-    if (savingsAccount) {
-      setCurrentAccount(savingsAccount.accountId, savingsAccount.accountNumber);
-    }
-  }, [savingsAccount, setCurrentAccount]);
 
   // 저축 관리 페이지로 이동
   const handleSavingsManagement = () => {
-    if (currentAccountId) {
-      navigate(PAGE_PATH.SAVINGS_DETAIL);
+    if (savingsAccount?.accountId) {
+      navigate(createSavingsDetailPath(savingsAccount.accountId));
     }
   };
 
@@ -140,7 +131,7 @@ const SavingCard = () => {
       <div className="flex border-t border-gray-200 pt-3">
         <button
           onClick={handleSavingsManagement}
-          disabled={!currentAccountId}
+          disabled={!savingsAccount?.accountId}
           className="font-lg flex-1 py-1 text-center font-bold text-primary disabled:text-gray-400"
         >
           저축 관리

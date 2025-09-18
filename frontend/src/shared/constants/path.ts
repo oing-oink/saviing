@@ -5,6 +5,7 @@ export const PAGE_PATH = {
   SAVINGS: '/savings',
   ACCOUNT_CREATION: '/account-creation',
   SAVINGS_DETAIL: '/savings/detail',
+  SAVINGS_DETAIL_WITH_ID: '/savings/detail/:accountId',
   GAME: '/game',
   SHOP: '/shop',
   GACHA: '/gacha',
@@ -13,6 +14,10 @@ export const PAGE_PATH = {
   COLORTEST: '/colortest',
   NOT_FOUND: '*',
 } as const;
+
+// 동적 경로 생성 헬퍼 함수
+export const createSavingsDetailPath = (accountId: string | number) => 
+  `/savings/detail/${accountId}`;
 
 // 계좌 생성 URL
 export const ACCOUNT_CREATION_STEPS_PATH = {
