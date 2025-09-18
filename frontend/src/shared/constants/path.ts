@@ -3,6 +3,7 @@ export const PAGE_PATH = {
   WALLET: '/wallet',
   LOGIN: '/login',
   SAVINGS: '/savings',
+  GET_ACCOUNT: '/get-account',
   GAME: '/game',
   SHOP: '/shop',
   GACHA: '/gacha',

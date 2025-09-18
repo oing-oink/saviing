@@ -12,6 +12,7 @@ import GachaRollingPage from '@/pages/GachaRollingPage';
 import DecoPage from '@/pages/DecoPage';
 import SavingsLayout from '@/features/savings/components/SavingsLayout';
 import WalletPage from '@/pages/WalletPage';
+import GetAccountFunnel from '@/features/savings/components/GetAccountFunnel';
 
 export const router = createBrowserRouter([
   {
@@ -22,6 +23,7 @@ export const router = createBrowserRouter([
       { path: PAGE_PATH.WALLET, element: <WalletPage /> },
     ],
   },
+  { path: PAGE_PATH.GET_ACCOUNT, element: <GetAccountFunnel /> },
   { path: PAGE_PATH.LOGIN, element: <LoginPage /> },
   { path: PAGE_PATH.SAVINGS, element: <SavingsPage /> },
   { path: PAGE_PATH.GAME, element: <GamePage /> },
