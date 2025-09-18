@@ -4,7 +4,7 @@ export const PAGE_PATH = {
   LOGIN: '/login',
   SAVINGS: '/savings',
   ACCOUNT_CREATION: '/account-creation',
-  SAVINGS_DETAIL: '/savings/:accountId',
+  SAVINGS_DETAIL: '/savings/detail',
   GAME: '/game',
   SHOP: '/shop',
   GACHA: '/gacha',

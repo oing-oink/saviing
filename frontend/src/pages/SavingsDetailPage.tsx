@@ -1,18 +1,18 @@
-import { useParams } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { useSavingsDisplayData } from '@/features/savings/query/useSavingsQuery';
+import { useSavingsStore } from '@/features/savings/store/useSavingsStore';
 import { useScroll } from '@/shared/hooks/useScroll';
 import SavingsDetailCard from '@/features/savings/components/SavingsDetailCard';
 import SavingsTransactionList from '@/features/savings/components/SavingsTransactionList';
 import StickyBalance from '@/features/savings/components/StickyBalance';
 
 const SavingsDetailPage = () => {
-  const { accountId } = useParams<{ accountId: string }>();
+  const { currentAccountId } = useSavingsStore();
   const {
     data: savingsData,
     isLoading,
     error,
-  } = useSavingsDisplayData(accountId!);
+  } = useSavingsDisplayData(currentAccountId?.toString() || '');
 
   const { scrollY, scrollDirection } = useScroll();
   const [isSticky, setIsSticky] = useState(false);
@@ -51,8 +51,8 @@ const SavingsDetailPage = () => {
         />
 
         {/* 적금 계좌 데이터가 로드된 후에만 거래 내역 표시 */}
-        {accountId && !isLoading && !error && (
-          <SavingsTransactionList accountId={accountId} />
+        {currentAccountId && !isLoading && !error && (
+          <SavingsTransactionList accountId={currentAccountId.toString()} />
         )}
       </div>
     </>

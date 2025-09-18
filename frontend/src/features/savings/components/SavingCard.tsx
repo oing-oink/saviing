@@ -1,10 +1,16 @@
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Progress } from '@/shared/components/ui/progress';
 import { useAccountsList } from '@/features/savings/query/useSavingsQuery';
+import { useSavingsStore } from '@/features/savings/store/useSavingsStore';
 import saving from '@/assets/saving/saving.png';
 import freeSaving from '@/assets/saving/freeSaving.png';
+import { PAGE_PATH } from '@/shared/constants/path';
 
 const SavingCard = () => {
   const { data: accounts, isLoading, error } = useAccountsList();
+  const { setCurrentAccount, currentAccountId } = useSavingsStore();
+  const navigate = useNavigate();
 
   // 계좌 유형별로 분리
   const savingsAccount = accounts?.find(
@@ -13,6 +19,20 @@ const SavingCard = () => {
   const demandAccount = accounts?.find(
     account => account.product.productCategory === 'DEMAND_DEPOSIT',
   );
+
+  // 적금 계좌 정보를 store에 저장
+  useEffect(() => {
+    if (savingsAccount) {
+      setCurrentAccount(savingsAccount.accountId, savingsAccount.accountNumber);
+    }
+  }, [savingsAccount, setCurrentAccount]);
+
+  // 저축 관리 페이지로 이동
+  const handleSavingsManagement = () => {
+    if (currentAccountId) {
+      navigate(PAGE_PATH.SAVINGS_DETAIL);
+    }
+  };
 
   // 로딩 상태
   if (isLoading) {
@@ -118,7 +138,11 @@ const SavingCard = () => {
 
       {/* 하단 버튼 */}
       <div className="flex border-t border-gray-200 pt-3">
-        <button className="font-lg flex-1 py-1 text-center font-bold text-primary">
+        <button
+          onClick={handleSavingsManagement}
+          disabled={!currentAccountId}
+          className="font-lg flex-1 py-1 text-center font-bold text-primary disabled:text-gray-400"
+        >
           저축 관리
         </button>
         <button className="font-lg flex-1 border-l border-gray-200 py-1 text-center font-bold text-primary">
