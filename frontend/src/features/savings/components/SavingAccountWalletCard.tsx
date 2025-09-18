@@ -1,12 +1,15 @@
 import { Progress } from '@/shared/components/ui/progress';
+import { PAGE_PATH } from '@/shared/constants/path';
 import { Copy } from 'lucide-react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 const SavingsAccountWalletCard = () => {
   const target = 1200000;
   const current = 750000;
   const percent = (current / target) * 100;
+  const navigate = useNavigate();
 
   return (
     <div className="w-full max-w-md rounded-2xl bg-white p-6 font-pretendard shadow">
@@ -45,7 +48,10 @@ const SavingsAccountWalletCard = () => {
         <button className="font-lg flex-1 py-1 text-center font-bold text-primary">
           저축 관리
         </button>
-        <button className="font-lg flex-1 border-l border-gray-200 py-1 text-center font-bold text-primary">
+        <button
+          className="font-lg flex-1 border-l border-gray-200 py-1 text-center font-bold text-primary"
+          onClick={() => navigate(PAGE_PATH.DEPOSIT)}
+        >
           입금
         </button>
       </div>
