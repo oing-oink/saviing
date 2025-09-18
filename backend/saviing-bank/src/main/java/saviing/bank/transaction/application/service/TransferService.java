@@ -3,7 +3,6 @@ package saviing.bank.transaction.application.service;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Map;
-import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,12 +30,14 @@ import saviing.bank.transaction.domain.model.transfer.TransferStatus;
 import saviing.bank.transaction.domain.vo.AccountSnapshot;
 import saviing.bank.transaction.domain.vo.AccountStatusSnapshot;
 import saviing.bank.transaction.domain.vo.TransferSnapshot;
-import saviing.bank.transaction.application.service.LedgerService;
 import saviing.bank.transaction.domain.service.TransferDomainService;
 import saviing.bank.transaction.domain.vo.IdempotencyKey;
 import saviing.bank.transaction.domain.vo.TransactionId;
 import saviing.bank.transaction.exception.AccountApiCallException;
+import saviing.bank.transaction.exception.DuplicateTransferRequestException;
 import saviing.bank.transaction.exception.TransferInProgressException;
+import saviing.bank.transaction.exception.TransferValidationException;
+import saviing.bank.transaction.exception.TransactionException;
 import saviing.bank.transaction.exception.TransactionNotFoundException;
 import saviing.common.annotation.ExecutionTime;
 
@@ -49,6 +50,8 @@ import saviing.common.annotation.ExecutionTime;
 @Service
 @RequiredArgsConstructor
 public class TransferService implements TransferUseCase {
+
+    private static final String GENERIC_FAILURE_MESSAGE = "내부 시스템 오류로 송금이 실패했습니다.";
 
     private final LedgerService ledgerService;
     private final TransferDomainService transferDomainService;
@@ -67,7 +70,14 @@ public class TransferService implements TransferUseCase {
     public TransferResult transfer(TransferCommand command) {
         IdempotencyKey idempotencyKey = command.idempotencyKey();
         if (idempotencyKey == null) {
-            idempotencyKey = IdempotencyKey.of(UUID.randomUUID().toString());
+            throw new TransferValidationException(
+                "멱등성 키가 필요합니다",
+                Map.of(
+                    "sourceAccountId", command.sourceAccountId(),
+                    "targetAccountId", command.targetAccountId(),
+                    "valueDate", command.valueDate()
+                )
+            );
         }
         log.info("송금 시작: idempotencyKey={}, sourceAccountId={}, targetAccountId={}, amount={}",
             idempotencyKey.value(), command.sourceAccountId(), command.targetAccountId(), command.amount().amount());
@@ -82,10 +92,19 @@ public class TransferService implements TransferUseCase {
 
         transferDomainService.ensureIdempotency(idempotencyKey);
 
-        // 멱등 재호출로 이미 완료/실패한 송금이면 추가 처리 없이 결과만 반환한다.
+        // 멱등 재호출로 이미 완료/실패한 송금이면 예외를 발생시켜 중복 처리를 차단한다.
         if (ledgerSnapshot.status().isTerminal()) {
-            log.info("멱등 재호출로 기존 결과 반환: idempotencyKey={}, status={}", idempotencyKey.value(), ledgerSnapshot.status());
-            return mapToResult(ledgerSnapshot);
+            log.info(
+                "멱등 재호출 감지: idempotencyKey={}, status={}",
+                idempotencyKey.value(),
+                ledgerSnapshot.status()
+            );
+            throw new DuplicateTransferRequestException(
+                Map.of(
+                    "idempotencyKey", idempotencyKey.value(),
+                    "status", ledgerSnapshot.status().name()
+                )
+            );
         }
 
         if (ledgerSnapshot.status() != TransferStatus.REQUESTED) {
@@ -163,17 +182,12 @@ public class TransferService implements TransferUseCase {
                 creditTransactionId != null ? creditTransactionId.value() : null,
                 currentSnapshot.status());
             return mapToResult(currentSnapshot);
-        } catch (RuntimeException ex) {
-            String failureReason = ex.getMessage();
-            if (withdrawCompleted) {
-                failureReason += attemptDebitCompensation(command, idempotencyKey);
-            }
-            // 예외 발생 시 Ledger 상태를 FAILED로 전환하고 도메인 후처리를 실행한다.
-            TransferSnapshot failedSnapshot = ledgerService.markTransferFailed(command.sourceAccountId(), idempotencyKey, failureReason);
-            transferDomainService.onTransferFailed(idempotencyKey, failedSnapshot, ex);
-            log.warn("송금 실패: idempotencyKey={}, status={}, reason={}", idempotencyKey.value(),
-                failedSnapshot.status(), failedSnapshot.failureReason(), ex);
-            throw ex;
+        } catch (TransactionException domainEx) {
+            handleDomainFailure(command, idempotencyKey, withdrawCompleted, domainEx);
+            throw domainEx;
+        } catch (RuntimeException systemEx) {
+            handleSystemFailure(command, idempotencyKey, withdrawCompleted, systemEx);
+            throw systemEx;
         }
     }
 
@@ -182,8 +196,7 @@ public class TransferService implements TransferUseCase {
      */
     private AccountSnapshot loadAccount(Long accountId) {
         AccountApiResponse<AccountInfoResponse> response = accountInternalApi.getAccount(GetAccountRequest.of(accountId));
-        if (response instanceof AccountApiResponse.Success<AccountInfoResponse> success) {
-            AccountInfoResponse data = success.data();
+        if (response instanceof AccountApiResponse.Success<AccountInfoResponse>(AccountInfoResponse data)) {
             return new AccountSnapshot(
                 data.accountId(),
                 MoneyWon.of(data.balance()),
@@ -203,8 +216,8 @@ public class TransferService implements TransferUseCase {
         AccountApiResponse<BalanceUpdateResponse> response = accountInternalApi.withdraw(
             WithdrawAccountRequest.of(accountId, amount.amount())
         );
-        if (response instanceof AccountApiResponse.Success<BalanceUpdateResponse> success) {
-            return success.data();
+        if (response instanceof AccountApiResponse.Success<BalanceUpdateResponse>(BalanceUpdateResponse data)) {
+            return data;
         }
         throw new AccountApiCallException(
             "계좌 출금에 실패했습니다",
@@ -219,8 +232,8 @@ public class TransferService implements TransferUseCase {
         AccountApiResponse<BalanceUpdateResponse> response = accountInternalApi.deposit(
             DepositAccountRequest.of(accountId, amount.amount())
         );
-        if (response instanceof AccountApiResponse.Success<BalanceUpdateResponse> success) {
-            return success.data();
+        if (response instanceof AccountApiResponse.Success<BalanceUpdateResponse>(BalanceUpdateResponse data)) {
+            return data;
         }
         throw new AccountApiCallException(
             "계좌 입금에 실패했습니다",
@@ -293,27 +306,6 @@ public class TransferService implements TransferUseCase {
             .build();
     }
 
-
-    /**
-     * 실제 출금이 실행되었는지 확인한다.
-     * DEBIT_POSTED 상태뿐만 아니라 출금 Transaction이 생성된 모든 경우를 포함한다.
-     */
-    private boolean isDebitExecuted(TransferSnapshot snapshot, TransactionId debitTransactionId) {
-        // 출금 Transaction이 생성되었다면 실제 계좌에서 출금이 완료된 상태
-        if (debitTransactionId != null) {
-            return true;
-        }
-
-        // Ledger 상태가 DEBIT_POSTED인 경우
-        if (snapshot.status() == TransferStatus.DEBIT_POSTED) {
-            return true;
-        }
-
-        // debitEntry에 transactionId가 있는 경우 (상태와 무관하게 Transaction이 생성됨)
-        return snapshot.debitEntry() != null &&
-               snapshot.debitEntry().transactionId() != null;
-    }
-
     /**
      * 출금 성공 후 실패가 발생한 경우 원복을 시도한다.
      */
@@ -337,11 +329,44 @@ public class TransferService implements TransferUseCase {
             log.warn("[COMPENSATION-SUCCESS] 송금 보상 처리 완료 - idempotencyKey: {}, compensationTxId: {}",
                 idempotencyKey.value(), compensationTxId.value());
 
-            return "; compensationSuccess=" + compensationTxId.value();
+            return "; compensationStatus=SUCCESS; compensationTxId=" + compensationTxId.value();
         } catch (RuntimeException compensationEx) {
             log.warn("[COMPENSATION-FAILED] 송금 보상 처리 실패 - idempotencyKey: {}, error: {}",
                 idempotencyKey.value(), compensationEx.getMessage(), compensationEx);
-            return "; compensationFailed=" + compensationEx.getMessage();
+            return "; compensationStatus=FAILED";
         }
     }
+
+    private void handleDomainFailure(
+        TransferCommand command,
+        IdempotencyKey idempotencyKey,
+        boolean withdrawCompleted,
+        TransactionException domainEx
+    ) {
+        String failureReason = domainEx.getMessage();
+        if (withdrawCompleted) {
+            failureReason += attemptDebitCompensation(command, idempotencyKey);
+        }
+        TransferSnapshot failedSnapshot = ledgerService.markTransferFailed(command.sourceAccountId(), idempotencyKey, failureReason);
+        transferDomainService.onTransferFailed(idempotencyKey, failedSnapshot, domainEx);
+        log.warn("송금 실패(도메인): idempotencyKey={}, status={}, reason={}",
+            idempotencyKey.value(), failedSnapshot.status(), failedSnapshot.failureReason(), domainEx);
+    }
+
+    private void handleSystemFailure(
+        TransferCommand command,
+        IdempotencyKey idempotencyKey,
+        boolean withdrawCompleted,
+        RuntimeException systemEx
+    ) {
+        String failureReason = GENERIC_FAILURE_MESSAGE;
+        if (withdrawCompleted) {
+            failureReason += attemptDebitCompensation(command, idempotencyKey);
+        }
+        TransferSnapshot failedSnapshot = ledgerService.markTransferFailed(command.sourceAccountId(), idempotencyKey, failureReason);
+        transferDomainService.onTransferFailed(idempotencyKey, failedSnapshot, systemEx);
+        log.error("송금 실패(시스템): idempotencyKey={}, status={}, reason={}",
+            idempotencyKey.value(), failedSnapshot.status(), failedSnapshot.failureReason(), systemEx);
+    }
+
 }

@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -29,7 +30,6 @@ import saviing.bank.account.api.response.AccountInfoResponse;
 import saviing.bank.account.api.response.BalanceUpdateResponse;
 import saviing.bank.common.vo.MoneyWon;
 import saviing.bank.transaction.application.port.in.command.TransferCommand;
-import saviing.bank.transaction.application.port.in.result.TransferResult;
 import saviing.bank.transaction.application.port.out.LoadTransactionPort;
 import saviing.bank.transaction.application.port.out.SaveTransactionPort;
 import saviing.bank.transaction.domain.model.Transaction;
@@ -39,10 +39,11 @@ import saviing.bank.transaction.domain.model.transfer.TransferType;
 import saviing.bank.transaction.domain.vo.LedgerEntrySnapshot;
 import saviing.bank.transaction.domain.model.transfer.LedgerEntryStatus;
 import saviing.bank.transaction.domain.vo.TransferSnapshot;
-import saviing.bank.transaction.application.service.LedgerService;
 import saviing.bank.transaction.domain.service.TransferDomainService;
 import saviing.bank.transaction.domain.vo.IdempotencyKey;
 import saviing.bank.transaction.domain.vo.TransactionId;
+import saviing.bank.transaction.exception.DuplicateTransferRequestException;
+import saviing.bank.transaction.exception.TransferValidationException;
 
 @ExtendWith(MockitoExtension.class)
 class TransferServiceTest {
@@ -62,7 +63,7 @@ class TransferServiceTest {
     private TransferService transferService;
 
     @Test
-    void 이미_완료된_송금은_기존_결과를_반환한다() {
+    void 이미_완료된_송금은_중복_예외를_던진다() {
         // given
         IdempotencyKey idempotencyKey = IdempotencyKey.of("transfer-1");
         LedgerEntrySnapshot debitSnapshot = new LedgerEntrySnapshot(
@@ -123,26 +124,18 @@ class TransferServiceTest {
             .requestedAt(Instant.now())
             .build();
 
-        // when
-        TransferResult result = transferService.transfer(command);
+        // when & then
+        assertThatThrownBy(() -> transferService.transfer(command))
+            .isInstanceOf(DuplicateTransferRequestException.class)
+            .hasMessageContaining("중복된 송금");
 
-        // then
-        assertThat(result.idempotencyKey()).isEqualTo(idempotencyKey);
-        assertThat(result.sourceAccountId()).isEqualTo(100L);
-        assertThat(result.targetAccountId()).isEqualTo(200L);
-        assertThat(result.amount().amount()).isEqualTo(1000L);
-        assertThat(result.valueDate()).isEqualTo(settledSnapshot.valueDate());
-        assertThat(result.status()).isEqualTo(TransferStatus.SETTLED);
-        assertThat(result.debitTransactionId()).isEqualTo(TransactionId.of(10L));
-        assertThat(result.creditTransactionId()).isEqualTo(TransactionId.of(11L));
-        assertThat(result.requestedAt()).isEqualTo(settledSnapshot.createdAt());
-        assertThat(result.completedAt()).isEqualTo(settledSnapshot.updatedAt());
-        verifyNoInteractions(accountInternalApi, saveTransactionPort);
+        verify(transferDomainService).ensureIdempotency(idempotencyKey);
+        verifyNoInteractions(accountInternalApi, saveTransactionPort, loadTransactionPort);
     }
 
     @Test
-    void 거래_생성_실패시_보상_트랜잭션이_실행된다() {
-        // given - withdraw 성공 후 createTransaction 실패 시나리오
+    void 시스템_예외_발생시_일반화된_실패사유와_보상이_기록된다() {
+        // given - withdraw 성공 후 createTransaction에서 시스템 예외 발생
         IdempotencyKey idempotencyKey = IdempotencyKey.of("transfer-fail-1");
 
         TransferSnapshot requestedSnapshot = createRequestedSnapshot(idempotencyKey);
@@ -199,9 +192,79 @@ class TransferServiceTest {
             .isInstanceOf(RuntimeException.class)
             .hasMessage("Transaction creation failed");
 
-        // then - 보상 트랜잭션이 실행되었는지 확인
+        // then - 보상 트랜잭션이 실행되었는지 및 일반화된 실패 사유가 기록됐는지 확인
         verify(accountInternalApi).deposit(DepositAccountRequest.of(100L, 1000L));
-        verify(ledgerService).markTransferFailed(eq(100L), eq(idempotencyKey), any(String.class));
+        ArgumentCaptor<String> failureReasonCaptor = ArgumentCaptor.forClass(String.class);
+        verify(ledgerService).markTransferFailed(eq(100L), eq(idempotencyKey), failureReasonCaptor.capture());
+        assertThat(failureReasonCaptor.getValue())
+            .isEqualTo("내부 시스템 오류로 송금이 실패했습니다.; compensationStatus=SUCCESS; compensationTxId=999");
+    }
+
+    @Test
+    void 도메인_예외_발생시_도메인_메시지와_보상이_기록된다() {
+        // given - withdraw 이후 도메인 예외 발생
+        IdempotencyKey idempotencyKey = IdempotencyKey.of("transfer-domain-fail");
+
+        TransferSnapshot requestedSnapshot = createRequestedSnapshot(idempotencyKey);
+        TransferSnapshot failedSnapshot = createFailedSnapshot(idempotencyKey);
+
+        when(ledgerService.initializeTransfer(any(), any(), any(), any(), any(), any()))
+            .thenReturn(requestedSnapshot);
+
+        AccountApiResponse<AccountInfoResponse> sourceAccountResponse = new AccountApiResponse.Success<>(
+            new AccountInfoResponse(100L, "1234567890", 1L, 5000L, "ACTIVE", 1L)
+        );
+        AccountApiResponse<AccountInfoResponse> targetAccountResponse = new AccountApiResponse.Success<>(
+            new AccountInfoResponse(200L, "0987654321", 2L, 3000L, "ACTIVE", 1L)
+        );
+
+        when(accountInternalApi.getAccount(any(GetAccountRequest.class)))
+            .thenReturn(sourceAccountResponse)
+            .thenReturn(targetAccountResponse);
+
+        when(accountInternalApi.withdraw(any(WithdrawAccountRequest.class)))
+            .thenReturn(new AccountApiResponse.Success<>(
+                new BalanceUpdateResponse(100L, 5000L, 4000L, 1000L)
+            ));
+
+        when(accountInternalApi.deposit(any(DepositAccountRequest.class)))
+            .thenReturn(new AccountApiResponse.Success<>(
+                new BalanceUpdateResponse(100L, 4000L, 5000L, 1000L)
+            ));
+
+        TransferValidationException domainException = new TransferValidationException(
+            "도메인 검증 실패",
+            java.util.Map.of("field", "value")
+        );
+
+        when(saveTransactionPort.saveTransaction(any(Transaction.class)))
+            .thenThrow(domainException)
+            .thenReturn(TransactionId.of(999L));
+
+        when(ledgerService.markTransferFailed(anyLong(), any(), anyString()))
+            .thenReturn(failedSnapshot);
+
+        TransferCommand command = TransferCommand.builder()
+            .sourceAccountId(100L)
+            .targetAccountId(200L)
+            .amount(MoneyWon.of(1000L))
+            .valueDate(LocalDate.now())
+            .memo("test")
+            .idempotencyKey(idempotencyKey)
+            .transferType(TransferType.INTERNAL)
+            .requestedAt(Instant.now())
+            .build();
+
+        // when & then
+        assertThatThrownBy(() -> transferService.transfer(command))
+            .isInstanceOf(TransferValidationException.class)
+            .hasMessage("도메인 검증 실패");
+
+        verify(accountInternalApi).deposit(DepositAccountRequest.of(100L, 1000L));
+        ArgumentCaptor<String> failureReasonCaptor = ArgumentCaptor.forClass(String.class);
+        verify(ledgerService).markTransferFailed(eq(100L), eq(idempotencyKey), failureReasonCaptor.capture());
+        assertThat(failureReasonCaptor.getValue())
+            .isEqualTo("도메인 검증 실패; compensationStatus=SUCCESS; compensationTxId=999");
     }
 
     @Test
@@ -303,6 +366,10 @@ class TransferServiceTest {
         assertThatThrownBy(() -> transferService.transfer(command))
             .isInstanceOf(RuntimeException.class)
             .hasMessage("Insufficient balance");
+
+        ArgumentCaptor<String> failureReasonCaptor = ArgumentCaptor.forClass(String.class);
+        verify(ledgerService).markTransferFailed(eq(100L), eq(idempotencyKey), failureReasonCaptor.capture());
+        assertThat(failureReasonCaptor.getValue()).isEqualTo("내부 시스템 오류로 송금이 실패했습니다.");
 
         // then - 보상 트랜잭션이 실행되지 않았는지 확인 (deposit 호출 없음)
         verifyNoInteractions(saveTransactionPort);
