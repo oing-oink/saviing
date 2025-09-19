@@ -10,6 +10,7 @@ import SavingsLayout from '@/features/savings/layouts/SavingsLayout';
 import SavingsDetailLayout from '@/features/savings/layouts/SavingsDetailLayout';
 import HomePage from '@/pages/HomePage';
 import WalletPage from '@/pages/WalletPage';
+import ProductsPage from '@/pages/ProductsPage';
 import SavingsPage from '@/pages/SavingsPage';
 import SavingsDetailPage from '@/pages/SavingsDetailPage';
 import AccountDetailPage from '@/pages/AccountDetailPage';
@@ -70,6 +71,7 @@ const detailPages: RouteObject[] = [
 const homePages: RouteObject[] = [
   { index: true, element: <HomePage /> },
   { path: 'wallet', element: <WalletPage /> },
+  { path: 'products', element: <ProductsPage /> },
 ];
 
 export const savingsRoutes: RouteObject[] = [
