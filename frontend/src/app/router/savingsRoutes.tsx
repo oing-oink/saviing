@@ -1,4 +1,5 @@
 import type { RouteObject } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import ProtectedRoute from '@/shared/components/common/ProtectedRoute';
 import {
   PAGE_PATH,
@@ -13,24 +14,46 @@ import SavingsPage from '@/pages/SavingsPage';
 import SavingsDetailPage from '@/pages/SavingsDetailPage';
 import AccountDetailPage from '@/pages/AccountDetailPage';
 
-// 독립 전체 페이지 (레이아웃 없음)
-const independentPages = [
+// 독립 전체 페이지 (순수 라우트)
+const independentPages: RouteObject[] = [
   { path: PAGE_PATH.SAVINGS, element: <SavingsPage /> },
   { path: PAGE_PATH.ACCOUNT_CREATION, element: <AccountCreationFunnel /> },
-  ...Object.values(ACCOUNT_CREATION_STEPS_PATH).map(path => ({
-    path,
+  {
+    path: ACCOUNT_CREATION_STEPS_PATH.START,
     element: <AccountCreationFunnel />,
-  })),
+  },
+  {
+    path: ACCOUNT_CREATION_STEPS_PATH.PRODUCT_TYPE,
+    element: <AccountCreationFunnel />,
+  },
+  {
+    path: ACCOUNT_CREATION_STEPS_PATH.USER_INFO,
+    element: <AccountCreationFunnel />,
+  },
+  {
+    path: ACCOUNT_CREATION_STEPS_PATH.AUTH,
+    element: <AccountCreationFunnel />,
+  },
+  {
+    path: ACCOUNT_CREATION_STEPS_PATH.TERMS,
+    element: <AccountCreationFunnel />,
+  },
+  {
+    path: ACCOUNT_CREATION_STEPS_PATH.SET_CONDITION,
+    element: <AccountCreationFunnel />,
+  },
+  {
+    path: ACCOUNT_CREATION_STEPS_PATH.CONFIRM,
+    element: <AccountCreationFunnel />,
+  },
+  {
+    path: ACCOUNT_CREATION_STEPS_PATH.COMPLETE,
+    element: <AccountCreationFunnel />,
+  },
 ];
 
-// 메인 레이아웃 페이지
-const homePages = [
-  { path: '', element: <HomePage /> },
-  { path: 'wallet', element: <WalletPage /> },
-];
-
-// 상세 레이아웃 페이지
-const detailPages = [
+// 상세 레이아웃 페이지 (순수 라우트)
+const detailPages: RouteObject[] = [
   {
     path: PAGE_PATH.SAVINGS_DETAIL_WITH_ID,
     element: <SavingsDetailLayout title="적금 상세" />,
@@ -43,20 +66,33 @@ const detailPages = [
   },
 ];
 
+// 메인 레이아웃 페이지
+const homePages: RouteObject[] = [
+  { path: '', element: <HomePage /> },
+  { path: 'wallet', element: <WalletPage /> },
+];
+
 export const savingsRoutes: RouteObject[] = [
-  // 독립 페이지들
-  ...independentPages.map(({ path, element }) => ({
-    path,
-    element: <ProtectedRoute>{element}</ProtectedRoute>,
-  })),
-
-  // 상세 페이지들
-  ...detailPages.map(({ path, element, children }) => ({
-    path,
-    element: <ProtectedRoute>{element}</ProtectedRoute>,
-    children,
-  })),
-
+  // 독립 페이지들을 ProtectedRoute로 감싸기
+  {
+    path: '/',
+    element: (
+      <ProtectedRoute>
+        <Outlet />
+      </ProtectedRoute>
+    ),
+    children: independentPages,
+  },
+  // 상세 페이지들을 ProtectedRoute로 감싸기
+  {
+    path: '/',
+    element: (
+      <ProtectedRoute>
+        <Outlet />
+      </ProtectedRoute>
+    ),
+    children: detailPages,
+  },
   // 홈 레이아웃
   {
     path: '/',
