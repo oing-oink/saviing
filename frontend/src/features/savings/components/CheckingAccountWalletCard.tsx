@@ -1,6 +1,8 @@
 import { Copy } from 'lucide-react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
+import { createAccountDetailPath } from '@/shared/constants/path';
 import type { SavingsAccountData } from '@/features/savings/types/savingsTypes';
 
 interface CheckingAccountWalletCardProps {
@@ -8,6 +10,14 @@ interface CheckingAccountWalletCardProps {
 }
 
 const CheckingAccountWalletCard = ({ account }: CheckingAccountWalletCardProps) => {
+  const navigate = useNavigate();
+
+  // 계좌 관리 페이지로 이동
+  const handleAccountManagement = () => {
+    if (account?.accountId) {
+      navigate(createAccountDetailPath(account.accountId));
+    }
+  };
   return (
     <div className="w-full max-w-md rounded-2xl bg-white font-pretendard shadow">
       <div className="mb-3 flex items-start gap-3 p-6 pb-0">
@@ -39,8 +49,11 @@ const CheckingAccountWalletCard = ({ account }: CheckingAccountWalletCardProps) 
       <div className="flex justify-center pt-1">
         <div className="w-6/7 border-t border-gray-200 pt-2" />
       </div>
-      <button className="mb-3 w-full py-2 text-center font-bold text-primary">
-        저축 관리
+      <button
+        onClick={handleAccountManagement}
+        className="mb-3 w-full py-2 text-center font-bold text-primary"
+      >
+        계좌 관리
       </button>
     </div>
   );

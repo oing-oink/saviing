@@ -77,12 +77,12 @@ export const useSavingsTransactions = (accountId: string) => {
 
   return useInfiniteQuery({
     queryKey: savingsKeys.transactionsList(accountId),
-    queryFn: ({ pageParam = 1 }) =>
+    queryFn: ({ pageParam = 0 }) =>
       getSavingsTransactions(accountId, {
         page: pageParam,
         size: TRANSACTIONS_PER_PAGE,
       }),
-    initialPageParam: 1,
+    initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) => {
       // 현재 로드된 총 아이템 수 계산
       const totalLoadedItems = allPages.flat().length;
@@ -96,7 +96,7 @@ export const useSavingsTransactions = (accountId: string) => {
         return undefined;
       }
 
-      return allPages.length + 1;
+      return allPages.length;
     },
     staleTime: 1000 * 60, // 1분
     gcTime: 1000 * 60 * 5, // 5분
@@ -134,7 +134,7 @@ export const useSavingsTransactionsDisplay = (accountId: string) => {
         amount: transaction.amount,
         postedAt: transaction.postedAt,
         description: transaction.description,
-        balance: transaction.balance,
+        balance: transaction.balance || 0,
       }),
     );
   }, [query.data]);

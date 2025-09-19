@@ -52,12 +52,6 @@ export const getAllAccounts = async (): Promise<SavingsAccountData[]> => {
 export const getSavingsAccount = async (
   accountId: string,
 ): Promise<SavingsAccountData> => {
-  if (USE_MOCK) {
-    // Mock 데이터 사용
-    const mockResponse = await mockGetSavingsAccount(accountId);
-    return mockResponse.body!;
-  }
-
   // 실제 API 호출
   const response = await http.get<SavingsAccountData>(
     `/v1/accounts/id/${accountId}`,
@@ -80,12 +74,6 @@ export const getSavingsTransactions = async (
   accountId: string,
   params: GetTransactionsParams,
 ): Promise<TransactionData[]> => {
-  if (USE_MOCK) {
-    // Mock 데이터 사용
-    const mockResponse = await mockGetSavingsTransactions(accountId, params);
-    return mockResponse.body!;
-  }
-
   // 실제 API 호출
   const response = await http.get<TransactionData[]>(
     `/v1/transactions/accounts/${accountId}`,

@@ -3,6 +3,7 @@ import HomePage from '@/pages/HomePage';
 import LoginPage from '@/pages/LoginPage';
 import SavingsPage from '@/pages/SavingsPage';
 import SavingsDetailPage from '@/pages/SavingsDetailPage';
+import AccountDetailPage from '@/pages/AccountDetailPage';
 import GamePage from '@/pages/GamePage';
 import NotFoundPage from '@/pages/NotFoundPage';
 import ColorTestPage from '@/pages/ColorTestPage';
@@ -36,6 +37,11 @@ export const router = createBrowserRouter([
     path: PAGE_PATH.SAVINGS_DETAIL_WITH_ID,
     element: <SavingsDetailLayout title="적금 상세" />,
     children: [{ index: true, element: <SavingsDetailPage /> }],
+  },
+  {
+    path: PAGE_PATH.ACCOUNT_DETAIL_WITH_ID,
+    element: <SavingsDetailLayout title="계좌 상세" />,
+    children: [{ index: true, element: <AccountDetailPage /> }],
   },
   { path: PAGE_PATH.GAME, element: <GamePage /> },
   { path: PAGE_PATH.SHOP, element: <ShopPage /> },

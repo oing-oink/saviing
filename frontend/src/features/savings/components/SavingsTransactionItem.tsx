@@ -40,10 +40,10 @@ const SavingsTransactionItem = ({
               }`}
             >
               {isDeposit ? '+' : '-'}
-              {amount.toLocaleString()}원
+              {(amount || 0).toLocaleString()}원
             </p>
             <p className="mt-1 text-xs text-gray-400">
-              잔액: {balance.toLocaleString()}원
+              잔액: {(balance || 0).toLocaleString()}원
             </p>
           </div>
         </div>

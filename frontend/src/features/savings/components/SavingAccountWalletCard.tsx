@@ -2,6 +2,8 @@ import { Progress } from '@/shared/components/ui/progress';
 import { Copy } from 'lucide-react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
+import { createSavingsDetailPath } from '@/shared/constants/path';
 import type { SavingsAccountData } from '@/features/savings/types/savingsTypes';
 
 interface SavingsAccountWalletCardProps {
@@ -9,10 +11,18 @@ interface SavingsAccountWalletCardProps {
 }
 
 const SavingsAccountWalletCard = ({ account }: SavingsAccountWalletCardProps) => {
+  const navigate = useNavigate();
   const target = account.savings.targetAmount;
   const current = account.balance;
   const percent = (current / target) * 100;
   const interestRate = ((account.baseRate + account.bonusRate) / 100).toFixed(1);
+
+  // 저축 관리 페이지로 이동
+  const handleSavingsManagement = () => {
+    if (account?.accountId) {
+      navigate(createSavingsDetailPath(account.accountId));
+    }
+  };
 
   return (
     <div className="w-full max-w-md rounded-2xl bg-white p-6 font-pretendard shadow">
@@ -50,7 +60,10 @@ const SavingsAccountWalletCard = ({ account }: SavingsAccountWalletCardProps) =>
 
       {/* 하단 버튼 */}
       <div className="flex border-t border-gray-200 pt-3">
-        <button className="font-lg flex-1 py-1 text-center font-bold text-primary">
+        <button
+          onClick={handleSavingsManagement}
+          className="font-lg flex-1 py-1 text-center font-bold text-primary"
+        >
           저축 관리
         </button>
         <button className="font-lg flex-1 border-l border-gray-200 py-1 text-center font-bold text-primary">
