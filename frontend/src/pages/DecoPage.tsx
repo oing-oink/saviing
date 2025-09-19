@@ -31,30 +31,32 @@ const DecoPage = () => {
 
       <div className="relative z-10 flex h-full flex-col">
         {/* Header */}
-        <div className="relative z-10 flex items-center justify-between p-4">
+        <div className="z-10 flex h-20 w-full items-center justify-between px-3">
           <button
             onClick={() => navigate(PAGE_PATH.GAME)}
             className="cursor-pointer rounded-full bg-transparent p-0 focus:ring-1 focus:ring-primary focus:outline-none active:scale-95 active:brightness-90"
           >
-            <img src={backButton} alt="back" className="h-10 w-10" />
+            <img src={backButton} alt="back" className="w-9 pt-5" />
           </button>
           <Coin />
           <button
             onClick={() => navigate(PAGE_PATH.SHOP)}
             className="cursor-pointer rounded-full bg-transparent p-0 focus:ring-1 focus:ring-primary focus:outline-none active:scale-95 active:brightness-90"
           >
-            <img src={storeButton} alt="store" className="h-10 w-10" />
+            <img src={storeButton} alt="store" className="w-9 pt-5" />
           </button>
         </div>
 
         <div className="flex flex-1 flex-col">
+          <div className="flex-grow" />
+
           {/* Room (해당 컴포넌트는 gridType prop으로 제어) */}
           <div className="relative">
             <Room gridType={gridType} />
           </div>
 
           {/* SAVE 버튼 */}
-          <div className="relative z-10 my-2 text-center">
+          <div className="relative z-10 my-4 text-center">
             <button
               onClick={handleSaveClick}
               className="rounded-lg bg-primary px-8 py-2 text-xl font-bold tracking-widest text-white shadow-lg focus:ring-1 focus:ring-primary focus:outline-none active:scale-95 active:brightness-90"
