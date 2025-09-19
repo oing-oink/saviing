@@ -25,7 +25,7 @@ default:
     policy: pull-push
   before_script:
     - cd frontend
-    - bun install --frozen-lockfile
+    - bun install
 
 start:
   stage: start
