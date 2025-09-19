@@ -12,7 +12,7 @@ export const api = axios.create({
 });
 
 // baseURL 동적 설정 인터셉터
-api.interceptors.request.use((config) => {
+api.interceptors.request.use(config => {
   if (config.url?.includes('/game')) {
     config.baseURL = API_BASE_URLS.GAME;
   } else {
