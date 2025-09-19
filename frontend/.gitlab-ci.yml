@@ -24,7 +24,8 @@ default:
     policy: pull-push
   before_script:
     - cd frontend
-    - bun install
+    - rm -rf node_modules bun.lock ../.bun_cache .bun_cache
+    - bun install --no-save
 
 start:
   stage: start
