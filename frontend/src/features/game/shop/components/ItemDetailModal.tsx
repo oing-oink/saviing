@@ -17,12 +17,12 @@ interface ItemDetailModalProps {
 
 const ItemDetailModal = ({ item, isOpen, onClose }: ItemDetailModalProps) => {
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>
       <DialogPortal>
         <DialogOverlay className="backdrop-blur-sm backdrop-brightness-100" />
         <DialogContent
           showCloseButton={false}
-          className="game font-galmuri max-w-none border-none bg-transparent p-0 shadow-none top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]"
+          className="game top-[50%] left-[50%] max-w-none translate-x-[-50%] translate-y-[-50%] border-none bg-transparent p-0 font-galmuri shadow-none"
         >
           <div className="relative">
             <img
@@ -36,7 +36,11 @@ const ItemDetailModal = ({ item, isOpen, onClose }: ItemDetailModalProps) => {
                   onClick={onClose}
                   className="text-gray-500 focus:ring-1 focus:ring-transparent focus:outline-none active:scale-95 active:brightness-90"
                 >
-                  <img src={closeButton} alt="closeButton" className="w-[60%]" />
+                  <img
+                    src={closeButton}
+                    alt="closeButton"
+                    className="w-[60%]"
+                  />
                 </button>
               </div>
               <div className="mx-auto mb-4 flex h-48 w-48 items-center rounded-full bg-white">
@@ -47,14 +51,13 @@ const ItemDetailModal = ({ item, isOpen, onClose }: ItemDetailModalProps) => {
                 />
               </div>
               <div className="flex flex-col items-center pt-2">
-                <h2 className="text-xl font-semibold text-gray-800">{item.name}</h2>
+                <h2 className="text-xl font-semibold text-gray-800">
+                  {item.name}
+                </h2>
                 <p className="px-10 pt-3 text-center text-sm leading-relaxed whitespace-pre-line text-gray-600">
                   {item.description}
                 </p>
-                <div
-                  className="mt-5 mb-2 rounded-3xl border-2 border-level-05 bg-store-bg p-2 px-10 text-lg
-                  focus:ring-1 focus:ring-primary focus:outline-none active:scale-95 active:brightness-90"
-                >
+                <div className="mt-5 mb-2 rounded-3xl border-2 border-level-05 bg-store-bg p-2 px-10 text-lg focus:ring-1 focus:ring-primary focus:outline-none active:scale-95 active:brightness-90">
                   PREVIEW
                 </div>
                 <Coin />

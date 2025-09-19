@@ -12,10 +12,10 @@ const GachaPage = () => {
       {/* 상단 영역 */}
       <div className="flex h-20 items-center justify-between px-3">
         <button onClick={() => navigate(PAGE_PATH.SHOP)}>
-          <img 
-            className="w-9 pt-5 
-            focus:ring-1 focus:ring-primary focus:outline-none active:scale-95 active:brightness-90" 
-            src={backButton} alt="" 
+          <img
+            className="w-9 pt-5 focus:ring-1 focus:ring-primary focus:outline-none active:scale-95 active:brightness-90"
+            src={backButton}
+            alt=""
           />
         </button>
         <div className="pt-5 text-3xl text-red-400">GACHA</div>

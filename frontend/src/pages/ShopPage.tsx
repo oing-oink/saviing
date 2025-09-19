@@ -15,11 +15,11 @@ const ShopPage = () => {
       <div className="relative z-10">
         <InventoryHud />
       </div>
-      <div className="flex justify-center items-center min-h-[60vh] pt-8">
+      <div className="flex min-h-[60vh] items-center justify-center pt-8">
         {/* <img src={sampleRoom} alt="" /> */}
         <Room gridType={gridType} />
       </div>
-      <div className="absolute bottom-0 left-0 w-full z-10">
+      <div className="absolute bottom-0 left-0 z-10 w-full">
         <Inventory items={mockInventoryItems} onCategoryClick={setGridType} />
       </div>
     </div>

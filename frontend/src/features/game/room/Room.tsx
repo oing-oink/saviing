@@ -7,7 +7,10 @@ import type { TabId } from 'src/features/game/shop/types/item';
 // 외부로부터 전달받는 gridType과 transform 값을 전달하는 콜백
 interface RoomProps {
   gridType: TabId | null;
-  onTransformChange?: (transform: { scale: number; position: { x: number; y: number } }) => void;
+  onTransformChange?: (transform: {
+    scale: number;
+    position: { x: number; y: number };
+  }) => void;
 }
 
 const Room = ({ gridType, onTransformChange }: RoomProps) => {
