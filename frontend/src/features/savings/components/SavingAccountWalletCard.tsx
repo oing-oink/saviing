@@ -1,4 +1,5 @@
 import { Progress } from '@/shared/components/ui/progress';
+import { PAGE_PATH } from '@/shared/constants/path';
 import { Copy } from 'lucide-react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
@@ -72,7 +73,10 @@ const SavingsAccountWalletCard = ({
         >
           저축 관리
         </button>
-        <button className="font-lg flex-1 border-l border-gray-200 py-1 text-center font-bold text-primary">
+        <button
+          className="font-lg flex-1 border-l border-gray-200 py-1 text-center font-bold text-primary"
+          onClick={() => navigate(PAGE_PATH.DEPOSIT)}
+        >
           입금
         </button>
       </div>
