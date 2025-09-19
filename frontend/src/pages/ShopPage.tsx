@@ -1,26 +1,49 @@
 import Inventory from '@/features/game/shop/components/Inventory';
-import { mockInventoryItems } from '@/features/game/shop/mocks/inventoryMockData';
-// import sampleRoom from '@/assets/sampleRoom.png';
+import { useGameItems } from '@/features/game/shop/query/useItemsQuery';
+import { TAB_TO_API_PARAMS } from '@/features/game/shop/types/item';
+import { useTabs } from '@/features/game/shop/hooks/useTabs';
+import sampleRoom from '@/assets/sampleRoom.png';
 import InventoryHud from '@/features/game/shop/components/InventoryHud';
-import Room from '@/features/game/room/Room';
-import type { TabId } from '@/features/game/shop/types/item';
-import { useState } from 'react';
 
 const ShopPage = () => {
-  // ShopPage는 어떤 그리드를 보여줄지 상태만 관리
-  const [gridType, setGridType] = useState<TabId | null>(null);
+  const { activeTab, setActiveTab } = useTabs();
+  const { type, category } = TAB_TO_API_PARAMS[activeTab.name];
+  const { data: itemsData, isLoading, error } = useGameItems(type, category);
+
+  if (isLoading) {
+    return (
+      <div className="game relative flex min-h-screen w-full items-center justify-center bg-store-bg font-galmuri">
+        <div className="text-white">아이템을 불러오는 중...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="game relative flex min-h-screen w-full items-center justify-center bg-store-bg font-galmuri">
+        <div className="text-red-500">
+          아이템을 불러오는 중 오류가 발생했습니다.
+        </div>
+      </div>
+    );
+  }
+
+  const items = itemsData?.items || [];
 
   return (
     <div className="game relative min-h-screen w-full bg-store-bg font-galmuri">
       <div className="relative z-10">
         <InventoryHud />
       </div>
-      <div className="flex min-h-[60vh] items-center justify-center pt-8">
-        {/* <img src={sampleRoom} alt="" /> */}
-        <Room gridType={gridType} />
+      <div className="flex justify-center">
+        <img src={sampleRoom} alt="" />
       </div>
-      <div className="absolute bottom-0 left-0 z-10 w-full">
-        <Inventory items={mockInventoryItems} onCategoryClick={setGridType} />
+      <div className="absolute bottom-0 left-0 w-full">
+        <Inventory
+          items={items}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+        />
       </div>
     </div>
   );

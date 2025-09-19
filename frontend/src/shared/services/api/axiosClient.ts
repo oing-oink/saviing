@@ -7,6 +7,7 @@ import { API_BASE_URLS } from '@/shared/constants/apiEndpoints';
  * URL prefix에 따라 baseURL을 동적으로 설정
  */
 export const api = axios.create({
+  baseURL: import.meta.env.VITE_API_GAME_BASE_URL,
   timeout: 10_000,
   withCredentials: true,
 });
