@@ -1,23 +1,25 @@
+import backButton from '@/assets/game_button/backButton.png';
+import storeButton from '@/assets/game_button/storeButton.png';
 import Room from '@/features/game/room/Room';
+import { SaveModal } from '@/features/game/room/components/SaveModal';
+import Coin from '@/features/game/shared/components/Coin';
+import GameBackground from '@/features/game/shared/components/GameBackground';
 import Inventory from '@/features/game/shop/components/Inventory';
 import { mockInventoryItems } from '@/features/game/shop/mocks/inventoryMockData';
-import { SaveModal } from '@/features/game/room/components/SaveModal';
+import type { TabId } from '@/features/game/shop/types/item';
+import { PAGE_PATH } from '@/shared/constants/path';
 import { useState } from 'react';
-import GameBackground from '@/features/game/shared/components/GameBackground';
-import DecoHeader from '@/features/game/room/components/DecoHeader';
-import elevatorBasic from '@/assets/game_button/elevatorBasic.png';
+import { useNavigate } from 'react-router-dom';
 
 const DecoPage = () => {
+  const navigate = useNavigate();
   const [showSaveModal, setShowSaveModal] = useState(false);
 
-  const handleSaveClick = () => {
-    setShowSaveModal(true);
-  };
+  // DecoPage는 어떤 그리드를 보여줄지 상태만 관리
+  const [gridType, setGridType] = useState<TabId | null>(null);
 
-  const handleCloseModal = () => {
-    setShowSaveModal(false);
-  };
-
+  const handleSaveClick = () => setShowSaveModal(true);
+  const handleCloseModal = () => setShowSaveModal(false);
   const handleSave = () => {
     // 저장 로직 추가!!
     setShowSaveModal(false);
@@ -28,25 +30,49 @@ const DecoPage = () => {
       <GameBackground />
 
       <div className="relative z-10 flex h-full flex-col">
-        <DecoHeader />
+        {/* Header */}
+        <div className="z-10 flex h-20 w-full items-center justify-between px-3">
+          <button
+            onClick={() => navigate(PAGE_PATH.GAME)}
+            className="cursor-pointer rounded-full bg-transparent p-0 focus:ring-1 focus:ring-primary focus:outline-none active:scale-95 active:brightness-90"
+          >
+            <img src={backButton} alt="back" className="w-9 pt-5" />
+          </button>
+          <Coin />
+          <button
+            onClick={() => navigate(PAGE_PATH.SHOP)}
+            className="cursor-pointer rounded-full bg-transparent p-0 focus:ring-1 focus:ring-primary focus:outline-none active:scale-95 active:brightness-90"
+          >
+            <img src={storeButton} alt="store" className="w-9 pt-5" />
+          </button>
+        </div>
+
         <div className="flex flex-1 flex-col">
+          <div className="flex-grow" />
+
+          {/* Room (해당 컴포넌트는 gridType prop으로 제어) */}
           <div className="relative">
-            <Room />
+            <Room gridType={gridType} />
           </div>
-          <div className="my-2 text-center">
+
+          {/* SAVE 버튼 */}
+          <div className="relative z-10 my-4 text-center">
             <button
               onClick={handleSaveClick}
-              className="focus:ring-opacity-50 rounded-lg bg-primary px-8 py-2 text-xl font-bold tracking-widest text-white shadow-lg focus:ring-1 focus:ring-primary focus:outline-none active:scale-95 active:brightness-90"
+              className="rounded-lg bg-primary px-8 py-2 text-xl font-bold tracking-widest text-white shadow-lg focus:ring-1 focus:ring-primary focus:outline-none active:scale-95 active:brightness-90"
             >
               SAVE
             </button>
           </div>
+
           <div className="flex-grow" />
-          <div className="relative">
-            <Inventory items={mockInventoryItems} />
-            <button className="absolute -top-4 right-3 cursor-pointer focus:outline-none active:scale-95 active:brightness-90">
-              <img src={elevatorBasic} alt="1st floor" className="h-9 w-9" />
-            </button>
+
+          {/* 인벤토리 (클릭된 탭의 ID를 onCategoryClick으로 알려줌.) */}
+          <div className="relative z-10">
+            <Inventory
+              items={mockInventoryItems}
+              onCategoryClick={setGridType}
+            />
           </div>
         </div>
 

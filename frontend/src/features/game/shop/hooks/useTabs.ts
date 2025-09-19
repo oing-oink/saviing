@@ -8,7 +8,7 @@ import { type Tab, TABS } from '@/features/game/shop/types/item';
  * - 현재 활성 탭 상태와 변경 함수 제공
  * - 사용 가능한 모든 탭 목록 제공
  */
-export const useTabs = (defaultTab: Tab = TABS[0]) => {
+export const useTabs = (defaultTab: Tab = TABS[0].name) => {
   const [activeTab, setActiveTab] = useState<Tab>(defaultTab);
   return { activeTab, setActiveTab, TABS };
 };
