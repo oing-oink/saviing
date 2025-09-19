@@ -1,3 +1,5 @@
+import type { GridType } from '@/features/game/room/hooks/useGrid';
+
 export interface Item {
   id: number;
   name: string;
@@ -7,7 +9,19 @@ export interface Item {
 }
 
 // 탭/카테고리 상수 및 타입
-export const TABS = ['냥이', '왼쪽벽', '오른쪽벽', '바닥'] as const;
+export type TabId = GridType | 'cat';
 
-// Tab 타입은 TABS 배열의 값 중 하나임
-export type Tab = (typeof TABS)[number];
+export interface TabInfo {
+  id: TabId;
+  name: string;
+}
+
+export const TABS: readonly TabInfo[] = [
+  { id: 'cat', name: '냥이' },
+  { id: 'leftWall', name: '왼쪽벽' },
+  { id: 'rightWall', name: '오른쪽벽' },
+  { id: 'floor', name: '바닥' },
+] as const;
+
+// Tab 타입은 TABS 배열에 있는 name들 중 하나임
+export type Tab = (typeof TABS)[number]['name'];
