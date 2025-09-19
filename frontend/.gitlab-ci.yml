@@ -21,7 +21,6 @@ default:
         - frontend/bun.lock
     paths:
       - .bun_cache/
-      - frontend/node_modules/
     policy: pull-push
   before_script:
     - cd frontend
