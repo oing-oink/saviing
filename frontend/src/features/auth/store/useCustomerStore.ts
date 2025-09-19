@@ -94,3 +94,6 @@ export const useCustomerStore = create<CustomerStoreState>((set, _) => ({
     }
   },
 }));
+
+// store 인스턴스를 loader에서 사용할 수 있도록 export
+export const customerStore = useCustomerStore;
