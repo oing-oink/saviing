@@ -27,6 +27,11 @@ export const router = createBrowserRouter([
   },
   // Account Creation Funnel Routes
   {
+    path: PAGE_PATH.ACCOUNT_CREATION,
+    element: <AccountCreationFunnel />,
+  },
+  // Legacy URL redirects
+  {
     path: `${PAGE_PATH.ACCOUNT_CREATION}/*`,
     element: <AccountCreationFunnel />,
   },
