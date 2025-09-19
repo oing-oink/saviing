@@ -33,6 +33,20 @@ const savingsLayoutRoutes = [
 // 레이아웃 없는 보호된 라우트들
 const protectedRoutesWithoutLayout = [
   { path: PAGE_PATH.SAVINGS, element: <SavingsPage /> },
+  { path: PAGE_PATH.DEPOSIT, element: <DepositPage /> },
+  { path: PAGE_PATH.DEPOSIT_RESULT, element: <DepositResultPage /> },
+  { path: PAGE_PATH.GAME, element: <GamePage /> },
+  { path: PAGE_PATH.SHOP, element: <ShopPage /> },
+  { path: PAGE_PATH.GACHA, element: <GachaPage /> },
+  { path: PAGE_PATH.GACHA_ROLLING, element: <GachaRollingPage /> },
+  { path: PAGE_PATH.DECO, element: <DecoPage /> },
+  // Account Creation Funnel
+  { path: PAGE_PATH.ACCOUNT_CREATION, element: <AccountCreationFunnel /> },
+  {
+    path: `${PAGE_PATH.ACCOUNT_CREATION}/*`,
+    element: <AccountCreationFunnel />,
+  },
+  // Savings detail routes
   {
     path: PAGE_PATH.SAVINGS_DETAIL_WITH_ID,
     element: <SavingsDetailLayout title="적금 상세" />,
@@ -43,39 +57,6 @@ const protectedRoutesWithoutLayout = [
     element: <SavingsDetailLayout title="계좌 상세" />,
     children: [{ index: true, element: <AccountDetailPage /> }],
   },
-import SavingsLayout from '@/features/savings/components/SavingsLayout';
-import WalletPage from '@/pages/WalletPage';
-import AccountCreationFunnel from '@/features/savings/components/AccountCreationFunnel';
-
-export const router = createBrowserRouter([
-  {
-    path: PAGE_PATH.HOME,
-    element: <SavingsLayout />,
-    children: [
-      { index: true, element: <HomePage /> },
-      { path: PAGE_PATH.WALLET, element: <WalletPage /> },
-    ],
-  },
-  // Account Creation Funnel Routes
-  {
-    path: PAGE_PATH.ACCOUNT_CREATION,
-    element: <AccountCreationFunnel />,
-  },
-  // Legacy URL redirects
-  {
-    path: `${PAGE_PATH.ACCOUNT_CREATION}/*`,
-    element: <AccountCreationFunnel />,
-  },
-  { path: PAGE_PATH.LOGIN, element: <LoginPage /> },
-  { path: PAGE_PATH.SAVINGS, element: <SavingsPage /> },
-  { path: PAGE_PATH.DEPOSIT, element: <DepositPage /> },
-  { path: PAGE_PATH.DEPOSIT_RESULT, element: <DepositResultPage /> },
-  { path: PAGE_PATH.GAME, element: <GamePage /> },
-  { path: PAGE_PATH.SHOP, element: <ShopPage /> },
-  { path: PAGE_PATH.GACHA, element: <GachaPage /> },
-  { path: PAGE_PATH.GACHA_ROLLING, element: <GachaRollingPage /> },
-  { path: PAGE_PATH.DECO, element: <DecoPage /> },
-  { path: PAGE_PATH.ACCOUNT_CREATION, element: <AccountCreationFunnel /> },
 ];
 
 // 공개 라우트 정의 (인증 불필요)
@@ -107,9 +88,10 @@ export const router = createBrowserRouter([
       },
 
       // 레이아웃이 없는 보호된 라우트들
-      ...protectedRoutesWithoutLayout.map(({ path, element }) => ({
+      ...protectedRoutesWithoutLayout.map(({ path, element, children }) => ({
         path,
         element: <ProtectedRoute>{element}</ProtectedRoute>,
+        children,
       })),
 
       // Fallback
