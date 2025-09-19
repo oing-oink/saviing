@@ -4,7 +4,7 @@ import { Button } from '@/shared/components/ui/button';
 
 interface DepositAmountPanelProps {
   amount: number;
-  onAmountChange: (value: string) => void;
+  onAmountChange: (value: number) => void;
   onQuickAdd: (value: number) => void;
   onFillAll: () => void;
   onReset: () => void;
@@ -41,7 +41,12 @@ const DepositAmountPanel = ({
           inputMode="numeric"
           pattern="\\d*"
           value={amountInputValue}
-          onChange={event => onAmountChange(event.target.value)}
+          onChange={event => {
+            const numericValue = event.target.value.replace(/[^0-9]/g, '');
+            onAmountChange(
+              numericValue === '' ? 0 : parseInt(numericValue, 10),
+            );
+          }}
           placeholder="0"
           className="w-full rounded-[1rem] border border-border bg-card px-[1.25rem] py-[1.25rem] text-3xl font-semibold text-foreground shadow-inner focus:border-primary focus:ring-[0.125rem] focus:ring-primary/30 focus:outline-none"
         />

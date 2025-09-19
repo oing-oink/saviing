@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
 
-import { parseNumericInput } from '@/lib/formatters';
 import {
   QUICK_AMOUNTS,
   SAVING_ACCOUNT,
@@ -82,14 +81,13 @@ export const useSavingsTransferForm = ({
     });
   };
 
-  const handleAmountInput = (value: string) => {
+  const handleAmountInput = (value: number) => {
     if (!selectedAccount) {
       setAmount(0);
       return;
     }
 
-    const parsed = parseNumericInput(value);
-    setAmount(Math.min(parsed, selectedAccount.balance));
+    setAmount(Math.min(value, selectedAccount.balance));
   };
 
   const handleQuickAdd = (value: number) => {
