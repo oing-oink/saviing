@@ -31,7 +31,7 @@ const DecoPage = () => {
 
       <div className="relative z-10 flex h-full flex-col">
         {/* Header */}
-        <div className="relative z-10 mt-4 flex items-center justify-between p-4">
+        <div className="relative z-10 flex items-center justify-between p-4">
           <button
             onClick={() => navigate(PAGE_PATH.GAME)}
             className="cursor-pointer rounded-full bg-transparent p-0 focus:ring-1 focus:ring-primary focus:outline-none active:scale-95 active:brightness-90"
