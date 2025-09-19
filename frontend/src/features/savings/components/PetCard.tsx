@@ -5,6 +5,8 @@ import { usePetStatusCard } from '@/features/game/pet/hooks/usePetStatusCard';
 import playButton from '@/assets/game_button/playButton.png';
 import sampleCat from '@/assets/sampleCat.png';
 import { Loader2 } from 'lucide-react';
+import { PAGE_PATH } from '@/shared/constants/path';
+import { useNavigate } from 'react-router-dom';
 
 interface PetCardProps {
   petId: number;
@@ -12,6 +14,7 @@ interface PetCardProps {
 
 const PetCard = ({ petId }: PetCardProps) => {
   const { petData, isLoading, error, levelClass } = usePetStatusCard(petId);
+  const navigate = useNavigate();
 
   if (isLoading) {
     return (
@@ -57,7 +60,7 @@ const PetCard = ({ petId }: PetCardProps) => {
       />
 
       {/* PLAY 버튼 */}
-      <button className="mt-2">
+      <button className="mt-2" onClick={() => navigate(PAGE_PATH.GAME)}>
         <img src={playButton} alt="playButton" className="h-12 w-auto" />
       </button>
     </Card>

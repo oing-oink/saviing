@@ -18,6 +18,7 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
+  --color-gray: var(--gray);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
@@ -197,16 +198,8 @@
 
 /* 금융 테마 */
 .saving {
-  /* 푸른색 */
-  --bg: oklch(0.939 0.0326 295.32);
   --primary: oklch(0.5181 0.2408 283.43);
-  --secondary: oklch(0.8 0.2408 283.43);
-
-  /* 보라색 */
-  /* --bg: oklch(0.9279 0.0203 292.13);
-  --primary: oklch(0.51 0.1142 314.52);
-  --secondary: oklch(0.8 0.1142 314.52); */
-
+  --secondary: var(--color-violet-50);
   --white: oklch(0.9919 0.003956 286.3273);
   --gray: oklch(0.8853 0 0);
   --dark-gray: oklch(0.619 0.0038 247.89);
