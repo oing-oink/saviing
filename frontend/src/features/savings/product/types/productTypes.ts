@@ -21,7 +21,9 @@ export const bpsToPercent = (bps: number): string => {
 /**
  * 상품 카테고리를 한국어로 변환하는 함수
  */
-export const getCategoryLabel = (category: Product['productCategory']): string => {
+export const getCategoryLabel = (
+  category: Product['productCategory'],
+): string => {
   switch (category) {
     case 'DEMAND_DEPOSIT':
       return '입출금통장';
@@ -35,7 +37,9 @@ export const getCategoryLabel = (category: Product['productCategory']): string =
 /**
  * 상품 카테고리별 색상 클래스를 반환하는 함수
  */
-export const getCategoryColorClass = (category: Product['productCategory']): string => {
+export const getCategoryColorClass = (
+  category: Product['productCategory'],
+): string => {
   switch (category) {
     case 'DEMAND_DEPOSIT':
       return 'bg-blue-100 text-blue-800';
@@ -49,7 +53,10 @@ export const getCategoryColorClass = (category: Product['productCategory']): str
 /**
  * 금리 범위를 문자열로 포맷하는 함수
  */
-export const formatInterestRateRange = (minBps: number, maxBps: number): string => {
+export const formatInterestRateRange = (
+  minBps: number,
+  maxBps: number,
+): string => {
   if (minBps === maxBps) {
     return `${bpsToPercent(minBps)}%`;
   }

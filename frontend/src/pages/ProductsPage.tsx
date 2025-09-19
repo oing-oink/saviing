@@ -36,27 +36,18 @@ const ProductsPage = () => {
 
   // 카테고리별로 상품 분류
   const savingsProducts = products.filter(
-    product => product.productCategory === 'INSTALLMENT_SAVINGS'
+    product => product.productCategory === 'INSTALLMENT_SAVINGS',
   );
   const demandProducts = products.filter(
-    product => product.productCategory === 'DEMAND_DEPOSIT'
+    product => product.productCategory === 'DEMAND_DEPOSIT',
   );
 
   return (
     <div className="px-5 py-4">
       <div className="flex flex-col gap-6">
-        {/* 페이지 제목 */}
-        <div>
-          <h1 className="text-2xl font-bold text-primary">금융상품</h1>
-          <p className="text-sm text-gray-600 mt-1">
-            다양한 금융상품을 확인해보세요
-          </p>
-        </div>
-
         {/* 적금 상품 섹션 */}
         {savingsProducts.length > 0 && (
           <div className="flex flex-col gap-3">
-            <h2 className="text-lg font-semibold text-gray-800">적금</h2>
             <div className="flex flex-col gap-4">
               {savingsProducts.map(product => (
                 <ProductCard key={product.productId} product={product} />
@@ -68,7 +59,6 @@ const ProductsPage = () => {
         {/* 입출금 상품 섹션 */}
         {demandProducts.length > 0 && (
           <div className="flex flex-col gap-3">
-            <h2 className="text-lg font-semibold text-gray-800">입출금통장</h2>
             <div className="flex flex-col gap-4">
               {demandProducts.map(product => (
                 <ProductCard key={product.productId} product={product} />

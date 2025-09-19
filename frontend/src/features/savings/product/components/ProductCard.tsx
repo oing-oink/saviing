@@ -17,14 +17,16 @@ const ProductCard = ({ product }: ProductCardProps) => {
       <div className="flex flex-col gap-4">
         {/* 상품명과 카테고리 */}
         <div className="flex items-start justify-between">
-          <h3 className="text-xl font-bold text-primary">{product.productName}</h3>
+          <h3 className="text-xl font-bold text-primary">
+            {product.productName}
+          </h3>
           <Badge className={getCategoryColorClass(product.productCategory)}>
             {getCategoryLabel(product.productCategory)}
           </Badge>
         </div>
 
         {/* 상품 설명 */}
-        <p className="text-sm text-gray-600 leading-relaxed">
+        <p className="text-sm leading-relaxed text-gray-600">
           {product.description}
         </p>
 
@@ -32,7 +34,10 @@ const ProductCard = ({ product }: ProductCardProps) => {
         <div className="flex items-center justify-between rounded-lg bg-violet-50 p-3">
           <span className="text-sm font-medium text-gray-700">연이자율</span>
           <span className="text-lg font-bold text-primary">
-            {formatInterestRateRange(product.minInterestRateBps, product.maxInterestRateBps)}
+            {formatInterestRateRange(
+              product.minInterestRateBps,
+              product.maxInterestRateBps,
+            )}
           </span>
         </div>
 
