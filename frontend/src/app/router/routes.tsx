@@ -1,5 +1,4 @@
 import { createBrowserRouter, Outlet } from 'react-router-dom';
-import { customerStore } from '@/features/auth/store/useCustomerStore';
 import ProtectedRoute from '@/shared/components/common/ProtectedRoute';
 import SavingsLayout from '@/features/savings/components/SavingsLayout';
 import { PAGE_PATH } from '@/shared/constants/path';
@@ -20,11 +19,6 @@ import DecoPage from '@/pages/DecoPage';
 import ColorTestPage from '@/pages/ColorTestPage';
 import NotFoundPage from '@/pages/NotFoundPage';
 
-// 앱 시작 시 인증 정보 로드하는 loader 함수
-const rootLoader = async () => {
-  customerStore.getState().loadFromSession();
-  return null;
-};
 
 // SavingsLayout을 사용하는 보호된 라우트들
 const savingsLayoutRoutes = [
@@ -56,7 +50,6 @@ export const router = createBrowserRouter([
   {
     path: '/',
     element: <Outlet />,
-    loader: rootLoader, // 최상위에서 한 번만 인증 정보 로드
     children: [
       // 공개 라우트
       ...publicRoutes,
