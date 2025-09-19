@@ -1,7 +1,7 @@
 import type { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { ApiError } from '@/shared/types/api';
-import { router } from '@/app/router/routes';
 import { PAGE_PATH } from '@/shared/constants/path';
+import { router } from '@/app/router/routes';
 
 /**
  * 요청 인터셉터
@@ -27,7 +27,7 @@ export const onRequest = (config: InternalAxiosRequestConfig) => {
 export const onResponseError = (error: AxiosError) => {
   if (error.response?.status === 401) {
     // TODO: zustand 도입 후 토큰 정리 추가
-    router.navigate(PAGE_PATH.LOGIN);
+    router.navigate(PAGE_PATH.ONBOARDING);
   }
   return Promise.reject(new ApiError(error));
 };
