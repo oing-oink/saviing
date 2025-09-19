@@ -1,16 +1,22 @@
-import coin from '@/assets/game_button/coin.png';
-import fishCoin from '@/assets/game_button/fishCoin.png';
+import coinImage from '@/assets/game_button/coin.png';
+import fishCoinImage from '@/assets/game_button/fishCoin.png';
 import { useGameStore } from '@/features/game/shared/store/useGameStore';
 import { useGameQuery } from '@/features/game/shared/query/useGameQuery';
 import { useEffect } from 'react';
 
+interface CoinProps {
+  coin?: number;
+  fishCoin?: number;
+}
+
 /**
  * 사용자의 보유 재화(코인, 피시코인)를 표시하는 컴포넌트
  *
- * 게임 데이터를 직접 API에서 가져와 전역 상태에 저장하고 표시합니다.
- * 게임 데이터가 로드되지 않은 경우 기본값(0)을 표시합니다.
+ * @param coin - 표시할 코인 수량 (props로 전달된 경우)
+ * @param fishCoin - 표시할 피시코인 수량 (props로 전달된 경우)
+ * props가 전달되지 않으면 게임 전역 상태에서 가져옵니다.
  */
-const Coin = () => {
+const Coin = ({ coin, fishCoin }: CoinProps) => {
   // Todo: 나중에 api 받아와서 수정
   const characterId = 5;
 
@@ -23,14 +29,14 @@ const Coin = () => {
     }
   }, [apiGameData, setGameData]);
 
-  const coinAmount = gameData?.coin ?? 0;
-  const fishCoinAmount = gameData?.fishCoin ?? 0;
+  const coinAmount = coin ?? gameData?.coin ?? 0;
+  const fishCoinAmount = fishCoin ?? gameData?.fishCoin ?? 0;
 
   return (
     <div className="flex items-end justify-center gap-2 pt-4">
       {/* Coin */}
       <div className="relative flex h-16 w-28 items-center">
-        <img src={coin} alt="coin" className="h-full w-auto object-contain" />
+        <img src={coinImage} alt="coin" className="h-full w-auto object-contain" />
         <span className="absolute right-4 bottom-4 text-lg font-bold text-gray-600">
           {coinAmount}
         </span>
@@ -39,7 +45,7 @@ const Coin = () => {
       {/* Fish Coin */}
       <div className="relative ml-1 flex h-16 w-28 items-center">
         <img
-          src={fishCoin}
+          src={fishCoinImage}
           alt="fish coin"
           className="-ml-2 h-full w-auto scale-105 object-contain"
         />

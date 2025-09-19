@@ -1,31 +1,24 @@
-import inventory_square from '@/assets/inventory_square.png';
-import { useItemModal } from '@/features/game/shop/hooks/useItemModal';
-import { useSlots } from '@/features/game/shop/hooks/useSlots';
+import type { Item, Tab } from '@/features/game/shop/types/item';
 import { useTabs } from '@/features/game/shop/hooks/useTabs';
-import type { Item, TabId } from '@/features/game/shop/types/item';
+import { useSlots } from '@/features/game/shop/hooks/useSlots';
+import { useItemModal } from '@/features/game/shop/hooks/useItemModal';
+import { getItemImage } from '@/features/game/shop/utils/getItemImage';
+import inventory_square from '@/assets/inventory_square.png';
 import ItemDetailModal from './ItemDetailModal';
 
 interface InventoryProps {
   items: Item[];
-  // **외부(부모 컴포넌트)에서 전달받은 클릭 이벤트 감지하여 함수 호출(존재할 경우에만)
-  onCategoryClick?: (tabId: TabId) => void;
+  activeTab: Tab;
+  onTabChange: (tab: Tab) => void;
 }
 
-const Inventory = ({ items, onCategoryClick }: InventoryProps) => {
-  const { activeTab, setActiveTab, TABS } = useTabs();
-  const { selectedItem, isModalOpen, handleItemClick, handleCloseModal } =
+const Inventory = ({ items, activeTab, onTabChange }: InventoryProps) => {
+  const { TABS } = useTabs();
+  const { selectedItemId, isModalOpen, handleItemClick, handleCloseModal } =
     useItemModal();
 
-  // 현재 탭에 해당하는 아이템 필터링
-  const filteredItems = items.filter(item => item.category === activeTab);
-
-  const slots = useSlots(filteredItems);
-
-  // **탭 클릭 시 내부 상태 변경 + 외부로 클릭 이벤트 전달하는 함수 통합
-  const handleTabClick = (tab: (typeof TABS)[number]) => {
-    setActiveTab(tab.name);
-    onCategoryClick?.(tab.id);
-  };
+  // API에서 이미 필터링된 데이터를 받으므로 추가 필터링 불필요
+  const slots = useSlots(items);
 
   return (
     <div className="game w-full font-galmuri">
@@ -34,9 +27,9 @@ const Inventory = ({ items, onCategoryClick }: InventoryProps) => {
         {TABS.map(tab => (
           <button
             key={tab.id}
-            onClick={() => handleTabClick(tab)}
-            className={`rounded-t-xl px-4 py-2 text-sm active:scale-95 active:brightness-90 ${
-              activeTab === tab.name
+            onClick={() => onTabChange(tab)}
+            className={`h-8 w-16 rounded-t-lg px-1 py-1 text-xs active:scale-95 active:brightness-90 ${
+              activeTab === tab
                 ? 'border-t border-r border-l bg-secondary font-semibold'
                 : 'bg-primary text-gray-600'
             }`}
@@ -47,12 +40,12 @@ const Inventory = ({ items, onCategoryClick }: InventoryProps) => {
       </div>
 
       {/* 인벤토리 슬롯 */}
-      <div className="h-45 overflow-y-auto bg-secondary px-2 pt-2">
-        <div className="grid grid-cols-4 gap-0.5">
+      <div className="h-[40vh] overflow-y-auto bg-secondary px-2 pt-1 pb-1">
+        <div className="grid grid-cols-3 gap-1">
           {slots.map(slot => (
             <div
               key={slot.id}
-              className="relative -mb-3 flex aspect-square items-center justify-center"
+              className="relative -mb-6 flex aspect-square items-center justify-center"
             >
               <img
                 src={inventory_square}
@@ -62,12 +55,12 @@ const Inventory = ({ items, onCategoryClick }: InventoryProps) => {
               {slot.item && (
                 <button
                   onClick={() => handleItemClick(slot.item!)}
-                  className="relative h-[70%] w-[70%] hover:opacity-80"
+                  className="relative flex h-[70%] w-[70%] items-center justify-center hover:opacity-80"
                 >
                   <img
-                    src={slot.item.image}
-                    alt={slot.item.name}
-                    className="h-full w-full object-contain"
+                    src={getItemImage(slot.item.itemId)}
+                    alt={slot.item.itemName}
+                    className="h-[80%] w-[80%] object-contain"
                   />
                 </button>
               )}
@@ -76,13 +69,11 @@ const Inventory = ({ items, onCategoryClick }: InventoryProps) => {
         </div>
       </div>
 
-      {selectedItem && (
-        <ItemDetailModal
-          item={selectedItem}
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-        />
-      )}
+      <ItemDetailModal
+        itemId={selectedItemId}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 };
