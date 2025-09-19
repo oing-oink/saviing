@@ -7,6 +7,7 @@ import GameBackground from '@/features/game/shared/components/GameBackground';
 import Inventory from '@/features/game/shop/components/Inventory';
 import { mockInventoryItems } from '@/features/game/shop/mocks/inventoryMockData';
 import type { TabId } from '@/features/game/shop/types/item';
+import { useTabs } from '@/features/game/shop/hooks/useTabs';
 import { PAGE_PATH } from '@/shared/constants/path';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -14,6 +15,7 @@ import { useNavigate } from 'react-router-dom';
 const DecoPage = () => {
   const navigate = useNavigate();
   const [showSaveModal, setShowSaveModal] = useState(false);
+  const { activeTab, setActiveTab } = useTabs();
 
   // DecoPage는 어떤 그리드를 보여줄지 상태만 관리
   const [gridType, setGridType] = useState<TabId | null>(null);
@@ -69,7 +71,11 @@ const DecoPage = () => {
           <div className="relative z-10">
             <Inventory
               items={mockInventoryItems}
-              onCategoryClick={setGridType}
+              activeTab={activeTab}
+              onTabChange={tab => {
+                setActiveTab(tab);
+                setGridType(tab.id);
+              }}
             />
           </div>
         </div>

@@ -30,15 +30,17 @@ const GachaResult = ({ item }: ItemDetailModalProps) => {
           </div>
           <div className="mx-auto mb-4 flex h-48 w-48 items-center rounded-full bg-white">
             <img
-              src={item.image}
-              alt={item.name}
+              src={item.imageUrl}
+              alt={item.itemName}
               className="mx-auto h-32 w-32 object-contain"
             />
           </div>
           <div className="flex flex-col items-center pt-2">
-            <h2 className="text-xl font-semibold text-gray-800">{item.name}</h2>
+            <h2 className="text-xl font-semibold text-gray-800">
+              {item.itemName}
+            </h2>
             <p className="px-10 pt-3 text-center text-sm leading-relaxed whitespace-pre-line text-gray-600">
-              {item.description}
+              {item.itemDescription}
             </p>
             <button onClick={() => navigate(PAGE_PATH.GACHA)}>
               <div className="mt-5 mb-2 rounded-2xl border-3 border-level-06 bg-store-bg p-2 px-10 text-xl text-red-300">
