@@ -1,20 +1,27 @@
 import { Copy } from 'lucide-react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
+import type { SavingsAccountData } from '@/features/savings/types/savingsTypes';
 
-const CheckingAccountWalletCard = () => {
+interface CheckingAccountWalletCardProps {
+  account: SavingsAccountData;
+}
+
+const CheckingAccountWalletCard = ({ account }: CheckingAccountWalletCardProps) => {
   return (
     <div className="w-full max-w-md rounded-2xl bg-white font-pretendard shadow">
       <div className="mb-3 flex items-start gap-3 p-6 pb-0">
         <div className="flex-1">
           <div className="flex items-center justify-between">
-            <p className="text-2xl font-bold text-primary">750,000원</p>
-            <p className="text-md text-gray-500">입출금 통장</p>
+            <p className="text-2xl font-bold text-primary">
+              {account.balance.toLocaleString()}원
+            </p>
+            <p className="text-md text-gray-500">{account.product.productName}</p>
           </div>
           <div className="flex items-center gap-1 pt-1 text-gray-400">
-            <p className="text-sm">1042-001-532620</p>
+            <p className="text-sm">{account.accountNumber}</p>
             <CopyToClipboard
-              text="1042-001-532620"
+              text={account.accountNumber}
               onCopy={() => {
                 toast.dismiss(); // 기존 토스트 닫기
                 toast.success('계좌번호가 복사되었습니다!');
