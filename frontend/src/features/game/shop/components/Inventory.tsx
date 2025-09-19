@@ -1,15 +1,17 @@
-import type { Item } from '@/features/game/shop/types/item';
-import { useTabs } from '@/features/game/shop/hooks/useTabs';
-import { useSlots } from '@/features/game/shop/hooks/useSlots';
-import { useItemModal } from '@/features/game/shop/hooks/useItemModal';
 import inventory_square from '@/assets/inventory_square.png';
+import { useItemModal } from '@/features/game/shop/hooks/useItemModal';
+import { useSlots } from '@/features/game/shop/hooks/useSlots';
+import { useTabs } from '@/features/game/shop/hooks/useTabs';
+import type { Item, TabId } from '@/features/game/shop/types/item';
 import ItemDetailModal from './ItemDetailModal';
 
 interface InventoryProps {
   items: Item[];
+  // **외부(부모 컴포넌트)에서 전달받은 클릭 이벤트 감지하여 함수 호출(존재할 경우에만)
+  onCategoryClick?: (tabId: TabId) => void;
 }
 
-const Inventory = ({ items }: InventoryProps) => {
+const Inventory = ({ items, onCategoryClick }: InventoryProps) => {
   const { activeTab, setActiveTab, TABS } = useTabs();
   const { selectedItem, isModalOpen, handleItemClick, handleCloseModal } =
     useItemModal();
@@ -19,21 +21,27 @@ const Inventory = ({ items }: InventoryProps) => {
 
   const slots = useSlots(filteredItems);
 
+  // **탭 클릭 시 내부 상태 변경 + 외부로 클릭 이벤트 전달하는 함수 통합
+  const handleTabClick = (tab: (typeof TABS)[number]) => {
+    setActiveTab(tab.name);
+    onCategoryClick?.(tab.id);
+  };
+
   return (
     <div className="game w-full font-galmuri">
       {/* 탭 영역 */}
       <div className="flex border-b">
         {TABS.map(tab => (
           <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`h-8 w-16 rounded-t-lg px-1 py-1 text-xs active:scale-95 active:brightness-90 ${
-              activeTab === tab
+            key={tab.id}
+            onClick={() => handleTabClick(tab)}
+            className={`rounded-t-xl px-4 py-2 text-sm active:scale-95 active:brightness-90 ${
+              activeTab === tab.name
                 ? 'border-t border-r border-l bg-secondary font-semibold'
                 : 'bg-primary text-gray-600'
             }`}
           >
-            {tab}
+            {tab.name}
           </button>
         ))}
       </div>
