@@ -22,6 +22,23 @@ export interface ItemsResponse {
   totalCount: number;
 }
 
+export type PaymentMethod = 'COIN' | 'FISH_COIN';
+
+export interface PurchaseRequest {
+  characterId: number;
+  itemId: number;
+  paymentMethod: PaymentMethod;
+}
+
+export interface PurchaseResponse {
+  success: boolean;
+  message: string;
+  remainingBalance?: {
+    coin: number;
+    fishCoin: number;
+  };
+}
+
 // 탭/카테고리 상수 및 타입
 export type TabId = GridType | 'cat';
 

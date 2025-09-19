@@ -1,8 +1,12 @@
 import { useGameItemDetail } from '@/features/game/shop/query/useItemsQuery';
+import { usePurchase } from '@/features/game/shop/query/usePurchaseQuery';
 import { getItemImage } from '@/features/game/shop/utils/getItemImage';
 import closeButton from '@/assets/game_button/closeButton.png';
 import Coin from '@/features/game/shared/components/Coin';
 import itemHeader from '@/assets/game_etc/itemHeader.png';
+import type { PaymentMethod } from '@/features/game/shop/types/item';
+import { useState } from 'react';
+import toast from 'react-hot-toast';
 
 interface ItemDetailModalProps {
   itemId: number | null;
@@ -12,6 +16,37 @@ interface ItemDetailModalProps {
 
 const ItemDetailModal = ({ itemId, isOpen, onClose }: ItemDetailModalProps) => {
   const { data: item, isLoading, error } = useGameItemDetail(itemId);
+  const { mutate: purchase, isPending: isPurchasing } = usePurchase();
+  const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>('COIN');
+
+  const handlePurchase = () => {
+    if (!item) {
+      return;
+    }
+
+    const characterId = 1;
+
+    purchase(
+      {
+        characterId,
+        itemId: item.itemId,
+        paymentMethod: selectedPayment,
+      },
+      {
+        onSuccess: () => {
+          toast.success('구매가 완료되었습니다!', {
+            className: 'game font-galmuri',
+          });
+          onClose();
+        },
+        onError: error => {
+          toast.error(`구매 실패: ${error.message}`, {
+            className: 'game font-galmuri',
+          });
+        },
+      },
+    );
+  };
 
   if (!isOpen) {
     return null;
@@ -80,6 +115,56 @@ const ItemDetailModal = ({ itemId, isOpen, onClose }: ItemDetailModalProps) => {
               PREVIEW
             </div>
             <Coin coin={item.coin} fishCoin={item.fishCoin} />
+
+            {/* 결제 방법 선택 */}
+            <div className="mt-4 mb-4">
+              <div className="mb-2 text-center text-sm text-gray-600">
+                결제 방법 선택
+              </div>
+              <div className="flex justify-center gap-2">
+                <button
+                  onClick={() => setSelectedPayment('COIN')}
+                  className={`rounded-lg px-4 py-2 text-sm ${
+                    selectedPayment === 'COIN'
+                      ? 'bg-primary text-white'
+                      : 'bg-gray-200 text-gray-700'
+                  }`}
+                >
+                  코인으로 결제 ({item.coin})
+                </button>
+                <button
+                  onClick={() => setSelectedPayment('FISH_COIN')}
+                  className={`rounded-lg px-4 py-2 text-sm ${
+                    selectedPayment === 'FISH_COIN'
+                      ? 'bg-primary text-white'
+                      : 'bg-gray-200 text-gray-700'
+                  }`}
+                >
+                  피시코인으로 결제 ({item.fishCoin})
+                </button>
+              </div>
+            </div>
+
+            {/* 구매 버튼 */}
+            <div className="flex justify-center gap-2">
+              <button
+                onClick={handlePurchase}
+                disabled={isPurchasing}
+                className={`rounded-lg px-6 py-2 text-center font-semibold ${
+                  isPurchasing
+                    ? 'cursor-not-allowed bg-gray-300 text-gray-500'
+                    : 'bg-green-500 text-white hover:bg-green-600'
+                }`}
+              >
+                {isPurchasing ? '구매 중...' : '구매하기'}
+              </button>
+              <button
+                onClick={onClose}
+                className="rounded-lg bg-gray-500 px-6 py-2 text-center text-white hover:bg-gray-600"
+              >
+                취소
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -18,7 +18,7 @@ interface CoinProps {
  */
 const Coin = ({ coin, fishCoin }: CoinProps) => {
   // Todo: 나중에 api 받아와서 수정
-  const characterId = 5;
+  const characterId = 1;
 
   const { gameData, setGameData } = useGameStore();
   const { data: apiGameData } = useGameQuery(characterId);

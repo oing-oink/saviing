@@ -76,6 +76,16 @@ export const router = createBrowserRouter([
         ),
         children: savingsLayoutRoutes,
       },
+      {
+        path: PAGE_PATH.SAVINGS_DETAIL_WITH_ID,
+        element: <SavingsDetailLayout title="적금 상세" />,
+        children: [{ index: true, element: <SavingsDetailPage /> }],
+      },
+      {
+        path: PAGE_PATH.ACCOUNT_DETAIL_WITH_ID,
+        element: <SavingsDetailLayout title="계좌 상세" />,
+        children: [{ index: true, element: <AccountDetailPage /> }],
+      },
 
       // 레이아웃이 없는 보호된 라우트들
       ...protectedRoutesWithoutLayout.map(({ path, element }) => ({
