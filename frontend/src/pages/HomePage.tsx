@@ -1,4 +1,4 @@
-import PetCard from '@/features/savings/components/PetCard';
+import PetCard from '@/features/game/pet/components/PetCard';
 import PromoCarousel from '@/features/savings/components/PromoCarousel';
 import SavingCard from '@/features/savings/components/SavingCard';
 
