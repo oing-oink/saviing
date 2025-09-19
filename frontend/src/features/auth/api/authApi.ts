@@ -1,4 +1,4 @@
-import { api } from '@/shared/services/api/axiosClient';
+import { http } from '@/shared/services/api/http';
 import { API_ENDPOINTS } from '@/shared/constants/apiEndpoints';
 import type { LoginResponse } from '@/features/auth/types/authTypes';
 
@@ -10,15 +10,11 @@ import type { LoginResponse } from '@/features/auth/types/authTypes';
 export const loginWithGoogleCode = async (
   code: string,
 ): Promise<LoginResponse> => {
-  const response = await api.post<{
-    success: boolean;
-    status: number;
-    body: LoginResponse;
-  }>(API_ENDPOINTS.AUTH.LOGIN, null, {
+  const response = await http.post<LoginResponse>(API_ENDPOINTS.AUTH.LOGIN, null, {
     params: { code },
   });
 
-  return response.data.body;
+  return response.body!;
 };
 
 /**
