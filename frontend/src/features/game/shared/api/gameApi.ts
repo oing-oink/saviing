@@ -8,7 +8,8 @@ import { mockGetCharacterGameData } from '@/features/game/shared/data/mockGameAp
  * development 모드에서는 true, production에서는 false로 설정됩니다.
  * 이를 통해 백엔드 API 없이도 프론트엔드 개발을 진행할 수 있습니다.
  */
-const USE_MOCK = import.meta.env.MODE === 'development';
+// const USE_MOCK = import.meta.env.MODE === 'development';
+const USE_MOCK = true;
 
 /**
  * 특정 캐릭터의 게임 정보를 조회하는 API 함수

@@ -14,7 +14,9 @@ import {
  *
  * development 모드에서는 true, production에서는 false로 설정됩니다.
  */
-const USE_MOCK = import.meta.env.MODE === 'development';
+//const USE_MOCK = import.meta.env.MODE === 'development';
+
+const USE_MOCK = true;
 
 /**
  * 특정 펫의 상세 정보를 조회하는 API 함수
