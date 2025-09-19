@@ -45,8 +45,8 @@ export const TAB_TO_API_PARAMS: Record<
   string,
   { type: string; category: string }
 > = {
-  '냥이': { type: 'PET', category: 'CAT' },
-  '왼쪽벽': { type: 'DECORATION', category: 'LEFT' },
-  '오른쪽벽': { type: 'DECORATION', category: 'RIGHT' },
-  '바닥': { type: 'DECORATION', category: 'BOTTOM' },
+  냥이: { type: 'PET', category: 'CAT' },
+  왼쪽벽: { type: 'DECORATION', category: 'LEFT' },
+  오른쪽벽: { type: 'DECORATION', category: 'RIGHT' },
+  바닥: { type: 'DECORATION', category: 'BOTTOM' },
 } as const;

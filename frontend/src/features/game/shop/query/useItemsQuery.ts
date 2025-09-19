@@ -1,5 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import { getGameItems, getGameItemDetail } from '@/features/game/shop/api/itemsApi';
+import {
+  getGameItems,
+  getGameItemDetail,
+} from '@/features/game/shop/api/itemsApi';
 import { itemsKeys } from '@/features/game/shop/query/itemsKeys';
 
 /**
@@ -24,7 +27,7 @@ export const useGameItemDetail = (itemId: number | null) => {
   return useQuery({
     queryKey: itemsKeys.detail(itemId!),
     queryFn: () => getGameItemDetail(itemId!),
-    enabled: !!itemId, // itemId가 있을 때만 실행
+    enabled: Boolean(itemId), // itemId가 있을 때만 실행
     staleTime: 1000 * 60, // 1분
     gcTime: 1000 * 60 * 5, // 5분
   });

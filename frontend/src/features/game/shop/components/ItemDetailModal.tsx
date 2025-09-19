@@ -31,8 +31,13 @@ const ItemDetailModal = ({ itemId, isOpen, onClose }: ItemDetailModalProps) => {
     return (
       <div className="game fixed inset-0 z-50 flex items-center justify-center bg-white/50">
         <div className="rounded-4xl bg-secondary p-6 shadow-lg">
-          <div className="text-center text-red-500">아이템 정보를 불러올 수 없습니다.</div>
-          <button onClick={onClose} className="mt-4 px-4 py-2 bg-primary rounded">
+          <div className="text-center text-red-500">
+            아이템 정보를 불러올 수 없습니다.
+          </div>
+          <button
+            onClick={onClose}
+            className="mt-4 rounded bg-primary px-4 py-2"
+          >
             닫기
           </button>
         </div>
@@ -65,7 +70,9 @@ const ItemDetailModal = ({ itemId, isOpen, onClose }: ItemDetailModalProps) => {
             />
           </div>
           <div className="flex flex-col items-center pt-2">
-            <h2 className="text-xl font-semibold text-gray-800">{item.itemName}</h2>
+            <h2 className="text-xl font-semibold text-gray-800">
+              {item.itemName}
+            </h2>
             <p className="px-10 pt-3 text-center text-sm leading-relaxed whitespace-pre-line text-gray-600">
               {item.itemDescription}
             </p>

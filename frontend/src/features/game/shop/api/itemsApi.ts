@@ -7,7 +7,10 @@ import type { ItemsResponse, Item } from '@/features/game/shop/types/item';
  * @param category - 아이템 카테고리 (CAT, LEFT, RIGHT, BOTTOM)
  * @returns ItemsResponse 아이템 목록과 총 개수
  */
-export const getGameItems = async (type: string, category: string): Promise<ItemsResponse> => {
+export const getGameItems = async (
+  type: string,
+  category: string,
+): Promise<ItemsResponse> => {
   const params: Record<string, string | boolean> = {
     type: type,
     category: category,

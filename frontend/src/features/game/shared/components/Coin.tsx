@@ -36,7 +36,11 @@ const Coin = ({ coin, fishCoin }: CoinProps) => {
     <div className="flex items-end justify-center gap-2 pt-4">
       {/* Coin */}
       <div className="relative flex h-16 w-28 items-center">
-        <img src={coinImage} alt="coin" className="h-full w-auto object-contain" />
+        <img
+          src={coinImage}
+          alt="coin"
+          className="h-full w-auto object-contain"
+        />
         <span className="absolute right-4 bottom-4 text-lg font-bold text-gray-600">
           {coinAmount}
         </span>

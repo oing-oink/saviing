@@ -12,7 +12,7 @@ const ShopPage = () => {
 
   if (isLoading) {
     return (
-      <div className="game relative min-h-screen w-full bg-store-bg font-galmuri flex items-center justify-center">
+      <div className="game relative flex min-h-screen w-full items-center justify-center bg-store-bg font-galmuri">
         <div className="text-white">아이템을 불러오는 중...</div>
       </div>
     );
@@ -20,8 +20,10 @@ const ShopPage = () => {
 
   if (error) {
     return (
-      <div className="game relative min-h-screen w-full bg-store-bg font-galmuri flex items-center justify-center">
-        <div className="text-red-500">아이템을 불러오는 중 오류가 발생했습니다.</div>
+      <div className="game relative flex min-h-screen w-full items-center justify-center bg-store-bg font-galmuri">
+        <div className="text-red-500">
+          아이템을 불러오는 중 오류가 발생했습니다.
+        </div>
       </div>
     );
   }
@@ -37,7 +39,11 @@ const ShopPage = () => {
         <img src={sampleRoom} alt="" />
       </div>
       <div className="absolute bottom-0 left-0 w-full">
-        <Inventory items={items} activeTab={activeTab} onTabChange={setActiveTab} />
+        <Inventory
+          items={items}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+        />
       </div>
     </div>
   );
