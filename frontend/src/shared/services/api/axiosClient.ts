@@ -3,26 +3,25 @@ import { onRequest, onResponseError } from './interceptors';
 import { API_BASE_URLS } from '@/shared/constants/apiEndpoints';
 
 /**
- * Bank API용 Axios 인스턴스
+ * 통합 API 클라이언트
+ * URL prefix에 따라 baseURL을 동적으로 설정
  */
-export const bankApi = axios.create({
-  baseURL: API_BASE_URLS.BANK,
+export const api = axios.create({
   timeout: 10_000,
   withCredentials: true,
 });
 
-/**
- * Game API용 Axios 인스턴스
- */
-export const gameApi = axios.create({
-  baseURL: API_BASE_URLS.GAME,
-  timeout: 10_000,
-  withCredentials: true,
+// baseURL 동적 설정 인터셉터
+api.interceptors.request.use((config) => {
+  if (config.url?.startsWith('/game')) {
+    config.baseURL = API_BASE_URLS.GAME;
+  }
+  if (config.url?.startsWith('/bank')) {
+    config.baseURL = API_BASE_URLS.BANK;
+  }
+  return config;
 });
 
-// 인터셉터 연결
-bankApi.interceptors.request.use(onRequest);
-bankApi.interceptors.response.use(res => res, onResponseError);
-
-gameApi.interceptors.request.use(onRequest);
-gameApi.interceptors.response.use(res => res, onResponseError);
+// 기존 인터셉터 연결
+api.interceptors.request.use(onRequest);
+api.interceptors.response.use(res => res, onResponseError);
