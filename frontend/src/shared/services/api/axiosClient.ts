@@ -1,17 +1,28 @@
 import axios from 'axios';
 import { onRequest, onResponseError } from './interceptors';
-import { CURRENT_API_BASE_URL } from '@/shared/constants/apiEndpoints';
+import { API_BASE_URLS } from '@/shared/constants/apiEndpoints';
 
 /**
- * 공용 Axios 인스턴스
- * baseURL, timeout, withCredentials 등 전역 설정을 적용한다.
+ * Bank API용 Axios 인스턴스
  */
-export const api = axios.create({
-  baseURL: CURRENT_API_BASE_URL,
+export const bankApi = axios.create({
+  baseURL: API_BASE_URLS.BANK,
+  timeout: 10_000,
+  withCredentials: true,
+});
+
+/**
+ * Game API용 Axios 인스턴스
+ */
+export const gameApi = axios.create({
+  baseURL: API_BASE_URLS.GAME,
   timeout: 10_000,
   withCredentials: true,
 });
 
 // 인터셉터 연결
-api.interceptors.request.use(onRequest);
-api.interceptors.response.use(res => res, onResponseError);
+bankApi.interceptors.request.use(onRequest);
+bankApi.interceptors.response.use(res => res, onResponseError);
+
+gameApi.interceptors.request.use(onRequest);
+gameApi.interceptors.response.use(res => res, onResponseError);
