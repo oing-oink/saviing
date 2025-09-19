@@ -39,7 +39,7 @@ export const Modal = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogPortal>
-        <DialogOverlay className="!bg-transparent backdrop-blur-sm backdrop-brightness-110" />
+        <DialogOverlay className="bg-transparent backdrop-blur-sm backdrop-brightness-110" />
         <DialogContent
           showCloseButton={false}
           className="game h-[14rem] border-0 bg-secondary p-4 font-galmuri shadow-xl sm:max-w-lg"

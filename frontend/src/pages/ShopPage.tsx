@@ -32,7 +32,7 @@ const ShopPage = () => {
 
   return (
     <div className="game relative min-h-screen w-full bg-store-bg font-galmuri">
-      <div className="px-3">
+      <div className="relative z-10">
         <InventoryHud />
       </div>
       <div className="flex justify-center">

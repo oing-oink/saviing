@@ -35,10 +35,12 @@ const GamePage = () => {
       <GameBackground />
 
       <div className="relative flex h-full flex-col">
-        <GameHeader />
+        <div className="relative z-10">
+          <GameHeader />
+        </div>
 
-        <div className="relative mt-4 flex w-full flex-1 justify-center px-4">
-          <div className="relative inline-block">
+        <div className="relative flex w-full flex-1 justify-center">
+          <div className="relative inline-block w-full">
             <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
               <PopoverTrigger asChild>
                 <button
@@ -56,7 +58,7 @@ const GamePage = () => {
                 </button>
               </PopoverTrigger>
               <div
-                className={`absolute left-1/2 z-0 h-80 w-80 -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ease-in-out ${
+                className={`absolute left-1/2 z-0 w-full -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ease-in-out ${
                   isPopoverOpen ? 'top-[30%]' : 'top-1/2'
                 }`}
               >
@@ -77,7 +79,7 @@ const GamePage = () => {
           </div>
         </div>
 
-        <div className="absolute right-0 bottom-0 z-5 pr-3 pb-5">
+        <div className="absolute right-0 bottom-0 z-10 pr-3 pb-5">
           <ElevatorButton />
         </div>
       </div>

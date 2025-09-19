@@ -3,7 +3,7 @@ import { Progress } from '@/shared/components/ui/progress';
 import { useAccountsList } from '@/features/savings/query/useSavingsQuery';
 import saving from '@/assets/saving/saving.png';
 import freeSaving from '@/assets/saving/freeSaving.png';
-import { createSavingsDetailPath } from '@/shared/constants/path';
+import { createSavingsDetailPath, PAGE_PATH } from '@/shared/constants/path';
 
 const SavingCard = () => {
   const { data: accounts, isLoading, error } = useAccountsList();
@@ -135,7 +135,10 @@ const SavingCard = () => {
         >
           저축 관리
         </button>
-        <button className="font-lg flex-1 border-l border-gray-200 py-1 text-center font-bold text-primary">
+        <button
+          className="font-lg flex-1 border-l border-gray-200 py-1 text-center font-bold text-primary"
+          onClick={() => navigate(PAGE_PATH.DEPOSIT)}
+        >
           입금
         </button>
       </div>
