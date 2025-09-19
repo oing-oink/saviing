@@ -4,13 +4,11 @@ import SavingCard from '@/features/savings/components/SavingCard';
 
 const HomePage = () => {
   return (
-    <div className="flex min-h-screen flex-col">
-      <div className="flex-1 px-5">
-        <div className="flex flex-col items-center gap-4">
-          <PromoCarousel />
-          <PetCard petId={1} />
-          <SavingCard />
-        </div>
+    <div className="px-5 py-4">
+      <div className="flex flex-col items-center gap-4">
+        <PromoCarousel />
+        <PetCard petId={1} />
+        <SavingCard />
       </div>
     </div>
   );
