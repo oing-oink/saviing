@@ -68,11 +68,21 @@ const detailPages: RouteObject[] = [
 
 // 메인 레이아웃 페이지
 const homePages: RouteObject[] = [
-  { path: '', element: <HomePage /> },
+  { index: true, element: <HomePage /> },
   { path: 'wallet', element: <WalletPage /> },
 ];
 
 export const savingsRoutes: RouteObject[] = [
+  // 홈 레이아웃 (index 라우트 포함)
+  {
+    path: '/',
+    element: (
+      <ProtectedRoute>
+        <SavingsLayout />
+      </ProtectedRoute>
+    ),
+    children: homePages,
+  },
   // 독립 페이지들을 ProtectedRoute로 감싸기
   {
     path: '/',
@@ -92,15 +102,5 @@ export const savingsRoutes: RouteObject[] = [
       </ProtectedRoute>
     ),
     children: detailPages,
-  },
-  // 홈 레이아웃
-  {
-    path: '/',
-    element: (
-      <ProtectedRoute>
-        <SavingsLayout />
-      </ProtectedRoute>
-    ),
-    children: homePages,
   },
 ];
