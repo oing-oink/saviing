@@ -6,7 +6,6 @@ import { useCustomerStore } from '@/features/auth/store/useCustomerStore';
 interface UseOAuthCallbackState {
   isLoading: boolean;
   error: string | null;
-  isSuccess: boolean;
 }
 
 export const useOAuthCallback = () => {
@@ -17,7 +16,6 @@ export const useOAuthCallback = () => {
   const [state, setState] = useState<UseOAuthCallbackState>({
     isLoading: false,
     error: null,
-    isSuccess: false,
   });
 
   useEffect(() => {
@@ -30,7 +28,6 @@ export const useOAuthCallback = () => {
         setState({
           isLoading: false,
           error: 'Google 로그인이 취소되었습니다.',
-          isSuccess: false,
         });
         return;
       }
@@ -40,21 +37,18 @@ export const useOAuthCallback = () => {
         setState({
           isLoading: false,
           error: '인증 코드를 찾을 수 없습니다.',
-          isSuccess: false,
         });
         return;
       }
 
       // 로그인 처리
       try {
-        setState({ isLoading: true, error: null, isSuccess: false });
+        setState({ isLoading: true, error: null });
 
         const loginData = await loginWithGoogleCode(code);
 
         // Customer 스토어에 로그인 데이터 저장 (세션스토리지에도 자동 저장됨)
         setLoginData(loginData);
-
-        setState({ isLoading: false, error: null, isSuccess: true });
 
         // 홈페이지로 리다이렉트
         navigate('/');
@@ -63,7 +57,6 @@ export const useOAuthCallback = () => {
         setState({
           isLoading: false,
           error: '로그인 처리 중 오류가 발생했습니다.',
-          isSuccess: false,
         });
       }
     };

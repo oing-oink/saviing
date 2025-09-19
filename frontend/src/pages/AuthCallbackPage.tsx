@@ -1,7 +1,7 @@
 import { useOAuthCallback } from '@/features/auth/hooks/useOAuthCallback';
 
 const AuthCallbackPage = () => {
-  const { isLoading, error, isSuccess } = useOAuthCallback();
+  const { isLoading, error } = useOAuthCallback();
 
   if (isLoading) {
     return (
@@ -34,19 +34,6 @@ const AuthCallbackPage = () => {
     );
   }
 
-  if (isSuccess) {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-blue-50 to-white">
-        <div className="flex flex-col items-center space-y-4">
-          <div className="rounded-lg bg-green-50 p-4">
-            <p className="font-pretendard text-green-600">
-              ✅ 로그인 성공! 홈으로 이동중...
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return null;
 };
