@@ -3,7 +3,7 @@ import { Progress } from '@/shared/components/ui/progress';
 import { useAccountsList } from '@/features/savings/query/useSavingsQuery';
 import saving from '@/assets/saving/saving.png';
 import freeSaving from '@/assets/saving/freeSaving.png';
-import { createSavingsDetailPath } from '@/shared/constants/path';
+import { createSavingsDetailPath, PAGE_PATH } from '@/shared/constants/path';
 
 const SavingCard = () => {
   const { data: accounts, isLoading, error } = useAccountsList();
