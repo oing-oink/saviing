@@ -10,12 +10,16 @@ interface SavingsAccountWalletCardProps {
   account: SavingsAccountData;
 }
 
-const SavingsAccountWalletCard = ({ account }: SavingsAccountWalletCardProps) => {
+const SavingsAccountWalletCard = ({
+  account,
+}: SavingsAccountWalletCardProps) => {
   const navigate = useNavigate();
   const target = account.savings.targetAmount;
   const current = account.balance;
   const percent = (current / target) * 100;
-  const interestRate = ((account.baseRate + account.bonusRate) / 100).toFixed(1);
+  const interestRate = ((account.baseRate + account.bonusRate) / 100).toFixed(
+    1,
+  );
 
   // 저축 관리 페이지로 이동
   const handleSavingsManagement = () => {
@@ -32,7 +36,9 @@ const SavingsAccountWalletCard = ({ account }: SavingsAccountWalletCardProps) =>
             <p className="text-2xl font-bold text-primary">
               {current.toLocaleString()}원
             </p>
-            <p className="text-md text-gray-500">{account.product.productName}</p>
+            <p className="text-md text-gray-500">
+              {account.product.productName}
+            </p>
           </div>
           <div className="flex items-center gap-1 text-gray-400">
             <p className="text-sm">{account.accountNumber}</p>

@@ -4,10 +4,10 @@ import type {
   TransactionData,
   GetTransactionsParams,
 } from '@/features/savings/types/savingsTypes';
-import {
-  mockGetSavingsAccount,
-  mockGetSavingsTransactions,
-} from '@/features/savings/data/mockSavingsApi';
+// import {
+//   mockGetSavingsAccount,
+//   mockGetSavingsTransactions,
+// } from '@/features/savings/data/mockSavingsApi';
 
 /**
  * 하드코딩된 고객 ID (추후 인증 시스템에서 가져올 예정)
@@ -20,7 +20,7 @@ const CUSTOMER_ID = 1;
  * development 모드에서는 true, production에서는 false로 설정됩니다.
  */
 //const USE_MOCK = import.meta.env.MODE === 'development';
-const USE_MOCK = false;
+//const USE_MOCK = false;
 
 /**
  * 고객의 모든 계좌 목록을 조회하는 API 함수

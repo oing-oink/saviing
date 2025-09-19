@@ -9,7 +9,9 @@ interface CheckingAccountWalletCardProps {
   account: SavingsAccountData;
 }
 
-const CheckingAccountWalletCard = ({ account }: CheckingAccountWalletCardProps) => {
+const CheckingAccountWalletCard = ({
+  account,
+}: CheckingAccountWalletCardProps) => {
   const navigate = useNavigate();
 
   // 계좌 관리 페이지로 이동
@@ -26,7 +28,9 @@ const CheckingAccountWalletCard = ({ account }: CheckingAccountWalletCardProps) 
             <p className="text-2xl font-bold text-primary">
               {account.balance.toLocaleString()}원
             </p>
-            <p className="text-md text-gray-500">{account.product.productName}</p>
+            <p className="text-md text-gray-500">
+              {account.product.productName}
+            </p>
           </div>
           <div className="flex items-center gap-1 pt-1 text-gray-400">
             <p className="text-sm">{account.accountNumber}</p>
