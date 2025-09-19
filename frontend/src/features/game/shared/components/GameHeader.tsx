@@ -16,16 +16,28 @@ const GameHeader = () => {
     <div>
       <div className="flex h-20 w-full items-center justify-between px-3">
         <button onClick={() => navigate(PAGE_PATH.HOME)}>
-          <img className="w-9 pt-5" src={closeButton} />
+          <img 
+            className="w-9 pt-5 focus:ring-1 
+            focus:ring-primary focus:outline-none active:scale-95 active:brightness-90" 
+            src={closeButton} 
+          />
         </button>
         <Coin />
         <button onClick={() => navigate(PAGE_PATH.SHOP)}>
-          <img className="w-9 pt-5" src={storeButton} />
+          <img 
+            className="w-9 pt-5 
+            focus:ring-1 focus:ring-primary focus:outline-none active:scale-95 active:brightness-90" 
+            src={storeButton} 
+          />
         </button>
       </div>
       <div className="flex justify-end px-3">
         <button onClick={() => navigate(PAGE_PATH.DECO)}>
-          <img className="w-9" src={decoButton} />
+          <img 
+            className="w-9 
+            focus:ring-1 focus:ring-primary focus:outline-none active:scale-95 active:brightness-90" 
+            src={decoButton} 
+          />
         </button>
       </div>
     </div>

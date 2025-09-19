@@ -33,19 +33,19 @@ export const useGestures = ({
       return pos;
     }
 
-    // 확대된 이미지가 컨테이너보다 클 때, 이동 가능한 최대 거리 계산
+    // 확대된 이미지가 컨테이너보다 클 때, 이동 가능한 최대 거리 계산 (드래그 범위 확장)
     const maxPanX = Math.max(
       0,
       (targetRef.current.offsetWidth * currentScale -
         containerRef.current.clientWidth) /
         2,
-    );
+    ) + 100; // 드래그 범위를 x축으로 200px 더 확장
     const maxPanY = Math.max(
       0,
       (targetRef.current.offsetHeight * currentScale -
         containerRef.current.clientHeight) /
         2,
-    );
+    ) + 100; // 드래그 범위를 y축으로 200px 더 확장
 
     // 이미지가 바깥으로 안 나가게 위치(x, y 이동 범위) 제한
     return {

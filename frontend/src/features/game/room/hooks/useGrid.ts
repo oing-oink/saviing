@@ -26,7 +26,7 @@ interface Line {
 }
 
 // [상수 정의]
-const GRID_DIVISIONS = 10; // 각 영역을 몇 개의 셀로 나눌지
+const GRID_DIVISIONS = 12; // 각 영역을 몇 개의 셀로 나눌지
 
 // 각 영역의 꼭짓점 4개를 이미지 크기 비율로 정의 (TL, TR, BR, BL)
 const AREAS_CONFIG: Partial<Record<GridType, [Point, Point, Point, Point]>> = {
