@@ -34,7 +34,6 @@ const AuthCallbackPage = () => {
     );
   }
 
-
   return null;
 };
 

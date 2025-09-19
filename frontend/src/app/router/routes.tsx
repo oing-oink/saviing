@@ -19,7 +19,6 @@ import DecoPage from '@/pages/DecoPage';
 import ColorTestPage from '@/pages/ColorTestPage';
 import NotFoundPage from '@/pages/NotFoundPage';
 
-
 // SavingsLayout을 사용하는 보호된 라우트들
 const savingsLayoutRoutes = [
   { path: '', element: <HomePage /> }, // '/' 경로

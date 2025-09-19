@@ -10,9 +10,13 @@ import type { LoginResponse } from '@/features/auth/types/authTypes';
 export const loginWithGoogleCode = async (
   code: string,
 ): Promise<LoginResponse> => {
-  const response = await http.post<LoginResponse>(API_ENDPOINTS.AUTH.LOGIN, null, {
-    params: { code },
-  });
+  const response = await http.post<LoginResponse>(
+    API_ENDPOINTS.AUTH.LOGIN,
+    null,
+    {
+      params: { code },
+    },
+  );
 
   return response.body!;
 };
