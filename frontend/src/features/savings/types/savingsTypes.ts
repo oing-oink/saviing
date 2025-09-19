@@ -63,7 +63,7 @@ export interface TransactionData {
   transactionId: number;
   accountId: number;
   transactionType: 'TRANSFER_OUT' | 'TRANSFER_IN'; // TRANSFER_IN = 입금, TRANSFER_OUT = 출금
-  direction: 'CREDIT' | 'DEBIT'; // CREDIT = 출금, DEBIT = 입금
+  direction: 'CREDIT' | 'DEBIT'; // CREDIT = 입금, DEBIT = 출금
   amount: number;
   valueDate: string; // 금융 거래가 성사되고 자산의 가치가 결정되는 날짜
   postedAt: string;

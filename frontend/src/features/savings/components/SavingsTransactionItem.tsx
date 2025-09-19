@@ -11,7 +11,8 @@ const SavingsTransactionItem = ({
   const { direction, amount, postedAt, description, balance } = transaction;
 
   // 입금/출금 구분
-  const isDeposit = direction === 'DEBIT';
+  // TODO: 이름 수정
+  const isCredit = direction === 'DEBIT';
 
   // 날짜 포맷팅
   const formatDate = (dateString: string) => {
@@ -36,10 +37,10 @@ const SavingsTransactionItem = ({
           <div className="text-right">
             <p
               className={`text-sm font-semibold ${
-                isDeposit ? 'text-blue-600' : 'text-red-600'
+                isCredit ? 'text-red-600' : 'text-blue-600'
               }`}
             >
-              {isDeposit ? '+' : '-'}
+              {isCredit ? '-' : '+'}
               {(amount || 0).toLocaleString()}원
             </p>
             <p className="mt-1 text-xs text-gray-400">
