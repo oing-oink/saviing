@@ -28,8 +28,5 @@ export const useDecoSaveMutation = () => {
     onSuccess: () => {
       decoStore.getState().markDraftAsSaved();
     },
-    onError: () => {
-      decoStore.getState().resetToLastSaved();
-    },
   });
 };
