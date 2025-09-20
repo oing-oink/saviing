@@ -26,9 +26,9 @@ interface ProductCardProps {
 const ProductCard = ({ product }: ProductCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const navigate = useNavigate();
-  
+
   const { data: productDetail, isLoading: isDetailLoading } = useProductDetail(
-    isExpanded ? product.productCode : undefined
+    isExpanded ? product.productCode : undefined,
   );
 
   const handleCardClick = () => {
@@ -36,10 +36,11 @@ const ProductCard = ({ product }: ProductCardProps) => {
   };
 
   const handleAccountCreation = () => {
-    const accountType = product.productCategory === 'INSTALLMENT_SAVINGS' 
-      ? ACCOUNT_TYPES.SAVINGS 
-      : ACCOUNT_TYPES.CHECKING;
-    
+    const accountType =
+      product.productCategory === 'INSTALLMENT_SAVINGS'
+        ? ACCOUNT_TYPES.SAVINGS
+        : ACCOUNT_TYPES.CHECKING;
+
     navigate(`${PAGE_PATH.ACCOUNT_CREATION}/start?type=${accountType}`);
   };
 
@@ -61,11 +62,11 @@ const ProductCard = ({ product }: ProductCardProps) => {
   const ButtonIcon = buttonConfig.icon;
 
   return (
-    <Card className="saving w-full rounded-2xl bg-white shadow transition-all duration-300 hover:shadow-lg">
+    <Card className="p-0 shadow transition-all duration-300">
       <div className="flex flex-col">
         {/* 기본 상품 정보 (클릭 가능) */}
-        <div 
-          className="cursor-pointer p-6 transition-colors hover:bg-gray-50"
+        <div
+          className="cursor-pointer p-6 transition-colors"
           onClick={handleCardClick}
         >
           <div className="flex flex-col gap-4">
@@ -75,7 +76,9 @@ const ProductCard = ({ product }: ProductCardProps) => {
                 {product.productName}
               </h3>
               <div className="flex items-center gap-2">
-                <Badge className={getCategoryColorClass(product.productCategory)}>
+                <Badge
+                  className={getCategoryColorClass(product.productCategory)}
+                >
                   {getCategoryLabel(product.productCategory)}
                 </Badge>
                 {isExpanded ? (
@@ -93,18 +96,15 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
             {/* 금리 정보 */}
             <div className="flex items-center justify-between rounded-lg bg-violet-50 p-3">
-              <span className="text-sm font-medium text-gray-700">연이자율</span>
+              <span className="text-sm font-medium text-gray-700">
+                연이자율
+              </span>
               <span className="text-lg font-bold text-primary">
                 {formatInterestRateRange(
                   product.minInterestRateBps,
                   product.maxInterestRateBps,
                 )}
               </span>
-            </div>
-
-            {/* 상품 코드 */}
-            <div className="text-xs text-gray-400">
-              상품코드: {product.productCode}
             </div>
           </div>
         </div>
@@ -115,13 +115,17 @@ const ProductCard = ({ product }: ProductCardProps) => {
             {isDetailLoading ? (
               <div className="flex items-center justify-center py-6">
                 <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
-                <span className="ml-2 text-sm text-gray-500">상세 정보 로딩 중...</span>
+                <span className="ml-2 text-sm text-gray-500">
+                  상세 정보 로딩 중...
+                </span>
               </div>
             ) : productDetail ? (
               <div className="space-y-4">
                 {/* 상세 금리 정보 */}
                 <div className="rounded-lg bg-gray-50 p-4">
-                  <h4 className="mb-3 font-semibold text-gray-800">상세 금리 정보</h4>
+                  <h4 className="mb-3 font-semibold text-gray-800">
+                    상세 금리 정보
+                  </h4>
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     <div>
                       <span className="text-gray-600">금리 범위:</span>
@@ -141,33 +145,46 @@ const ProductCard = ({ product }: ProductCardProps) => {
                 {/* 적금 상품 상세 정보 */}
                 {productDetail.savingsConfig && (
                   <div className="rounded-lg bg-green-50 p-4">
-                    <h4 className="mb-3 font-semibold text-gray-800">적금 상품 조건</h4>
+                    <h4 className="mb-3 font-semibold text-gray-800">
+                      적금 상품 조건
+                    </h4>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
                         <span className="text-gray-600">기본 납입 주기:</span>
                         <span className="font-medium">
-                          {getPaymentCycleLabel(productDetail.savingsConfig.defaultPaymentCycle)}
+                          {getPaymentCycleLabel(
+                            productDetail.savingsConfig.defaultPaymentCycle,
+                          )}
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">최소 납입금액:</span>
                         <span className="font-medium">
-                          {formatAmount(productDetail.savingsConfig.minPaymentAmount)}
+                          {formatAmount(
+                            productDetail.savingsConfig.minPaymentAmount,
+                          )}
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">최대 납입금액:</span>
                         <span className="font-medium">
-                          {formatAmount(productDetail.savingsConfig.maxPaymentAmount)}
+                          {formatAmount(
+                            productDetail.savingsConfig.maxPaymentAmount,
+                          )}
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">가입 기간:</span>
                         <span className="font-medium">
                           {productDetail.savingsConfig.termConstraints.minValue}
-                          {getTermUnitLabel(productDetail.savingsConfig.termConstraints.unit)} ~ {' '}
+                          {getTermUnitLabel(
+                            productDetail.savingsConfig.termConstraints.unit,
+                          )}{' '}
+                          ~{' '}
                           {productDetail.savingsConfig.termConstraints.maxValue}
-                          {getTermUnitLabel(productDetail.savingsConfig.termConstraints.unit)}
+                          {getTermUnitLabel(
+                            productDetail.savingsConfig.termConstraints.unit,
+                          )}
                         </span>
                       </div>
                     </div>
@@ -177,12 +194,16 @@ const ProductCard = ({ product }: ProductCardProps) => {
                 {/* 입출금 상품 상세 정보 */}
                 {productDetail.demandDepositConfig && (
                   <div className="rounded-lg bg-blue-50 p-4">
-                    <h4 className="mb-3 font-semibold text-gray-800">입출금 상품 조건</h4>
+                    <h4 className="mb-3 font-semibold text-gray-800">
+                      입출금 상품 조건
+                    </h4>
                     <div className="text-sm">
                       <div className="flex justify-between">
                         <span className="text-gray-600">최소 잔고:</span>
                         <span className="font-medium">
-                          {formatAmount(productDetail.demandDepositConfig.minimumBalance)}
+                          {formatAmount(
+                            productDetail.demandDepositConfig.minimumBalance,
+                          )}
                         </span>
                       </div>
                     </div>
@@ -190,9 +211,9 @@ const ProductCard = ({ product }: ProductCardProps) => {
                 )}
 
                 {/* 계좌 개설 버튼 */}
-                <Button 
+                <Button
                   onClick={handleAccountCreation}
-                  className="w-full bg-primary text-white hover:bg-primary/90"
+                  className="w-full bg-primary text-white"
                 >
                   <ButtonIcon className="mr-2 h-4 w-4" />
                   {buttonConfig.label}

@@ -47,23 +47,19 @@ const ProductsPage = () => {
       <div className="flex flex-col gap-6">
         {/* 적금 상품 섹션 */}
         {savingsProducts.length > 0 && (
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-col gap-4">
-              {savingsProducts.map(product => (
-                <ProductCard key={product.productId} product={product} />
-              ))}
-            </div>
+          <div className="flex flex-col gap-4">
+            {savingsProducts.map(product => (
+              <ProductCard key={product.productId} product={product} />
+            ))}
           </div>
         )}
 
         {/* 입출금 상품 섹션 */}
         {demandProducts.length > 0 && (
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-col gap-4">
-              {demandProducts.map(product => (
-                <ProductCard key={product.productId} product={product} />
-              ))}
-            </div>
+          <div className="flex flex-col gap-4">
+            {demandProducts.map(product => (
+              <ProductCard key={product.productId} product={product} />
+            ))}
           </div>
         )}
 

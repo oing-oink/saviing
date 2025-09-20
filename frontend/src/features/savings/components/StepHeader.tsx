@@ -9,7 +9,7 @@ const StepHeader = () => {
 
   const handleBackClick = () => {
     if (currentStepFromUrl === 'START') {
-      navigate(PAGE_PATH.WALLET);
+      navigate(-1);
     } else {
       goToPreviousStep();
     }
