@@ -91,23 +91,7 @@ const RoomBase = ({
 
   return (
     <div className="relative">
-      {gridLines.length > 0 ? (
-        <svg
-          className="pointer-events-none absolute z-[1]"
-          style={{
-            width: '300%',
-            height: '300%',
-            left: '-100%',
-            top: '-100%',
-            stroke: 'rgba(255, 38, 38, 0.7)',
-            strokeWidth: 1,
-          }}
-        >
-          {gridLines.map((line, index) => (
-            <line key={`${line.x1}-${line.y1}-${index}`} {...line} />
-          ))}
-        </svg>
-      ) : null}
+      {/* 격자선은 내부 계산에만 사용하고 화면에는 노출하지 않는다. */}
 
       <div
         ref={containerRef}

@@ -718,6 +718,14 @@ const RoomCanvas = ({
           top: '-100%',
         }}
       >
+        {surfacePolygon ? (
+          <polygon
+            points={surfacePolygon.map(({ x, y }) => `${x},${y}`).join(' ')}
+            fill="rgba(0, 0, 0, 0.3)"
+            stroke="none"
+            pointerEvents="none"
+          />
+        ) : null}
         {/* 확정된 아이템 스프라이트 */}
         {spriteData.map((sprite) => (
           <image
