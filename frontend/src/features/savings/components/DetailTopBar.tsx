@@ -2,11 +2,7 @@ import { ChevronLeft } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { PAGE_PATH } from '@/shared/constants/path';
 
-interface DetailTopBarProps {
-  title: string;
-}
-
-const DetailTopBar = ({ title }: DetailTopBarProps) => {
+const DetailTopBar = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -23,15 +19,16 @@ const DetailTopBar = ({ title }: DetailTopBarProps) => {
   };
 
   return (
-    <header className="sticky top-0 z-50 flex w-full items-center bg-white px-4 py-4">
-      <button
-        onClick={handleBack}
-        className="flex items-center justify-center rounded-full p-2 text-gray-600 transition-colors"
-      >
-        <ChevronLeft className="h-6 w-6" />
-      </button>
-      <h1 className="ml-2 text-xl font-semibold text-gray-800">{title}</h1>
-    </header>
+    <div className="border-b bg-white px-6 py-4">
+      <div className="flex items-center justify-start">
+        <button
+          onClick={handleBack}
+          className="flex items-center text-gray-600 hover:text-gray-900"
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </button>
+      </div>
+    </div>
   );
 };
 
