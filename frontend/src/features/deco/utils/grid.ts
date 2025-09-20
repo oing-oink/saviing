@@ -62,6 +62,20 @@ export const findNearestCell = (cells: GridCell[], px: number, py: number): Grid
   return nearest;
 };
 
+export const getCellBounds = (cells: GridCell[]) => {
+  if (!cells.length) {
+    return { minX: 0, maxX: 0, minY: 0, maxY: 0 };
+  }
+  const xs = cells.map((cell) => cell.center.x);
+  const ys = cells.map((cell) => cell.center.y);
+  return {
+    minX: Math.min(...xs),
+    maxX: Math.max(...xs),
+    minY: Math.min(...ys),
+    maxY: Math.max(...ys),
+  };
+};
+
 export const isCellFree = (occupied: Set<string>, cellId: string): boolean => {
   return !occupied.has(cellId);
 };

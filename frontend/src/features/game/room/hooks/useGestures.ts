@@ -19,6 +19,8 @@ export const useGestures = ({
   // 화면에 반영할 값 (배율, 위치)
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
+  const scaleRef = useRef(scale);
+  const positionRef = useRef(position);
 
   // 제스처 임시 저장값 -> 렌더링 필요 x(ref 사용)
   const isPanningRef = useRef(false);
@@ -61,17 +63,22 @@ export const useGestures = ({
   // 2-1. 마우스 휠로 확대축소
   const handleWheel = (e: React.WheelEvent<HTMLElement>) => {
     e.preventDefault();
-    const newScale = scale - e.deltaY * 0.001;
+    const newScale = scaleRef.current - e.deltaY * 0.001;
     const clampedScale = Math.min(Math.max(minScale, newScale), maxScale); // 최소 1배 ~ 최대 4배
 
-    if (clampedScale === scale) {
+    if (clampedScale === scaleRef.current) {
       return;
     } // 한계값이면 무시
 
-    const newPosition = getBoundedPosition(position, clampedScale);
+    const newPosition = getBoundedPosition(positionRef.current, clampedScale);
 
-    setScale(clampedScale);
-    setPosition(newPosition);
+    setScale((prev) => (prev === clampedScale ? prev : clampedScale));
+    setPosition((prev) => {
+      if (prev.x === newPosition.x && prev.y === newPosition.y) {
+        return prev;
+      }
+      return newPosition;
+    });
   };
 
   // 2-2. 마우스로 드래그(패닝)
@@ -84,8 +91,8 @@ export const useGestures = ({
     e.preventDefault();
     isPanningRef.current = true;
     panStartRef.current = {
-      x: e.clientX - position.x,
-      y: e.clientY - position.y,
+      x: e.clientX - positionRef.current.x,
+      y: e.clientY - positionRef.current.y,
     };
     if (containerRef.current) {
       containerRef.current.style.cursor = 'grabbing';
@@ -99,7 +106,13 @@ export const useGestures = ({
         x: e.clientX - panStartRef.current.x,
         y: e.clientY - panStartRef.current.y,
       };
-      setPosition(getBoundedPosition(newPos, scale));
+      setPosition((prev) => {
+        const bounded = getBoundedPosition(newPos, scaleRef.current);
+        if (bounded.x === prev.x && bounded.y === prev.y) {
+          return prev;
+        }
+        return bounded;
+      });
     }
   };
   // 마우스를 떼거나 밖으로 나가면 드래그 종료
@@ -129,8 +142,8 @@ export const useGestures = ({
       isPanningRef.current = true;
       const touch = e.touches[0];
       panStartRef.current = {
-        x: touch.clientX - position.x,
-        y: touch.clientY - position.y,
+        x: touch.clientX - positionRef.current.x,
+        y: touch.clientY - positionRef.current.y,
       };
     }
   };
@@ -145,10 +158,15 @@ export const useGestures = ({
         (newDistance / initialPinchDistanceRef.current);
       const clampedScale = Math.min(Math.max(minScale, newScale), maxScale);
 
-      const newPosition = getBoundedPosition(position, clampedScale);
+      const newPosition = getBoundedPosition(positionRef.current, clampedScale);
 
-      setScale(clampedScale);
-      setPosition(newPosition);
+      setScale((prev) => (prev === clampedScale ? prev : clampedScale));
+      setPosition((prev) => {
+        if (prev.x === newPosition.x && prev.y === newPosition.y) {
+          return prev;
+        }
+        return newPosition;
+      });
     } else if (e.touches.length === 1 && isPanningRef.current && panEnabled) {
       // 드래그(패닝)
       e.preventDefault();
@@ -157,7 +175,13 @@ export const useGestures = ({
         x: touch.clientX - panStartRef.current.x,
         y: touch.clientY - panStartRef.current.y,
       };
-      setPosition(getBoundedPosition(newPos, scale));
+      setPosition((prev) => {
+        const bounded = getBoundedPosition(newPos, scaleRef.current);
+        if (bounded.x === prev.x && bounded.y === prev.y) {
+          return prev;
+        }
+        return bounded;
+      });
     }
   };
   // 터치 종료
@@ -233,7 +257,7 @@ export const useGestures = ({
       }
     };
     // 의존성 배열: 핸들러 함수들이 새로운 state를 참조할 수 있도록 관련 state와 함수 포함
-  }, [containerRef, scale, position, minScale, maxScale, panEnabled]);
+  }, [containerRef, minScale, maxScale, panEnabled]);
 
   useEffect(() => {
     if (!panEnabled) {
@@ -243,6 +267,14 @@ export const useGestures = ({
       }
     }
   }, [panEnabled]);
+
+  useEffect(() => {
+    scaleRef.current = scale;
+  }, [scale]);
+
+  useEffect(() => {
+    positionRef.current = position;
+  }, [position]);
 
   useEffect(() => {
     if (!panEnabled) {

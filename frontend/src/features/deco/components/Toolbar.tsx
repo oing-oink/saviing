@@ -7,7 +7,7 @@ interface ToolbarProps {
 
 const Toolbar = ({ onSaveClick, onCancelClick, isSaving = false, isDirty = false }: ToolbarProps) => {
   return (
-    <div className="flex w-full justify-end gap-2 px-4 py-2">
+    <div className="flex w-full justify-end gap-2 px-4 py-2 z-10">
       <button
         type="button"
         onClick={onCancelClick}

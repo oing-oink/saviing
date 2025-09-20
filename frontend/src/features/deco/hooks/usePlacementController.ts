@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { GridCell } from '@/features/game/room/hooks/useGrid';
-import { buildFootprint, findNearestCell } from '@/features/deco/utils/grid';
+import { buildFootprint, findNearestCell, getCellBounds } from '@/features/deco/utils/grid';
 import { useDecoStore } from '@/features/deco/state/deco.store';
 import { useOccupancyMap } from '@/features/deco/hooks/useOccupancyMap';
 
@@ -49,6 +49,8 @@ export const usePlacementController = ({
     () => new Set(gridCells.map((cell) => cell.id)),
     [gridCells],
   );
+
+  const gridBounds = useMemo(() => getCellBounds(gridCells), [gridCells]);
 
   useEffect(() => {
     if (!dragSession) {
@@ -118,7 +120,10 @@ export const usePlacementController = ({
         return;
       }
 
-      const nearest = findNearestCell(gridCells, px, py);
+      const clampedX = Math.max(gridBounds.minX, Math.min(gridBounds.maxX, px));
+      const clampedY = Math.max(gridBounds.minY, Math.min(gridBounds.maxY, py));
+
+      const nearest = findNearestCell(gridCells, clampedX, clampedY);
       const nextGhostId = nearest?.id ?? null;
       if (!nextGhostId || !nearest) {
         setGhost({ ghostCellId: null, footprintCellIds: [], isValid: false });
@@ -148,6 +153,7 @@ export const usePlacementController = ({
       updateHoverCell,
       gridCellIdSet,
       occupiedCellIds,
+      gridBounds,
     ],
   );
 
