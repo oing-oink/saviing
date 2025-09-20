@@ -41,7 +41,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
         ? ACCOUNT_TYPES.SAVINGS
         : ACCOUNT_TYPES.CHECKING;
 
-    navigate(`${PAGE_PATH.ACCOUNT_CREATION}/start?type=${accountType}`);
+    navigate(`${PAGE_PATH.ACCOUNT_CREATION}/start?type=${accountType}&from=products`);
   };
 
   const getAccountCreationButton = () => {

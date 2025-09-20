@@ -1,15 +1,24 @@
 import { ChevronLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useStepProgress } from '@/features/savings/hooks/useStepProgress';
 import { PAGE_PATH } from '@/shared/constants/path';
 
 const StepHeader = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { currentStepFromUrl, goToPreviousStep } = useStepProgress();
 
   const handleBackClick = () => {
     if (currentStepFromUrl === 'START') {
-      navigate(-1);
+      // URL 파라미터에서 from 값 확인
+      const fromParam = searchParams.get('from');
+
+      if (fromParam === 'products') {
+        navigate(PAGE_PATH.PRODUCTS);
+      } else {
+        // 기본값: WalletPage로 이동
+        navigate(PAGE_PATH.WALLET);
+      }
     } else {
       goToPreviousStep();
     }

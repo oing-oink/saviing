@@ -1,4 +1,4 @@
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useAccountCreationStore } from '@/features/savings/store/useAccountCreationStore';
 import {
   SAVINGS_STEPS,
@@ -48,6 +48,7 @@ const PATH_TO_STEP: Record<string, AccountCreationStep> = {
 export const useStepProgress = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const { form } = useAccountCreationStore();
 
   // 현재 URL에서 step 결정
@@ -62,6 +63,14 @@ export const useStepProgress = () => {
   const totalSteps = currentSteps.length;
 
   /**
+   * 현재 URL 파라미터를 포함한 경로 생성
+   */
+  const createPathWithParams = (path: string) => {
+    const currentParams = searchParams.toString();
+    return currentParams ? `${path}?${currentParams}` : path;
+  };
+
+  /**
    * 이전 단계로 이동
    * 현재 단계가 첫 번째가 아닌 경우에만 동작
    */
@@ -70,7 +79,7 @@ export const useStepProgress = () => {
       const prevStep = currentSteps[currentIndex - 1];
       if (prevStep) {
         const prevPath = STEP_TO_PATH[prevStep];
-        navigate(prevPath);
+        navigate(createPathWithParams(prevPath));
       }
     }
   };
@@ -84,7 +93,7 @@ export const useStepProgress = () => {
       const nextStep = currentSteps[currentIndex + 1];
       if (nextStep) {
         const nextPath = STEP_TO_PATH[nextStep];
-        navigate(nextPath);
+        navigate(createPathWithParams(nextPath));
       }
     }
   };
@@ -95,7 +104,7 @@ export const useStepProgress = () => {
    */
   const goToStep = (targetStep: AccountCreationStep) => {
     const targetPath = STEP_TO_PATH[targetStep];
-    navigate(targetPath);
+    navigate(createPathWithParams(targetPath));
   };
 
   return {
