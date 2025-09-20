@@ -301,14 +301,23 @@ const RoomCanvas = ({
     return [...leftSprites, ...rightSprites, ...floorSprites, ...otherSprites];
   }, [computeSprite, draftItems, draftMap]);
 
+  const lastStagedCellRef = useRef<string | null>(null);
+
   useEffect(() => {
     if (!dragSession) {
+      lastStagedCellRef.current = null;
       return;
     }
     if (!ghost.isValid || !ghost.ghostCellId) {
       return;
     }
-    stagePlacement();
+    if (lastStagedCellRef.current === ghost.ghostCellId) {
+      return;
+    }
+    const staged = stagePlacement();
+    if (staged) {
+      lastStagedCellRef.current = ghost.ghostCellId;
+    }
   }, [dragSession, ghost, stagePlacement]);
 
   // 드래그 중에는 hover 상태의 footprint를 사용해 임시 스프라이트를 만든다.
@@ -644,11 +653,12 @@ const RoomCanvas = ({
     }
     startDragFromPlaced(id);
     isPointerActiveRef.current = true;
+    setIsPointerActive(true);
     projectToOverlay(clientX, clientY);
   };
 
   const overlayActive = Boolean(
-    dragSession || pendingPlacement || showActionButtons || isPointerActive,
+    dragSession || pendingPlacement || showActionButtons || isPointerActive || allowItemPickup,
   );
 
   return (
@@ -748,10 +758,21 @@ const RoomCanvas = ({
           />
         ) : null}
         <GhostItem polygons={ghostPolygons} isValid={ghost.isValid} />
+        {allowItemPickup
+          ? draftPolygons.map((item) => (
+              <PlacedItem
+                key={`${item.id}-hit`}
+                id={item.id}
+                polygons={item.polygons}
+                onPick={handlePickPlaced}
+                variant="hit"
+              />
+            ))
+          : null}
         {/* 드래그 중인 아이템만 하이라이트를 유지한다 */}
         {draftPolygons.map((item) => (
           <PlacedItem
-            key={item.id}
+            key={`${item.id}-highlight`}
             id={item.id}
             polygons={item.polygons}
             onPick={handlePickPlaced}
