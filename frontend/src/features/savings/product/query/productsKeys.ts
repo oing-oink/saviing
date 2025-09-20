@@ -19,4 +19,14 @@ export const productsKeys = {
    * 상품 목록 조회 쿼리 키
    */
   list: () => [...productsKeys.lists()] as const,
+
+  /**
+   * 상품 상세 관련 쿼리 키들
+   */
+  details: () => [...productsKeys.all, 'detail'] as const,
+
+  /**
+   * 특정 상품 상세 조회 쿼리 키
+   */
+  detail: (productCode: string) => [...productsKeys.details(), productCode] as const,
 } as const;
