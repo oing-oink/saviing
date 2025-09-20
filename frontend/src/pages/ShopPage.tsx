@@ -110,6 +110,8 @@ const ShopPage = () => {
                 onAutoPlacementFail={handlePlacementBlocked}
                 allowItemPickup
                 pickupOnlyPreview
+                allowDelete
+                deleteOnlyPreview
               />
             )}
           />

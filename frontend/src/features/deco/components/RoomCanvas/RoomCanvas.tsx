@@ -15,6 +15,8 @@ interface RoomCanvasProps {
   allowItemPickup?: boolean;
   showActions?: boolean;
   pickupOnlyPreview?: boolean;
+  allowDelete?: boolean;
+  deleteOnlyPreview?: boolean;
 }
 
 // RoomCanvas는 드래그 중/확정된 아이템 스프라이트와 하이라이트를 관리하는 캔버스 레이어다.
@@ -24,6 +26,8 @@ const RoomCanvas = ({
   allowItemPickup = true,
   showActions = true,
   pickupOnlyPreview = false,
+  allowDelete = true,
+  deleteOnlyPreview = false,
 }: RoomCanvasProps) => {
   const { containerRef, gridCells, scale, surfacePolygon } = context;
 
@@ -56,6 +60,8 @@ const RoomCanvas = ({
   const cancelPendingPlacement = useDecoStore((state) => state.cancelPendingPlacement);
   const startDragFromPlaced = useDecoStore((state) => state.startDragFromPlaced);
   const cancelDrag = useDecoStore((state) => state.cancelDrag);
+  const removeDraftItem = useDecoStore((state) => state.removeDraftItem);
+  const deleteDraggedItem = useDecoStore((state) => state.deleteDraggedItem);
   const setScale = useDecoStore((state) => state.setScale);
 
   const imageSizeCacheRef = useRef(new Map<string, { width: number; height: number }>());
@@ -398,6 +404,51 @@ const RoomCanvas = ({
     return null;
   }, [ghost.isValid, ghostSprite, isPointerActive, pendingSprite, showActions]);
 
+  const deleteTargetId = useMemo(() => {
+    if (pendingPlacement) {
+      return pendingPlacement.id;
+    }
+    if (dragSession?.originPlacedId) {
+      return dragSession.originPlacedId;
+    }
+    return null;
+  }, [dragSession?.originPlacedId, pendingPlacement]);
+
+  const deleteTargetItem = useMemo(() => {
+    if (!deleteTargetId) {
+      return null;
+    }
+    if (pendingPlacement && pendingPlacement.id === deleteTargetId) {
+      return pendingPlacement;
+    }
+    return draftItems.find((item) => item.id === deleteTargetId) ?? null;
+  }, [deleteTargetId, draftItems, pendingPlacement]);
+
+  const canDelete = Boolean(
+    allowDelete &&
+      deleteTargetItem &&
+      (!deleteOnlyPreview || deleteTargetItem.isPreview),
+  );
+  const isEditingExisting = Boolean(dragSession?.originPlacedId);
+  const showDeleteButton = Boolean(canDelete && isEditingExisting);
+
+  const handleDelete = useCallback(() => {
+    if (!allowDelete) {
+      return;
+    }
+    if (!deleteTargetItem) {
+      return;
+    }
+    if (deleteOnlyPreview && !deleteTargetItem.isPreview) {
+      return;
+    }
+    removeDraftItem(deleteTargetItem.id);
+    deleteDraggedItem();
+    isPointerActiveRef.current = false;
+    setIsPointerActive(false);
+    lastStagedCellRef.current = null;
+  }, [allowDelete, deleteOnlyPreview, deleteTargetItem, deleteDraggedItem, removeDraftItem]);
+
   const showActionButtons = Boolean(
     showActions && actionAnchor && (isPointerActive ? ghost.isValid : pendingPlacement || ghost.isValid),
   );
@@ -715,9 +766,18 @@ const RoomCanvas = ({
             >
               배치
             </button>
-          </div>
-        </div>
-      ) : null}
+            {showDeleteButton ? (
+              <button
+                type="button"
+                onClick={handleDelete}
+                className="rounded-md bg-red-500 px-2.5 py-1 text-white transition hover:bg-red-500/90 disabled:cursor-not-allowed disabled:opacity-50 whitespace-nowrap"
+              >
+                삭제
+              </button>
+            ) : null}
+         </div>
+       </div>
+     ) : null}
       <svg
         className="absolute inset-0"
         style={{
@@ -730,7 +790,7 @@ const RoomCanvas = ({
         {surfacePolygon ? (
           <polygon
             points={surfacePolygon.map(({ x, y }) => `${x},${y}`).join(' ')}
-            fill="rgba(0, 0, 0, 0.3)"
+            fill="rgba(200, 200, 200, 0.12)"
             stroke="none"
             pointerEvents="none"
           />
