@@ -11,7 +11,7 @@ import {
   CompleteStep,
 } from '@/features/savings/components/funnelSteps';
 import FunnelProgressBar from '@/features/savings/components/FunnelProgressBar';
-import FunnelLayout from '@/features/savings/components/FunnelLayout';
+import FunnelLayout from '@/features/savings/layouts/FunnelLayout';
 import { useAccountCreationStore } from '@/features/savings/store/useAccountCreationStore';
 import { useStepProgress } from '@/features/savings/hooks/useStepProgress';
 import {
