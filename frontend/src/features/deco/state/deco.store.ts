@@ -19,6 +19,7 @@ interface StartDragOptions {
   offsetX?: number;
   offsetY?: number;
   imageUrl?: string;
+  isPreview?: boolean;
   itemType?: PlacedItem['itemType'];
 }
 
@@ -96,6 +97,7 @@ const buildPlacedItemFromSession = (
       session.originalItem?.imageUrl ??
       getItemImage(Number(session.itemId)),
     itemType: session.itemType ?? session.originalItem?.itemType ?? 'DECORATION',
+    isPreview: session.isPreview ?? session.originalItem?.isPreview ?? false,
   };
 };
 
@@ -109,6 +111,7 @@ const createDragSession = (itemId: string, overrides?: Partial<DragSession>): Dr
   offsetY: 0,
   imageUrl: undefined,
   itemType: 'DECORATION',
+  isPreview: false,
   ...overrides,
 });
 
@@ -154,13 +157,14 @@ export const decoStore = createStore<DecoStore>((set) => ({
         xLength: options.xLength ?? 1,
         yLength: options.yLength ?? 1,
         footprintCellIds: options.footprintCellIds,
-        offsetX: options.offsetX ?? 0,
-        offsetY: options.offsetY ?? 0,
-        // 서버 이미지가 준비되기 전까지 로컬 asset을 항상 사용한다.
-        imageUrl: getItemImage(Number(itemId)),
-        itemType: options.itemType ?? 'DECORATION',
-      }),
-    })),
+      offsetX: options.offsetX ?? 0,
+      offsetY: options.offsetY ?? 0,
+      // 서버 이미지가 준비되기 전까지 로컬 asset을 항상 사용한다.
+      imageUrl: getItemImage(Number(itemId)),
+      itemType: options.itemType ?? 'DECORATION',
+      isPreview: options.isPreview ?? false,
+    }),
+  })),
 
   startDragFromPlaced: (placedId) =>
     set((state) => {
@@ -192,6 +196,7 @@ export const decoStore = createStore<DecoStore>((set) => ({
           offsetY: target.offsetY ?? 0,
           imageUrl: target.imageUrl ?? getItemImage(target.itemId),
           itemType: target.itemType ?? 'DECORATION',
+          isPreview: target.isPreview ?? false,
         }),
         pendingPlacement: null,
       };

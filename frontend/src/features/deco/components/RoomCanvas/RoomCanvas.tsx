@@ -14,6 +14,7 @@ interface RoomCanvasProps {
   onAutoPlacementFail?: () => void;
   allowItemPickup?: boolean;
   showActions?: boolean;
+  pickupOnlyPreview?: boolean;
 }
 
 // RoomCanvas는 드래그 중/확정된 아이템 스프라이트와 하이라이트를 관리하는 캔버스 레이어다.
@@ -22,6 +23,7 @@ const RoomCanvas = ({
   onAutoPlacementFail,
   allowItemPickup = true,
   showActions = true,
+  pickupOnlyPreview = false,
 }: RoomCanvasProps) => {
   const { containerRef, gridCells, scale, surfacePolygon } = context;
 
@@ -649,6 +651,13 @@ const RoomCanvas = ({
 
   const handlePickPlaced = ({ id, clientX, clientY }: { id: string; clientX: number; clientY: number }) => {
     if (!allowItemPickup) {
+      return;
+    }
+    const targetItem = draftItems.find((item) => item.id === id);
+    if (!targetItem) {
+      return;
+    }
+    if (pickupOnlyPreview && !targetItem.isPreview) {
       return;
     }
     startDragFromPlaced(id);

@@ -22,6 +22,7 @@ export interface PlacedItem {
   offsetY?: number;
   imageUrl?: string;
   itemType?: string;
+  isPreview?: boolean;
 }
 
 export interface DragSession {
@@ -37,6 +38,7 @@ export interface DragSession {
   offsetY?: number;
   imageUrl?: string;
   itemType?: string;
+  isPreview?: boolean;
 }
 
 export interface DecoState {

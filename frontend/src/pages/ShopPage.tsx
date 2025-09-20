@@ -70,6 +70,7 @@ const ShopPage = () => {
         xLength: item.xLength ?? 1,
         yLength: item.yLength ?? 1,
         itemType: item.itemType,
+        isPreview: true,
       });
       return;
     }
@@ -84,6 +85,7 @@ const ShopPage = () => {
       xLength: item.xLength ?? 1,
       yLength: item.yLength ?? 1,
       itemType: item.itemType,
+      isPreview: true,
     });
   };
 
@@ -106,7 +108,8 @@ const ShopPage = () => {
               <RoomCanvas
                 context={ctx}
                 onAutoPlacementFail={handlePlacementBlocked}
-                allowItemPickup={false}
+                allowItemPickup
+                pickupOnlyPreview
               />
             )}
           />
