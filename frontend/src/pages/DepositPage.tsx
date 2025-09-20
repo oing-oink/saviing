@@ -1,11 +1,19 @@
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import AccountSummaryCard from '@/features/savings/components/deposit/AccountSummaryCard';
 import SourceAccountList from '@/features/savings/components/deposit/SourceAccountList';
 import DepositAmountPanel from '@/features/savings/components/deposit/DepositAmountPanel';
 import DepositPinDrawer from '@/features/savings/components/dialogs/DepositPinDrawer';
 import { useSavingsTransferForm } from '@/features/savings/hooks/useSavingsTransferForm';
+import { transferToSavings } from '@/features/savings/api/savingsApi';
+import {
+  useSavingsAccount,
+  useAccountsList,
+} from '@/features/savings/query/useSavingsQuery';
+import { savingsKeys } from '@/features/savings/query/savingsKeys';
+import { useCustomerStore } from '@/features/auth/store/useCustomerStore';
 import {
   Accordion,
   AccordionContent,
@@ -16,9 +24,58 @@ import { Button } from '@/shared/components/ui/button';
 import { PAGE_PATH } from '@/shared/constants/path';
 
 const DepositPage = () => {
+  const { accountId } = useParams<{ accountId: string }>();
+  const { customer } = useCustomerStore();
+
+  // 실제 API에서 적금 계좌 정보 가져오기
+  const { data: savingsAccountData, isLoading: isSavingsLoading } = useSavingsAccount(accountId || '');
+
+  // 실제 API에서 모든 계좌 목록 가져오기
+  const { data: allAccounts } = useAccountsList();
+
+  // 적금이 아닌 계좌들을 출금 계좌로 사용
+  const sourceAccountsData = useMemo(() => {
+    if (!allAccounts) {
+      return [];
+    }
+    return allAccounts
+      .filter(account => account.product.productCategory === 'DEMAND_DEPOSIT')
+      .map(account => ({
+        id: account.accountId.toString(),
+        accountId: account.accountId,
+        bankName: '싸피은행',
+        productName: account.product.productName,
+        maskedNumber: account.accountNumber.replace(
+          /(\d{4})(\d{4})(\d{4})(\d{4})/,
+          '$1-$2-****-$4',
+        ),
+        balance: account.balance,
+      }));
+  }, [allAccounts]);
+
+  // 적금 계좌 데이터 변환
+  const savingAccountData = useMemo(() => {
+    if (!savingsAccountData) {
+      return undefined;
+    }
+    return {
+      id: savingsAccountData.accountId.toString(),
+      accountId: savingsAccountData.accountId,
+      name: savingsAccountData.product.productName,
+      bankName: '싸피은행',
+      maskedNumber: savingsAccountData.accountNumber.replace(
+        /(\d{4})(\d{4})(\d{4})(\d{4})/,
+        '$1-$2-****-$4',
+      ),
+      balance: savingsAccountData.balance,
+      targetAmount: savingsAccountData.savings.targetAmount,
+      baseRate: savingsAccountData.baseRate,
+      bonusRate: savingsAccountData.bonusRate,
+      nextAutoTransferDate: savingsAccountData.savings.maturityDate,
+    };
+  }, [savingsAccountData]);
+
   const {
-    savingAccount,
-    sourceAccounts,
     quickAmounts,
     selectedAccountId,
     selectedAccount,
@@ -26,10 +83,60 @@ const DepositPage = () => {
     canSubmit,
     metrics,
     actions,
-  } = useSavingsTransferForm();
+  } = useSavingsTransferForm({
+    sourceAccounts: sourceAccountsData,
+    savingAccount: savingAccountData,
+  });
 
   const navigate = useNavigate();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [memo, setMemo] = useState('');
+  const queryClient = useQueryClient();
+
+  const transferMutation = useMutation({
+    mutationFn: ({
+      sourceAccountId,
+      targetAccountId,
+      amount,
+      memo,
+    }: {
+      sourceAccountId: number;
+      targetAccountId: number;
+      amount: number;
+      memo?: string;
+    }) => transferToSavings(sourceAccountId, targetAccountId, amount, memo),
+    onSuccess: data => {
+      const transferSummary = {
+        amount,
+        fromAccountName: selectedAccount
+          ? `${selectedAccount.bankName} ${selectedAccount.productName}`
+          : '선택된 계좌',
+        fromAccountNumber: selectedAccount?.maskedNumber ?? '-',
+        toAccountName: `${savingAccountData?.bankName || ''} ${savingAccountData?.name || ''}`,
+        toAccountNumber: savingAccountData?.maskedNumber || '',
+        transactionId: data.transactionId,
+      };
+
+      // 계좌 관련 쿼리들 무효화하여 최신 데이터로 업데이트
+      queryClient.invalidateQueries({ queryKey: savingsKeys.accountsList() });
+      if (accountId) {
+        queryClient.invalidateQueries({
+          queryKey: savingsKeys.detail(accountId),
+        });
+        queryClient.invalidateQueries({
+          queryKey: savingsKeys.transactionsList(accountId),
+        });
+      }
+
+      actions.resetAmount();
+      handleCloseDialog();
+      navigate(PAGE_PATH.DEPOSIT_RESULT, { state: transferSummary });
+    },
+    onError: error => {
+      console.error('Transfer failed:', error);
+      handleCloseDialog();
+    },
+  });
 
   const selectedAccountName = useMemo(() => {
     if (!selectedAccount) {
@@ -47,19 +154,22 @@ const DepositPage = () => {
   };
 
   const handlePinSubmit = () => {
-    const transferSummary = {
-      amount,
-      fromAccountName: selectedAccount
-        ? `${selectedAccount.bankName} ${selectedAccount.productName}`
-        : '선택된 계좌',
-      fromAccountNumber: selectedAccount?.maskedNumber ?? '-',
-      toAccountName: `${savingAccount.bankName} ${savingAccount.name}`,
-      toAccountNumber: savingAccount.maskedNumber,
-    };
+    if (!selectedAccount?.accountId || !savingAccountData?.accountId) {
+      console.error('Account IDs are missing:', {
+        selectedAccount: selectedAccount?.accountId,
+        savingAccount: savingAccountData?.accountId,
+      });
+      return;
+    }
 
-    actions.resetAmount();
-    handleCloseDialog();
-    navigate(PAGE_PATH.DEPOSIT_RESULT, { state: transferSummary });
+    const finalMemo = memo.trim() || customer?.name;
+
+    transferMutation.mutate({
+      sourceAccountId: selectedAccount.accountId,
+      targetAccountId: savingAccountData.accountId,
+      amount,
+      memo: finalMemo,
+    });
   };
 
   return (
@@ -84,11 +194,21 @@ const DepositPage = () => {
                 적금 요약
               </AccordionTrigger>
               <AccordionContent className="pt-0">
-                <AccountSummaryCard
-                  savingAccount={savingAccount}
-                  progress={metrics.initialProgress}
-                  remainingTarget={metrics.initialRemainingTarget}
-                />
+                {isSavingsLoading ? (
+                  <div className="flex justify-center py-4">
+                    <div className="text-sm text-muted-foreground">로딩 중...</div>
+                  </div>
+                ) : savingAccountData ? (
+                  <AccountSummaryCard
+                    savingAccount={savingAccountData}
+                    progress={metrics.initialProgress}
+                    remainingTarget={metrics.initialRemainingTarget}
+                  />
+                ) : (
+                  <div className="flex justify-center py-4">
+                    <div className="text-sm text-muted-foreground">적금 정보를 불러올 수 없습니다</div>
+                  </div>
+                )}
               </AccordionContent>
             </AccordionItem>
           </Accordion>
@@ -102,7 +222,7 @@ const DepositPage = () => {
               </AccordionTrigger>
               <AccordionContent className="space-y-3 pt-0">
                 <SourceAccountList
-                  accounts={sourceAccounts}
+                  accounts={sourceAccountsData}
                   selectedAccountId={selectedAccountId}
                   onSelect={actions.selectAccount}
                 />
@@ -129,6 +249,8 @@ const DepositPage = () => {
             projectedProgress={metrics.projectedProgress}
             remainingAfterDeposit={metrics.remainingAfterDeposit}
             isSourceSelectable={Boolean(selectedAccount)}
+            memo={memo}
+            onMemoChange={setMemo}
           />
         </section>
       </div>
@@ -138,11 +260,11 @@ const DepositPage = () => {
           <Button
             type="button"
             size="lg"
-            disabled={!canSubmit}
+            disabled={!canSubmit || transferMutation.isPending}
             onClick={handleOpenDialog}
             className="w-full rounded-2xl bg-primary text-base font-semibold text-primary-foreground shadow-lg transition-colors disabled:cursor-not-allowed disabled:opacity-60"
           >
-            자유적금으로 보내기
+            {transferMutation.isPending ? '처리 중...' : '자유적금으로 보내기'}
           </Button>
         </div>
       </div>
