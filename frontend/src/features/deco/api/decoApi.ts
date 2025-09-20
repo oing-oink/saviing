@@ -26,7 +26,7 @@ export interface DecoPlacedItemResponse {
 }
 
 export interface SaveDecoRequest {
-  placedItems: Array<{
+  placedItems: {
     inventoryItemId?: number;
     itemId: number;
     positionX: number;
@@ -35,7 +35,7 @@ export interface SaveDecoRequest {
     yLength: number;
     rotation?: 0 | 90 | 180 | 270;
     layer?: string;
-  }>;
+  }[];
 }
 
 export interface SaveDecoResponse {

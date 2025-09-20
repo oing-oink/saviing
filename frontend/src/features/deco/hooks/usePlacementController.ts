@@ -21,7 +21,7 @@ export const usePlacementController = ({
 }: UsePlacementControllerOptions) => {
   const dragSession = useDecoStore((state) => state.dragSession);
   const draftItems = useDecoStore((state) => state.draftItems);
-  const commitPlacementToStore = useDecoStore((state) => state.commitPlacement);
+  const stagePlacementToStore = useDecoStore((state) => state.stagePlacement);
   const updateHoverCell = useDecoStore((state) => state.updateHoverCell);
 
   const [ghost, setGhost] = useState<PlacementState>({
@@ -151,17 +151,17 @@ export const usePlacementController = ({
     ],
   );
 
-  const commitPlacement = useCallback(() => {
+  const stagePlacement = useCallback(() => {
     if (!dragSession || !ghost.ghostCellId || !ghost.isValid) {
       return false;
     }
 
-    const committed = commitPlacementToStore(ghost.ghostCellId, ghost.footprintCellIds);
-    if (committed) {
+    const staged = stagePlacementToStore(ghost.ghostCellId, ghost.footprintCellIds);
+    if (!staged) {
       setGhost({ ghostCellId: null, footprintCellIds: [], isValid: false });
     }
-    return committed;
-  }, [commitPlacementToStore, dragSession, ghost]);
+    return staged;
+  }, [stagePlacementToStore, dragSession, ghost]);
 
-  return { ghost, handlePointerMove, commitPlacement };
+  return { ghost, handlePointerMove, stagePlacement };
 };

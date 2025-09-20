@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Room from '@/features/game/room/Room';
 import Inventory from '@/features/game/shop/components/Inventory';
 import InventoryHud from '@/features/game/shop/components/InventoryHud';
@@ -20,16 +20,13 @@ const ShopPage = () => {
 
   const startDragFromInventory = useDecoStore((state) => state.startDragFromInventory);
   const cancelDrag = useDecoStore((state) => state.cancelDrag);
-  const dragSession = useDecoStore((state) => state.dragSession);
   const draftItems = useDecoStore((state) => state.draftItems);
 
   const mapCategoryToGridType = (category: string): TabId | null => {
     switch (category) {
       case 'LEFT':
-      case 'LEFT_WALL':
         return 'leftWall';
       case 'RIGHT':
-      case 'RIGHT_WALL':
         return 'rightWall';
       case 'BOTTOM':
       case 'FLOOR':
@@ -48,6 +45,12 @@ const ShopPage = () => {
       setGridType(tab.id);
     }
   };
+
+  useEffect(() => {
+    return () => {
+      cancelDrag();
+    };
+  }, [cancelDrag]);
 
   const handlePreviewItem = (item: Item) => {
     cancelDrag();
@@ -99,7 +102,6 @@ const ShopPage = () => {
           <Room
             mode="preview"
             gridType={gridType}
-            panEnabled={!dragSession}
             previewOverlay={(ctx) => (
               <RoomCanvas
                 context={ctx}
@@ -120,7 +122,7 @@ const ShopPage = () => {
           onPreviewItem={handlePreviewItem}
           isLoading={isLoading}
           isError={isError}
-          error={error instanceof Error ? error : undefined}
+          error={error ?? undefined}
           emptyMessage={
             isError ? '아이템을 불러오지 못했습니다.' : '표시할 아이템이 없습니다.'
           }

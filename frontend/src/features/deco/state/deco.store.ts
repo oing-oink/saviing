@@ -19,6 +19,7 @@ interface StartDragOptions {
   offsetX?: number;
   offsetY?: number;
   imageUrl?: string;
+  itemType?: PlacedItem['itemType'];
 }
 
 interface ApplyServerStatePayload {
@@ -30,7 +31,9 @@ interface DecoActions {
   startDragFromInventory: (itemId: string, options?: StartDragOptions) => void;
   startDragFromPlaced: (placedId: string) => void;
   updateHoverCell: (cellId: string | null) => void;
-  commitPlacement: (cellId: string, footprintCellIds?: string[]) => boolean;
+  stagePlacement: (cellId: string, footprintCellIds?: string[]) => boolean;
+  commitPlacement: () => boolean;
+  cancelPendingPlacement: () => void;
   cancelDrag: () => void;
   deleteDraggedItem: () => void;
   removeDraftItem: (id: string) => void;
@@ -45,6 +48,55 @@ type DecoStore = DecoState & DecoActions;
 const initialRoomMeta: RoomMeta = {
   cellSize: 1,
   layers: ['floor', 'leftWall', 'rightWall'],
+};
+
+const buildPlacedItemFromSession = (
+  session: DragSession,
+  cellId: string,
+  footprintCellIds?: string[],
+): PlacedItem | null => {
+  const parsed = parseCellId(cellId);
+  if (!parsed) {
+    return null;
+  }
+
+  if (session.allowedGridType && session.allowedGridType !== parsed.gridType) {
+    return null;
+  }
+
+  const resolvedFootprint =
+    footprintCellIds && footprintCellIds.length > 0
+      ? footprintCellIds
+      : session.footprintCellIds && session.footprintCellIds.length > 0
+        ? session.footprintCellIds
+        : buildFootprint(cellId, session.xLength, session.yLength);
+
+  if (!resolvedFootprint.length) {
+    return null;
+  }
+
+  const id = session.originPlacedId ?? `draft-${session.itemId}-${Date.now()}`;
+
+  return {
+    id,
+    inventoryItemId: session.originalItem?.inventoryItemId,
+    itemId: Number(session.itemId),
+    cellId,
+    positionX: parsed.col,
+    positionY: parsed.row,
+    rotation: session.originalItem?.rotation ?? 0,
+    layer: parsed.gridType,
+    xLength: session.xLength,
+    yLength: session.yLength,
+    footprintCellIds: resolvedFootprint,
+    offsetX: session.offsetX ?? 0,
+    offsetY: session.offsetY ?? 0,
+    imageUrl:
+      session.imageUrl ??
+      session.originalItem?.imageUrl ??
+      getItemImage(Number(session.itemId)),
+    itemType: session.itemType ?? session.originalItem?.itemType ?? 'DECORATION',
+  };
 };
 
 const createDragSession = (itemId: string, overrides?: Partial<DragSession>): DragSession => ({
@@ -91,10 +143,12 @@ export const decoStore = createStore<DecoStore>((set) => ({
   placedItems: [],
   draftItems: [],
   dragSession: null,
+  pendingPlacement: null,
   scale: 1,
 
   startDragFromInventory: (itemId, options: StartDragOptions = {}) =>
-    set((state) => ({
+    set(() => ({
+      pendingPlacement: null,
       dragSession: createDragSession(itemId, {
         allowedGridType: options.allowedGridType ?? null,
         xLength: options.xLength ?? 1,
@@ -139,6 +193,7 @@ export const decoStore = createStore<DecoStore>((set) => ({
           imageUrl: target.imageUrl ?? getItemImage(target.itemId),
           itemType: target.itemType ?? 'DECORATION',
         }),
+        pendingPlacement: null,
       };
     }),
 
@@ -156,67 +211,53 @@ export const decoStore = createStore<DecoStore>((set) => ({
       };
     }),
 
-  commitPlacement: (cellId, footprintCellIds) => {
-    let committed = false;
+  stagePlacement: (cellId, footprintCellIds) => {
+    let staged = false;
     set((state) => {
       if (!state.dragSession) {
         return state;
       }
 
-      const session = state.dragSession;
-      const parsed = parseCellId(cellId);
-      if (!parsed) {
-        return { ...state, dragSession: null };
+      const nextItem = buildPlacedItemFromSession(state.dragSession, cellId, footprintCellIds);
+      if (!nextItem) {
+        return {
+          dragSession: null,
+          pendingPlacement: null,
+        };
       }
 
-      if (session.allowedGridType && session.allowedGridType !== parsed.gridType) {
-        return { ...state, dragSession: null };
-      }
-
-      const resolvedFootprint =
-        footprintCellIds && footprintCellIds.length > 0
-          ? footprintCellIds
-          : session.footprintCellIds && session.footprintCellIds.length > 0
-            ? session.footprintCellIds
-            : buildFootprint(cellId, session.xLength, session.yLength);
-
-      const id = session.originPlacedId ?? `draft-${session.itemId}-${Date.now()}`;
-      // dragSession 정보와 계산된 footprint를 바탕으로 최종 PlacedItem을 생성한다.
-      const nextItem: PlacedItem = {
-        id,
-        inventoryItemId: session.originalItem?.inventoryItemId,
-        itemId: Number(session.itemId),
-        cellId,
-        positionX: parsed.col,
-        positionY: parsed.row,
-        rotation: session.originalItem?.rotation ?? 0,
-        layer: parsed.gridType,
-        xLength: session.xLength,
-        yLength: session.yLength,
-        footprintCellIds: resolvedFootprint,
-        offsetX: session.offsetX ?? 0,
-        offsetY: session.offsetY ?? 0,
-        imageUrl:
-          session.imageUrl ??
-          session.originalItem?.imageUrl ??
-          getItemImage(Number(session.itemId)),
-        itemType: session.itemType ?? session.originalItem?.itemType ?? 'DECORATION',
+      staged = true;
+      return {
+        pendingPlacement: nextItem,
       };
+    });
 
+    return staged;
+  },
+
+  commitPlacement: () => {
+    let committed = false;
+    set((state) => {
+      if (!state.pendingPlacement) {
+        return state;
+      }
+
+      const nextItem = state.pendingPlacement;
       committed = true;
       return {
-        draftItems: [...state.draftItems.filter((item) => item.id !== id), nextItem],
+        draftItems: [...state.draftItems.filter((item) => item.id !== nextItem.id), nextItem],
         dragSession: null,
+        pendingPlacement: null,
       };
     });
 
     return committed;
   },
 
-  cancelDrag: () =>
+  cancelPendingPlacement: () =>
     set((state) => {
       if (!state.dragSession) {
-        return state;
+        return state.pendingPlacement ? { pendingPlacement: null } : state;
       }
 
       const originalItem = state.dragSession.originalItem;
@@ -225,12 +266,30 @@ export const decoStore = createStore<DecoStore>((set) => ({
           ? [...state.draftItems.filter((item) => item.id !== originalItem.id), originalItem]
           : state.draftItems,
         dragSession: null,
+        pendingPlacement: null,
+      };
+    }),
+
+  cancelDrag: () =>
+    set((state) => {
+      if (!state.dragSession) {
+        return state.pendingPlacement ? { pendingPlacement: null } : state;
+      }
+
+      const originalItem = state.dragSession.originalItem;
+      return {
+        draftItems: originalItem
+          ? [...state.draftItems.filter((item) => item.id !== originalItem.id), originalItem]
+          : state.draftItems,
+        dragSession: null,
+        pendingPlacement: null,
       };
     }),
 
   deleteDraggedItem: () =>
-    set((state) => ({
+    set(() => ({
       dragSession: null,
+      pendingPlacement: null,
     })),
 
   removeDraftItem: (id) =>
@@ -247,6 +306,7 @@ export const decoStore = createStore<DecoStore>((set) => ({
         placedItems: [...normalized],
         draftItems: [...normalized],
         dragSession: null,
+        pendingPlacement: null,
       };
     }),
 
@@ -254,6 +314,7 @@ export const decoStore = createStore<DecoStore>((set) => ({
     set((state) => ({
       draftItems: [...state.placedItems],
       dragSession: null,
+      pendingPlacement: null,
     })),
 
   markDraftAsSaved: () =>
@@ -261,7 +322,7 @@ export const decoStore = createStore<DecoStore>((set) => ({
       placedItems: [...state.draftItems],
     })),
 
-      setScale: (scale) => set(() => ({ scale })),
+  setScale: (scale) => set(() => ({ scale })),
 }));
 
 export const useDecoStore = <T,>(selector: (state: DecoStore) => T) =>

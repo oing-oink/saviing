@@ -33,7 +33,7 @@ interface Line {
   y2: number;
 }
 
-const GRID_DIVISIONS = 12;
+const GRID_DIVISIONS = 24;
 
 const AREAS_CONFIG: Partial<Record<GridType, [Point, Point, Point, Point]>> = {
   leftWall: [

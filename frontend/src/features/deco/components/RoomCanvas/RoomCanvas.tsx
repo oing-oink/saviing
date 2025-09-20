@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { MouseEvent as ReactMouseEvent, TouchEvent as ReactTouchEvent } from 'react';
 import type { RoomRenderContext } from '@/features/game/room/RoomBase';
 import { useDecoStore } from '@/features/deco/state/deco.store';
@@ -13,11 +13,17 @@ interface RoomCanvasProps {
   context: RoomRenderContext;
   onAutoPlacementFail?: () => void;
   allowItemPickup?: boolean;
+  showActions?: boolean;
 }
 
 // RoomCanvas는 드래그 중/확정된 아이템 스프라이트와 하이라이트를 관리하는 캔버스 레이어다.
-const RoomCanvas = ({ context, onAutoPlacementFail, allowItemPickup = true }: RoomCanvasProps) => {
-  const { containerRef, gridCells, scale } = context;
+const RoomCanvas = ({
+  context,
+  onAutoPlacementFail,
+  allowItemPickup = true,
+  showActions = true,
+}: RoomCanvasProps) => {
+  const { containerRef, gridCells, scale, surfacePolygon } = context;
 
   const allLeft = useGrid({
     scale,
@@ -43,9 +49,16 @@ const RoomCanvas = ({ context, onAutoPlacementFail, allowItemPickup = true }: Ro
 
   const dragSession = useDecoStore((state) => state.dragSession);
   const draftItems = useDecoStore((state) => state.draftItems);
+  const pendingPlacement = useDecoStore((state) => state.pendingPlacement);
+  const commitPlacement = useDecoStore((state) => state.commitPlacement);
+  const cancelPendingPlacement = useDecoStore((state) => state.cancelPendingPlacement);
   const startDragFromPlaced = useDecoStore((state) => state.startDragFromPlaced);
   const cancelDrag = useDecoStore((state) => state.cancelDrag);
   const setScale = useDecoStore((state) => state.setScale);
+
+  const imageSizeCacheRef = useRef(new Map<string, { width: number; height: number }>());
+  const loadingImagesRef = useRef(new Set<string>());
+  const [, forceRender] = useState(0);
 
   useEffect(() => {
     setScale(scale);
@@ -56,7 +69,7 @@ const RoomCanvas = ({ context, onAutoPlacementFail, allowItemPickup = true }: Ro
     onAutoPlacementFail?.();
   }, [cancelDrag, onAutoPlacementFail]);
 
-  const { ghost, handlePointerMove, commitPlacement } = usePlacementController({
+  const { ghost, handlePointerMove, stagePlacement } = usePlacementController({
     gridCells,
     onAutoPlacementFail: handlePlacementFail,
   });
@@ -72,6 +85,47 @@ const RoomCanvas = ({ context, onAutoPlacementFail, allowItemPickup = true }: Ro
   }, [allFloor.gridCells, allLeft.gridCells, allRight.gridCells, gridCells]);
 
   // footprint 셀 ID 배열을 받아 실제 이미지 배치에 필요한 좌표/크기를 계산한다.
+  const ensureImageSize = useCallback(
+    (imageUrl: string | undefined) => {
+      if (!imageUrl) {
+        return null;
+      }
+      const cache = imageSizeCacheRef.current;
+      const cached = cache.get(imageUrl);
+      if (cached) {
+        return cached;
+      }
+      if (typeof window === 'undefined') {
+        return null;
+      }
+      if (loadingImagesRef.current.has(imageUrl)) {
+        return null;
+      }
+      loadingImagesRef.current.add(imageUrl);
+      const img = new Image();
+      const finalize = () => {
+        img.onload = null;
+        img.onerror = null;
+        if (!cache.has(imageUrl)) {
+          cache.set(imageUrl, { width: img.naturalWidth, height: img.naturalHeight });
+          forceRender((value) => value + 1);
+        }
+        loadingImagesRef.current.delete(imageUrl);
+      };
+      img.onload = finalize;
+      img.onerror = () => {
+        loadingImagesRef.current.delete(imageUrl);
+      };
+      img.src = imageUrl;
+      if (img.complete && img.naturalWidth > 0 && img.naturalHeight > 0) {
+        finalize();
+        return cache.get(imageUrl) ?? null;
+      }
+      return null;
+    },
+    [forceRender],
+  );
+
   const computeSprite = useCallback(
     ({
       id,
@@ -107,19 +161,33 @@ const RoomCanvas = ({ context, onAutoPlacementFail, allowItemPickup = true }: Ro
       const maxY = Math.max(...ys);
 
       const firstCell = footprintCells[0];
-      const baseWidth = Math.abs(firstCell.vertices[1].x - firstCell.vertices[0].x);
+      const edgeDistance = (a: { x: number; y: number }, b: { x: number; y: number }) => {
+        const dx = a.x - b.x;
+        const dy = a.y - b.y;
+        return Math.sqrt(dx * dx + dy * dy);
+      };
+      const topWidth = edgeDistance(firstCell.vertices[1], firstCell.vertices[0]);
+      const bottomWidth = edgeDistance(firstCell.vertices[2], firstCell.vertices[3]);
+      const baseWidth = Math.max(topWidth, bottomWidth);
       const baseHeight = Math.abs(firstCell.vertices[0].y - firstCell.vertices[3].y);
-      const width = Math.max(maxX - minX, baseWidth * Math.max(xLength, 1));
-      const height = Math.max(maxY - minY, baseHeight * Math.max(yLength, 1));
       const spriteImage = imageUrl ?? getItemImage(itemId);
+      const intrinsicSize = ensureImageSize(spriteImage);
+      const footprintWidth = maxX - minX;
+      const width = Math.max(footprintWidth, baseWidth * Math.max(xLength, 1));
+      const desiredHeight = intrinsicSize
+        ? Math.round((intrinsicSize.height / intrinsicSize.width) * width)
+        : Math.max(maxY - minY, baseHeight * Math.max(yLength, 1));
+      const minHeight = baseHeight * Math.max(yLength, 1);
+      const height = Math.max(desiredHeight, minHeight);
+      const y = Math.min(minY, maxY - height);
       const centerX = minX + width / 2;
-      const centerY = minY + height / 2;
+      const centerY = y + height / 2;
 
       return {
         id,
         imageUrl: spriteImage,
         x: minX,
-        y: minY,
+        y,
         width,
         height,
         rotation,
@@ -127,7 +195,7 @@ const RoomCanvas = ({ context, onAutoPlacementFail, allowItemPickup = true }: Ro
         centerY,
       };
     },
-    [cellMap, gridCells],
+    [cellMap, ensureImageSize, gridCells],
   );
 
   const ghostPolygons = useMemo(() => {
@@ -139,6 +207,10 @@ const RoomCanvas = ({ context, onAutoPlacementFail, allowItemPickup = true }: Ro
       .filter((cell): cell is typeof gridCells[number] => Boolean(cell))
       .map((cell) => cell.vertices.map(({ x, y }) => `${x},${y}`).join(' '));
   }, [cellMap, ghost.footprintCellIds]);
+
+  const draftMap = useMemo(() => {
+    return new Map(draftItems.map((item) => [item.id, item]));
+  }, [draftItems]);
 
   const draftPolygons = useMemo(() => {
     return draftItems.map((item) => {
@@ -158,7 +230,7 @@ const RoomCanvas = ({ context, onAutoPlacementFail, allowItemPickup = true }: Ro
   }, [cellMap, draftItems]);
 
   const spriteData = useMemo(() => {
-    return draftItems
+    const sprites = draftItems
       .map((item) => {
         const footprintIds =
           item.footprintCellIds && item.footprintCellIds.length > 0
@@ -185,7 +257,59 @@ const RoomCanvas = ({ context, onAutoPlacementFail, allowItemPickup = true }: Ro
         centerX: number;
         centerY: number;
       } => Boolean(sprite));
-  }, [computeSprite, draftItems]);
+
+    const sortSprites = (items: typeof sprites) =>
+      items.sort((a, b) => {
+        const draftA = draftMap.get(a.id);
+        const draftB = draftMap.get(b.id);
+        const rowA = draftA?.positionY ?? 0;
+        const rowB = draftB?.positionY ?? 0;
+        if (rowA !== rowB) {
+          return rowB - rowA;
+        }
+        const colA = draftA?.positionX ?? 0;
+        const colB = draftB?.positionX ?? 0;
+        return colB - colA;
+      });
+
+    const leftSprites: typeof sprites = [];
+    const rightSprites: typeof sprites = [];
+    const floorSprites: typeof sprites = [];
+    const otherSprites: typeof sprites = [];
+
+    sprites.forEach((sprite) => {
+      const draft = draftMap.get(sprite.id);
+      switch (draft?.layer) {
+        case 'leftWall':
+          leftSprites.push(sprite);
+          break;
+        case 'rightWall':
+          rightSprites.push(sprite);
+          break;
+        case 'floor':
+          floorSprites.push(sprite);
+          break;
+        default:
+          otherSprites.push(sprite);
+      }
+    });
+
+    sortSprites(leftSprites);
+    sortSprites(rightSprites);
+    sortSprites(floorSprites);
+
+    return [...leftSprites, ...rightSprites, ...floorSprites, ...otherSprites];
+  }, [computeSprite, draftItems, draftMap]);
+
+  useEffect(() => {
+    if (!dragSession) {
+      return;
+    }
+    if (!ghost.isValid || !ghost.ghostCellId) {
+      return;
+    }
+    stagePlacement();
+  }, [dragSession, ghost, stagePlacement]);
 
   // 드래그 중에는 hover 상태의 footprint를 사용해 임시 스프라이트를 만든다.
   const ghostSprite = useMemo(() => {
@@ -213,29 +337,174 @@ const RoomCanvas = ({ context, onAutoPlacementFail, allowItemPickup = true }: Ro
     });
   }, [computeSprite, dragSession, ghost.footprintCellIds, ghost.ghostCellId]);
 
-  const projectToOverlay = useCallback(
+  const pendingSprite = useMemo(() => {
+    const source = pendingPlacement ?? (ghost.isValid && ghostSprite
+      ? {
+          id: `${dragSession?.itemId ?? 'ghost'}-pending`,
+          cellId: ghost.ghostCellId ?? '',
+          footprintCellIds: ghost.footprintCellIds,
+          rotation: dragSession?.originalItem?.rotation ?? 0,
+          itemId: Number(dragSession?.itemId ?? 0),
+          imageUrl: dragSession?.imageUrl,
+          xLength: dragSession?.xLength ?? 1,
+          yLength: dragSession?.yLength ?? 1,
+        }
+      : null);
+    if (!source) {
+      return null;
+    }
+    const footprintIds =
+      source.footprintCellIds && source.footprintCellIds.length > 0
+        ? source.footprintCellIds
+        : buildFootprint(source.cellId, source.xLength, source.yLength);
+    return computeSprite({
+      id: source.id,
+      footprintIds,
+      rotation: source.rotation ?? 0,
+      itemId: source.itemId,
+      imageUrl: source.imageUrl,
+      xLength: source.xLength,
+      yLength: source.yLength,
+    });
+  }, [computeSprite, dragSession, ghost, ghostSprite, pendingPlacement]);
+
+  const isPointerActiveRef = useRef(false);
+  const [isPointerActive, setIsPointerActive] = useState(false);
+
+  const actionAnchor = useMemo(() => {
+    if (!showActions) {
+      return null;
+    }
+    if (isPointerActive) {
+      return ghost.isValid && ghostSprite ? ghostSprite : null;
+    }
+    if (pendingSprite) {
+      return pendingSprite;
+    }
+    if (ghost.isValid && ghostSprite) {
+      return ghostSprite;
+    }
+    return null;
+  }, [ghost.isValid, ghostSprite, isPointerActive, pendingSprite, showActions]);
+
+  const showActionButtons = Boolean(
+    showActions && actionAnchor && (isPointerActive ? ghost.isValid : pendingPlacement || ghost.isValid),
+  );
+
+  const containerWidth = containerRef.current?.clientWidth ?? 0;
+  const containerHeight = containerRef.current?.clientHeight ?? 0;
+  const actionPosition = actionAnchor
+    ? {
+        left: actionAnchor.centerX - containerWidth,
+        top: actionAnchor.y + actionAnchor.height + 6 - containerHeight,
+      }
+    : null;
+
+  const handleConfirm = useCallback(() => {
+    if (pendingPlacement) {
+      commitPlacement();
+      return;
+    }
+    const staged = stagePlacement();
+    if (staged) {
+      commitPlacement();
+    }
+  }, [commitPlacement, pendingPlacement, stagePlacement]);
+
+  const handleCancel = useCallback(() => {
+    cancelPendingPlacement();
+  }, [cancelPendingPlacement]);
+
+  const toOverlayCoords = useCallback(
     (clientX: number, clientY: number) => {
       const rect = containerRef.current?.getBoundingClientRect();
       const width = containerRef.current?.clientWidth ?? 0;
       const height = containerRef.current?.clientHeight ?? 0;
-      const x = rect ? clientX - rect.left + width : clientX;
-      const y = rect ? clientY - rect.top + height : clientY;
-      handlePointerMove(x, y);
+      return {
+        x: rect ? clientX - rect.left + width : clientX,
+        y: rect ? clientY - rect.top + height : clientY,
+      };
     },
-    [containerRef, handlePointerMove],
+    [containerRef],
   );
 
-  const isPointerActiveRef = useRef(false);
+  const isInsideSurface = useCallback(
+    (clientX: number, clientY: number) => {
+      if (!surfacePolygon) {
+        return true;
+      }
+      const { x, y } = toOverlayCoords(clientX, clientY);
+      let hasPositive = false;
+      let hasNegative = false;
+      for (let i = 0; i < surfacePolygon.length; i += 1) {
+        const current = surfacePolygon[i];
+        const next = surfacePolygon[(i + 1) % surfacePolygon.length];
+        const cross = (next.x - current.x) * (y - current.y) - (next.y - current.y) * (x - current.x);
+        if (cross > 0) {
+          hasPositive = true;
+        } else if (cross < 0) {
+          hasNegative = true;
+        }
+        if (hasPositive && hasNegative) {
+          return false;
+        }
+      }
+      return true;
+    },
+    [surfacePolygon, toOverlayCoords],
+  );
 
-  // 마우스로 고스트를 집어 들 때 실행된다.
-  const handleMouseDown = (event: ReactMouseEvent<HTMLDivElement>) => {
-    if (!dragSession) {
+  const projectToOverlay = useCallback(
+    (clientX: number, clientY: number) => {
+      const { x, y } = toOverlayCoords(clientX, clientY);
+      handlePointerMove(x, y);
+    },
+    [handlePointerMove, toOverlayCoords],
+  );
+
+  const shouldCapturePointer = useCallback(
+    (clientX: number, clientY: number) => {
+      if (!dragSession) {
+        return false;
+      }
+      if (pendingPlacement) {
+        return isInsideSurface(clientX, clientY);
+      }
+      return true;
+    },
+    [dragSession, pendingPlacement, isInsideSurface],
+  );
+
+  const handleMouseDownCapture = (event: ReactMouseEvent<HTMLDivElement>) => {
+    const target = event.target as HTMLElement | null;
+    if (target && target.closest('[data-room-action="true"]')) {
+      return;
+    }
+    if (!shouldCapturePointer(event.clientX, event.clientY)) {
       return;
     }
     event.preventDefault();
     event.stopPropagation();
     event.nativeEvent.stopImmediatePropagation();
     isPointerActiveRef.current = true;
+    setIsPointerActive(true);
+    projectToOverlay(event.clientX, event.clientY);
+  };
+
+  // 마우스로 고스트를 집어 들 때 실행된다.
+  const handleMouseDown = (event: ReactMouseEvent<HTMLDivElement>) => {
+    const target = event.target as HTMLElement | null;
+    if (target && target.closest('[data-room-action="true"]')) {
+      return;
+    }
+    if (!shouldCapturePointer(event.clientX, event.clientY)) {
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    event.nativeEvent.stopImmediatePropagation();
+    isPointerActiveRef.current = true;
+    setIsPointerActive(true);
     projectToOverlay(event.clientX, event.clientY);
   };
 
@@ -250,59 +519,91 @@ const RoomCanvas = ({ context, onAutoPlacementFail, allowItemPickup = true }: Ro
     projectToOverlay(event.clientX, event.clientY);
   };
 
-  // 드래그가 끝나면 commitPlacement를 호출해 확정하거나
+  // 드래그가 끝나면 후보 상태로만 stagePlacement를 호출하고
   // 실패 시 cancelDrag로 상태를 롤백한다.
   const finalizePlacement = () => {
     if (!dragSession) {
       return;
     }
-    const placed = commitPlacement();
-    if (!placed) {
+    const staged = stagePlacement();
+    if (!staged) {
       cancelDrag();
     }
     isPointerActiveRef.current = false;
+    setIsPointerActive(false);
   };
 
   const handleMouseUp = (event: ReactMouseEvent<HTMLDivElement>) => {
-    if (!dragSession) {
+    if (!dragSession || !isPointerActiveRef.current) {
       return;
     }
     event.preventDefault();
-    event.stopPropagation();
-    event.nativeEvent.stopImmediatePropagation();
     finalizePlacement();
   };
 
   // 포인터가 캔버스를 벗어나면 드래그 상태만 해제한다.
   const handleMouseLeave = () => {
     isPointerActiveRef.current = false;
+    setIsPointerActive(false);
   };
 
   const activeTouchIdRef = useRef<number | null>(null);
 
   // 터치 환경에서도 마우스와 동일한 흐름으로 고스트를 제어한다.
-  const handleTouchStart = (event: ReactTouchEvent<HTMLDivElement>) => {
-    if (!dragSession) {
+  const handleTouchStartCapture = (event: ReactTouchEvent<HTMLDivElement>) => {
+    const touch = event.changedTouches[0];
+    const target = event.target as HTMLElement | null;
+    if (target && target.closest('[data-room-action="true"]')) {
+      return;
+    }
+    if (!touch || !shouldCapturePointer(touch.clientX, touch.clientY)) {
       return;
     }
     event.preventDefault();
     event.stopPropagation();
     event.nativeEvent.stopImmediatePropagation();
-    const touch = event.changedTouches[0];
     activeTouchIdRef.current = touch.identifier;
     projectToOverlay(touch.clientX, touch.clientY);
+    isPointerActiveRef.current = true;
+    setIsPointerActive(true);
+  };
+
+  const handleTouchStart = (event: ReactTouchEvent<HTMLDivElement>) => {
+    const touch = event.changedTouches[0];
+    const target = event.target as HTMLElement | null;
+    if (target && target.closest('[data-room-action="true"]')) {
+      return;
+    }
+    if (!touch || !shouldCapturePointer(touch.clientX, touch.clientY)) {
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    event.nativeEvent.stopImmediatePropagation();
+    activeTouchIdRef.current = touch.identifier;
+    projectToOverlay(touch.clientX, touch.clientY);
+    isPointerActiveRef.current = true;
+    setIsPointerActive(true);
   };
 
   // 멀티 터치 중 현재 드래그에 해당하는 터치를 조회한다.
-  const findActiveTouch = (touches: TouchList) => {
+  const findActiveTouch = (
+    touches: ReactTouchEvent<HTMLDivElement>['changedTouches'],
+  ) => {
     if (activeTouchIdRef.current === null) {
       return null;
     }
-    return Array.from(touches).find((touch) => touch.identifier === activeTouchIdRef.current);
+    for (let index = 0; index < touches.length; index += 1) {
+      const touch = touches.item(index);
+      if (touch && touch.identifier === activeTouchIdRef.current) {
+        return touch;
+      }
+    }
+    return null;
   };
 
   const handleTouchMove = (event: ReactTouchEvent<HTMLDivElement>) => {
-    if (!dragSession) {
+    if (!dragSession || !isPointerActiveRef.current) {
       return;
     }
     const touch = findActiveTouch(event.changedTouches);
@@ -316,7 +617,7 @@ const RoomCanvas = ({ context, onAutoPlacementFail, allowItemPickup = true }: Ro
   };
 
   const handleTouchEnd = (event: ReactTouchEvent<HTMLDivElement>) => {
-    if (!dragSession) {
+    if (!dragSession || !isPointerActiveRef.current) {
       return;
     }
     const touch = findActiveTouch(event.changedTouches);
@@ -328,11 +629,13 @@ const RoomCanvas = ({ context, onAutoPlacementFail, allowItemPickup = true }: Ro
     event.nativeEvent.stopImmediatePropagation();
     finalizePlacement();
     activeTouchIdRef.current = null;
+    setIsPointerActive(false);
   };
 
   const handleTouchCancel = () => {
     activeTouchIdRef.current = null;
     isPointerActiveRef.current = false;
+    setIsPointerActive(false);
   };
 
   const handlePickPlaced = ({ id, clientX, clientY }: { id: string; clientX: number; clientY: number }) => {
@@ -344,18 +647,58 @@ const RoomCanvas = ({ context, onAutoPlacementFail, allowItemPickup = true }: Ro
     projectToOverlay(clientX, clientY);
   };
 
+  const overlayActive = Boolean(
+    dragSession || pendingPlacement || showActionButtons || isPointerActive,
+  );
+
   return (
     <div
       className="absolute inset-0"
+      style={{ pointerEvents: overlayActive ? 'auto' : 'none' }}
+      onMouseDownCapture={handleMouseDownCapture}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseLeave}
+      onTouchStartCapture={handleTouchStartCapture}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
       onTouchCancel={handleTouchCancel}
     >
+      {showActionButtons && actionAnchor && actionPosition ? (
+        <div className="pointer-events-none absolute inset-0">
+          <div
+            className="pointer-events-auto flex gap-1.5 rounded-lg bg-white/90 px-3 py-1.5 text-xs font-semibold shadow-lg backdrop-blur"
+            data-room-action="true"
+            style={{
+              position: 'absolute',
+              left: `${actionPosition.left}px`,
+              top: `${actionPosition.top}px`,
+              transform: 'translate(-50%, 0)',
+              zIndex: 10,
+            }}
+            onMouseDown={(event) => event.stopPropagation()}
+            onTouchStart={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={handleCancel}
+              className="rounded-md bg-gray-200 px-2.5 py-1 text-gray-700 transition hover:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-50 whitespace-nowrap"
+            >
+              취소
+            </button>
+            <button
+              type="button"
+              onClick={handleConfirm}
+              disabled={!pendingPlacement}
+              className="rounded-md bg-primary px-2.5 py-1 text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 whitespace-nowrap"
+            >
+              배치
+            </button>
+          </div>
+        </div>
+      ) : null}
       <svg
         className="absolute inset-0"
         style={{

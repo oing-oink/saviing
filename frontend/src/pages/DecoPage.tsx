@@ -1,6 +1,6 @@
 import backButton from '@/assets/game_button/backButton.png';
 import storeButton from '@/assets/game_button/storeButton.png';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Room from '@/features/game/room/Room';
 import { SaveModal } from '@/features/game/room/components/SaveModal';
@@ -30,9 +30,16 @@ const DecoPage = () => {
   const draftItems = useDecoStore((state) => state.draftItems);
   const placedItems = useDecoStore((state) => state.placedItems);
   const dragSession = useDecoStore((state) => state.dragSession);
+  const pendingPlacement = useDecoStore((state) => state.pendingPlacement);
   const startDragFromInventory = useDecoStore((state) => state.startDragFromInventory);
   const cancelDrag = useDecoStore((state) => state.cancelDrag);
   const resetToLastSaved = useDecoStore((state) => state.resetToLastSaved);
+
+  useEffect(() => {
+    return () => {
+      cancelDrag();
+    };
+  }, [cancelDrag]);
 
   const isDirty = useMemo(() => {
     if (draftItems.length !== placedItems.length) {
@@ -183,7 +190,7 @@ const DecoPage = () => {
             <Room
               mode="edit"
               gridType={gridType}
-              panEnabled={!dragSession}
+              panEnabled={!dragSession || Boolean(pendingPlacement)}
               editOverlay={(ctx) => (
                 <RoomCanvas context={ctx} onAutoPlacementFail={handlePlacementBlocked} />
               )}
@@ -201,7 +208,7 @@ const DecoPage = () => {
               onItemSelect={handleItemSelect}
               isLoading={isLoading}
               isError={isError}
-              error={error instanceof Error ? error : undefined}
+              error={error ?? undefined}
               emptyMessage={
                 isError ? '인벤토리를 불러오지 못했습니다.' : '배치 가능한 아이템이 없습니다.'
               }

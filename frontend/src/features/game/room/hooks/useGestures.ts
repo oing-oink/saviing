@@ -77,7 +77,7 @@ export const useGestures = ({
   // 2-2. 마우스로 드래그(패닝)
   // 클릭 시작 지점 저장 + 드래그 모드 활성화
   const handleMouseDown = (e: React.MouseEvent<HTMLElement>) => {
-    if (!(panEnabled && scale > minScale)) {
+    if (!panEnabled) {
       isPanningRef.current = false;
       return;
     }
@@ -120,7 +120,7 @@ export const useGestures = ({
       initialScaleRef.current = scale;
       return;
     }
-    if (!(panEnabled && scale > minScale)) {
+    if (!panEnabled) {
       isPanningRef.current = false;
       return;
     }
@@ -208,25 +208,29 @@ export const useGestures = ({
     // preventDefault가 필요한 이벤트에 passive: false 옵션 추가해 브라우저에 명시적으로 사용 알려주기
     element.addEventListener('wheel', onWheel, { passive: false });
     element.addEventListener('mousedown', onMouseDown, { passive: false });
-    element.addEventListener('mousemove', onMouseMove, { passive: false });
     element.addEventListener('touchstart', onTouchStart, { passive: false });
-    element.addEventListener('touchmove', onTouchMove, { passive: false });
 
-    // passive 옵션이 필요 없는 나머지 이벤트 등록
-    element.addEventListener('mouseup', onMouseUpOrLeave);
-    element.addEventListener('mouseleave', onMouseUpOrLeave);
-    element.addEventListener('touchend', onTouchEnd);
+    const targetWindow = typeof window !== 'undefined' ? window : undefined;
+    if (targetWindow) {
+      targetWindow.addEventListener('mousemove', onMouseMove, { passive: false });
+      targetWindow.addEventListener('mouseup', onMouseUpOrLeave);
+      targetWindow.addEventListener('touchmove', onTouchMove, { passive: false });
+      targetWindow.addEventListener('touchend', onTouchEnd);
+      targetWindow.addEventListener('touchcancel', onTouchEnd);
+    }
 
     // 클린업 함수: 컴포넌트 언마운트 시 등록했던 이벤트 리스너 모두 제거하여 메모리 차지 방지
     return () => {
       element.removeEventListener('wheel', onWheel);
       element.removeEventListener('mousedown', onMouseDown);
-      element.removeEventListener('mousemove', onMouseMove);
-      element.removeEventListener('mouseup', onMouseUpOrLeave);
-      element.removeEventListener('mouseleave', onMouseUpOrLeave);
       element.removeEventListener('touchstart', onTouchStart);
-      element.removeEventListener('touchmove', onTouchMove);
-      element.removeEventListener('touchend', onTouchEnd);
+      if (targetWindow) {
+        targetWindow.removeEventListener('mousemove', onMouseMove);
+        targetWindow.removeEventListener('mouseup', onMouseUpOrLeave);
+        targetWindow.removeEventListener('touchmove', onTouchMove);
+        targetWindow.removeEventListener('touchend', onTouchEnd);
+        targetWindow.removeEventListener('touchcancel', onTouchEnd);
+      }
     };
     // 의존성 배열: 핸들러 함수들이 새로운 state를 참조할 수 있도록 관련 state와 함수 포함
   }, [containerRef, scale, position, minScale, maxScale, panEnabled]);

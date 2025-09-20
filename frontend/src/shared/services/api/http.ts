@@ -53,6 +53,16 @@ export const http = {
     request<T>({ url, method: 'PUT', data: body, ...config }),
 
   /**
+   * PATCH 요청
+   * @template T - body 타입
+   * @param url - URL
+   * @param body - 본문
+   * @param config - 추가 Axios 설정
+   */
+  patch: <T>(url: string, body?: unknown, config?: AxiosRequestConfig) =>
+    request<T>({ url, method: 'PATCH', data: body, ...config }),
+
+  /**
    * DELETE 요청
    * @template T - body 타입
    * @param url - URL

@@ -44,5 +44,6 @@ export interface DecoState {
   placedItems: PlacedItem[];
   draftItems: PlacedItem[];
   dragSession: DragSession | null;
+  pendingPlacement: PlacedItem | null;
   scale: number;
 }
