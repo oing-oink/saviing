@@ -62,7 +62,7 @@ const GamePage = () => {
                   isPopoverOpen ? 'top-[30%]' : 'top-1/2'
                 }`}
               >
-                <Room gridType={null} />
+                <Room mode="readonly" gridType={null} />
               </div>
 
               <PopoverAnchor className="absolute right-0 bottom-0 left-0" />

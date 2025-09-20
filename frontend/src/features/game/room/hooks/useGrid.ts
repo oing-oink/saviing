@@ -1,14 +1,22 @@
+import { useEffect, useState } from 'react';
 import type { RefObject } from 'react';
-import { useState, useEffect } from 'react';
-import type { TabId } from 'src/features/game/shop/types/item';
+import type { TabId } from '@/features/game/shop/types/item';
 
-// [타입 정의]
 export type GridType = 'floor' | 'leftWall' | 'rightWall';
 
-interface Point {
+export interface Point {
   x: number;
   y: number;
 }
+
+export interface GridCell {
+  id: string;
+  gridType: GridType;
+  center: Point;
+  vertices: [Point, Point, Point, Point];
+}
+
+export type SurfacePolygon = [Point, Point, Point, Point];
 
 interface UseGridProps {
   scale: number;
@@ -25,32 +33,29 @@ interface Line {
   y2: number;
 }
 
-// [상수 정의]
-const GRID_DIVISIONS = 12; // 각 영역을 몇 개의 셀로 나눌지
+const GRID_DIVISIONS = 12;
 
-// 각 영역의 꼭짓점 4개를 이미지 크기 비율로 정의 (TL, TR, BR, BL)
 const AREAS_CONFIG: Partial<Record<GridType, [Point, Point, Point, Point]>> = {
   leftWall: [
-    { x: 0.07, y: 0.33 }, // 좌상단
-    { x: 0.5, y: 0.04 }, // 우상단
-    { x: 0.5, y: 0.39 }, // 우하단
-    { x: 0.07, y: 0.67 }, // 좌하단
+    { x: 0.07, y: 0.33 },
+    { x: 0.5, y: 0.04 },
+    { x: 0.5, y: 0.39 },
+    { x: 0.07, y: 0.67 },
   ],
   rightWall: [
-    { x: 0.505, y: 0.04 }, // 좌상단
-    { x: 0.935, y: 0.32 }, // 우상단
-    { x: 0.935, y: 0.675 }, // 우하단
-    { x: 0.505, y: 0.395 }, // 좌하단
+    { x: 0.505, y: 0.04 },
+    { x: 0.935, y: 0.32 },
+    { x: 0.935, y: 0.675 },
+    { x: 0.505, y: 0.395 },
   ],
   floor: [
-    { x: 0.065, y: 0.68 }, // 좌
-    { x: 0.5, y: 0.395 }, // 상
-    { x: 0.935, y: 0.68 }, // 우
-    { x: 0.5, y: 0.96 }, // 하
+    { x: 0.065, y: 0.68 },
+    { x: 0.5, y: 0.395 },
+    { x: 0.935, y: 0.68 },
+    { x: 0.5, y: 0.96 },
   ],
 };
 
-// 선형 보간(Linear Interpolation) 헬퍼 함수
 const lerp = (p1: Point, p2: Point, t: number): Point => ({
   x: p1.x + (p2.x - p1.x) * t,
   y: p1.y + (p2.y - p1.y) * t,
@@ -64,69 +69,150 @@ export const useGrid = ({
   gridType,
 }: UseGridProps) => {
   const [gridLines, setGridLines] = useState<Line[]>([]);
+  const [gridCells, setGridCells] = useState<GridCell[]>([]);
+  const [surfacePolygon, setSurfacePolygon] = useState<SurfacePolygon | null>(
+    null,
+  );
 
   useEffect(() => {
     const corners = gridType ? AREAS_CONFIG[gridType as GridType] : undefined;
 
-    if (!corners || !roomImageRef.current || !containerRef.current) {
+    const imageElement = roomImageRef.current;
+    const containerElement = containerRef.current;
+
+    if (!corners || !imageElement || !containerElement) {
       setGridLines([]);
+      setGridCells([]);
+      setSurfacePolygon(null);
       return;
     }
 
-    const imageElement = roomImageRef.current;
-    const containerElement = containerRef.current;
-    const newLines: Line[] = [];
+    const computeGrid = () => {
+      if (!roomImageRef.current || !containerRef.current) {
+        return;
+      }
 
-    // 1. 이미지 자체를 기준으로 한 꼭짓점들의 상대 좌표 계산
-    const [tl_rel, tr_rel, br_rel, bl_rel] = corners.map(p => ({
-      x: imageElement.offsetWidth * p.x,
-      y: imageElement.offsetHeight * p.y,
-    }));
+      const imgWidth = roomImageRef.current.offsetWidth;
+      const imgHeight = roomImageRef.current.offsetHeight;
 
-    // 2. 상대 좌표를 기준으로 그리드 라인들을 생성
-    for (let i = 0; i <= GRID_DIVISIONS; i++) {
-      const t = i / GRID_DIVISIONS;
+      if (imgWidth === 0 || imgHeight === 0) {
+        return;
+      }
 
-      const p1 = lerp(bl_rel, tl_rel, t);
-      const p2 = lerp(br_rel, tr_rel, t);
-      newLines.push({ x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y });
+      const newLines: Line[] = [];
+      const newCells: GridCell[] = [];
 
-      const p3 = lerp(tl_rel, tr_rel, t);
-      const p4 = lerp(bl_rel, br_rel, t);
-      newLines.push({ x1: p3.x, y1: p3.y, x2: p4.x, y2: p4.y });
+      const [tl_rel, tr_rel, br_rel, bl_rel] = corners.map((point) => ({
+        x: imgWidth * point.x,
+        y: imgHeight * point.y,
+      }));
+
+      for (let i = 0; i <= GRID_DIVISIONS; i++) {
+        const t = i / GRID_DIVISIONS;
+
+        const p1 = lerp(bl_rel, tl_rel, t);
+        const p2 = lerp(br_rel, tr_rel, t);
+        newLines.push({ x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y });
+
+        const p3 = lerp(tl_rel, tr_rel, t);
+        const p4 = lerp(bl_rel, br_rel, t);
+        newLines.push({ x1: p3.x, y1: p3.y, x2: p4.x, y2: p4.y });
+      }
+
+      for (let i = 0; i < GRID_DIVISIONS; i++) {
+        for (let j = 0; j < GRID_DIVISIONS; j++) {
+          const tColStart = i / GRID_DIVISIONS;
+          const tColEnd = (i + 1) / GRID_DIVISIONS;
+          const tRowStart = j / GRID_DIVISIONS;
+          const tRowEnd = (j + 1) / GRID_DIVISIONS;
+
+          const colStartTop = lerp(tl_rel, tr_rel, tColStart);
+          const colStartBottom = lerp(bl_rel, br_rel, tColStart);
+          const colEndTop = lerp(tl_rel, tr_rel, tColEnd);
+          const colEndBottom = lerp(bl_rel, br_rel, tColEnd);
+
+          const tl = lerp(colStartBottom, colStartTop, tRowEnd);
+          const tr = lerp(colEndBottom, colEndTop, tRowEnd);
+          const bl = lerp(colStartBottom, colStartTop, tRowStart);
+          const br = lerp(colEndBottom, colEndTop, tRowStart);
+
+          newCells.push({
+            id: `${gridType}-${i + 1}-${j + 1}`,
+            gridType: gridType as GridType,
+            center: { x: 0, y: 0 },
+            vertices: [tl, tr, br, bl],
+          });
+        }
+      }
+
+      const imageWidth = imgWidth;
+      const imageHeight = imgHeight;
+      const containerWidth = containerElement.offsetWidth;
+      const containerHeight = containerElement.offsetHeight;
+
+      const transformPoint = (point: Point): Point => ({
+        x:
+          (point.x - imageWidth / 2) * scale +
+          imageWidth / 2 +
+          position.x +
+          containerWidth,
+        y:
+          (point.y - imageHeight / 2) * scale +
+          imageHeight / 2 +
+          position.y +
+          containerHeight,
+      });
+
+      const finalLines = newLines.map((line) => ({
+        x1: transformPoint({ x: line.x1, y: line.y1 }).x,
+        y1: transformPoint({ x: line.x1, y: line.y1 }).y,
+        x2: transformPoint({ x: line.x2, y: line.y2 }).x,
+        y2: transformPoint({ x: line.x2, y: line.y2 }).y,
+      }));
+
+      const finalCells = newCells.map((cell) => {
+        const [tl, tr, br, bl] = cell.vertices.map(transformPoint) as [
+          Point,
+          Point,
+          Point,
+          Point,
+        ];
+
+        return {
+          ...cell,
+          vertices: [tl, tr, br, bl] as [Point, Point, Point, Point],
+          center: {
+            x: (tl.x + tr.x + br.x + bl.x) / 4,
+            y: (tl.y + tr.y + br.y + bl.y) / 4,
+          },
+        };
+      });
+
+      const polygon = [tl_rel, tr_rel, br_rel, bl_rel].map(transformPoint) as SurfacePolygon;
+
+      setGridLines(finalLines);
+      setGridCells(finalCells);
+      setSurfacePolygon(polygon);
+    };
+
+    if (
+      !imageElement.complete ||
+      imageElement.naturalWidth === 0 ||
+      imageElement.offsetWidth === 0
+    ) {
+      const handleLoad = () => {
+        computeGrid();
+      };
+
+      imageElement.addEventListener('load', handleLoad);
+
+      return () => {
+        imageElement.removeEventListener('load', handleLoad);
+      };
     }
 
-    const imageWidth = imageElement.offsetWidth;
-    const imageHeight = imageElement.offsetHeight;
-    const containerWidth = containerElement.offsetWidth;
-    const containerHeight = containerElement.offsetHeight;
-
-    // 3. 생성된 모든 라인에 scale, position 및 화면 위치 변환을 적용
-    const finalLines = newLines.map(line => ({
-      x1:
-        (line.x1 - imageWidth / 2) * scale +
-        imageWidth / 2 +
-        position.x +
-        containerWidth,
-      y1:
-        (line.y1 - imageHeight / 2) * scale +
-        imageHeight / 2 +
-        position.y +
-        containerHeight,
-      x2:
-        (line.x2 - imageWidth / 2) * scale +
-        imageWidth / 2 +
-        position.x +
-        containerWidth,
-      y2:
-        (line.y2 - imageHeight / 2) * scale +
-        imageHeight / 2 +
-        position.y +
-        containerHeight,
-    }));
-
-    setGridLines(finalLines);
+    computeGrid();
   }, [gridType, scale, position, roomImageRef, containerRef]);
 
-  return { gridLines };
+  return { gridLines, gridCells, surfacePolygon };
 };

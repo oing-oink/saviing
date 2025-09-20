@@ -1,5 +1,5 @@
 import type { Item } from '@/features/game/shop/types/item';
-import mouse_item from '@/assets/mouse_item.png';
+import { getItemImage } from '@/features/game/shop/utils/getItemImage';
 
 export const mockInventoryItems: Item[] = [
   {
@@ -10,11 +10,11 @@ export const mockInventoryItems: Item[] = [
     itemType: 'DECORATION',
     itemCategory: 'LEFT',
     rarity: 'COMMON',
-    xLength: 1,
-    yLength: 1,
+    xLength: 2,
+    yLength: 2,
     coin: 100,
     fishCoin: 50,
-    imageUrl: mouse_item,
+    imageUrl: getItemImage(48),
     isAvailable: true,
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
@@ -31,7 +31,7 @@ export const mockInventoryItems: Item[] = [
     yLength: 1,
     coin: 100,
     fishCoin: 50,
-    imageUrl: mouse_item,
+    imageUrl: getItemImage(49),
     isAvailable: true,
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
@@ -48,7 +48,7 @@ export const mockInventoryItems: Item[] = [
     yLength: 1,
     coin: 100,
     fishCoin: 50,
-    imageUrl: mouse_item,
+    imageUrl: getItemImage(61),
     isAvailable: true,
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
@@ -59,13 +59,13 @@ export const mockInventoryItems: Item[] = [
     itemDescription:
       '냥이가 가장 좋아하는 높은 곳이다옹!\n물건을 두기에도 완벽하고,\n뭔가 안정감이 있어서 든든하고 좋다냥!',
     itemType: 'DECORATION',
-    itemCategory: 'CAT',
+    itemCategory: 'RIGHT',
     rarity: 'COMMON',
     xLength: 1,
     yLength: 1,
     coin: 100,
     fishCoin: 50,
-    imageUrl: mouse_item,
+    imageUrl: getItemImage(62),
     isAvailable: true,
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
@@ -82,7 +82,7 @@ export const mockInventoryItems: Item[] = [
     yLength: 1,
     coin: 100,
     fishCoin: 50,
-    imageUrl: mouse_item,
+    imageUrl: getItemImage(63),
     isAvailable: true,
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',

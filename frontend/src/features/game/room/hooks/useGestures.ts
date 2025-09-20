@@ -6,6 +6,7 @@ interface UseGesturesProps {
   targetRef: RefObject<HTMLElement | null>;
   minScale?: number;
   maxScale?: number;
+  panEnabled?: boolean;
 }
 
 export const useGestures = ({
@@ -13,6 +14,7 @@ export const useGestures = ({
   targetRef,
   minScale = 1,
   maxScale = 4,
+  panEnabled = true,
 }: UseGesturesProps) => {
   // 화면에 반영할 값 (배율, 위치)
   const [scale, setScale] = useState(1);
@@ -75,22 +77,23 @@ export const useGestures = ({
   // 2-2. 마우스로 드래그(패닝)
   // 클릭 시작 지점 저장 + 드래그 모드 활성화
   const handleMouseDown = (e: React.MouseEvent<HTMLElement>) => {
-    // 확대된 경우에만 드래그
-    if (scale > minScale) {
-      e.preventDefault();
-      isPanningRef.current = true;
-      panStartRef.current = {
-        x: e.clientX - position.x,
-        y: e.clientY - position.y,
-      };
-      if (containerRef.current) {
-        containerRef.current.style.cursor = 'grabbing';
-      }
+    if (!(panEnabled && scale > minScale)) {
+      isPanningRef.current = false;
+      return;
+    }
+    e.preventDefault();
+    isPanningRef.current = true;
+    panStartRef.current = {
+      x: e.clientX - position.x,
+      y: e.clientY - position.y,
+    };
+    if (containerRef.current) {
+      containerRef.current.style.cursor = 'grabbing';
     }
   };
   // 드래그 중일 때 마우스 위치에 따라 position 업데이트
   const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
-    if (isPanningRef.current) {
+    if (isPanningRef.current && panEnabled) {
       e.preventDefault();
       const newPos = {
         x: e.clientX - panStartRef.current.x,
@@ -111,13 +114,17 @@ export const useGestures = ({
   // 터치 시작
   const handleTouchStart = (e: React.TouchEvent<HTMLElement>) => {
     if (e.touches.length === 2) {
-      // 핀치 줌
       e.preventDefault();
       isPanningRef.current = false;
       initialPinchDistanceRef.current = getDistance(e.touches);
       initialScaleRef.current = scale;
-    } else if (e.touches.length === 1 && scale > minScale) {
-      // 드래그(패닝)
+      return;
+    }
+    if (!(panEnabled && scale > minScale)) {
+      isPanningRef.current = false;
+      return;
+    }
+    if (e.touches.length === 1) {
       e.preventDefault();
       isPanningRef.current = true;
       const touch = e.touches[0];
@@ -142,7 +149,7 @@ export const useGestures = ({
 
       setScale(clampedScale);
       setPosition(newPosition);
-    } else if (e.touches.length === 1 && isPanningRef.current) {
+    } else if (e.touches.length === 1 && isPanningRef.current && panEnabled) {
       // 드래그(패닝)
       e.preventDefault();
       const touch = e.touches[0];
@@ -178,10 +185,19 @@ export const useGestures = ({
     // React의 SyntheticEvent가 아닌 네이티브 이벤트를 직접 사용하므로, 타입 변환이 필요합니다.
     const onWheel = (e: Event) =>
       handleWheel(e as unknown as React.WheelEvent<HTMLElement>);
-    const onMouseDown = (e: Event) =>
+    // RoomCanvas에서 panEnabled를 끄면 마우스 이벤트가 들어와도 패닝을 시작하지 않는다.
+    const onMouseDown = (e: Event) => {
+      if (!panEnabled) {
+        return;
+      }
       handleMouseDown(e as unknown as React.MouseEvent<HTMLElement>);
-    const onMouseMove = (e: Event) =>
+    };
+    const onMouseMove = (e: Event) => {
+      if (!panEnabled) {
+        return;
+      }
       handleMouseMove(e as unknown as React.MouseEvent<HTMLElement>);
+    };
     const onMouseUpOrLeave = () => handleMouseUpOrLeave();
     const onTouchStart = (e: Event) =>
       handleTouchStart(e as unknown as React.TouchEvent<HTMLElement>);
@@ -213,7 +229,25 @@ export const useGestures = ({
       element.removeEventListener('touchend', onTouchEnd);
     };
     // 의존성 배열: 핸들러 함수들이 새로운 state를 참조할 수 있도록 관련 state와 함수 포함
-  }, [containerRef, scale, position, minScale, maxScale]);
+  }, [containerRef, scale, position, minScale, maxScale, panEnabled]);
+
+  useEffect(() => {
+    if (!panEnabled) {
+      isPanningRef.current = false;
+      if (containerRef.current) {
+        containerRef.current.style.cursor = 'default';
+      }
+    }
+  }, [panEnabled]);
+
+  useEffect(() => {
+    if (!panEnabled) {
+      isPanningRef.current = false;
+      if (containerRef.current) {
+        containerRef.current.style.cursor = 'default';
+      }
+    }
+  }, [panEnabled, containerRef]);
 
   return { scale, position };
 };
