@@ -28,7 +28,8 @@ const DepositPage = () => {
   const { customer } = useCustomerStore();
 
   // 실제 API에서 적금 계좌 정보 가져오기
-  const { data: savingsAccountData, isLoading: isSavingsLoading } = useSavingsAccount(accountId || '');
+  const { data: savingsAccountData, isLoading: isSavingsLoading } =
+    useSavingsAccount(accountId || '');
 
   // 실제 API에서 모든 계좌 목록 가져오기
   const { data: allAccounts } = useAccountsList();
@@ -196,7 +197,9 @@ const DepositPage = () => {
               <AccordionContent className="pt-0">
                 {isSavingsLoading ? (
                   <div className="flex justify-center py-4">
-                    <div className="text-sm text-muted-foreground">로딩 중...</div>
+                    <div className="text-sm text-muted-foreground">
+                      로딩 중...
+                    </div>
                   </div>
                 ) : savingAccountData ? (
                   <AccountSummaryCard
@@ -206,7 +209,9 @@ const DepositPage = () => {
                   />
                 ) : (
                   <div className="flex justify-center py-4">
-                    <div className="text-sm text-muted-foreground">적금 정보를 불러올 수 없습니다</div>
+                    <div className="text-sm text-muted-foreground">
+                      적금 정보를 불러올 수 없습니다
+                    </div>
                   </div>
                 )}
               </AccordionContent>

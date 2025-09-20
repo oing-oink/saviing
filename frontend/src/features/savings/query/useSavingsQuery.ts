@@ -29,7 +29,10 @@ export const useAccountsList = () => {
  * @param accountId - 조회할 적금 계좌의 ID
  * @returns 적금 계좌 상세 정보 쿼리 결과
  */
-export const useSavingsAccount = (accountId: string, options?: { enabled?: boolean }) => {
+export const useSavingsAccount = (
+  accountId: string,
+  options?: { enabled?: boolean },
+) => {
   return useQuery({
     queryKey: savingsKeys.detail(accountId),
     queryFn: () => getSavingsAccount(accountId),
