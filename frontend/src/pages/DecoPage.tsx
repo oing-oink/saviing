@@ -38,8 +38,9 @@ const DecoPage = () => {
   useEffect(() => {
     return () => {
       cancelDrag();
+      resetToLastSaved();
     };
-  }, [cancelDrag]);
+  }, [cancelDrag, resetToLastSaved]);
 
   const isDirty = useMemo(() => {
     if (draftItems.length !== placedItems.length) {
