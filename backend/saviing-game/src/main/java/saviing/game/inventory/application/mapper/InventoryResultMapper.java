@@ -32,10 +32,9 @@ public class InventoryResultMapper {
             return null;
         }
 
-        Long roomId = null;
-        if (inventory.isUsed()) {
-            roomId = getRoomIdForInventory(inventory);
-        }
+        Long roomId = getRoomIdForInventory(inventory);
+        Long petInventoryItemId = getPetInventoryItemIdForInventory(inventory);
+        Integer count = getCountForInventory(inventory);
 
         return InventoryResult.builder()
             .inventoryItemId(inventory.getInventoryItemId() != null ? inventory.getInventoryItemId().value() : null)
@@ -51,6 +50,8 @@ public class InventoryResultMapper {
             .xLength(item.xLength())
             .yLength(item.yLength())
             .roomId(roomId)
+            .petInventoryItemId(petInventoryItemId)
+            .count(count)
             .createdAt(inventory.getCreatedAt())
             .updatedAt(inventory.getUpdatedAt())
             .build();
@@ -62,14 +63,48 @@ public class InventoryResultMapper {
     private Long getRoomIdForInventory(Inventory inventory) {
         return switch (inventory.getType()) {
             case PET -> {
-                if (inventory instanceof PetInventory petInventory) {
+                if (inventory instanceof PetInventory petInventory && inventory.isUsed()) {
                     yield petInventory.getRoomId();
                 }
                 yield null;
             }
-            case DECORATION -> null; // 데코레이션은 배치된 방 정보를 별도로 관리
+            case DECORATION -> {
+                // TODO: 데코레이션 배치 이벤트 처리 후 Room 도메인에서 roomId 조회
+                yield null;
+            }
             case ACCESSORY -> null; // 액세서리는 roomId가 없음
             case CONSUMPTION -> null; // 소모품은 roomId가 없음
+        };
+    }
+
+    /**
+     * 인벤토리 타입에 따른 petInventoryItemId를 반환합니다.
+     */
+    private Long getPetInventoryItemIdForInventory(Inventory inventory) {
+        return switch (inventory.getType()) {
+            case ACCESSORY -> {
+                if (inventory instanceof AccessoryInventory accessoryInventory && inventory.isUsed()) {
+                    yield accessoryInventory.getPetInventoryItemId() != null ?
+                        accessoryInventory.getPetInventoryItemId().value() : null;
+                }
+                yield null;
+            }
+            case PET, DECORATION, CONSUMPTION -> null;
+        };
+    }
+
+    /**
+     * 인벤토리 타입에 따른 count를 반환합니다.
+     */
+    private Integer getCountForInventory(Inventory inventory) {
+        return switch (inventory.getType()) {
+            case CONSUMPTION -> {
+                if (inventory instanceof ConsumptionInventory consumptionInventory) {
+                    yield consumptionInventory.getCount();
+                }
+                yield null;
+            }
+            case PET, ACCESSORY, DECORATION -> null;
         };
     }
 

@@ -37,6 +37,8 @@ public class InventoryResponseMapper {
             .xLength(result.xLength())
             .yLength(result.yLength())
             .roomId(result.roomId())
+            .petInventoryItemId(result.petInventoryItemId())
+            .count(result.count())
             .createdAt(result.createdAt())
             .updatedAt(result.updatedAt())
             .build();

@@ -23,6 +23,8 @@ import java.time.LocalDateTime;
  * @param xLength 아이템 가로 크기
  * @param yLength 아이템 세로 크기
  * @param roomId 방 ID (사용 중일 때만)
+ * @param petInventoryItemId 펫 인벤토리 ID (액세서리가 장착된 경우에만)
+ * @param count 소모품 개수 (소모품인 경우에만)
  * @param createdAt 생성 일시
  * @param updatedAt 최종 수정 일시
  */
@@ -41,6 +43,8 @@ public record InventoryResult(
     Integer xLength,
     Integer yLength,
     Long roomId,
+    Long petInventoryItemId,
+    Integer count,
     LocalDateTime createdAt,
     LocalDateTime updatedAt
 ) {

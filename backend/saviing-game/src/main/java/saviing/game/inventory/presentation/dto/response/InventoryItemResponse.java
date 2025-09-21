@@ -50,8 +50,14 @@ public record InventoryItemResponse(
     @Schema(description = "아이템 세로 크기", example = "3")
     Integer yLength,
 
-    @Schema(description = "방 ID (사용 중일 때만)", example = "1")
+    @Schema(description = "방 ID (PET이나 DECORATION이 배치된 경우에만)", example = "1")
     Long roomId,
+
+    @Schema(description = "펫 인벤토리 ID (ACCESSORY가 장착된 경우에만)", example = "5")
+    Long petInventoryItemId,
+
+    @Schema(description = "소모품 개수 (CONSUMPTION인 경우에만)", example = "3")
+    Integer count,
 
     @Schema(description = "생성 시각", example = "2025-01-15T10:30:00")
     LocalDateTime createdAt,
