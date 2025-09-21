@@ -92,7 +92,8 @@ export const router = createBrowserRouter([
         element: <SavingsDetailLayout title="적금 상세" />,
         children: [{ index: true, element: <SavingsDetailPage /> }],
       },
-      { // 적금 설정 변경 Funnel
+      {
+        // 적금 설정 변경 Funnel
         path: PAGE_PATH.SAVINGS_SETTINGS_WITH_ID,
         element: (
           <ProtectedRoute>

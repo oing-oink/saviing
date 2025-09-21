@@ -14,9 +14,10 @@ const StepHeader = () => {
   const accountCreationProgress = useStepProgress();
   const savingsSettingsProgress = useSavingsSettingsChange();
 
-  const { currentStepFromUrl, goToPreviousStep, cancelAndGoBack } = isSavingsSettings
-    ? savingsSettingsProgress
-    : { ...accountCreationProgress, cancelAndGoBack: undefined };
+  const { currentStepFromUrl, goToPreviousStep, cancelAndGoBack } =
+    isSavingsSettings
+      ? savingsSettingsProgress
+      : { ...accountCreationProgress, cancelAndGoBack: undefined };
 
   const handleBackClick = () => {
     if (isSavingsSettings) {

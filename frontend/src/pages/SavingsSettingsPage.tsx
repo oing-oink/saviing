@@ -1,9 +1,5 @@
 const SavingsSettingsPage = () => {
-  return (
-    <div>
-      
-    </div>
-  )
+  return <div></div>;
 };
 
 export default SavingsSettingsPage;

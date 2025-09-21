@@ -5,7 +5,8 @@ import { useAccountsList } from '@/features/savings/query/useSavingsQuery';
 import { Button } from '@/shared/components/ui/button';
 
 const NewSettingsStep = () => {
-  const { selectedChangeTypes, newSettings, updateNewSettings } = useSavingsSettingsStore();
+  const { selectedChangeTypes, newSettings, updateNewSettings } =
+    useSavingsSettingsStore();
   const { goToNextStep, goToPreviousStep } = useSavingsSettingsChange();
 
   // 계좌 목록 조회 (자동이체 계좌 선택용)
@@ -18,9 +19,10 @@ const NewSettingsStep = () => {
   });
 
   // 입출금 계좌만 필터링 (자동이체용)
-  const checkingAccounts = accounts?.filter(account =>
-    account.product.productCategory === 'DEMAND_DEPOSIT'
-  ) || [];
+  const checkingAccounts =
+    accounts?.filter(
+      account => account.product.productCategory === 'DEMAND_DEPOSIT',
+    ) || [];
 
   const handleInputChange = (field: string, value: string | number) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -33,10 +35,16 @@ const NewSettingsStep = () => {
     if (selectedChangeTypes.includes('AMOUNT') && formData.newAmount) {
       settingsToUpdate.newAmount = Number(formData.newAmount);
     }
-    if (selectedChangeTypes.includes('TRANSFER_DATE') && formData.newTransferDate) {
+    if (
+      selectedChangeTypes.includes('TRANSFER_DATE') &&
+      formData.newTransferDate
+    ) {
       settingsToUpdate.newTransferDate = formData.newTransferDate;
     }
-    if (selectedChangeTypes.includes('AUTO_ACCOUNT') && formData.newAutoAccount) {
+    if (
+      selectedChangeTypes.includes('AUTO_ACCOUNT') &&
+      formData.newAutoAccount
+    ) {
       settingsToUpdate.newAutoAccount = formData.newAutoAccount;
     }
 
@@ -67,78 +75,96 @@ const NewSettingsStep = () => {
     <>
       {/* 메인 컨텐츠 */}
       <div className="flex flex-1 flex-col px-6 py-8">
-        <h1 className="mb-2 text-xl font-bold text-gray-900">새로운 설정값 입력</h1>
-        <p className="mb-6 text-gray-600">
-          변경할 새로운 값을 입력해주세요
-        </p>
+        <h1 className="mb-2 text-xl font-bold text-gray-900">
+          새로운 설정값 입력
+        </h1>
+        <p className="mb-6 text-gray-600">변경할 새로운 값을 입력해주세요</p>
 
-        <div className="bg-white rounded-lg border p-6 space-y-6">
+        <div className="space-y-6 rounded-lg border bg-white p-6">
           {selectedChangeTypes.includes('AMOUNT') && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="mb-2 block text-sm font-medium text-gray-700">
                 새로운 월 납입금액
               </label>
               <div className="relative">
                 <input
                   type="number"
                   value={formData.newAmount}
-                  onChange={(e) => handleInputChange('newAmount', e.target.value)}
+                  onChange={e => handleInputChange('newAmount', e.target.value)}
                   placeholder="300000"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:ring-2 focus:ring-primary"
                 />
-                <span className="absolute right-3 top-2 text-gray-500">원</span>
+                <span className="absolute top-2 right-3 text-gray-500">원</span>
               </div>
-              <p className="text-xs text-gray-500 mt-1">현재: 300,000원</p>
+              <p className="mt-1 text-xs text-gray-500">현재: 300,000원</p>
             </div>
           )}
 
           {selectedChangeTypes.includes('TRANSFER_DATE') && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="mb-2 block text-sm font-medium text-gray-700">
                 새로운 자동이체 날짜
               </label>
               <select
                 value={formData.newTransferDate}
-                onChange={(e) => handleInputChange('newTransferDate', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary appearance-none bg-white"
+                onChange={e =>
+                  handleInputChange('newTransferDate', e.target.value)
+                }
+                className="w-full appearance-none rounded-lg border border-gray-300 bg-white px-3 py-2 focus:border-primary focus:ring-2 focus:ring-primary"
               >
-                <option value="" className="text-gray-500">선택해주세요</option>
+                <option value="" className="text-gray-500">
+                  선택해주세요
+                </option>
                 {Array.from({ length: 28 }, (_, i) => i + 1).map(day => (
-                  <option key={day} value={day.toString()} className="text-gray-900">
+                  <option
+                    key={day}
+                    value={day.toString()}
+                    className="text-gray-900"
+                  >
                     매월 {day}일
                   </option>
                 ))}
               </select>
-              <p className="text-xs text-gray-500 mt-1">현재: 매월 25일</p>
+              <p className="mt-1 text-xs text-gray-500">현재: 매월 25일</p>
             </div>
           )}
 
           {selectedChangeTypes.includes('AUTO_ACCOUNT') && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="mb-2 block text-sm font-medium text-gray-700">
                 새로운 자동이체 연결 계좌
               </label>
               <select
                 value={formData.newAutoAccount}
-                onChange={(e) => handleInputChange('newAutoAccount', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary appearance-none bg-white"
+                onChange={e =>
+                  handleInputChange('newAutoAccount', e.target.value)
+                }
+                className="w-full appearance-none rounded-lg border border-gray-300 bg-white px-3 py-2 focus:border-primary focus:ring-2 focus:ring-primary"
               >
-                <option value="" className="text-gray-500">계좌를 선택해주세요</option>
+                <option value="" className="text-gray-500">
+                  계좌를 선택해주세요
+                </option>
                 {checkingAccounts.map(account => (
-                  <option key={account.accountId} value={account.accountId} className="text-gray-900">
-                    {account.product.productName} (*{account.accountNumber.slice(-4)})
+                  <option
+                    key={account.accountId}
+                    value={account.accountId}
+                    className="text-gray-900"
+                  >
+                    {account.product.productName} (*
+                    {account.accountNumber.slice(-4)})
                   </option>
                 ))}
               </select>
-              <p className="text-xs text-gray-500 mt-1">현재: 하나 입출금통장 (*1234)</p>
+              <p className="mt-1 text-xs text-gray-500">
+                현재: 하나 입출금통장 (*1234)
+              </p>
             </div>
           )}
         </div>
-
       </div>
 
       {/* 하단 고정 버튼 */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white p-4 z-10">
+      <div className="fixed right-0 bottom-0 left-0 z-10 bg-white p-4">
         <div className="flex space-x-3">
           <Button
             variant="outline"

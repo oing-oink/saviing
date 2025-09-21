@@ -1,5 +1,10 @@
 import { useEffect } from 'react';
-import { useSearchParams, useNavigate, useParams, useLocation } from 'react-router-dom';
+import {
+  useSearchParams,
+  useNavigate,
+  useParams,
+  useLocation,
+} from 'react-router-dom';
 import {
   CurrentInfoStep,
   SelectChangeStep,
@@ -20,7 +25,7 @@ const SavingsSettingsFunnel = () => {
   const location = useLocation();
   const { accountId } = useParams<{ accountId: string }>();
   const { setCurrentAccount } = useSavingsStore();
-  const { step, setStep, reset } = useSavingsSettingsStore();
+  const { setStep, reset } = useSavingsSettingsStore();
 
   // 설정 변경 페이지로 진입할 때 전달된 entryPoint를 가져옴
   const entryPoint = location.state?.entryPoint;
@@ -45,25 +50,38 @@ const SavingsSettingsFunnel = () => {
     if (!stepParam) {
       const params = new URLSearchParams();
       params.set('step', 'CURRENT_INFO');
-      navigate(`${PAGE_PATH.SAVINGS_SETTINGS_WITH_ID.replace(':accountId', accountId)}?${params.toString()}`, {
-        replace: true,
-        state: { entryPoint }
-      });
+      navigate(
+        `${PAGE_PATH.SAVINGS_SETTINGS_WITH_ID.replace(':accountId', accountId)}?${params.toString()}`,
+        {
+          replace: true,
+          state: { entryPoint },
+        },
+      );
       return;
     }
 
     // 유효한 스텝인지 확인
-    const validSteps = ['CURRENT_INFO', 'SELECT_CHANGE', 'NEW_SETTINGS', 'IMPACT_REVIEW', 'CONFIRM', 'COMPLETE'];
+    const validSteps = [
+      'CURRENT_INFO',
+      'SELECT_CHANGE',
+      'NEW_SETTINGS',
+      'IMPACT_REVIEW',
+      'CONFIRM',
+      'COMPLETE',
+    ];
     if (validSteps.includes(stepParam)) {
       setStep(stepParam as any);
     } else {
       // 유효하지 않은 스텝이면 첫 번째 스텝으로 리다이렉트
       const params = new URLSearchParams();
       params.set('step', 'CURRENT_INFO');
-      navigate(`${PAGE_PATH.SAVINGS_SETTINGS_WITH_ID.replace(':accountId', accountId)}?${params.toString()}`, {
-        replace: true,
-        state: { entryPoint }
-      });
+      navigate(
+        `${PAGE_PATH.SAVINGS_SETTINGS_WITH_ID.replace(':accountId', accountId)}?${params.toString()}`,
+        {
+          replace: true,
+          state: { entryPoint },
+        },
+      );
     }
   }, [searchParams, navigate, accountId, setCurrentAccount, setStep]);
 

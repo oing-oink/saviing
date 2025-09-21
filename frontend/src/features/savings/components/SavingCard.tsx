@@ -21,8 +21,8 @@ const SavingCard = () => {
   const handleSavingsManagement = () => {
     if (savingsAccount?.accountId) {
       navigate(createSavingsDetailPath(savingsAccount.accountId), {
-      state: { entryPoint: PAGE_PATH.HOME }, // 저축 상세 페이지에서 backButton을 통해 Home으로 돌아올 때
-    });
+        state: { entryPoint: PAGE_PATH.HOME }, // 저축 상세 페이지에서 backButton을 통해 Home으로 돌아올 때
+      });
     }
   };
 

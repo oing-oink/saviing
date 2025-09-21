@@ -4,12 +4,12 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 interface DetailTopBarProps {
   title: string;
-  backMode?: 'history' | 'entry';  // 기본값은 history
+  backMode?: 'history' | 'entry'; // 기본값은 history
 }
 
 const DetailTopBar = ({ title, backMode = 'history' }: DetailTopBarProps) => {
   const navigate = useNavigate();
-  const location  = useLocation();
+  const location = useLocation();
 
   const entryPoint = location.state?.entryPoint ?? PAGE_PATH.HOME;
 
