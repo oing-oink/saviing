@@ -153,7 +153,7 @@ public class ItemCommandService {
                 }
                 yield ItemSize.required(xLength, yLength);
             }
-            case PET, ACCESSORY -> ItemSize.optional();
+            case PET, ACCESSORY, CONSUMPTION -> ItemSize.optional();
         };
     }
 }
