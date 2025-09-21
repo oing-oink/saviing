@@ -9,7 +9,7 @@ import saviing.bank.account.domain.vo.AutoTransferScheduleId;
 /**
  * 자동이체 스케줄 영속화를 위한 포트 인터페이스.
  */
-public interface AutoTransferScheduleRepository {
+public interface AutoTransferSchedulePort {
 
     /**
      * 계좌별 자동이체 스케줄을 조회한다.

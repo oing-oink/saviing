@@ -1,9 +1,9 @@
 package saviing.bank.account.application.port.in.command;
 
-import saviing.bank.account.domain.vo.ProductId;
-import saviing.bank.common.vo.MoneyWon;
-import saviing.bank.account.domain.vo.TermPeriod;
 import saviing.bank.account.domain.vo.AccountNumber;
+import saviing.bank.account.domain.vo.ProductId;
+import saviing.bank.account.domain.vo.TermPeriod;
+import saviing.bank.common.vo.MoneyWon;
 
 /**
  * 적금 계좌 생성 명령
@@ -16,12 +16,14 @@ import saviing.bank.account.domain.vo.AccountNumber;
  * @param targetAmount 목표금액 (달성하고자 하는 저축 목표)
  * @param termPeriod 적금 기간 (예: 15주, 12개월 등)
  * @param maturityWithdrawalAccount 만기 시 출금계좌 (nullable, 미설정 시 만기 후 수동 출금)
+ * @param autoTransfer 초기 자동이체 설정 (nullable)
  */
 public record CreateSavingsCommand(
     Long customerId,
     ProductId productId,
     MoneyWon targetAmount,
     TermPeriod termPeriod,
-    AccountNumber maturityWithdrawalAccount // nullable
+    AccountNumber maturityWithdrawalAccount,
+    AutoTransferInitCommand autoTransfer // nullable
 ) implements CreateAccountCommand {
 }

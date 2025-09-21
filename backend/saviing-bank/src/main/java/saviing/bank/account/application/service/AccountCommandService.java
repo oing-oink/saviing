@@ -14,9 +14,11 @@ import saviing.bank.account.application.port.in.command.CreateAccountCommand;
 import saviing.bank.account.application.port.in.command.CreateDemandDepositCommand;
 import saviing.bank.account.application.port.in.command.CreateSavingsCommand;
 import saviing.bank.account.application.port.in.result.CreateAccountResult;
+import saviing.bank.account.application.port.out.AutoTransferSchedulePort;
 import saviing.bank.account.application.port.out.GenerateAccountNumberPort;
 import saviing.bank.account.application.port.out.SaveAccountPort;
 import saviing.bank.account.domain.model.Account;
+import saviing.bank.account.domain.model.AutoTransferSchedule;
 import saviing.bank.account.domain.model.Product;
 import saviing.bank.account.domain.model.ProductCategory;
 import saviing.bank.account.domain.vo.AccountNumber;
@@ -27,6 +29,8 @@ import saviing.bank.account.exception.InvalidProductTypeException;
 import saviing.bank.account.exception.InvalidSavingsTermException;
 import saviing.bank.account.exception.InvalidTargetAmountException;
 
+import java.time.LocalDate;
+
 @ExecutionTime
 @Service
 @Transactional
@@ -36,6 +40,7 @@ public class AccountCommandService implements CreateAccountUseCase {
     private final GenerateAccountNumberPort generateAccountNumberPort;
     private final SaveAccountPort saveAccountPort;
     private final ProductService productService;
+    private final AutoTransferSchedulePort autoTransferSchedulePort;
     
     @Override
     public CreateAccountResult createAccount(CreateAccountCommand command) {
@@ -99,6 +104,7 @@ public class AccountCommandService implements CreateAccountUseCase {
         setDefaultInterestRate(account, product);
 
         Account savedAccount = saveAccountPort.save(account);
+        initializeAutoTransferSchedule(command, savedAccount);
         return CreateAccountResult.from(savedAccount, product);
     }
 
@@ -191,5 +197,28 @@ public class AccountCommandService implements CreateAccountUseCase {
                 "customerId", command.customerId()
             ));
         }
+    }
+
+    /**
+     * 적금 계좌 개설 시 초기 자동이체 설정을 저장한다.
+     *
+     * @param command 적금 계좌 생성 명령
+     * @param savedAccount 자동이체를 연결할 저장된 계좌
+     */
+    private void initializeAutoTransferSchedule(CreateSavingsCommand command, Account savedAccount) {
+        if (command.autoTransfer() == null || !command.autoTransfer().enabled()) {
+            return;
+        }
+
+        AutoTransferSchedule schedule = AutoTransferSchedule.create(
+            savedAccount.getId(),
+            command.autoTransfer().cycle(),
+            command.autoTransfer().transferDay(),
+            command.autoTransfer().amount(),
+            true,
+            LocalDate.now(),
+            Instant.now()
+        );
+        autoTransferSchedulePort.create(schedule);
     }
 }
