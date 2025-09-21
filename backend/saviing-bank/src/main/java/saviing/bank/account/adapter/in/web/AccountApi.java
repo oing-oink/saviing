@@ -58,7 +58,14 @@ public interface AccountApi {
                                 "value": 12,
                                 "unit": "WEEKS"
                               },
-                              "maturityWithdrawalAccount": "11012345678901234"
+                              "maturityWithdrawalAccount": "11012345678901234",
+                              "autoTransfer": {
+                                "enabled": true,
+                                "cycle": "MONTHLY",
+                                "transferDay": 15,
+                                "amount": 200000,
+                                "withdrawAccountId": 2001
+                              }
                             }
                         """
                     )

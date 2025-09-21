@@ -45,6 +45,9 @@ public class AutoTransferScheduleJpaEntity {
     @Column(name = "account_id", nullable = false)
     private Long accountId;
 
+    @Column(name = "withdraw_account_id", nullable = false)
+    private Long withdrawAccountId;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "cycle", nullable = false)
     private AutoTransferCycle cycle;
@@ -82,6 +85,7 @@ public class AutoTransferScheduleJpaEntity {
             entity.id = schedule.getId().value();
         }
         entity.accountId = schedule.getAccountId().value();
+        entity.withdrawAccountId = schedule.getWithdrawAccountId().value();
         entity.cycle = schedule.getCycle();
         entity.transferDay = schedule.getTransferDay();
         entity.amount = schedule.getAmount().amount();
@@ -102,6 +106,7 @@ public class AutoTransferScheduleJpaEntity {
         return AutoTransferSchedule.restore(
             id != null ? AutoTransferScheduleId.of(id) : null,
             AccountId.of(accountId),
+            AccountId.of(withdrawAccountId),
             cycle,
             transferDay,
             MoneyWon.of(amount),
@@ -120,6 +125,7 @@ public class AutoTransferScheduleJpaEntity {
      */
     public void updateFromDomain(AutoTransferSchedule schedule) {
         this.cycle = schedule.getCycle();
+        this.withdrawAccountId = schedule.getWithdrawAccountId().value();
         this.transferDay = schedule.getTransferDay();
         this.amount = schedule.getAmount().amount();
         this.enabled = schedule.isEnabled();

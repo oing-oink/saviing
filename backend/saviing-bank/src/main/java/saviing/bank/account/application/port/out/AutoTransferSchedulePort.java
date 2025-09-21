@@ -37,11 +37,26 @@ public interface AutoTransferSchedulePort {
     void update(AutoTransferSchedule schedule);
 
     /**
-     * 지정된 날짜까지 실행 예정인 자동이체 스케줄 목록을 조회한다.
-     * 구현체는 동시 실행을 방지하기 위해 행 잠금(PESSIMISTIC_WRITE)을 적용해야 한다.
+     * 지정된 날짜까지 실행 예정인 자동이체 스케줄 목록의 ID를 조회한다.
      *
      * @param referenceDate 기준 날짜 (해당 날짜 이전/동일한 nextRunDate 대상)
      * @return 실행 대상 자동이체 스케줄 목록
      */
-    List<AutoTransferSchedule> findDueSchedules(LocalDate referenceDate);
+    List<AutoTransferScheduleId> findDueSchedulesIds(LocalDate referenceDate);
+
+    /**
+     * 지정된 ID의 자동이체 스케줄을 조회한다.
+     * 구현체는 동시 실행을 방지하기 위해 행 잠금(PESSIMISTIC_WRITE)을 적용해야 한다.
+     *
+     * @param id 조회할 자동이체 스케줄 ID
+     * @return 자동이체 스케줄(Optional)
+     */
+    Optional<AutoTransferSchedule> findByIdForUpdate(AutoTransferScheduleId id);
+
+    /**
+     * 활성화된 자동이체 스케줄의 다음 실행일을 지정된 날짜로 일괄 리셋한다.
+     *
+     * @param nextRunDate 리셋할 실행 예정일
+     */
+    void resetAllNextRunDate(LocalDate nextRunDate);
 }

@@ -35,6 +35,7 @@ public class AutoTransferSchedule {
 
     private AutoTransferScheduleId id;
     private AccountId accountId;
+    private AccountId withdrawAccountId;
     private AutoTransferCycle cycle;
     private int transferDay;
     private MoneyWon amount;
@@ -47,6 +48,7 @@ public class AutoTransferSchedule {
     private AutoTransferSchedule(
         @NonNull AccountId accountId,
         @NonNull AutoTransferCycle cycle,
+        @NonNull AccountId withdrawAccountId,
         int transferDay,
         @NonNull MoneyWon amount,
         boolean enabled,
@@ -54,6 +56,7 @@ public class AutoTransferSchedule {
         @NonNull Instant now
     ) {
         this.accountId = accountId;
+        this.withdrawAccountId = Objects.requireNonNull(withdrawAccountId, "출금 계좌는 필수입니다");
         this.cycle = Objects.requireNonNull(cycle, "주기는 필수입니다");
         this.transferDay = validateTransferDay(cycle, transferDay);
         this.amount = validateAmount(amount);
@@ -69,6 +72,7 @@ public class AutoTransferSchedule {
      *
      * @param accountId 자동이체를 수행할 계좌 식별자
      * @param cycle 자동이체 주기
+     * @param withdrawAccountId 출금 계좌 ID
      * @param transferDay 납부 일자(주간은 1~7, 월간은 1~31)
      * @param amount 납부 금액
      * @param enabled 자동이체 활성화 여부
@@ -79,13 +83,14 @@ public class AutoTransferSchedule {
     public static AutoTransferSchedule create(
         @NonNull AccountId accountId,
         @NonNull AutoTransferCycle cycle,
+        @NonNull AccountId withdrawAccountId,
         int transferDay,
         @NonNull MoneyWon amount,
         boolean enabled,
         @NonNull LocalDate today,
         @NonNull Instant now
     ) {
-        return new AutoTransferSchedule(accountId, cycle, transferDay, amount, enabled, today, now);
+        return new AutoTransferSchedule(accountId, cycle, withdrawAccountId, transferDay, amount, enabled, today, now);
     }
 
     /**
@@ -94,6 +99,7 @@ public class AutoTransferSchedule {
      * @param id 자동이체 스케줄 식별자
      * @param accountId 계좌 식별자
      * @param cycle 자동이체 주기
+     * @param withdrawAccountId 출금 계좌 ID
      * @param transferDay 납부 일자(주간은 1~7, 월간은 1~31)
      * @param amount 납부 금액
      * @param enabled 자동이체 활성화 여부
@@ -106,6 +112,7 @@ public class AutoTransferSchedule {
     public static AutoTransferSchedule restore(
         AutoTransferScheduleId id,
         @NonNull AccountId accountId,
+        @NonNull AccountId withdrawAccountId,
         @NonNull AutoTransferCycle cycle,
         int transferDay,
         @NonNull MoneyWon amount,
@@ -118,6 +125,7 @@ public class AutoTransferSchedule {
         AutoTransferSchedule schedule = new AutoTransferSchedule();
         schedule.id = id;
         schedule.accountId = accountId;
+        schedule.withdrawAccountId = Objects.requireNonNull(withdrawAccountId, "출금 계좌는 필수입니다");
         schedule.cycle = cycle;
         schedule.transferDay = validateTransferDay(cycle, transferDay);
         schedule.amount = validateAmount(amount);
@@ -135,6 +143,7 @@ public class AutoTransferSchedule {
      * 이번 주/월에서 새 납부 일자가 이미 지난 경우 기존 nextRunDate 유지하고 다음 주/월부터 적용한다.
      *
      * @param cycle 새 자동이체 주기
+     * @param withdrawAccountId 새 출금 계좌 ID
      * @param transferDay 새 납부 일자
      * @param amount 새 납부 금액
      * @param enabled 자동이체 활성화 여부
@@ -143,6 +152,7 @@ public class AutoTransferSchedule {
      */
     public void update(
         @NonNull AutoTransferCycle cycle,
+        @NonNull AccountId withdrawAccountId,
         int transferDay,
         @NonNull MoneyWon amount,
         boolean enabled,
@@ -152,6 +162,7 @@ public class AutoTransferSchedule {
         ensureActive();
 
         this.cycle = cycle;
+        this.withdrawAccountId = Objects.requireNonNull(withdrawAccountId, "출금 계좌는 필수입니다");
         this.transferDay = validateTransferDay(cycle, transferDay);
         this.amount = validateAmount(amount);
         this.enabled = enabled;

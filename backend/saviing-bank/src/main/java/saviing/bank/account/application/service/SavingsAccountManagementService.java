@@ -91,6 +91,7 @@ public class SavingsAccountManagementService implements UpdateSavingsAccountUseC
             if (existingSchedule != null) {
                 existingSchedule.update(
                     existingSchedule.getCycle(),
+                    existingSchedule.getWithdrawAccountId(),
                     existingSchedule.getTransferDay(),
                     existingSchedule.getAmount(),
                     false,
@@ -116,10 +117,17 @@ public class SavingsAccountManagementService implements UpdateSavingsAccountUseC
                     "reason", "AUTO_TRANSFER_AMOUNT_REQUIRED"
                 )));
 
+            Long withdrawAccountId = command.withdrawAccountId() != null
+                ? command.withdrawAccountId()
+                : (existingSchedule != null ? existingSchedule.getWithdrawAccountId().value() : null);
+
+            Account withdrawAccount = resolveAutoTransferWithdrawAccount(withdrawAccountId, account);
+
             if (existingSchedule == null) {
                 AutoTransferSchedule schedule = AutoTransferSchedule.create(
                     account.getId(),
                     cycle,
+                    withdrawAccount.getId(),
                     transferDay,
                     amount,
                     true,
@@ -128,7 +136,7 @@ public class SavingsAccountManagementService implements UpdateSavingsAccountUseC
                 );
                 autoTransferSchedulePort.create(schedule);
             } else {
-                existingSchedule.update(cycle, transferDay, amount, true, today, now);
+                existingSchedule.update(cycle, withdrawAccount.getId(), transferDay, amount, true, today, now);
                 autoTransferSchedulePort.update(existingSchedule);
             }
         }
@@ -137,6 +145,44 @@ public class SavingsAccountManagementService implements UpdateSavingsAccountUseC
             .orElse(null);
 
         return GetAccountResult.from(account, product, refreshedSchedule);
+    }
+
+    private Account resolveAutoTransferWithdrawAccount(Long withdrawAccountId, Account savingsAccount) {
+        if (withdrawAccountId == null) {
+            throw new InvalidWithdrawalAccountException(Map.of(
+                "reason", "WITHDRAW_ACCOUNT_REQUIRED"
+            ));
+        }
+
+        Account withdrawAccount = loadAccountPort.findById(AccountId.of(withdrawAccountId))
+            .orElseThrow(() -> new InvalidWithdrawalAccountException(Map.of(
+                "withdrawAccountId", withdrawAccountId,
+                "reason", "NOT_FOUND"
+            )));
+
+        if (!withdrawAccount.getCustomerId().equals(savingsAccount.getCustomerId())) {
+            throw new InvalidWithdrawalAccountException(Map.of(
+                "withdrawAccountId", withdrawAccountId,
+                "reason", "DIFFERENT_CUSTOMER"
+            ));
+        }
+
+        if (withdrawAccount.getStatus() != AccountStatus.ACTIVE) {
+            throw new InvalidWithdrawalAccountException(Map.of(
+                "withdrawAccountId", withdrawAccountId,
+                "reason", "ACCOUNT_INACTIVE"
+            ));
+        }
+
+        Product withdrawProduct = productService.getProduct(withdrawAccount.getProductId());
+        if (withdrawProduct.getCategory() != ProductCategory.DEMAND_DEPOSIT) {
+            throw new InvalidWithdrawalAccountException(Map.of(
+                "withdrawAccountId", withdrawAccountId,
+                "reason", "NOT_DEMAND_DEPOSIT"
+            ));
+        }
+
+        return withdrawAccount;
     }
 
     @Override

@@ -28,7 +28,10 @@ public record UpdateAutoTransferRequest(
     Integer transferDay,
 
     @Schema(description = "자동이체 금액", example = "100000")
-    Long amount
+    Long amount,
+
+    @Schema(description = "출금 계좌 ID", example = "2001")
+    Long withdrawAccountId
 ) {
 
     /**
@@ -49,7 +52,8 @@ public record UpdateAutoTransferRequest(
                 true,
                 cycleEnum,
                 transferDay,
-                MoneyWon.of(amount)
+                MoneyWon.of(amount),
+                withdrawAccountId
             );
         }
 
@@ -58,7 +62,8 @@ public record UpdateAutoTransferRequest(
             false,
             null,
             null,
-            null
+            null,
+            withdrawAccountId
         );
     }
 }

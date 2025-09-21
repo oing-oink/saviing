@@ -3,6 +3,7 @@ package saviing.bank.account.adapter.out.persistence;
 import java.util.Optional;
 import java.util.List;
 import java.time.LocalDate;
+import java.time.Instant;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -70,10 +71,27 @@ public class AutoTransferSchedulePersistenceAdapter implements AutoTransferSched
      * {@inheritDoc}
      */
     @Override
-    public List<AutoTransferSchedule> findDueSchedules(LocalDate referenceDate) {
-        return repository.findDueSchedulesForUpdate(referenceDate)
+    public List<AutoTransferScheduleId> findDueSchedulesIds(LocalDate referenceDate) {
+        return repository.findDueScheduleIds(referenceDate)
             .stream()
-            .map(AutoTransferScheduleJpaEntity::toDomain)
+            .map(AutoTransferScheduleId::of)
             .toList();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Optional<AutoTransferSchedule> findByIdForUpdate(AutoTransferScheduleId id) {
+        return repository.findByIdForUpdate(id.value())
+            .map(AutoTransferScheduleJpaEntity::toDomain);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void resetAllNextRunDate(LocalDate nextRunDate) {
+        repository.resetAllNextRunDate(nextRunDate, Instant.now());
     }
 }

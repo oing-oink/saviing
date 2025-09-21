@@ -63,7 +63,10 @@ public record CreateAccountRequest(
 
         @Schema(description = "자동이체 금액", example = "100000")
         @Positive(message = "자동이체 금액은 양수여야 합니다")
-        Long amount
+        Long amount,
+
+        @Schema(description = "자동이체 출금 계좌 ID", example = "2001")
+        Long withdrawAccountId
     ) {}
 
     public CreateAccountCommand toCommand() {
@@ -77,7 +80,8 @@ public record CreateAccountRequest(
             autoTransfer != null ? autoTransfer.enabled() : null,
             autoTransfer != null ? autoTransfer.cycle() : null,
             autoTransfer != null ? autoTransfer.transferDay() : null,
-            autoTransfer != null ? autoTransfer.amount() : null
+            autoTransfer != null ? autoTransfer.amount() : null,
+            autoTransfer != null ? autoTransfer.withdrawAccountId() : null
         );
     }
 }

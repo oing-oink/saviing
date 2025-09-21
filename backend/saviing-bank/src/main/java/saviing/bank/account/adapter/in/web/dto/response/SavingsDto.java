@@ -46,6 +46,7 @@ public record SavingsDto(
                 .amount(savingsInfo.autoTransfer().amount())
                 .nextRunDate(savingsInfo.autoTransfer().nextRunDate())
                 .lastExecutedAt(savingsInfo.autoTransfer().lastExecutedAt())
+                .withdrawAccountId(savingsInfo.autoTransfer().withdrawAccountId())
                 .build();
         }
 
@@ -79,7 +80,10 @@ public record SavingsDto(
         LocalDate nextRunDate,
 
         @Schema(description = "마지막 실행 시각", example = "2024-01-07T09:00:00Z")
-        Instant lastExecutedAt
+        Instant lastExecutedAt,
+
+        @Schema(description = "출금 계좌 ID", example = "2001")
+        Long withdrawAccountId
     ) {
     }
 }

@@ -33,7 +33,8 @@ public record SavingsInfo(
                 schedule.getTransferDay(),
                 schedule.getAmount() != null ? schedule.getAmount().amount() : null,
                 schedule.getNextRunDate(),
-                schedule.getLastExecutedAt()
+                schedule.getLastExecutedAt(),
+                schedule.getWithdrawAccountId() != null ? schedule.getWithdrawAccountId().value() : null
             );
         }
 
@@ -64,7 +65,8 @@ public record SavingsInfo(
         Integer transferDay,
         Long amount,
         LocalDate nextRunDate,
-        Instant lastExecutedAt
+        Instant lastExecutedAt,
+        Long withdrawAccountId
     ) {
     }
 }

@@ -54,7 +54,8 @@ public sealed interface CreateAccountCommand
         Boolean autoTransferEnabled,
         String autoTransferCycle,
         Integer autoTransferDay,
-        Long autoTransferAmount
+        Long autoTransferAmount,
+        Long autoTransferWithdrawAccountId
     ) {
         // 적금 필드가 하나라도 있는지 확인
         boolean hasSavingsFields = targetAmount != null || termValue != null || termUnit != null || maturityWithdrawalAccount != null;
@@ -82,18 +83,19 @@ public sealed interface CreateAccountCommand
             if (hasAutoTransferFields) {
                 boolean enabled = Boolean.TRUE.equals(autoTransferEnabled);
                 if (enabled) {
-                    if (autoTransferCycle == null || autoTransferDay == null || autoTransferAmount == null) {
-                        throw new IllegalArgumentException("자동이체를 활성화하려면 주기, 납부일, 금액이 모두 필요합니다");
+                    if (autoTransferCycle == null || autoTransferDay == null || autoTransferAmount == null || autoTransferWithdrawAccountId == null) {
+                        throw new IllegalArgumentException("자동이체를 활성화하려면 주기, 납부일, 금액, 출금 계좌 ID가 모두 필요합니다");
                     }
                     AutoTransferCycle cycle = AutoTransferCycle.valueOf(autoTransferCycle.toUpperCase());
                     autoTransfer = new AutoTransferInitCommand(
                         true,
                         cycle,
                         autoTransferDay,
-                        MoneyWon.of(autoTransferAmount)
+                        MoneyWon.of(autoTransferAmount),
+                        autoTransferWithdrawAccountId
                     );
                 } else {
-                    autoTransfer = new AutoTransferInitCommand(false, null, null, null);
+                    autoTransfer = new AutoTransferInitCommand(false, null, null, null, null);
                 }
             }
 
