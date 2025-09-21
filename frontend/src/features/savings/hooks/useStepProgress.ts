@@ -6,7 +6,10 @@ import {
   type AccountCreationStep,
 } from '@/features/savings/constants/accountCreationSteps';
 import { ACCOUNT_TYPES } from '@/features/savings/constants/accountTypes';
-import { ACCOUNT_CREATION_STEPS_PATH, PAGE_PATH } from '@/shared/constants/path';
+import {
+  ACCOUNT_CREATION_STEPS_PATH,
+  PAGE_PATH,
+} from '@/shared/constants/path';
 
 /**
  * 계좌 생성 funnel의 단계 진행을 관리하는 커스텀 훅
@@ -45,7 +48,10 @@ export const useStepProgress = () => {
 
   // 이전/다음 스텝의 경로 계산
   const prevStep = currentIndex > 0 ? currentSteps[currentIndex - 1] : null;
-  const nextStep = currentIndex < currentSteps.length - 1 ? currentSteps[currentIndex + 1] : null;
+  const nextStep =
+    currentIndex < currentSteps.length - 1
+      ? currentSteps[currentIndex + 1]
+      : null;
   const prevPath = prevStep ? STEP_TO_PATH[prevStep] : null;
   const nextPath = nextStep ? STEP_TO_PATH[nextStep] : null;
 

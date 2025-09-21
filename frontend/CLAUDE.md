@@ -205,7 +205,7 @@ src/app/router/
 // 1. SavingsLayout Routes (Main Navigation)
 const savingsLayoutRoutes = [
   { path: '', element: <HomePage /> },        // '/' 경로
-  { path: 'wallet', element: <WalletPage /> }, // '/wallet' 경로  
+  { path: 'wallet', element: <WalletPage /> }, // '/wallet' 경로
   { path: 'products', element: <ProductsPage /> }, // '/products' 경로
 ];
 
@@ -217,12 +217,12 @@ const protectedRoutesWithoutLayout = [
   { path: PAGE_PATH.GACHA, element: <GachaPage /> },
   { path: PAGE_PATH.GACHA_ROLLING, element: <GachaRollingPage /> },
   { path: PAGE_PATH.DECO, element: <DecoPage /> },
-  
+
   // Savings Routes
   { path: PAGE_PATH.SAVINGS, element: <SavingsPage /> },
   { path: PAGE_PATH.DEPOSIT, element: <DepositPage /> },
   { path: PAGE_PATH.DEPOSIT_RESULT, element: <DepositResultPage /> },
-  
+
   // Account Creation Funnel
   { path: PAGE_PATH.ACCOUNT_CREATION, element: <AccountCreationFunnel /> },
   { path: `${PAGE_PATH.ACCOUNT_CREATION}/*`, element: <AccountCreationFunnel /> },
@@ -247,7 +247,7 @@ export const router = createBrowserRouter([
     children: [
       // Public routes (no auth required)
       ...publicRoutes,
-      
+
       // SavingsLayout routes (main navigation)
       {
         path: '/',
@@ -258,20 +258,20 @@ export const router = createBrowserRouter([
         ),
         children: savingsLayoutRoutes,
       },
-      
+
       // Detail pages with SavingsDetailLayout
       {
         path: PAGE_PATH.SAVINGS_DETAIL_WITH_ID,
         element: <SavingsDetailLayout title="적금 상세" />,
         children: [{ index: true, element: <SavingsDetailPage /> }],
       },
-      
+
       // Standalone protected routes
       ...protectedRoutesWithoutLayout.map(({ path, element }) => ({
         path,
         element: <ProtectedRoute>{element}</ProtectedRoute>,
       })),
-      
+
       // Fallback
       { path: '*', element: <NotFoundPage /> },
     ],
