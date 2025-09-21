@@ -12,7 +12,7 @@ public record CharacterDeactivatedEvent(
     CharacterId characterId,
     CustomerId customerId,
     LocalDateTime occurredOn
-) implements DomainEvent {
+) implements CharacterDomainEvent {
     
     /**
      * 캐릭터 비활성화 이벤트를 생성합니다.

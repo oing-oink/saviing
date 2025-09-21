@@ -15,7 +15,7 @@ import saviing.game.character.application.dto.command.HandleAccountTerminatedCom
 import saviing.game.character.application.dto.command.IncreaseRoomCountCommand;
 import saviing.game.character.application.dto.result.CharacterCreatedResult;
 import saviing.game.character.application.dto.result.VoidResult;
-import saviing.game.character.application.event.DomainEventPublisher;
+import saviing.common.event.DomainEventPublisher;
 import saviing.game.character.domain.exception.CharacterNotFoundException;
 import saviing.game.character.domain.exception.DuplicateActiveCharacterException;
 import saviing.game.character.domain.model.aggregate.Character;
@@ -250,7 +250,7 @@ public class CharacterCommandService {
      * @param character 캐릭터 도메인 객체
      */
     private void publishDomainEvents(Character character) {
-        domainEventPublisher.publishAll(character.getDomainEvents());
+        character.getCharacterDomainEvents().forEach(domainEventPublisher::publish);
         character.clearDomainEvents();
     }
 }

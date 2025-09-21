@@ -12,7 +12,7 @@ public record CharacterCreatedEvent(
     CharacterId characterId,
     CustomerId customerId,
     LocalDateTime occurredOn
-) implements DomainEvent {
+) implements CharacterDomainEvent {
     
     /**
      * 캐릭터 생성 이벤트를 생성합니다.

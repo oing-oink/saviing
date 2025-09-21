@@ -13,7 +13,7 @@ import saviing.game.character.domain.event.AccountConnectedEvent;
 import saviing.game.character.domain.event.AccountTerminatedEvent;
 import saviing.game.character.domain.event.CharacterCreatedEvent;
 import saviing.game.character.domain.event.CharacterDeactivatedEvent;
-import saviing.game.character.domain.event.DomainEvent;
+import saviing.game.character.domain.event.CharacterDomainEvent;
 import saviing.game.character.domain.exception.InvalidAccountConnectionException;
 import saviing.game.character.domain.exception.InvalidCharacterStateException;
 import saviing.game.character.domain.model.vo.AccountConnection;
@@ -37,7 +37,7 @@ public class Character {
     private GameStatus gameStatus;
     private CharacterLifecycle characterLifecycle;
     
-    private final List<DomainEvent> domainEvents = new ArrayList<>();
+    private final List<CharacterDomainEvent> characterDomainEvents = new ArrayList<>();
 
     /**
      * Character 생성자 (Builder 패턴 사용)
@@ -316,8 +316,8 @@ public class Character {
      * 
      * @return 도메인 이벤트 목록 (읽기 전용)
      */
-    public List<DomainEvent> getDomainEvents() {
-        return Collections.unmodifiableList(domainEvents);
+    public List<CharacterDomainEvent> getCharacterDomainEvents() {
+        return Collections.unmodifiableList(characterDomainEvents);
     }
     
     /**
@@ -325,7 +325,7 @@ public class Character {
      * 이벤트 발행 후 호출되어야 합니다.
      */
     public void clearDomainEvents() {
-        domainEvents.clear();
+        characterDomainEvents.clear();
     }
     
     /**
@@ -333,8 +333,8 @@ public class Character {
      * 
      * @param event 추가할 도메인 이벤트
      */
-    private void addDomainEvent(DomainEvent event) {
-        domainEvents.add(event);
+    private void addDomainEvent(CharacterDomainEvent event) {
+        characterDomainEvents.add(event);
     }
 
     /**
