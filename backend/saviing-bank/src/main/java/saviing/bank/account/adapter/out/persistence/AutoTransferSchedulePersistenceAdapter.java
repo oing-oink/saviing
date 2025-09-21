@@ -1,6 +1,8 @@
 package saviing.bank.account.adapter.out.persistence;
 
 import java.util.Optional;
+import java.util.List;
+import java.time.LocalDate;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -62,5 +64,16 @@ public class AutoTransferSchedulePersistenceAdapter implements AutoTransferSched
             .orElseThrow(() -> new IllegalStateException("자동이체 스케줄을 찾을 수 없습니다: " + schedule.getId().value()));
         entity.updateFromDomain(schedule);
         repository.save(entity);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<AutoTransferSchedule> findDueSchedules(LocalDate referenceDate) {
+        return repository.findDueSchedulesForUpdate(referenceDate)
+            .stream()
+            .map(AutoTransferScheduleJpaEntity::toDomain)
+            .toList();
     }
 }

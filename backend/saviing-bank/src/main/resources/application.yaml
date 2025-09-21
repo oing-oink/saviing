@@ -82,3 +82,8 @@ management:
   endpoint:
     health:
       show-details: when-authorized
+
+# Auto Transfer Scheduler
+auto-transfer:
+  scheduler:
+    cron: ${AUTO_TRANSFER_SCHEDULER_CRON:0 */1 * * * *}

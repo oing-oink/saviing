@@ -1,6 +1,8 @@
 package saviing.bank.account.application.port.out;
 
 import java.util.Optional;
+import java.util.List;
+import java.time.LocalDate;
 
 import saviing.bank.account.domain.model.AutoTransferSchedule;
 import saviing.bank.account.domain.vo.AccountId;
@@ -33,4 +35,13 @@ public interface AutoTransferSchedulePort {
      * @param schedule 갱신할 자동이체 스케줄
      */
     void update(AutoTransferSchedule schedule);
+
+    /**
+     * 지정된 날짜까지 실행 예정인 자동이체 스케줄 목록을 조회한다.
+     * 구현체는 동시 실행을 방지하기 위해 행 잠금(PESSIMISTIC_WRITE)을 적용해야 한다.
+     *
+     * @param referenceDate 기준 날짜 (해당 날짜 이전/동일한 nextRunDate 대상)
+     * @return 실행 대상 자동이체 스케줄 목록
+     */
+    List<AutoTransferSchedule> findDueSchedules(LocalDate referenceDate);
 }
