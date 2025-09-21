@@ -2,7 +2,7 @@ import { Button } from '@/shared/components/ui/button';
 import { Badge } from '@/shared/components/ui/badge';
 import { Progress } from '@/shared/components/ui/progress';
 import { useNavigate } from 'react-router-dom';
-import { PAGE_PATH } from '@/shared/constants/path';
+import { PAGE_PATH, changeSavingsSettingsPath } from '@/shared/constants/path';
 import type { SavingsDisplayData } from '@/features/savings/types/savingsTypes';
 import { Card, CardContent } from '@/shared/components/ui/card';
 
@@ -12,12 +12,14 @@ interface StickyBalanceProps {
   data: SavingsDisplayData;
   isVisible: boolean;
   scrollDirection?: ScrollDirection;
+  accountId?: string;
 }
 
 const StickyBalance = ({
   data,
   isVisible,
   scrollDirection,
+  accountId,
 }: StickyBalanceProps) => {
   const navigate = useNavigate();
 
@@ -67,7 +69,13 @@ const StickyBalance = ({
           <div className="flex justify-center gap-3 pt-3">
             <Button
               className="text-black-900 flex-1 bg-secondary"
-              onClick={() => navigate(PAGE_PATH.HOME)}
+              onClick={() => {
+                if (accountId) {
+                  navigate(changeSavingsSettingsPath(accountId));
+                } else {
+                  console.error('accountId가 없어서 설정 변경 페이지로 이동할 수 없습니다.');
+                }
+              }}
             >
               설정 변경
             </Button>

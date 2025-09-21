@@ -17,10 +17,12 @@ const SavingCard = () => {
     account => account.product.productCategory === 'DEMAND_DEPOSIT',
   );
 
-  // 저축 관리 페이지로 이동
+  // 저축 상세 페이지로 이동
   const handleSavingsManagement = () => {
     if (savingsAccount?.accountId) {
-      navigate(createSavingsDetailPath(savingsAccount.accountId));
+      navigate(createSavingsDetailPath(savingsAccount.accountId), {
+      state: { entryPoint: PAGE_PATH.HOME }, // 저축 상세 페이지에서 backButton을 통해 Home으로 돌아올 때
+    });
     }
   };
 

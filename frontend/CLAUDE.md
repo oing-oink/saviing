@@ -157,7 +157,7 @@ GitLab CI with Bun runtime:
 ## 🛠️ TypeScript 타입 컨벤션
 
 | 구분 | 권장 방식 | 금지 방식 | 예시 | 이유 |
-| --- | --- | --- | --- | --- | --- | --- |
+| --- | --- | --- | --- | --- |
 | **배열 타입** | `타입[]` | `Array<타입>` | `string[]` ✅<br>`Array<string>` ❌ | 간결하고 읽기 쉬움 |
 | **any 사용** | `unknown` 또는 구체적 타입 | `any` | `unknown` ✅<br>`any` ❌ | 타입 안전성 보장 |
 | **null 처리** | `타입 | null` | 타입 무시 | `User | null` ✅ | 명시적 null 처리 |

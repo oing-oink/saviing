@@ -7,8 +7,8 @@ import {
 import { Progress } from '@/shared/components/ui/progress';
 import { Button } from '@/shared/components/ui/button';
 import { Badge } from '@/shared/components/ui/badge';
-import { useNavigate } from 'react-router-dom';
-import { PAGE_PATH } from '@/shared/constants/path';
+import { useNavigate, useParams } from 'react-router-dom';
+import { PAGE_PATH, changeSavingsSettingsPath } from '@/shared/constants/path';
 import { formatDate } from '@/shared/utils/dateFormat';
 import type { SavingsDisplayData } from '@/features/savings/types/savingsTypes';
 
@@ -28,6 +28,7 @@ const SavingsDetailCard = ({
   isSticky = false,
 }: SavingsDetailCardProps) => {
   const navigate = useNavigate();
+  const { accountId } = useParams<{ accountId: string }>();
 
   // 달성률 계산
   const progressPercentage = savingsData
@@ -114,7 +115,13 @@ const SavingsDetailCard = ({
             <div className="flex justify-center gap-3 pt-3">
               <Button
                 className="text-black-900 flex-1 bg-secondary"
-                onClick={() => navigate(PAGE_PATH.HOME)}
+                onClick={() => {
+                  if (accountId) {
+                    navigate(changeSavingsSettingsPath(accountId));
+                  } else {
+                    console.error('accountId가 없어서 설정 변경 페이지로 이동할 수 없습니다.');
+                  }
+                }}
               >
                 설정 변경
               </Button>

@@ -22,10 +22,12 @@ const SavingsAccountWalletCard = ({
     1,
   );
 
-  // 저축 관리 페이지로 이동
+  // 저축 상세 페이지로 이동
   const handleSavingsManagement = () => {
     if (account?.accountId) {
-      navigate(createSavingsDetailPath(account.accountId));
+      navigate(createSavingsDetailPath(account.accountId), {
+      state: { entryPoint: PAGE_PATH.WALLET }, // 저축 상세 페이지에서 backButton을 통해 Wallet으로 돌아올 때
+    });
     }
   };
 

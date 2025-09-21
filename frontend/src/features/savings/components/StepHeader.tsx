@@ -1,17 +1,37 @@
 import { ChevronLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useStepProgress } from '@/features/savings/hooks/useStepProgress';
+import { useSavingsSettingsChange } from '@/features/savings/hooks/useSavingsSettingsChange';
 import { PAGE_PATH } from '@/shared/constants/path';
 
 const StepHeader = () => {
   const navigate = useNavigate();
-  const { currentStepFromUrl, goToPreviousStep } = useStepProgress();
+  const location = useLocation();
+
+  // 현재 경로에 따라 적절한 훅 선택
+  const isSavingsSettings = location.pathname.includes('/settings');
+
+  const accountCreationProgress = useStepProgress();
+  const savingsSettingsProgress = useSavingsSettingsChange();
+
+  const { currentStepFromUrl, goToPreviousStep, cancelAndGoBack } = isSavingsSettings
+    ? savingsSettingsProgress
+    : { ...accountCreationProgress, cancelAndGoBack: undefined };
 
   const handleBackClick = () => {
-    if (currentStepFromUrl === 'START') {
-      navigate(PAGE_PATH.WALLET);
+    if (isSavingsSettings) {
+      if (currentStepFromUrl === 'CURRENT_INFO') {
+        // 첫 번째 단계에서는 적금 상세 페이지로 돌아가기
+        cancelAndGoBack?.();
+      } else {
+        goToPreviousStep();
+      }
     } else {
-      goToPreviousStep();
+      if (currentStepFromUrl === 'START') {
+        navigate(PAGE_PATH.WALLET);
+      } else {
+        goToPreviousStep();
+      }
     }
   };
 
