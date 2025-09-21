@@ -73,13 +73,6 @@ public interface InventoryRepository {
 
     // === 펫 특화 메서드 ===
 
-    /**
-     * 펫 인벤토리 아이템 ID로 펫을 조회합니다.
-     *
-     * @param inventoryItemId 인벤토리 아이템 ID
-     * @return 펫 인벤토리 (Optional)
-     */
-    Optional<PetInventory> findPetById(InventoryItemId inventoryItemId);
 
     /**
      * 캐릭터의 모든 펫 인벤토리를 조회합니다.
@@ -127,13 +120,6 @@ public interface InventoryRepository {
 
     // === 데코레이션 특화 메서드 ===
 
-    /**
-     * 데코레이션 인벤토리 아이템 ID로 데코레이션을 조회합니다.
-     *
-     * @param inventoryItemId 인벤토리 아이템 ID
-     * @return 데코레이션 인벤토리 (Optional)
-     */
-    Optional<DecorationInventory> findDecorationById(InventoryItemId inventoryItemId);
 
     /**
      * 캐릭터의 모든 데코레이션 인벤토리를 조회합니다.
@@ -171,20 +157,4 @@ public interface InventoryRepository {
      */
     Optional<ConsumptionInventory> findConsumptionByCharacterIdAndItemId(CharacterId characterId, ItemId itemId);
 
-    /**
-     * 캐릭터의 모든 소모품 인벤토리를 조회합니다.
-     *
-     * @param characterId 캐릭터 ID
-     * @return 소모품 인벤토리 목록
-     */
-    List<ConsumptionInventory> findConsumptionsByCharacterId(CharacterId characterId);
-
-    /**
-     * 캐릭터의 특정 카테고리 소모품 인벤토리를 조회합니다.
-     *
-     * @param characterId 캐릭터 ID
-     * @param category 소모품 카테고리
-     * @return 소모품 인벤토리 목록
-     */
-    List<ConsumptionInventory> findConsumptionsByCharacterIdAndCategory(CharacterId characterId, Consumption category);
 }

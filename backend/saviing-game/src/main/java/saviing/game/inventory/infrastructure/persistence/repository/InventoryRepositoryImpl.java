@@ -86,11 +86,6 @@ public class InventoryRepositoryImpl implements InventoryRepository {
 
     // === 펫 특화 메서드 ===
 
-    @Override
-    public Optional<PetInventory> findPetById(InventoryItemId inventoryItemId) {
-        return petInventoryJpaRepository.findById(inventoryItemId.value())
-            .map(entity -> (PetInventory) inventoryEntityMapper.toDomain(entity));
-    }
 
     @Override
     public List<PetInventory> findPetsByCharacterId(CharacterId characterId) {
@@ -136,11 +131,6 @@ public class InventoryRepositoryImpl implements InventoryRepository {
 
     // === 데코레이션 특화 메서드 ===
 
-    @Override
-    public Optional<DecorationInventory> findDecorationById(InventoryItemId inventoryItemId) {
-        return decorationInventoryJpaRepository.findById(inventoryItemId.value())
-            .map(entity -> (DecorationInventory) inventoryEntityMapper.toDomain(entity));
-    }
 
     @Override
     public List<DecorationInventory> findDecorationsByCharacterId(CharacterId characterId) {
@@ -175,22 +165,7 @@ public class InventoryRepositoryImpl implements InventoryRepository {
             .map(entity -> (ConsumptionInventory) inventoryEntityMapper.toDomain(entity));
     }
 
-    @Override
-    public List<ConsumptionInventory> findConsumptionsByCharacterId(CharacterId characterId) {
-        return consumptionInventoryJpaRepository.findByCharacterId(characterId.value())
-            .stream()
-            .map(entity -> (ConsumptionInventory) inventoryEntityMapper.toDomain(entity))
-            .collect(Collectors.toList());
-    }
 
-    @Override
-    public List<ConsumptionInventory> findConsumptionsByCharacterIdAndCategory(CharacterId characterId, Consumption category) {
-        ConsumptionInventoryEntity.ConsumptionCategoryEntity categoryEntity = toConsumptionCategoryEntity(category);
-        return consumptionInventoryJpaRepository.findByCharacterIdAndCategory(characterId.value(), categoryEntity)
-            .stream()
-            .map(entity -> (ConsumptionInventory) inventoryEntityMapper.toDomain(entity))
-            .collect(Collectors.toList());
-    }
 
     // === 헬퍼 메서드 ===
 
