@@ -3,7 +3,10 @@ import { Progress } from '@/shared/components/ui/progress';
 import { useAccountsList } from '@/features/savings/query/useSavingsQuery';
 import saving from '@/assets/saving/saving.png';
 import freeSaving from '@/assets/saving/freeSaving.png';
-import { createSavingsDetailPath, PAGE_PATH } from '@/shared/constants/path';
+import {
+  createSavingsDetailPath,
+  createDepositPath,
+} from '@/shared/constants/path';
 
 const SavingCard = () => {
   const { data: accounts, isLoading, error } = useAccountsList();
@@ -137,7 +140,12 @@ const SavingCard = () => {
         </button>
         <button
           className="font-lg flex-1 border-l border-gray-200 py-1 text-center font-bold text-primary"
-          onClick={() => navigate(PAGE_PATH.DEPOSIT)}
+          onClick={() => {
+            if (savingsAccount?.accountId) {
+              navigate(createDepositPath(savingsAccount.accountId));
+            }
+          }}
+          disabled={!savingsAccount?.accountId}
         >
           입금
         </button>

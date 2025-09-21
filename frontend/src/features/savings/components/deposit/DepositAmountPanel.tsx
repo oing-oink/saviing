@@ -15,6 +15,8 @@ interface DepositAmountPanelProps {
   projectedProgress: number;
   remainingAfterDeposit: number;
   isSourceSelectable: boolean;
+  memo: string;
+  onMemoChange: (value: string) => void;
 }
 
 const DepositAmountPanel = ({
@@ -30,6 +32,8 @@ const DepositAmountPanel = ({
   projectedProgress,
   remainingAfterDeposit,
   isSourceSelectable,
+  memo,
+  onMemoChange,
 }: DepositAmountPanelProps) => {
   const amountInputValue = amount === 0 ? '' : formatCurrency(amount);
   const quickDisabled = !isSourceSelectable || availableBalance === 0;
@@ -89,6 +93,26 @@ const DepositAmountPanel = ({
         >
           전액 이체
         </Button>
+      </div>
+
+      {/* 메모 입력 필드 */}
+      <div>
+        <label className="mb-3 block pt-3 text-sm font-medium text-foreground">
+          받는 분에게 표시
+        </label>
+        <input
+          type="text"
+          value={memo}
+          onChange={e => onMemoChange(e.target.value)}
+          placeholder="입금 내역에 대한 메모를 입력하세요"
+          maxLength={7}
+          className="w-full rounded-[1rem] border border-border bg-card px-[1rem] py-[0.75rem] text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-[0.125rem] focus:ring-primary/30 focus:outline-none"
+        />
+        <p className="mt-2 h-4 text-xs">
+          {memo.length === 7 && (
+            <span className="text-red-500">7자까지 입력 가능해요</span>
+          )}
+        </p>
       </div>
 
       <div className="space-y-[0.75rem] rounded-[1rem] bg-muted/80 px-[1.25rem] py-[1rem] text-sm">
