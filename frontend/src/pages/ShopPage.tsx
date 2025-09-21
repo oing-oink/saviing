@@ -7,7 +7,7 @@ import type { Item, Tab, TabId } from '@/features/game/shop/types/item';
 import { useShopInventory } from '@/features/game/shop/hooks/useShopInventory';
 import { useRoomState } from '@/features/game/room/hooks/useRoomState';
 import { useDecoStore } from '@/features/game/deco/store/useDecoStore';
-import { RoomCanvas } from '@/features/game/deco/components/room_canvas';
+import { RoomCanvas } from '@/features/game/deco/components/roomCanvas';
 import { PlacementBlockedModal } from '@/features/game/deco/components/PlacementBlockedModal';
 
 const ShopPage = () => {

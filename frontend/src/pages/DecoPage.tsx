@@ -17,7 +17,7 @@ import { PAGE_PATH } from '@/shared/constants/path';
 import Toolbar from '@/features/game/deco/components/Toolbar';
 import InventoryPanel from '@/features/game/deco/components/InventoryPanel';
 import { PlacementBlockedModal } from '@/features/game/deco/components/PlacementBlockedModal';
-import { RoomCanvas } from '@/features/game/deco/components/room_canvas';
+import { RoomCanvas } from '@/features/game/deco/components/roomCanvas';
 import { useDecoInventory } from '@/features/game/deco/query/useDecoInventory';
 import { useDecoSaveMutation } from '@/features/game/deco/query/useDecoSaveMutation';
 import { useDecoStore } from '@/features/game/deco/store/useDecoStore';
