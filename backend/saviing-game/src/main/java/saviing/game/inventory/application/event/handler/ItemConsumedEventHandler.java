@@ -31,7 +31,7 @@ public class ItemConsumedEventHandler {
             event.getInventoryItemId().value(), event.getCharacterId().value(), event.getConsumedQuantity());
 
         try {
-            ConsumeInventoryItemCommand command = ConsumeInventoryItemCommand.of(
+            ConsumeInventoryItemCommand command = ConsumeInventoryItemCommand.consume(
                 event.getInventoryItemId(),
                 event.getCharacterId(),
                 event.getConsumedQuantity()

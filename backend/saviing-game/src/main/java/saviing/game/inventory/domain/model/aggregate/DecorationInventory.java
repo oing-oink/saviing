@@ -89,21 +89,15 @@ public class DecorationInventory extends Inventory {
     }
 
     /**
-     * 지정한 위치에 배치 가능한지 확인합니다.
+     * 지정한 카테고리와 동일한지 확인합니다.
      */
-    public boolean canPlaceAt(Decoration position) {
-        if (position == null) {
+    public boolean isSameCategory(Decoration decorationCategory) {
+        if (decorationCategory == null) {
             return false;
         }
-        return this.category == position;
-    }
-
-    /**
-     * 데코레이션 카테고리가 일치하는지 확인합니다.
-     */
-    public boolean isCategory(Decoration decorationCategory) {
         return this.category == decorationCategory;
     }
+
 
     public boolean isRoomColor() {
         return this.category == Decoration.ROOM_COLOR;

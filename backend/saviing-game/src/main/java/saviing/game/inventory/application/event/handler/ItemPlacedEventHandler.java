@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import saviing.game.inventory.application.dto.command.PlaceInventoryItemCommand;
+import saviing.game.inventory.application.dto.command.PlaceInventoryItemsCommand;
 import saviing.game.inventory.application.service.InventoryCommandService;
 import saviing.game.inventory.domain.event.ItemPlacedEvent;
 
@@ -31,13 +31,13 @@ public class ItemPlacedEventHandler {
             event.getInventoryItemId().value(), event.getCharacterId().value(), event.getRoomId());
 
         try {
-            PlaceInventoryItemCommand command = PlaceInventoryItemCommand.of(
+            PlaceInventoryItemsCommand command = PlaceInventoryItemsCommand.single(
                 event.getInventoryItemId(),
                 event.getCharacterId(),
                 event.getRoomId()
             );
 
-            inventoryCommandService.placeInventoryItem(command);
+            inventoryCommandService.placeInventoryItems(command);
 
             log.info("Successfully processed ItemPlacedEvent: inventoryItemId={}, roomId={}",
                 event.getInventoryItemId().value(), event.getRoomId());

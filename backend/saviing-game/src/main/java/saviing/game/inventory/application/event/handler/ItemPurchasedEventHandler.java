@@ -9,6 +9,8 @@ import saviing.game.inventory.application.service.InventoryCommandService;
 import saviing.game.inventory.domain.event.ItemPurchasedEvent;
 
 /**
+ * 사용안됨 - 직접 서비스 호출로 대체
+ *
  * 아이템 구매 이벤트 핸들러
  * Shop 도메인에서 발행하는 ItemPurchasedEvent를 동기적으로 처리합니다.
  */

@@ -11,6 +11,8 @@ import saviing.game.character.domain.model.vo.CharacterId;
 import saviing.game.item.domain.model.vo.ItemId;
 
 /**
+ * 사용안됨 - 직접 서비스 호출로 대체
+ *
  * 아이템 구매 이벤트
  * Shop 도메인에서 아이템 구매 완료 시 발행됩니다.
  */
