@@ -2,21 +2,21 @@ import { useState } from 'react';
 import type { Item } from '@/features/game/shop/types/item';
 
 export const useItemModal = () => {
-  const [selectedItem, setSelectedItem] = useState<Item | null>(null);
+  const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleItemClick = (item: Item) => {
-    setSelectedItem(item);
+    setSelectedItemId(item.itemId);
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setSelectedItem(null);
+    setSelectedItemId(null);
   };
 
   return {
-    selectedItem,
+    selectedItemId,
     isModalOpen,
     handleItemClick,
     handleCloseModal,

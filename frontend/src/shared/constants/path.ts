@@ -6,6 +6,8 @@ export const PAGE_PATH = {
   ONBOARDING: '/onboarding',
   AUTH_CALLBACK: '/auth/callback',
   SAVINGS: '/savings',
+  DEPOSIT: '/deposit',
+  DEPOSIT_RESULT: '/deposit/result',
   ACCOUNT_CREATION: '/account-creation',
   SAVINGS_DETAIL: '/savings/detail',
   SAVINGS_DETAIL_WITH_ID: '/savings/detail/:accountId',
