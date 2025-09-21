@@ -31,20 +31,6 @@ public class PetInventoryEntity extends InventoryEntity {
     @Column(name = "room_id", nullable = false)
     private Long roomId;
 
-    @Column(name = "name", length = 50)
-    private String name;
-
-    @Column(name = "level", nullable = false)
-    private Integer level;
-
-    @Column(name = "exp", nullable = false)
-    private Integer exp;
-
-    @Column(name = "affection", nullable = false)
-    private Integer affection;
-
-    @Column(name = "energy", nullable = false)
-    private Integer energy;
 
     @Builder
     public PetInventoryEntity(
@@ -55,21 +41,11 @@ public class PetInventoryEntity extends InventoryEntity {
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
         PetCategoryEntity category,
-        Long roomId,
-        String name,
-        Integer level,
-        Integer exp,
-        Integer affection,
-        Integer energy
+        Long roomId
     ) {
         super(inventoryItemId, characterId, itemId, InventoryTypeEntity.PET, isUsed, createdAt, updatedAt);
         this.category = category;
         this.roomId = roomId;
-        this.name = name;
-        this.level = level != null ? level : 1;
-        this.exp = exp != null ? exp : 0;
-        this.affection = affection != null ? affection : 50;
-        this.energy = energy != null ? energy : 100;
     }
 
     /**
@@ -77,52 +53,10 @@ public class PetInventoryEntity extends InventoryEntity {
      *
      * @param category 펫 카테고리
      * @param roomId 방 ID
-     * @param name 펫 이름
-     * @param level 레벨
-     * @param exp 경험치
-     * @param affection 애정도
-     * @param energy 에너지
      */
-    public void updatePetInfo(
-        PetCategoryEntity category,
-        Long roomId,
-        String name,
-        Integer level,
-        Integer exp,
-        Integer affection,
-        Integer energy
-    ) {
+    public void updatePetInfo(PetCategoryEntity category, Long roomId) {
         this.category = category;
         this.roomId = roomId;
-        this.name = name;
-        this.level = level;
-        this.exp = exp;
-        this.affection = affection;
-        this.energy = energy;
-    }
-
-    /**
-     * 펫 스탯을 업데이트합니다.
-     *
-     * @param level 레벨
-     * @param exp 경험치
-     * @param affection 애정도
-     * @param energy 에너지
-     */
-    public void updatePetStats(Integer level, Integer exp, Integer affection, Integer energy) {
-        this.level = level;
-        this.exp = exp;
-        this.affection = affection;
-        this.energy = energy;
-    }
-
-    /**
-     * 펫 이름을 변경합니다.
-     *
-     * @param name 새로운 펫 이름
-     */
-    public void changeName(String name) {
-        this.name = name;
     }
 
     /**

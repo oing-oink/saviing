@@ -1,8 +1,5 @@
 package saviing.game.inventory.infrastructure.persistence.mapper;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import saviing.game.character.domain.model.vo.CharacterId;
 import saviing.game.inventory.domain.model.aggregate.AccessoryInventory;
 import saviing.game.inventory.domain.model.aggregate.ConsumptionInventory;
@@ -84,11 +81,6 @@ public class InventoryEntityMapper {
             .updatedAt(petInventory.getUpdatedAt())
             .category(toPetCategoryEntity(petInventory.getCategory()))
             .roomId(petInventory.getRoomId())
-            .name(null) // Pet 이름은 Pet 도메인에서 관리
-            .level(null) // Pet 레벨은 Pet 도메인에서 관리
-            .exp(null) // Pet 경험치는 Pet 도메인에서 관리
-            .affection(null) // Pet 애정도는 Pet 도메인에서 관리
-            .energy(null) // Pet 에너지는 Pet 도메인에서 관리
             .build();
     }
 
