@@ -26,12 +26,15 @@ import saviing.bank.account.application.port.in.CloseSavingsAccountUseCase;
 import saviing.bank.account.application.port.in.GetAccountsByCustomerIdUseCase;
 import saviing.bank.account.application.port.in.GetAccountUseCase;
 import saviing.bank.account.application.port.in.UpdateSavingsAccountUseCase;
+import saviing.bank.account.application.port.in.UpdateAutoTransferScheduleUseCase;
 import saviing.bank.account.application.port.in.result.CreateAccountResult;
 import saviing.bank.account.application.port.in.result.GetAccountResult;
 import saviing.bank.account.application.port.in.command.CloseSavingsAccountCommand;
+import saviing.bank.account.application.port.in.command.UpdateAutoTransferScheduleCommand;
 import saviing.bank.account.exception.InvalidAccountStateException;
 import saviing.common.response.ApiResult;
 import saviing.common.annotation.ExecutionTime;
+import saviing.bank.account.adapter.in.web.dto.request.UpdateAutoTransferRequest;
 
 @ExecutionTime
 @RestController
@@ -44,6 +47,7 @@ public class AccountController implements AccountApi {
     private final GetAccountUseCase getAccountUseCase;
     private final UpdateSavingsAccountUseCase updateSavingsAccountUseCase;
     private final CloseSavingsAccountUseCase closeSavingsAccountUseCase;
+    private final UpdateAutoTransferScheduleUseCase updateAutoTransferScheduleUseCase;
     
     @PostMapping
     public ApiResult<CreateAccountResponse> createAccount(@Valid @RequestBody CreateAccountRequest request) {
@@ -51,6 +55,18 @@ public class AccountController implements AccountApi {
         CreateAccountResponse response = CreateAccountResponse.from(result);
         
         return ApiResult.of(HttpStatus.CREATED, response);
+    }
+
+    @PatchMapping("/id/{accountId}/savings/auto-transfer")
+    public ApiResult<GetAccountResponse> updateAutoTransfer(
+        @PathVariable Long accountId,
+        @Valid @RequestBody UpdateAutoTransferRequest request
+    ) {
+        UpdateAutoTransferScheduleCommand command = request.toCommand(accountId);
+        GetAccountResult result = updateAutoTransferScheduleUseCase.updateAutoTransferSchedule(command);
+        GetAccountResponse response = GetAccountResponse.from(result);
+
+        return ApiResult.of(HttpStatus.OK, response);
     }
 
     @GetMapping

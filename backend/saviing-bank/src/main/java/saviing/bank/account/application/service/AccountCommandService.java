@@ -104,8 +104,8 @@ public class AccountCommandService implements CreateAccountUseCase {
         setDefaultInterestRate(account, product);
 
         Account savedAccount = saveAccountPort.save(account);
-        initializeAutoTransferSchedule(command, savedAccount);
-        return CreateAccountResult.from(savedAccount, product);
+        AutoTransferSchedule schedule = initializeAutoTransferSchedule(command, savedAccount);
+        return CreateAccountResult.from(savedAccount, product, schedule);
     }
 
     private void setDefaultInterestRate(Account account, Product product) {
@@ -205,9 +205,9 @@ public class AccountCommandService implements CreateAccountUseCase {
      * @param command 적금 계좌 생성 명령
      * @param savedAccount 자동이체를 연결할 저장된 계좌
      */
-    private void initializeAutoTransferSchedule(CreateSavingsCommand command, Account savedAccount) {
+    private AutoTransferSchedule initializeAutoTransferSchedule(CreateSavingsCommand command, Account savedAccount) {
         if (command.autoTransfer() == null || !command.autoTransfer().enabled()) {
-            return;
+            return null;
         }
 
         AutoTransferSchedule schedule = AutoTransferSchedule.create(
@@ -220,5 +220,6 @@ public class AccountCommandService implements CreateAccountUseCase {
             Instant.now()
         );
         autoTransferSchedulePort.create(schedule);
+        return schedule;
     }
 }

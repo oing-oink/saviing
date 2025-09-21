@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.NonNull;
 
 import saviing.bank.account.domain.model.Account;
+import saviing.bank.account.domain.model.AutoTransferSchedule;
 import saviing.bank.account.domain.model.Product;
 
 @Builder
@@ -31,6 +32,10 @@ public record GetAccountResult(
 ) {
 
     public static GetAccountResult from(@NonNull Account account, @NonNull Product product) {
+        return from(account, product, null);
+    }
+
+    public static GetAccountResult from(@NonNull Account account, @NonNull Product product, AutoTransferSchedule schedule) {
         return GetAccountResult.builder()
             .accountId(account.getId().value())
             .accountNumber(account.getAccountNumber().value())
@@ -48,7 +53,7 @@ public record GetAccountResult(
             .baseRate(account.getBaseRate().value())
             .bonusRate(account.getBonusRate().value())
             .product(ProductInfo.from(product))
-            .savings(SavingsInfo.from(account))
+            .savings(SavingsInfo.from(account, schedule))
             .build();
     }
 }

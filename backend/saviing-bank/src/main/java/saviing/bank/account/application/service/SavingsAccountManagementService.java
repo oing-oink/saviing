@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import saviing.bank.account.application.port.in.CloseSavingsAccountUseCase;
 import saviing.bank.account.application.port.in.UpdateSavingsAccountUseCase;
+import saviing.bank.account.application.port.in.UpdateAutoTransferScheduleUseCase;
 import saviing.bank.account.application.port.in.command.CloseSavingsAccountCommand;
 import saviing.bank.account.application.port.in.command.UpdateSavingsAccountCommand;
 import saviing.bank.account.application.port.in.result.GetAccountResult;
@@ -27,6 +28,11 @@ import saviing.bank.account.exception.InvalidProductTypeException;
 import saviing.bank.account.exception.InvalidTargetAmountException;
 import saviing.bank.account.exception.InvalidWithdrawalAccountException;
 import saviing.bank.common.vo.MoneyWon;
+import saviing.bank.account.application.port.in.command.UpdateAutoTransferScheduleCommand;
+import saviing.bank.account.domain.model.AutoTransferSchedule;
+import saviing.bank.account.domain.model.AutoTransferCycle;
+import saviing.bank.account.application.port.out.AutoTransferSchedulePort;
+import java.time.LocalDate;
 import saviing.common.annotation.ExecutionTime;
 
 /**
@@ -36,11 +42,12 @@ import saviing.common.annotation.ExecutionTime;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class SavingsAccountManagementService implements UpdateSavingsAccountUseCase, CloseSavingsAccountUseCase {
+public class SavingsAccountManagementService implements UpdateSavingsAccountUseCase, CloseSavingsAccountUseCase, UpdateAutoTransferScheduleUseCase {
 
     private final LoadAccountPort loadAccountPort;
     private final SaveAccountPort saveAccountPort;
     private final ProductService productService;
+    private final AutoTransferSchedulePort autoTransferSchedulePort;
 
     @Override
     public GetAccountResult updateSavingsAccount(UpdateSavingsAccountCommand command) {
@@ -59,6 +66,77 @@ public class SavingsAccountManagementService implements UpdateSavingsAccountUseC
 
         Account saved = saveAccountPort.save(account);
         return GetAccountResult.from(saved, product);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public GetAccountResult updateAutoTransferSchedule(UpdateAutoTransferScheduleCommand command) {
+        Long accountId = Optional.ofNullable(command.accountId())
+            .orElseThrow(() -> new InvalidAccountStateException(Map.of("reason", "ACCOUNT_ID_REQUIRED")));
+
+        Account account = loadAccountPort.findById(AccountId.of(accountId))
+            .orElseThrow(() -> new AccountNotFoundException(Map.of("accountId", accountId)));
+
+        Product product = validateSavingsAccount(account);
+
+        AutoTransferSchedule existingSchedule = autoTransferSchedulePort.findByAccountId(account.getId())
+            .orElse(null);
+
+        LocalDate today = LocalDate.now();
+        Instant now = Instant.now();
+
+        if (!command.enabled()) {
+            if (existingSchedule != null) {
+                existingSchedule.update(
+                    existingSchedule.getCycle(),
+                    existingSchedule.getTransferDay(),
+                    existingSchedule.getAmount(),
+                    false,
+                    today,
+                    now
+                );
+                autoTransferSchedulePort.update(existingSchedule);
+            }
+        } else {
+            AutoTransferCycle cycle = Optional.ofNullable(command.cycle())
+                .orElseThrow(() -> new InvalidAccountStateException(Map.of(
+                    "accountId", accountId,
+                    "reason", "AUTO_TRANSFER_CYCLE_REQUIRED"
+                )));
+            Integer transferDay = Optional.ofNullable(command.transferDay())
+                .orElseThrow(() -> new InvalidAccountStateException(Map.of(
+                    "accountId", accountId,
+                    "reason", "AUTO_TRANSFER_DAY_REQUIRED"
+                )));
+            MoneyWon amount = Optional.ofNullable(command.amount())
+                .orElseThrow(() -> new InvalidAccountStateException(Map.of(
+                    "accountId", accountId,
+                    "reason", "AUTO_TRANSFER_AMOUNT_REQUIRED"
+                )));
+
+            if (existingSchedule == null) {
+                AutoTransferSchedule schedule = AutoTransferSchedule.create(
+                    account.getId(),
+                    cycle,
+                    transferDay,
+                    amount,
+                    true,
+                    today,
+                    now
+                );
+                autoTransferSchedulePort.create(schedule);
+            } else {
+                existingSchedule.update(cycle, transferDay, amount, true, today, now);
+                autoTransferSchedulePort.update(existingSchedule);
+            }
+        }
+
+        AutoTransferSchedule refreshedSchedule = autoTransferSchedulePort.findByAccountId(account.getId())
+            .orElse(null);
+
+        return GetAccountResult.from(account, product, refreshedSchedule);
     }
 
     @Override

@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 import saviing.bank.account.domain.model.Account;
+import saviing.bank.account.domain.model.AutoTransferSchedule;
 import saviing.bank.account.domain.model.Product;
 
 @Builder
@@ -31,6 +32,10 @@ public record CreateAccountResult(
 ) {
     
     public static CreateAccountResult from(Account account, Product product) {
+        return from(account, product, null);
+    }
+
+    public static CreateAccountResult from(Account account, Product product, AutoTransferSchedule schedule) {
         return CreateAccountResult.builder()
             .accountId(account.getId() != null ? account.getId().value() : null)
             .accountNumber(account.getAccountNumber().value())
@@ -49,7 +54,7 @@ public record CreateAccountResult(
             .bonusRatePercent(account.getBonusRate().toPercent())
             .totalRatePercent(account.getTotalRate().toPercent())
             .productInfo(ProductInfo.from(product))
-            .savingsInfo(SavingsInfo.from(account))
+            .savingsInfo(SavingsInfo.from(account, schedule))
             .build();
     }
 }
