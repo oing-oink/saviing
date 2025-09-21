@@ -7,6 +7,7 @@ import type {
 export const SOURCE_ACCOUNTS: SourceAccount[] = [
   {
     id: 'kb-main',
+    accountId: 1001,
     bankName: '국민은행',
     productName: 'KB국민 한마음 통장',
     maskedNumber: '123-45-****-6789',
@@ -15,6 +16,7 @@ export const SOURCE_ACCOUNTS: SourceAccount[] = [
   },
   {
     id: 'nh-spare',
+    accountId: 1002,
     bankName: '농협은행',
     productName: 'NH주거래 우대 통장',
     maskedNumber: '302-12-****-4411',
@@ -25,6 +27,7 @@ export const SOURCE_ACCOUNTS: SourceAccount[] = [
 
 export const SAVING_ACCOUNT: SavingAccount = {
   id: 'saving-flex',
+  accountId: 2001,
   name: '자유적금',
   bankName: '우리은행',
   maskedNumber: '1002-****-9920',
