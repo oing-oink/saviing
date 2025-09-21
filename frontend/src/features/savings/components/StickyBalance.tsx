@@ -1,7 +1,7 @@
 import { Button } from '@/shared/components/ui/button';
 import { Badge } from '@/shared/components/ui/badge';
 import { Progress } from '@/shared/components/ui/progress';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { PAGE_PATH, changeSavingsSettingsPath } from '@/shared/constants/path';
 import type { SavingsDisplayData } from '@/features/savings/types/savingsTypes';
 import { Card, CardContent } from '@/shared/components/ui/card';
@@ -22,6 +22,10 @@ const StickyBalance = ({
   accountId,
 }: StickyBalanceProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // 현재 페이지의 entryPoint를 가져옴
+  const entryPoint = location.state?.entryPoint ?? PAGE_PATH.HOME;
 
   // 달성률 계산
   const progressPercentage = Math.round(
@@ -71,7 +75,9 @@ const StickyBalance = ({
               className="text-black-900 flex-1 bg-secondary"
               onClick={() => {
                 if (accountId) {
-                  navigate(changeSavingsSettingsPath(accountId));
+                  navigate(changeSavingsSettingsPath(accountId), {
+                    state: { entryPoint }
+                  });
                 } else {
                   console.error('accountId가 없어서 설정 변경 페이지로 이동할 수 없습니다.');
                 }

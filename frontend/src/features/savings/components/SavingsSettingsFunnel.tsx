@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useSearchParams, useNavigate, useParams } from 'react-router-dom';
+import { useSearchParams, useNavigate, useParams, useLocation } from 'react-router-dom';
 import {
   CurrentInfoStep,
   SelectChangeStep,
@@ -17,9 +17,13 @@ import { PAGE_PATH } from '@/shared/constants/path';
 const SavingsSettingsFunnel = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { accountId } = useParams<{ accountId: string }>();
   const { setCurrentAccount } = useSavingsStore();
   const { step, setStep, reset } = useSavingsSettingsStore();
+
+  // 설정 변경 페이지로 진입할 때 전달된 entryPoint를 가져옴
+  const entryPoint = location.state?.entryPoint;
 
   // 현재 스텝을 URL 파라미터에서 가져오기
   const currentStep = searchParams.get('step') || 'CURRENT_INFO';
@@ -43,6 +47,7 @@ const SavingsSettingsFunnel = () => {
       params.set('step', 'CURRENT_INFO');
       navigate(`${PAGE_PATH.SAVINGS_SETTINGS_WITH_ID.replace(':accountId', accountId)}?${params.toString()}`, {
         replace: true,
+        state: { entryPoint }
       });
       return;
     }
@@ -57,6 +62,7 @@ const SavingsSettingsFunnel = () => {
       params.set('step', 'CURRENT_INFO');
       navigate(`${PAGE_PATH.SAVINGS_SETTINGS_WITH_ID.replace(':accountId', accountId)}?${params.toString()}`, {
         replace: true,
+        state: { entryPoint }
       });
     }
   }, [searchParams, navigate, accountId, setCurrentAccount, setStep]);

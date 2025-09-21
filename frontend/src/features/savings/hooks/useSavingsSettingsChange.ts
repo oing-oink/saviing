@@ -1,4 +1,4 @@
-import { useNavigate, useSearchParams, useParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useParams, useLocation } from 'react-router-dom';
 import { useSavingsSettingsStore, type SavingsSettingsStep } from '@/features/savings/store/useSavingsSettingsStore';
 import { PAGE_PATH } from '@/shared/constants/path';
 
@@ -20,9 +20,13 @@ const SAVINGS_SETTINGS_STEPS: SavingsSettingsStep[] = [
  */
 export const useSavingsSettingsChange = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const { accountId } = useParams<{ accountId: string }>();
   const { setStep } = useSavingsSettingsStore();
+
+  // 설정 변경 페이지로 진입할 때 전달된 entryPoint를 가져옴
+  const entryPoint = location.state?.entryPoint ?? PAGE_PATH.HOME;
 
   // 현재 URL 파라미터에서 step 결정
   const currentStepFromUrl =
@@ -42,7 +46,9 @@ export const useSavingsSettingsChange = () => {
         const params = new URLSearchParams();
         params.set('step', prevStep);
         setStep(prevStep);
-        navigate(`${PAGE_PATH.SAVINGS_SETTINGS_WITH_ID.replace(':accountId', accountId)}?${params.toString()}`);
+        navigate(`${PAGE_PATH.SAVINGS_SETTINGS_WITH_ID.replace(':accountId', accountId)}?${params.toString()}`, {
+          state: { entryPoint }
+        });
       }
     }
   };
@@ -57,7 +63,9 @@ export const useSavingsSettingsChange = () => {
         const params = new URLSearchParams();
         params.set('step', nextStep);
         setStep(nextStep);
-        navigate(`${PAGE_PATH.SAVINGS_SETTINGS_WITH_ID.replace(':accountId', accountId)}?${params.toString()}`);
+        navigate(`${PAGE_PATH.SAVINGS_SETTINGS_WITH_ID.replace(':accountId', accountId)}?${params.toString()}`, {
+          state: { entryPoint }
+        });
       }
     }
   };
@@ -70,7 +78,9 @@ export const useSavingsSettingsChange = () => {
       const params = new URLSearchParams();
       params.set('step', targetStep);
       setStep(targetStep);
-      navigate(`${PAGE_PATH.SAVINGS_SETTINGS_WITH_ID.replace(':accountId', accountId)}?${params.toString()}`);
+      navigate(`${PAGE_PATH.SAVINGS_SETTINGS_WITH_ID.replace(':accountId', accountId)}?${params.toString()}`, {
+        state: { entryPoint }
+      });
     }
   };
 
@@ -79,7 +89,10 @@ export const useSavingsSettingsChange = () => {
    */
   const cancelAndGoBack = () => {
     if (accountId) {
-      navigate(`/savings/detail/${accountId}`, { replace: true });
+      navigate(`/savings/detail/${accountId}`, {
+        replace: true,
+        state: { entryPoint }
+      });
     }
   };
 
