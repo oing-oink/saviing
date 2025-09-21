@@ -6,9 +6,9 @@ import { useTabs } from '@/features/game/shop/hooks/useTabs';
 import type { Item, Tab, TabId } from '@/features/game/shop/types/item';
 import { useShopInventory } from '@/features/game/shop/hooks/useShopInventory';
 import { useRoomState } from '@/features/game/room/hooks/useRoomState';
-import { useDecoStore } from '@/features/deco/state/deco.store';
-import { RoomCanvas } from '@/features/deco/components/RoomCanvas';
-import { PlacementBlockedModal } from '@/features/deco/components/PlacementBlockedModal';
+import { useDecoStore } from '@/features/game/deco/store/useDecoStore';
+import { RoomCanvas } from '@/features/game/deco/components/room_canvas';
+import { PlacementBlockedModal } from '@/features/game/deco/components/PlacementBlockedModal';
 
 const ShopPage = () => {
   const { activeTab, setActiveTab } = useTabs();
@@ -18,9 +18,11 @@ const ShopPage = () => {
   const { items, isLoading, isError, error } = useShopInventory(activeTab);
   useRoomState();
 
-  const startDragFromInventory = useDecoStore((state) => state.startDragFromInventory);
-  const cancelDrag = useDecoStore((state) => state.cancelDrag);
-  const draftItems = useDecoStore((state) => state.draftItems);
+  const startDragFromInventory = useDecoStore(
+    state => state.startDragFromInventory,
+  );
+  const cancelDrag = useDecoStore(state => state.cancelDrag);
+  const draftItems = useDecoStore(state => state.draftItems);
 
   const mapCategoryToGridType = (category: string): TabId | null => {
     switch (category) {
@@ -57,8 +59,12 @@ const ShopPage = () => {
 
     if (item.itemType === 'PET') {
       // PET은 최대 두 마리까지만 배치 가능하므로 초과 시 미리보기 시작을 막는다.
-      const petCount = draftItems.filter((draft) => draft.itemType === 'PET').length;
-      const alreadyPlacedPet = draftItems.some((draft) => draft.itemType === 'PET' && draft.itemId === item.itemId);
+      const petCount = draftItems.filter(
+        draft => draft.itemType === 'PET',
+      ).length;
+      const alreadyPlacedPet = draftItems.some(
+        draft => draft.itemType === 'PET' && draft.itemId === item.itemId,
+      );
       if (petCount >= 2 && !alreadyPlacedPet) {
         setIsPlacementBlockedOpen(true);
         return;
@@ -94,7 +100,7 @@ const ShopPage = () => {
   };
 
   return (
-    <div className="game relative min-h-screen w-full bg-store-bg overflow-hidden font-galmuri">
+    <div className="game relative min-h-screen w-full overflow-hidden bg-store-bg font-galmuri">
       <div className="relative z-10">
         <InventoryHud />
       </div>
@@ -104,7 +110,7 @@ const ShopPage = () => {
           <Room
             mode="preview"
             gridType={gridType}
-            previewOverlay={(ctx) => (
+            previewOverlay={ctx => (
               <RoomCanvas
                 context={ctx}
                 onAutoPlacementFail={handlePlacementBlocked}
@@ -129,7 +135,9 @@ const ShopPage = () => {
           isError={isError}
           error={error ?? undefined}
           emptyMessage={
-            isError ? '아이템을 불러오지 못했습니다.' : '표시할 아이템이 없습니다.'
+            isError
+              ? '아이템을 불러오지 못했습니다.'
+              : '표시할 아이템이 없습니다.'
           }
         />
       </div>

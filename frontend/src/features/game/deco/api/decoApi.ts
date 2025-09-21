@@ -43,15 +43,22 @@ export interface SaveDecoResponse {
 }
 
 export const getDecoInventory = async (): Promise<DecoInventoryResponse> => {
-  const response = await http.get<DecoInventoryResponse>('/v1/game/deco/inventory');
+  const response = await http.get<DecoInventoryResponse>(
+    '/v1/game/deco/inventory',
+  );
   if (!response.body) {
     throw new Error('인벤토리 정보를 불러오지 못했습니다.');
   }
   return response.body;
 };
 
-export const saveDecoRoom = async (payload: SaveDecoRequest): Promise<SaveDecoResponse> => {
-  const response = await http.patch<SaveDecoResponse>('/v1/game/room/deco', payload);
+export const saveDecoRoom = async (
+  payload: SaveDecoRequest,
+): Promise<SaveDecoResponse> => {
+  const response = await http.patch<SaveDecoResponse>(
+    '/v1/game/room/deco',
+    payload,
+  );
   if (!response.body) {
     throw new Error('방 저장에 실패했습니다.');
   }

@@ -1,8 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { GridCell } from '@/features/game/room/hooks/useGrid';
-import { buildFootprint, findNearestCell, getCellBounds } from '@/features/deco/utils/grid';
-import { useDecoStore } from '@/features/deco/state/deco.store';
-import { useOccupancyMap } from '@/features/deco/hooks/useOccupancyMap';
+import {
+  buildFootprint,
+  findNearestCell,
+  getCellBounds,
+} from '@/features/game/deco/utils/grid';
+import { useDecoStore } from '@/features/game/deco/store/useDecoStore';
+import { useOccupancyMap } from '@/features/game/deco/hooks/useOccupancyMap';
 
 interface UsePlacementControllerOptions {
   gridCells: GridCell[];
@@ -19,10 +23,10 @@ export const usePlacementController = ({
   gridCells,
   onAutoPlacementFail,
 }: UsePlacementControllerOptions) => {
-  const dragSession = useDecoStore((state) => state.dragSession);
-  const draftItems = useDecoStore((state) => state.draftItems);
-  const stagePlacementToStore = useDecoStore((state) => state.stagePlacement);
-  const updateHoverCell = useDecoStore((state) => state.updateHoverCell);
+  const dragSession = useDecoStore(state => state.dragSession);
+  const draftItems = useDecoStore(state => state.draftItems);
+  const stagePlacementToStore = useDecoStore(state => state.stagePlacement);
+  const updateHoverCell = useDecoStore(state => state.updateHoverCell);
 
   const [ghost, setGhost] = useState<PlacementState>({
     ghostCellId: null,
@@ -46,7 +50,7 @@ export const usePlacementController = ({
   }, [dragSession?.itemId, dragSession?.originPlacedId]);
 
   const gridCellIdSet = useMemo(
-    () => new Set(gridCells.map((cell) => cell.id)),
+    () => new Set(gridCells.map(cell => cell.id)),
     [gridCells],
   );
 
@@ -63,8 +67,11 @@ export const usePlacementController = ({
       return;
     }
 
-    const candidate = gridCells.find((cell) => {
-      if (dragSession.allowedGridType && cell.gridType !== dragSession.allowedGridType) {
+    const candidate = gridCells.find(cell => {
+      if (
+        dragSession.allowedGridType &&
+        cell.gridType !== dragSession.allowedGridType
+      ) {
         return false;
       }
       const footprint = buildFootprint(
@@ -74,12 +81,12 @@ export const usePlacementController = ({
       );
       const footprintWithinGrid =
         footprint.length === dragSession.xLength * dragSession.yLength &&
-        footprint.every((id) => gridCellIdSet.has(id));
+        footprint.every(id => gridCellIdSet.has(id));
       if (!footprintWithinGrid) {
         return false;
       }
 
-      return footprint.every((id) => !occupiedCellIds.has(id));
+      return footprint.every(id => !occupiedCellIds.has(id));
     });
 
     if (!candidate) {
@@ -138,13 +145,20 @@ export const usePlacementController = ({
       );
       const footprintWithinGrid =
         footprint.length === dragSession.xLength * dragSession.yLength &&
-        footprint.every((id) => gridCellIdSet.has(id));
+        footprint.every(id => gridCellIdSet.has(id));
       const matchesGridRule =
-        !dragSession.allowedGridType || dragSession.allowedGridType === nearest.gridType;
-      const cellsAreFree = footprint.every((id) => !occupiedCellIds.has(id));
-      const isValidPlacement = Boolean(footprintWithinGrid && matchesGridRule && cellsAreFree);
+        !dragSession.allowedGridType ||
+        dragSession.allowedGridType === nearest.gridType;
+      const cellsAreFree = footprint.every(id => !occupiedCellIds.has(id));
+      const isValidPlacement = Boolean(
+        footprintWithinGrid && matchesGridRule && cellsAreFree,
+      );
 
-      setGhost({ ghostCellId: nextGhostId, footprintCellIds: footprint, isValid: isValidPlacement });
+      setGhost({
+        ghostCellId: nextGhostId,
+        footprintCellIds: footprint,
+        isValid: isValidPlacement,
+      });
       updateHoverCell(nextGhostId);
     },
     [
@@ -162,7 +176,10 @@ export const usePlacementController = ({
       return false;
     }
 
-    const staged = stagePlacementToStore(ghost.ghostCellId, ghost.footprintCellIds);
+    const staged = stagePlacementToStore(
+      ghost.ghostCellId,
+      ghost.footprintCellIds,
+    );
     if (!staged) {
       setGhost({ ghostCellId: null, footprintCellIds: [], isValid: false });
     }

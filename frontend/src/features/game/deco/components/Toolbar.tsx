@@ -5,13 +5,18 @@ interface ToolbarProps {
   isDirty?: boolean;
 }
 
-const Toolbar = ({ onSaveClick, onCancelClick, isSaving = false, isDirty = false }: ToolbarProps) => {
+const Toolbar = ({
+  onSaveClick,
+  onCancelClick,
+  isSaving = false,
+  isDirty = false,
+}: ToolbarProps) => {
   return (
-    <div className="flex w-full justify-end gap-2 px-4 py-2 z-10">
+    <div className="z-10 flex w-full justify-end gap-2 px-4 py-2">
       <button
         type="button"
         onClick={onCancelClick}
-        className="rounded-md bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 shadow focus:outline-none focus:ring-2 focus:ring-primary"
+        className="rounded-md bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 shadow focus:ring-2 focus:ring-primary focus:outline-none"
         disabled={!isDirty || isSaving}
       >
         취소
@@ -19,7 +24,7 @@ const Toolbar = ({ onSaveClick, onCancelClick, isSaving = false, isDirty = false
       <button
         type="button"
         onClick={onSaveClick}
-        className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white shadow focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-60"
+        className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white shadow focus:ring-2 focus:ring-primary focus:outline-none disabled:opacity-60"
         disabled={!isDirty || isSaving}
       >
         {isSaving ? '저장 중...' : '저장'}

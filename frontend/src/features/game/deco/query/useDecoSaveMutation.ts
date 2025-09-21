@@ -1,12 +1,12 @@
 import { useMutation } from '@tanstack/react-query';
-import { saveDecoRoom } from '@/features/deco/api/decoApi';
-import { decoStore } from '@/features/deco/state/deco.store';
+import { saveDecoRoom } from '@/features/game/deco/api/decoApi';
+import { decoStore } from '@/features/game/deco/store/useDecoStore';
 import type { GridType } from '@/features/game/room/hooks/useGrid';
 
 const toRequestPayload = () => {
   const { draftItems } = decoStore.getState();
   return {
-    placedItems: draftItems.map((item) => ({
+    placedItems: draftItems.map(item => ({
       inventoryItemId: item.inventoryItemId,
       itemId: item.itemId,
       positionX: item.positionX,

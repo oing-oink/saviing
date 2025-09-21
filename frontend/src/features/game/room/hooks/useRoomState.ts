@@ -2,13 +2,15 @@ import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getRoomDetail } from '@/features/game/room/api/roomApi';
 import type { GridType } from '@/features/game/room/hooks/useGrid';
-import type { PlacedItem } from '@/features/deco/types/deco.types';
-import { useDecoStore } from '@/features/deco/state/deco.store';
-import { buildFootprint } from '@/features/deco/utils/grid';
+import type { PlacedItem } from '@/features/game/deco/types/decoTypes';
+import { useDecoStore } from '@/features/game/deco/store/useDecoStore';
+import { buildFootprint } from '@/features/game/deco/utils/grid';
 import { getItemImage } from '@/features/game/shop/utils/getItemImage';
 
 // API의 카테고리 값을 Room에서 사용하는 GridType으로 매핑한다.
-const mapCategoryToGridType = (category?: string | null): GridType | undefined => {
+const mapCategoryToGridType = (
+  category?: string | null,
+): GridType | undefined => {
   switch (category) {
     case 'LEFT':
       return 'leftWall';
@@ -37,16 +39,25 @@ const mapPlacedItem = (item: {
     image?: string;
   };
 }): PlacedItem => {
-  const gridType = (item.layer as GridType | undefined) ?? mapCategoryToGridType(item.itemInfo.category);
+  const gridType =
+    (item.layer as GridType | undefined) ??
+    mapCategoryToGridType(item.itemInfo.category);
   const cellId = gridType
     ? `${gridType}-${item.positionX}-${item.positionY}`
     : `floor-${item.positionX}-${item.positionY}`;
 
-  const footprint = buildFootprint(cellId, item.xLength ?? 1, item.yLength ?? 1);
+  const footprint = buildFootprint(
+    cellId,
+    item.xLength ?? 1,
+    item.yLength ?? 1,
+  );
   const imageUrl = getItemImage(item.itemInfo.itemId);
 
   return {
-    id: String(item.inventoryItemId ?? `${item.itemInfo.itemId}-${item.positionX}-${item.positionY}`),
+    id: String(
+      item.inventoryItemId ??
+        `${item.itemInfo.itemId}-${item.positionX}-${item.positionY}`,
+    ),
     inventoryItemId: item.inventoryItemId,
     itemId: item.itemInfo.itemId,
     cellId,
@@ -65,7 +76,7 @@ const mapPlacedItem = (item: {
 const ROOM_QUERY_KEY = ['game', 'room', 'detail'] as const;
 
 export const useRoomState = () => {
-  const applyServerState = useDecoStore((state) => state.applyServerState);
+  const applyServerState = useDecoStore(state => state.applyServerState);
 
   const query = useQuery({
     queryKey: ROOM_QUERY_KEY,
@@ -79,7 +90,7 @@ export const useRoomState = () => {
       return;
     }
 
-    const normalized = query.data.placedItems.map((item) => mapPlacedItem(item));
+    const normalized = query.data.placedItems.map(item => mapPlacedItem(item));
     applyServerState({ placedItems: normalized });
   }, [applyServerState, query.data]);
 

@@ -22,7 +22,11 @@ export const parseCellId = (cellId: string): ParsedCellId | null => {
   return { gridType: gridType as GridType, col, row };
 };
 
-export const buildFootprint = (cellId: string, xLength: number, yLength: number): string[] => {
+export const buildFootprint = (
+  cellId: string,
+  xLength: number,
+  yLength: number,
+): string[] => {
   const parsed = parseCellId(cellId);
   if (!parsed) {
     return [];
@@ -41,7 +45,11 @@ export const buildFootprint = (cellId: string, xLength: number, yLength: number)
   return footprint;
 };
 
-export const findNearestCell = (cells: GridCell[], px: number, py: number): GridCell | null => {
+export const findNearestCell = (
+  cells: GridCell[],
+  px: number,
+  py: number,
+): GridCell | null => {
   if (!cells.length) {
     return null;
   }
@@ -66,8 +74,8 @@ export const getCellBounds = (cells: GridCell[]) => {
   if (!cells.length) {
     return { minX: 0, maxX: 0, minY: 0, maxY: 0 };
   }
-  const xs = cells.map((cell) => cell.center.x);
-  const ys = cells.map((cell) => cell.center.y);
+  const xs = cells.map(cell => cell.center.x);
+  const ys = cells.map(cell => cell.center.y);
   return {
     minX: Math.min(...xs),
     maxX: Math.max(...xs),

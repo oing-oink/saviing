@@ -102,7 +102,7 @@ export const useGrid = ({
       const newLines: Line[] = [];
       const newCells: GridCell[] = [];
 
-      const [tl_rel, tr_rel, br_rel, bl_rel] = corners.map((point) => ({
+      const [tl_rel, tr_rel, br_rel, bl_rel] = corners.map(point => ({
         x: imgWidth * point.x,
         y: imgHeight * point.y,
       }));
@@ -163,14 +163,14 @@ export const useGrid = ({
           containerHeight,
       });
 
-      const finalLines = newLines.map((line) => ({
+      const finalLines = newLines.map(line => ({
         x1: transformPoint({ x: line.x1, y: line.y1 }).x,
         y1: transformPoint({ x: line.x1, y: line.y1 }).y,
         x2: transformPoint({ x: line.x2, y: line.y2 }).x,
         y2: transformPoint({ x: line.x2, y: line.y2 }).y,
       }));
 
-      const finalCells = newCells.map((cell) => {
+      const finalCells = newCells.map(cell => {
         const [tl, tr, br, bl] = cell.vertices.map(transformPoint) as [
           Point,
           Point,
@@ -188,7 +188,9 @@ export const useGrid = ({
         };
       });
 
-      const polygon = [tl_rel, tr_rel, br_rel, bl_rel].map(transformPoint) as SurfacePolygon;
+      const polygon = [tl_rel, tr_rel, br_rel, bl_rel].map(
+        transformPoint,
+      ) as SurfacePolygon;
 
       setGridLines(finalLines);
       setGridCells(finalCells);

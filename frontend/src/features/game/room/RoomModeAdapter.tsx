@@ -6,7 +6,8 @@ import RoomBase, {
   type RoomRenderContext,
 } from './RoomBase';
 
-interface RoomModeAdapterProps extends Omit<RoomBaseProps, 'mode' | 'children'> {
+interface RoomModeAdapterProps
+  extends Omit<RoomBaseProps, 'mode' | 'children'> {
   mode?: RoomMode;
   children?: RoomRenderable;
   previewOverlay?: (context: RoomRenderContext) => ReactNode;
@@ -22,7 +23,7 @@ const RoomModeAdapter = ({
 }: RoomModeAdapterProps) => {
   const resolveChildren = (context: RoomRenderContext) => {
     const baseContent =
-      typeof children === 'function' ? children(context) : children ?? null;
+      typeof children === 'function' ? children(context) : (children ?? null);
 
     if (mode === 'preview' && previewOverlay) {
       return (
@@ -49,7 +50,7 @@ const RoomModeAdapter = ({
     <RoomBase
       {...rest}
       mode={mode}
-      children={(context) => resolveChildren(context)}
+      children={context => resolveChildren(context)}
     />
   );
 };

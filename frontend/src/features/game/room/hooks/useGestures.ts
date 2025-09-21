@@ -72,8 +72,8 @@ export const useGestures = ({
 
     const newPosition = getBoundedPosition(positionRef.current, clampedScale);
 
-    setScale((prev) => (prev === clampedScale ? prev : clampedScale));
-    setPosition((prev) => {
+    setScale(prev => (prev === clampedScale ? prev : clampedScale));
+    setPosition(prev => {
       if (prev.x === newPosition.x && prev.y === newPosition.y) {
         return prev;
       }
@@ -106,7 +106,7 @@ export const useGestures = ({
         x: e.clientX - panStartRef.current.x,
         y: e.clientY - panStartRef.current.y,
       };
-      setPosition((prev) => {
+      setPosition(prev => {
         const bounded = getBoundedPosition(newPos, scaleRef.current);
         if (bounded.x === prev.x && bounded.y === prev.y) {
           return prev;
@@ -160,8 +160,8 @@ export const useGestures = ({
 
       const newPosition = getBoundedPosition(positionRef.current, clampedScale);
 
-      setScale((prev) => (prev === clampedScale ? prev : clampedScale));
-      setPosition((prev) => {
+      setScale(prev => (prev === clampedScale ? prev : clampedScale));
+      setPosition(prev => {
         if (prev.x === newPosition.x && prev.y === newPosition.y) {
           return prev;
         }
@@ -175,7 +175,7 @@ export const useGestures = ({
         x: touch.clientX - panStartRef.current.x,
         y: touch.clientY - panStartRef.current.y,
       };
-      setPosition((prev) => {
+      setPosition(prev => {
         const bounded = getBoundedPosition(newPos, scaleRef.current);
         if (bounded.x === prev.x && bounded.y === prev.y) {
           return prev;
@@ -236,9 +236,13 @@ export const useGestures = ({
 
     const targetWindow = typeof window !== 'undefined' ? window : undefined;
     if (targetWindow) {
-      targetWindow.addEventListener('mousemove', onMouseMove, { passive: false });
+      targetWindow.addEventListener('mousemove', onMouseMove, {
+        passive: false,
+      });
       targetWindow.addEventListener('mouseup', onMouseUpOrLeave);
-      targetWindow.addEventListener('touchmove', onTouchMove, { passive: false });
+      targetWindow.addEventListener('touchmove', onTouchMove, {
+        passive: false,
+      });
       targetWindow.addEventListener('touchend', onTouchEnd);
       targetWindow.addEventListener('touchcancel', onTouchEnd);
     }

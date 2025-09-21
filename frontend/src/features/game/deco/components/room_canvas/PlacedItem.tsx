@@ -8,7 +8,13 @@ interface PlacedItemProps {
   variant?: 'highlight' | 'hit';
 }
 
-const PlacedItem = ({ id, polygons, onPick, visible = true, variant = 'highlight' }: PlacedItemProps) => {
+const PlacedItem = ({
+  id,
+  polygons,
+  onPick,
+  visible = true,
+  variant = 'highlight',
+}: PlacedItemProps) => {
   const handleMouseDown = (event: MouseEvent<SVGPolygonElement>) => {
     event.preventDefault();
     event.stopPropagation();
@@ -26,8 +32,10 @@ const PlacedItem = ({ id, polygons, onPick, visible = true, variant = 'highlight
     return null;
   }
 
-  const fill = variant === 'highlight' ? 'rgba(255, 255, 255, 0.35)' : 'transparent';
-  const stroke = variant === 'highlight' ? 'rgba(255, 255, 255, 0.6)' : 'transparent';
+  const fill =
+    variant === 'highlight' ? 'rgba(255, 255, 255, 0.35)' : 'transparent';
+  const stroke =
+    variant === 'highlight' ? 'rgba(255, 255, 255, 0.6)' : 'transparent';
 
   return (
     <g className="cursor-pointer">

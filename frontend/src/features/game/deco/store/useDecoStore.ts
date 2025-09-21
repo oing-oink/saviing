@@ -5,10 +5,10 @@ import type {
   DragSession,
   PlacedItem,
   RoomMeta,
-} from '@/features/deco/types/deco.types';
+} from '@/features/game/deco/types/decoTypes';
 import type { GridType } from '@/features/game/room/hooks/useGrid';
 import type { TabId } from '@/features/game/shop/types/item';
-import { buildFootprint, parseCellId } from '@/features/deco/utils/grid';
+import { buildFootprint, parseCellId } from '@/features/game/deco/utils/grid';
 import { getItemImage } from '@/features/game/shop/utils/getItemImage';
 
 interface StartDragOptions {
@@ -96,12 +96,16 @@ const buildPlacedItemFromSession = (
       session.imageUrl ??
       session.originalItem?.imageUrl ??
       getItemImage(Number(session.itemId)),
-    itemType: session.itemType ?? session.originalItem?.itemType ?? 'DECORATION',
+    itemType:
+      session.itemType ?? session.originalItem?.itemType ?? 'DECORATION',
     isPreview: session.isPreview ?? session.originalItem?.isPreview ?? false,
   };
 };
 
-const createDragSession = (itemId: string, overrides?: Partial<DragSession>): DragSession => ({
+const createDragSession = (
+  itemId: string,
+  overrides?: Partial<DragSession>,
+): DragSession => ({
   itemId,
   xLength: 1,
   yLength: 1,
@@ -139,9 +143,9 @@ const withInstanceId = (items: PlacedItem[]): PlacedItem[] =>
   }));
 
 const findDraftIndex = (items: PlacedItem[], id: string) =>
-  items.findIndex((item) => item.id === id);
+  items.findIndex(item => item.id === id);
 
-export const decoStore = createStore<DecoStore>((set) => ({
+export const decoStore = createStore<DecoStore>(set => ({
   roomMeta: initialRoomMeta,
   placedItems: [],
   draftItems: [],
@@ -157,30 +161,38 @@ export const decoStore = createStore<DecoStore>((set) => ({
         xLength: options.xLength ?? 1,
         yLength: options.yLength ?? 1,
         footprintCellIds: options.footprintCellIds,
-      offsetX: options.offsetX ?? 0,
-      offsetY: options.offsetY ?? 0,
-      // 서버 이미지가 준비되기 전까지 로컬 asset을 항상 사용한다.
-      imageUrl: getItemImage(Number(itemId)),
-      itemType: options.itemType ?? 'DECORATION',
-      isPreview: options.isPreview ?? false,
-    }),
-  })),
+        offsetX: options.offsetX ?? 0,
+        offsetY: options.offsetY ?? 0,
+        // 서버 이미지가 준비되기 전까지 로컬 asset을 항상 사용한다.
+        imageUrl: getItemImage(Number(itemId)),
+        itemType: options.itemType ?? 'DECORATION',
+        isPreview: options.isPreview ?? false,
+      }),
+    })),
 
-  startDragFromPlaced: (placedId) =>
-    set((state) => {
+  startDragFromPlaced: placedId =>
+    set(state => {
       const index = findDraftIndex(state.draftItems, placedId);
       if (index === -1) {
         return state;
       }
 
       const target = state.draftItems[index];
-      const remainingDraft = state.draftItems.filter((item) => item.id !== placedId);
+      const remainingDraft = state.draftItems.filter(
+        item => item.id !== placedId,
+      );
       const parsed = parseCellId(target.cellId);
-      const inferredGridType = (target.layer ?? parsed?.gridType) as GridType | undefined;
+      const inferredGridType = (target.layer ?? parsed?.gridType) as
+        | GridType
+        | undefined;
       const resolvedFootprint =
         target.footprintCellIds && target.footprintCellIds.length > 0
           ? target.footprintCellIds
-          : buildFootprint(target.cellId, target.xLength ?? 1, target.yLength ?? 1);
+          : buildFootprint(
+              target.cellId,
+              target.xLength ?? 1,
+              target.yLength ?? 1,
+            );
 
       return {
         draftItems: remainingDraft,
@@ -202,8 +214,8 @@ export const decoStore = createStore<DecoStore>((set) => ({
       };
     }),
 
-  updateHoverCell: (cellId) =>
-    set((state) => {
+  updateHoverCell: cellId =>
+    set(state => {
       if (!state.dragSession) {
         return state;
       }
@@ -218,12 +230,16 @@ export const decoStore = createStore<DecoStore>((set) => ({
 
   stagePlacement: (cellId, footprintCellIds) => {
     let staged = false;
-    set((state) => {
+    set(state => {
       if (!state.dragSession) {
         return state;
       }
 
-      const nextItem = buildPlacedItemFromSession(state.dragSession, cellId, footprintCellIds);
+      const nextItem = buildPlacedItemFromSession(
+        state.dragSession,
+        cellId,
+        footprintCellIds,
+      );
       if (!nextItem) {
         return {
           dragSession: null,
@@ -242,7 +258,7 @@ export const decoStore = createStore<DecoStore>((set) => ({
 
   commitPlacement: () => {
     let committed = false;
-    set((state) => {
+    set(state => {
       if (!state.pendingPlacement) {
         return state;
       }
@@ -250,7 +266,10 @@ export const decoStore = createStore<DecoStore>((set) => ({
       const nextItem = state.pendingPlacement;
       committed = true;
       return {
-        draftItems: [...state.draftItems.filter((item) => item.id !== nextItem.id), nextItem],
+        draftItems: [
+          ...state.draftItems.filter(item => item.id !== nextItem.id),
+          nextItem,
+        ],
         dragSession: null,
         pendingPlacement: null,
       };
@@ -260,7 +279,7 @@ export const decoStore = createStore<DecoStore>((set) => ({
   },
 
   cancelPendingPlacement: () =>
-    set((state) => {
+    set(state => {
       if (!state.dragSession) {
         return state.pendingPlacement ? { pendingPlacement: null } : state;
       }
@@ -268,7 +287,10 @@ export const decoStore = createStore<DecoStore>((set) => ({
       const originalItem = state.dragSession.originalItem;
       return {
         draftItems: originalItem
-          ? [...state.draftItems.filter((item) => item.id !== originalItem.id), originalItem]
+          ? [
+              ...state.draftItems.filter(item => item.id !== originalItem.id),
+              originalItem,
+            ]
           : state.draftItems,
         dragSession: null,
         pendingPlacement: null,
@@ -276,7 +298,7 @@ export const decoStore = createStore<DecoStore>((set) => ({
     }),
 
   cancelDrag: () =>
-    set((state) => {
+    set(state => {
       if (!state.dragSession) {
         return state.pendingPlacement ? { pendingPlacement: null } : state;
       }
@@ -284,7 +306,10 @@ export const decoStore = createStore<DecoStore>((set) => ({
       const originalItem = state.dragSession.originalItem;
       return {
         draftItems: originalItem
-          ? [...state.draftItems.filter((item) => item.id !== originalItem.id), originalItem]
+          ? [
+              ...state.draftItems.filter(item => item.id !== originalItem.id),
+              originalItem,
+            ]
           : state.draftItems,
         dragSession: null,
         pendingPlacement: null,
@@ -297,9 +322,9 @@ export const decoStore = createStore<DecoStore>((set) => ({
       pendingPlacement: null,
     })),
 
-  removeDraftItem: (id) =>
-    set((state) => ({
-      draftItems: state.draftItems.filter((item) => item.id !== id),
+  removeDraftItem: id =>
+    set(state => ({
+      draftItems: state.draftItems.filter(item => item.id !== id),
     })),
 
   // 서버에서 내려온 방 상태를 store 형식으로 맞춰 초기화한다.
@@ -316,19 +341,19 @@ export const decoStore = createStore<DecoStore>((set) => ({
     }),
 
   resetToLastSaved: () =>
-    set((state) => ({
+    set(state => ({
       draftItems: [...state.placedItems],
       dragSession: null,
       pendingPlacement: null,
     })),
 
   markDraftAsSaved: () =>
-    set((state) => ({
+    set(state => ({
       placedItems: [...state.draftItems],
     })),
 
-  setScale: (scale) => set(() => ({ scale })),
+  setScale: scale => set(() => ({ scale })),
 }));
 
-export const useDecoStore = <T,>(selector: (state: DecoStore) => T) =>
+export const useDecoStore = <T>(selector: (state: DecoStore) => T) =>
   useStore(decoStore, selector);

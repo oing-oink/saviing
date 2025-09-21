@@ -22,7 +22,9 @@ export interface RoomRenderContext {
   surfacePolygon: SurfacePolygon | null;
 }
 
-export type RoomRenderable = ReactNode | ((context: RoomRenderContext) => ReactNode);
+export type RoomRenderable =
+  | ReactNode
+  | ((context: RoomRenderContext) => ReactNode);
 
 export interface RoomBaseProps {
   mode?: RoomMode;

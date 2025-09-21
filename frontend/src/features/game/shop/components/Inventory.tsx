@@ -86,32 +86,32 @@ const Inventory = ({
             {emptyMessage}
           </div>
         ) : (
-        <div className="grid grid-cols-3 gap-1">
-          {slots.map(slot => (
-            <div
-              key={slot.id}
-              className="relative -mb-6 flex aspect-square items-center justify-center"
-            >
-              <img
-                src={inventory_square}
-                alt="slot"
-                className="absolute inset-0 h-full w-full object-contain"
-              />
-              {slot.item && (
-                <button
-                  onClick={() => handleSlotClick(slot.item!)}
-                  className="relative flex h-[70%] w-[70%] items-center justify-center hover:opacity-80"
-                >
-                  <img
-                    src={getItemImage(slot.item.itemId)}
-                    alt={slot.item.itemName}
-                    className="h-[80%] w-[80%] object-contain"
-                  />
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
+          <div className="grid grid-cols-3 gap-1">
+            {slots.map(slot => (
+              <div
+                key={slot.id}
+                className="relative -mb-6 flex aspect-square items-center justify-center"
+              >
+                <img
+                  src={inventory_square}
+                  alt="slot"
+                  className="absolute inset-0 h-full w-full object-contain"
+                />
+                {slot.item && (
+                  <button
+                    onClick={() => handleSlotClick(slot.item!)}
+                    className="relative flex h-[70%] w-[70%] items-center justify-center hover:opacity-80"
+                  >
+                    <img
+                      src={getItemImage(slot.item.itemId)}
+                      alt={slot.item.itemName}
+                      className="h-[80%] w-[80%] object-contain"
+                    />
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
         )}
       </div>
 

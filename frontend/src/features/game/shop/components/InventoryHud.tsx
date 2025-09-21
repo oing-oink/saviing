@@ -31,7 +31,7 @@ const InventoryHud = () => {
             className="w-9 focus:ring-1 focus:ring-primary focus:outline-none active:scale-95 active:brightness-90"
             src={decoButton}
           />
-          </button>
+        </button>
       </div>
     </div>
   );

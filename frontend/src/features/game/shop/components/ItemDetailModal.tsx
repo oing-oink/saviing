@@ -15,7 +15,12 @@ interface ItemDetailModalProps {
   onPreview?: (item: Item) => void;
 }
 
-const ItemDetailModal = ({ itemId, isOpen, onClose, onPreview }: ItemDetailModalProps) => {
+const ItemDetailModal = ({
+  itemId,
+  isOpen,
+  onClose,
+  onPreview,
+}: ItemDetailModalProps) => {
   const { data: item, isLoading, error } = useGameItemDetail(itemId);
   const { mutate: purchase, isPending: isPurchasing } = usePurchase();
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>('COIN');
@@ -57,7 +62,6 @@ const ItemDetailModal = ({ itemId, isOpen, onClose, onPreview }: ItemDetailModal
     onPreview(item);
     onClose();
   };
-
 
   if (!isOpen) {
     return null;

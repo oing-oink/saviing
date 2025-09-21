@@ -7,15 +7,20 @@ import { SaveModal } from '@/features/game/room/components/SaveModal';
 import Coin from '@/features/game/shared/components/Coin';
 import GameBackground from '@/features/game/shared/components/GameBackground';
 import { useTabs } from '@/features/game/shop/hooks/useTabs';
-import { TABS, type Item, type Tab, type TabId } from '@/features/game/shop/types/item';
+import {
+  TABS,
+  type Item,
+  type Tab,
+  type TabId,
+} from '@/features/game/shop/types/item';
 import { PAGE_PATH } from '@/shared/constants/path';
-import Toolbar from '@/features/deco/components/Toolbar';
-import InventoryPanel from '@/features/deco/components/InventoryPanel';
-import { PlacementBlockedModal } from '@/features/deco/components/PlacementBlockedModal';
-import { RoomCanvas } from '@/features/deco/components/RoomCanvas';
-import { useDecoInventory } from '@/features/deco/query/useDecoInventory';
-import { useDecoSaveMutation } from '@/features/deco/query/useDecoSaveMutation';
-import { useDecoStore } from '@/features/deco/state/deco.store';
+import Toolbar from '@/features/game/deco/components/Toolbar';
+import InventoryPanel from '@/features/game/deco/components/InventoryPanel';
+import { PlacementBlockedModal } from '@/features/game/deco/components/PlacementBlockedModal';
+import { RoomCanvas } from '@/features/game/deco/components/room_canvas';
+import { useDecoInventory } from '@/features/game/deco/query/useDecoInventory';
+import { useDecoSaveMutation } from '@/features/game/deco/query/useDecoSaveMutation';
+import { useDecoStore } from '@/features/game/deco/store/useDecoStore';
 
 const DecoPage = () => {
   const navigate = useNavigate();
@@ -27,13 +32,15 @@ const DecoPage = () => {
   const { items, isLoading, isError, error } = useDecoInventory();
   const saveMutation = useDecoSaveMutation();
 
-  const draftItems = useDecoStore((state) => state.draftItems);
-  const placedItems = useDecoStore((state) => state.placedItems);
-  const dragSession = useDecoStore((state) => state.dragSession);
-  const pendingPlacement = useDecoStore((state) => state.pendingPlacement);
-  const startDragFromInventory = useDecoStore((state) => state.startDragFromInventory);
-  const cancelDrag = useDecoStore((state) => state.cancelDrag);
-  const resetToLastSaved = useDecoStore((state) => state.resetToLastSaved);
+  const draftItems = useDecoStore(state => state.draftItems);
+  const placedItems = useDecoStore(state => state.placedItems);
+  const dragSession = useDecoStore(state => state.dragSession);
+  const pendingPlacement = useDecoStore(state => state.pendingPlacement);
+  const startDragFromInventory = useDecoStore(
+    state => state.startDragFromInventory,
+  );
+  const cancelDrag = useDecoStore(state => state.cancelDrag);
+  const resetToLastSaved = useDecoStore(state => state.resetToLastSaved);
 
   useEffect(() => {
     return () => {
@@ -94,13 +101,24 @@ const DecoPage = () => {
   const filteredItems = useMemo(() => {
     switch (activeTab.id) {
       case 'cat':
-        return items.filter((item) => item.itemType === 'PET');
+        return items.filter(item => item.itemType === 'PET');
       case 'leftWall':
-        return items.filter((item) => item.itemCategory === 'LEFT' || item.itemCategory === 'LEFT_WALL');
+        return items.filter(
+          item =>
+            item.itemCategory === 'LEFT' || item.itemCategory === 'LEFT_WALL',
+        );
       case 'rightWall':
-        return items.filter((item) => item.itemCategory === 'RIGHT' || item.itemCategory === 'RIGHT_WALL');
+        return items.filter(
+          item =>
+            item.itemCategory === 'RIGHT' || item.itemCategory === 'RIGHT_WALL',
+        );
       case 'floor':
-        return items.filter((item) => item.itemCategory === 'BOTTOM' || item.itemCategory === 'FLOOR' || item.itemCategory === 'ROOM_COLOR');
+        return items.filter(
+          item =>
+            item.itemCategory === 'BOTTOM' ||
+            item.itemCategory === 'FLOOR' ||
+            item.itemCategory === 'ROOM_COLOR',
+        );
       default:
         return items;
     }
@@ -111,8 +129,12 @@ const DecoPage = () => {
 
     if (item.itemType === 'PET') {
       // PET은 바닥에만 배치할 수 있으며 최대 2마리까지 허용한다.
-      const currentPetCount = draftItems.filter((draft) => draft.itemType === 'PET').length;
-      const alreadyPlacedPet = draftItems.some((draft) => draft.itemType === 'PET' && draft.itemId === item.itemId);
+      const currentPetCount = draftItems.filter(
+        draft => draft.itemType === 'PET',
+      ).length;
+      const alreadyPlacedPet = draftItems.some(
+        draft => draft.itemType === 'PET' && draft.itemId === item.itemId,
+      );
       if (currentPetCount >= 2 && !alreadyPlacedPet) {
         setIsPlacementBlockedOpen(true);
         return;
@@ -192,8 +214,11 @@ const DecoPage = () => {
               mode="edit"
               gridType={gridType}
               panEnabled={!dragSession || Boolean(pendingPlacement)}
-              editOverlay={(ctx) => (
-                <RoomCanvas context={ctx} onAutoPlacementFail={handlePlacementBlocked} />
+              editOverlay={ctx => (
+                <RoomCanvas
+                  context={ctx}
+                  onAutoPlacementFail={handlePlacementBlocked}
+                />
               )}
             />
           </div>
@@ -211,7 +236,9 @@ const DecoPage = () => {
               isError={isError}
               error={error ?? undefined}
               emptyMessage={
-                isError ? '인벤토리를 불러오지 못했습니다.' : '배치 가능한 아이템이 없습니다.'
+                isError
+                  ? '인벤토리를 불러오지 못했습니다.'
+                  : '배치 가능한 아이템이 없습니다.'
               }
             />
           </div>

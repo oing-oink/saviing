@@ -8,8 +8,12 @@ const GhostItem = ({ polygons, isValid }: GhostItemProps) => {
     return null;
   }
 
-  const fillColor = isValid ? 'rgba(40, 199, 111, 0.35)' : 'rgba(244, 67, 54, 0.35)';
-  const strokeColor = isValid ? 'rgba(40, 199, 111, 0.8)' : 'rgba(244, 67, 54, 0.8)';
+  const fillColor = isValid
+    ? 'rgba(40, 199, 111, 0.35)'
+    : 'rgba(244, 67, 54, 0.35)';
+  const strokeColor = isValid
+    ? 'rgba(40, 199, 111, 0.8)'
+    : 'rgba(244, 67, 54, 0.8)';
 
   return (
     <g pointerEvents="none">

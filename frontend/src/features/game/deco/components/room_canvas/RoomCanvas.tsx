@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { MouseEvent as ReactMouseEvent, TouchEvent as ReactTouchEvent } from 'react';
+import type {
+  MouseEvent as ReactMouseEvent,
+  TouchEvent as ReactTouchEvent,
+} from 'react';
 import type { RoomRenderContext } from '@/features/game/room/RoomBase';
-import { useDecoStore } from '@/features/deco/state/deco.store';
-import { usePlacementController } from '@/features/deco/hooks/usePlacementController';
-import { buildFootprint } from '@/features/deco/utils/grid';
+import { useDecoStore } from '@/features/game/deco/store/useDecoStore';
+import { usePlacementController } from '@/features/game/deco/hooks/usePlacementController';
+import { buildFootprint } from '@/features/game/deco/utils/grid';
 import { getItemImage } from '@/features/game/shop/utils/getItemImage';
 import PlacedItem from './PlacedItem';
 import GhostItem from './GhostItem';
@@ -53,18 +56,22 @@ const RoomCanvas = ({
     gridType: 'floor',
   });
 
-  const dragSession = useDecoStore((state) => state.dragSession);
-  const draftItems = useDecoStore((state) => state.draftItems);
-  const pendingPlacement = useDecoStore((state) => state.pendingPlacement);
-  const commitPlacement = useDecoStore((state) => state.commitPlacement);
-  const cancelPendingPlacement = useDecoStore((state) => state.cancelPendingPlacement);
-  const startDragFromPlaced = useDecoStore((state) => state.startDragFromPlaced);
-  const cancelDrag = useDecoStore((state) => state.cancelDrag);
-  const removeDraftItem = useDecoStore((state) => state.removeDraftItem);
-  const deleteDraggedItem = useDecoStore((state) => state.deleteDraggedItem);
-  const setScale = useDecoStore((state) => state.setScale);
+  const dragSession = useDecoStore(state => state.dragSession);
+  const draftItems = useDecoStore(state => state.draftItems);
+  const pendingPlacement = useDecoStore(state => state.pendingPlacement);
+  const commitPlacement = useDecoStore(state => state.commitPlacement);
+  const cancelPendingPlacement = useDecoStore(
+    state => state.cancelPendingPlacement,
+  );
+  const startDragFromPlaced = useDecoStore(state => state.startDragFromPlaced);
+  const cancelDrag = useDecoStore(state => state.cancelDrag);
+  const removeDraftItem = useDecoStore(state => state.removeDraftItem);
+  const deleteDraggedItem = useDecoStore(state => state.deleteDraggedItem);
+  const setScale = useDecoStore(state => state.setScale);
 
-  const imageSizeCacheRef = useRef(new Map<string, { width: number; height: number }>());
+  const imageSizeCacheRef = useRef(
+    new Map<string, { width: number; height: number }>(),
+  );
   const loadingImagesRef = useRef(new Set<string>());
   const [, forceRender] = useState(0);
 
@@ -85,8 +92,12 @@ const RoomCanvas = ({
   // 그리드 탭을 이동하더라도 기존 배치 좌표를 잃지 않기 위해
   // 모든 면(left/right/floor)의 셀 정보를 모아 Map으로 보관한다.
   const cellMap = useMemo(() => {
-    const map = new Map<string, typeof gridCells[number]>();
-    [...allLeft.gridCells, ...allRight.gridCells, ...allFloor.gridCells].forEach((cell) => {
+    const map = new Map<string, (typeof gridCells)[number]>();
+    [
+      ...allLeft.gridCells,
+      ...allRight.gridCells,
+      ...allFloor.gridCells,
+    ].forEach(cell => {
       map.set(cell.id, cell);
     });
     return map;
@@ -115,8 +126,11 @@ const RoomCanvas = ({
         img.onload = null;
         img.onerror = null;
         if (!cache.has(imageUrl)) {
-          cache.set(imageUrl, { width: img.naturalWidth, height: img.naturalHeight });
-          forceRender((value) => value + 1);
+          cache.set(imageUrl, {
+            width: img.naturalWidth,
+            height: img.naturalHeight,
+          });
+          forceRender(value => value + 1);
         }
         loadingImagesRef.current.delete(imageUrl);
       };
@@ -153,31 +167,42 @@ const RoomCanvas = ({
       yLength: number;
     }) => {
       const footprintCells = footprintIds
-        .map((cellId) => cellMap.get(cellId))
-        .filter((cell): cell is typeof gridCells[number] => Boolean(cell));
+        .map(cellId => cellMap.get(cellId))
+        .filter((cell): cell is (typeof gridCells)[number] => Boolean(cell));
 
       if (!footprintCells.length) {
         return null;
       }
 
-      const vertices = footprintCells.flatMap((cell) => cell.vertices);
-      const xs = vertices.map((v) => v.x);
-      const ys = vertices.map((v) => v.y);
+      const vertices = footprintCells.flatMap(cell => cell.vertices);
+      const xs = vertices.map(v => v.x);
+      const ys = vertices.map(v => v.y);
       const minX = Math.min(...xs);
       const maxX = Math.max(...xs);
       const minY = Math.min(...ys);
       const maxY = Math.max(...ys);
 
       const firstCell = footprintCells[0];
-      const edgeDistance = (a: { x: number; y: number }, b: { x: number; y: number }) => {
+      const edgeDistance = (
+        a: { x: number; y: number },
+        b: { x: number; y: number },
+      ) => {
         const dx = a.x - b.x;
         const dy = a.y - b.y;
         return Math.sqrt(dx * dx + dy * dy);
       };
-      const topWidth = edgeDistance(firstCell.vertices[1], firstCell.vertices[0]);
-      const bottomWidth = edgeDistance(firstCell.vertices[2], firstCell.vertices[3]);
+      const topWidth = edgeDistance(
+        firstCell.vertices[1],
+        firstCell.vertices[0],
+      );
+      const bottomWidth = edgeDistance(
+        firstCell.vertices[2],
+        firstCell.vertices[3],
+      );
       const baseWidth = Math.max(topWidth, bottomWidth);
-      const baseHeight = Math.abs(firstCell.vertices[0].y - firstCell.vertices[3].y);
+      const baseHeight = Math.abs(
+        firstCell.vertices[0].y - firstCell.vertices[3].y,
+      );
       const spriteImage = imageUrl ?? getItemImage(itemId);
       const intrinsicSize = ensureImageSize(spriteImage);
       const footprintWidth = maxX - minX;
@@ -211,25 +236,25 @@ const RoomCanvas = ({
       return [];
     }
     return ghost.footprintCellIds
-      .map((cellId) => cellMap.get(cellId))
-      .filter((cell): cell is typeof gridCells[number] => Boolean(cell))
-      .map((cell) => cell.vertices.map(({ x, y }) => `${x},${y}`).join(' '));
+      .map(cellId => cellMap.get(cellId))
+      .filter((cell): cell is (typeof gridCells)[number] => Boolean(cell))
+      .map(cell => cell.vertices.map(({ x, y }) => `${x},${y}`).join(' '));
   }, [cellMap, ghost.footprintCellIds]);
 
   const draftMap = useMemo(() => {
-    return new Map(draftItems.map((item) => [item.id, item]));
+    return new Map(draftItems.map(item => [item.id, item]));
   }, [draftItems]);
 
   const draftPolygons = useMemo(() => {
-    return draftItems.map((item) => {
+    return draftItems.map(item => {
       const footprint =
         item.footprintCellIds && item.footprintCellIds.length > 0
           ? item.footprintCellIds
           : buildFootprint(item.cellId, item.xLength, item.yLength);
       const polygons = footprint
-        .map((cellId) => cellMap.get(cellId))
-        .filter((cell): cell is typeof gridCells[number] => Boolean(cell))
-        .map((cell) => cell.vertices.map(({ x, y }) => `${x},${y}`).join(' '));
+        .map(cellId => cellMap.get(cellId))
+        .filter((cell): cell is (typeof gridCells)[number] => Boolean(cell))
+        .map(cell => cell.vertices.map(({ x, y }) => `${x},${y}`).join(' '));
       return {
         id: item.id,
         polygons,
@@ -239,7 +264,7 @@ const RoomCanvas = ({
 
   const spriteData = useMemo(() => {
     const sprites = draftItems
-      .map((item) => {
+      .map(item => {
         const footprintIds =
           item.footprintCellIds && item.footprintCellIds.length > 0
             ? item.footprintCellIds
@@ -254,17 +279,21 @@ const RoomCanvas = ({
           yLength: item.yLength ?? 1,
         });
       })
-      .filter((sprite): sprite is {
-        id: string;
-        imageUrl: string;
-        x: number;
-        y: number;
-        width: number;
-        height: number;
-        rotation: number;
-        centerX: number;
-        centerY: number;
-      } => Boolean(sprite));
+      .filter(
+        (
+          sprite,
+        ): sprite is {
+          id: string;
+          imageUrl: string;
+          x: number;
+          y: number;
+          width: number;
+          height: number;
+          rotation: number;
+          centerX: number;
+          centerY: number;
+        } => Boolean(sprite),
+      );
 
     const sortSprites = (items: typeof sprites) =>
       items.sort((a, b) => {
@@ -285,7 +314,7 @@ const RoomCanvas = ({
     const floorSprites: typeof sprites = [];
     const otherSprites: typeof sprites = [];
 
-    sprites.forEach((sprite) => {
+    sprites.forEach(sprite => {
       const draft = draftMap.get(sprite.id);
       switch (draft?.layer) {
         case 'leftWall':
@@ -336,7 +365,11 @@ const RoomCanvas = ({
     const footprintIds = ghost.footprintCellIds.length
       ? ghost.footprintCellIds
       : ghost.ghostCellId
-        ? buildFootprint(ghost.ghostCellId, dragSession.xLength ?? 1, dragSession.yLength ?? 1)
+        ? buildFootprint(
+            ghost.ghostCellId,
+            dragSession.xLength ?? 1,
+            dragSession.yLength ?? 1,
+          )
         : [];
 
     if (!footprintIds.length) {
@@ -355,18 +388,20 @@ const RoomCanvas = ({
   }, [computeSprite, dragSession, ghost.footprintCellIds, ghost.ghostCellId]);
 
   const pendingSprite = useMemo(() => {
-    const source = pendingPlacement ?? (ghost.isValid && ghostSprite
-      ? {
-          id: `${dragSession?.itemId ?? 'ghost'}-pending`,
-          cellId: ghost.ghostCellId ?? '',
-          footprintCellIds: ghost.footprintCellIds,
-          rotation: dragSession?.originalItem?.rotation ?? 0,
-          itemId: Number(dragSession?.itemId ?? 0),
-          imageUrl: dragSession?.imageUrl,
-          xLength: dragSession?.xLength ?? 1,
-          yLength: dragSession?.yLength ?? 1,
-        }
-      : null);
+    const source =
+      pendingPlacement ??
+      (ghost.isValid && ghostSprite
+        ? {
+            id: `${dragSession?.itemId ?? 'ghost'}-pending`,
+            cellId: ghost.ghostCellId ?? '',
+            footprintCellIds: ghost.footprintCellIds,
+            rotation: dragSession?.originalItem?.rotation ?? 0,
+            itemId: Number(dragSession?.itemId ?? 0),
+            imageUrl: dragSession?.imageUrl,
+            xLength: dragSession?.xLength ?? 1,
+            yLength: dragSession?.yLength ?? 1,
+          }
+        : null);
     if (!source) {
       return null;
     }
@@ -421,7 +456,7 @@ const RoomCanvas = ({
     if (pendingPlacement && pendingPlacement.id === deleteTargetId) {
       return pendingPlacement;
     }
-    return draftItems.find((item) => item.id === deleteTargetId) ?? null;
+    return draftItems.find(item => item.id === deleteTargetId) ?? null;
   }, [deleteTargetId, draftItems, pendingPlacement]);
 
   const canDelete = Boolean(
@@ -447,10 +482,18 @@ const RoomCanvas = ({
     isPointerActiveRef.current = false;
     setIsPointerActive(false);
     lastStagedCellRef.current = null;
-  }, [allowDelete, deleteOnlyPreview, deleteTargetItem, deleteDraggedItem, removeDraftItem]);
+  }, [
+    allowDelete,
+    deleteOnlyPreview,
+    deleteTargetItem,
+    deleteDraggedItem,
+    removeDraftItem,
+  ]);
 
   const showActionButtons = Boolean(
-    showActions && actionAnchor && (isPointerActive ? ghost.isValid : pendingPlacement || ghost.isValid),
+    showActions &&
+      actionAnchor &&
+      (isPointerActive ? ghost.isValid : pendingPlacement || ghost.isValid),
   );
 
   const containerWidth = containerRef.current?.clientWidth ?? 0;
@@ -501,7 +544,9 @@ const RoomCanvas = ({
       for (let i = 0; i < surfacePolygon.length; i += 1) {
         const current = surfacePolygon[i];
         const next = surfacePolygon[(i + 1) % surfacePolygon.length];
-        const cross = (next.x - current.x) * (y - current.y) - (next.y - current.y) * (x - current.x);
+        const cross =
+          (next.x - current.x) * (y - current.y) -
+          (next.y - current.y) * (x - current.x);
         if (cross > 0) {
           hasPositive = true;
         } else if (cross < 0) {
@@ -700,11 +745,19 @@ const RoomCanvas = ({
     setIsPointerActive(false);
   };
 
-  const handlePickPlaced = ({ id, clientX, clientY }: { id: string; clientX: number; clientY: number }) => {
+  const handlePickPlaced = ({
+    id,
+    clientX,
+    clientY,
+  }: {
+    id: string;
+    clientX: number;
+    clientY: number;
+  }) => {
     if (!allowItemPickup) {
       return;
     }
-    const targetItem = draftItems.find((item) => item.id === id);
+    const targetItem = draftItems.find(item => item.id === id);
     if (!targetItem) {
       return;
     }
@@ -718,7 +771,11 @@ const RoomCanvas = ({
   };
 
   const overlayActive = Boolean(
-    dragSession || pendingPlacement || showActionButtons || isPointerActive || allowItemPickup,
+    dragSession ||
+      pendingPlacement ||
+      showActionButtons ||
+      isPointerActive ||
+      allowItemPickup,
   );
 
   return (
@@ -748,13 +805,13 @@ const RoomCanvas = ({
               transform: 'translate(-50%, 0)',
               zIndex: 10,
             }}
-            onMouseDown={(event) => event.stopPropagation()}
-            onTouchStart={(event) => event.stopPropagation()}
+            onMouseDown={event => event.stopPropagation()}
+            onTouchStart={event => event.stopPropagation()}
           >
             <button
               type="button"
               onClick={handleCancel}
-              className="rounded-md bg-gray-200 px-2.5 py-1 text-gray-700 transition hover:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-50 whitespace-nowrap"
+              className="rounded-md bg-gray-200 px-2.5 py-1 whitespace-nowrap text-gray-700 transition hover:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-50"
             >
               취소
             </button>
@@ -762,7 +819,7 @@ const RoomCanvas = ({
               type="button"
               onClick={handleConfirm}
               disabled={!pendingPlacement}
-              className="rounded-md bg-primary px-2.5 py-1 text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 whitespace-nowrap"
+              className="rounded-md bg-primary px-2.5 py-1 whitespace-nowrap text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
             >
               배치
             </button>
@@ -770,14 +827,14 @@ const RoomCanvas = ({
               <button
                 type="button"
                 onClick={handleDelete}
-                className="rounded-md bg-red-500 px-2.5 py-1 text-white transition hover:bg-red-500/90 disabled:cursor-not-allowed disabled:opacity-50 whitespace-nowrap"
+                className="rounded-md bg-red-500 px-2.5 py-1 whitespace-nowrap text-white transition hover:bg-red-500/90 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 삭제
               </button>
             ) : null}
-         </div>
-       </div>
-     ) : null}
+          </div>
+        </div>
+      ) : null}
       <svg
         className="absolute inset-0"
         style={{
@@ -796,7 +853,7 @@ const RoomCanvas = ({
           />
         ) : null}
         {/* 확정된 아이템 스프라이트 */}
-        {spriteData.map((sprite) => (
+        {spriteData.map(sprite => (
           <image
             key={`${sprite.id}-image`}
             href={sprite.imageUrl}
@@ -836,7 +893,7 @@ const RoomCanvas = ({
         ) : null}
         <GhostItem polygons={ghostPolygons} isValid={ghost.isValid} />
         {allowItemPickup
-          ? draftPolygons.map((item) => (
+          ? draftPolygons.map(item => (
               <PlacedItem
                 key={`${item.id}-hit`}
                 id={item.id}
@@ -847,13 +904,15 @@ const RoomCanvas = ({
             ))
           : null}
         {/* 드래그 중인 아이템만 하이라이트를 유지한다 */}
-        {draftPolygons.map((item) => (
+        {draftPolygons.map(item => (
           <PlacedItem
             key={`${item.id}-highlight`}
             id={item.id}
             polygons={item.polygons}
             onPick={handlePickPlaced}
-            visible={Boolean(dragSession && dragSession.originPlacedId === item.id)}
+            visible={Boolean(
+              dragSession && dragSession.originPlacedId === item.id,
+            )}
           />
         ))}
       </svg>
