@@ -1,5 +1,6 @@
 import { http } from '@/shared/services/api/http';
 
+/** 방에 배치 가능한 아이템의 기본 정보. */
 export interface RoomItemInfo {
   itemId: number;
   name: string;
@@ -12,6 +13,7 @@ export interface RoomItemInfo {
   yLength?: number;
 }
 
+/** 방에 배치된 아이템 정보를 담는 서버 응답 구조. */
 export interface RoomPlacedItemResponse {
   inventoryItemId: number;
   positionX: number;
@@ -23,11 +25,13 @@ export interface RoomPlacedItemResponse {
   itemInfo: RoomItemInfo;
 }
 
+/** 방 안의 펫이 장착한 장비 정보를 표현. */
 export interface RoomPetEquipmentResponse {
   inventoryItemId: number;
   itemInfo: RoomItemInfo;
 }
 
+/** 방 안에 존재하는 펫의 상태와 장비 목록. */
 export interface RoomPetResponse {
   petId: number;
   itemId: number;
@@ -42,6 +46,7 @@ export interface RoomPetResponse {
   equipments: RoomPetEquipmentResponse[];
 }
 
+/** 방 상세 조회 응답 전체 구조. */
 export interface RoomDetailResponse {
   characterId: number;
   roomId: number;
@@ -50,6 +55,7 @@ export interface RoomDetailResponse {
   pets: RoomPetResponse[];
 }
 
+/** 방 상세 정보를 조회한다. */
 export const getRoomDetail = async (): Promise<RoomDetailResponse> => {
   const response = await http.get<RoomDetailResponse>('/v1/game/room');
   if (!response.body) {

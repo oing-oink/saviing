@@ -7,10 +7,10 @@ import type {
 } from '@/features/game/shop/types/item';
 
 /**
- * 게임 아이템 전체 목록을 조회하는 API
- * @param type - 아이템 타입 (PET, DECORATION)
- * @param category - 아이템 카테고리 (CAT, LEFT, RIGHT, BOTTOM)
- * @returns ItemsResponse 아이템 목록과 총 개수
+ * 게임 아이템 전체 목록을 조회한다.
+ * @param type 아이템 타입 (예: PET, DECORATION)
+ * @param category 아이템 카테고리 (예: CAT, LEFT, RIGHT, BOTTOM)
+ * @returns 아이템 목록과 총 개수
  */
 export const getGameItems = async (
   type: string,
@@ -35,9 +35,9 @@ export const getGameItems = async (
 };
 
 /**
- * 특정 아이템의 상세 정보를 조회하는 API
- * @param itemId - 아이템 ID
- * @returns Item 아이템 상세 정보
+ * 특정 아이템의 상세 정보를 조회한다.
+ * @param itemId 아이템 ID
+ * @returns 아이템 상세 정보
  */
 export const getGameItemDetail = async (itemId: number): Promise<Item> => {
   const response = await http.get<Item>(`/v1/game/items/${itemId}`);
@@ -50,9 +50,9 @@ export const getGameItemDetail = async (itemId: number): Promise<Item> => {
 };
 
 /**
- * 아이템을 구매하는 API
- * @param purchaseData - 구매 요청 데이터
- * @returns PurchaseResponse 구매 결과
+ * 아이템 구매를 요청한다.
+ * @param purchaseData 구매 요청 데이터
+ * @returns 구매 결과 정보
  */
 export const purchaseItem = async (
   purchaseData: PurchaseRequest,

@@ -1,5 +1,6 @@
 import type { MouseEvent, TouchEvent } from 'react';
 
+/** 확정 배치된 아이템을 선택하거나 하이라이트하기 위한 SVG 폴리곤 속성. */
 interface PlacedItemProps {
   id: string;
   polygons: string[];
@@ -8,6 +9,7 @@ interface PlacedItemProps {
   variant?: 'highlight' | 'hit';
 }
 
+/** 배치된 아이템 영역을 클릭/터치로 선택할 수 있도록 SVG 폴리곤을 렌더링한다. */
 const PlacedItem = ({
   id,
   polygons,

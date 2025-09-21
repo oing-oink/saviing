@@ -3,17 +3,16 @@ import type { Item } from '@/features/game/shop/types/item';
 const GRID_SIZE = 3;
 const MIN_SLOTS = GRID_SIZE * 3; // 최소 9칸
 
+/** 인벤토리 그리드의 단일 슬롯을 나타내는 구조. */
 export interface Slot {
   id: string;
   item: Item | null;
 }
 
 /**
- * @param items 인벤토리에 표시할 아이템 배열
- * @returns 고유 ID를 가진 슬롯 배열 (최소 9개)
- * 슬롯 배열 생성 (최소 9칸, 아이템이 많으면 확장)
- * - 아이템이 부족하면 null로 빈칸 채움
- * - 아이템이 9개 이상이면 아이템 개수만큼 슬롯 생성
+ * 인벤토리에 표시할 아이템을 슬롯 배열 형태로 변환한다.
+ * @param items 화면에 노출할 아이템 목록
+ * @returns 항상 최소 9칸을 유지하며 필요한 만큼 확장된 슬롯 배열
  */
 export const useSlots = (items: Item[]): Slot[] => {
   const slots: Slot[] = [];

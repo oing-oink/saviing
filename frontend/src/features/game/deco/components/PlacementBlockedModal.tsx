@@ -5,11 +5,13 @@ import {
   DialogTitle,
 } from '@/shared/components/ui/dialog';
 
+/** 데코 아이템 자동 배치가 실패했을 때 보여주는 모달 속성. */
 interface PlacementBlockedModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+/** 배치 불가 안내 모달을 렌더링한다. */
 export const PlacementBlockedModal = ({
   isOpen,
   onClose,

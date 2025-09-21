@@ -1,6 +1,7 @@
 import type { Item } from '@/features/game/shop/types/item';
 import { getItemImage } from '@/features/game/shop/utils/getItemImage';
 
+/** 데코 기능 개발용으로 사용하는 인벤토리 목업 데이터. */
 export const mockInventoryItems: Item[] = [
   {
     itemId: 48,

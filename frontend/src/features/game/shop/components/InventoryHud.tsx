@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { PAGE_PATH } from '@/shared/constants/path';
 import decoButton from '@/assets/game_button/decoButton.png';
 
+/** 상점 인벤토리 상단/하단의 네비게이션 버튼 HUD. */
 const InventoryHud = () => {
   const navigate = useNavigate();
 

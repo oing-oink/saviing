@@ -1,6 +1,7 @@
 import type { Item } from '@/features/game/shop/types/item';
 import mouse_item from '@/assets/mouse_item.png';
 
+/** 상점/인벤토리 개발용 목업 데이터. */
 export const mockInventoryItems: Item[] = [
   {
     itemId: 48,

@@ -8,17 +8,22 @@ import {
 import { useDecoStore } from '@/features/game/deco/store/useDecoStore';
 import { useOccupancyMap } from '@/features/game/deco/hooks/useOccupancyMap';
 
+/** 배치 컨트롤러 훅 초기화 옵션. */
 interface UsePlacementControllerOptions {
   gridCells: GridCell[];
   onAutoPlacementFail?: () => void;
 }
 
+/** 고스트 셀과 footprint 상태를 관리하기 위한 내부 상태. */
 interface PlacementState {
   ghostCellId: string | null;
   footprintCellIds: string[];
   isValid: boolean;
 }
 
+/**
+ * 드래그 중인 아이템의 배치 가능 여부를 계산하고 스테이징을 담당하는 컨트롤러 훅.
+ */
 export const usePlacementController = ({
   gridCells,
   onAutoPlacementFail,

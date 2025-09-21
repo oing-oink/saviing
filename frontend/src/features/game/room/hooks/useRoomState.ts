@@ -7,7 +7,7 @@ import { useDecoStore } from '@/features/game/deco/store/useDecoStore';
 import { buildFootprint } from '@/features/game/deco/utils/grid';
 import { getItemImage } from '@/features/game/shop/utils/getItemImage';
 
-// API의 카테고리 값을 Room에서 사용하는 GridType으로 매핑한다.
+/** API에서 내려온 카테고리 값을 Room에서 사용하는 GridType으로 변환한다. */
 const mapCategoryToGridType = (
   category?: string | null,
 ): GridType | undefined => {
@@ -23,7 +23,7 @@ const mapCategoryToGridType = (
   }
 };
 
-// 서버에서 내려온 배치 정보를 화면에서 사용하는 PlacedItem 형태로 변환한다.
+/** 서버 응답을 Room에서 사용하는 PlacedItem 형태로 정규화한다. */
 const mapPlacedItem = (item: {
   inventoryItemId: number;
   positionX: number;
@@ -75,6 +75,7 @@ const mapPlacedItem = (item: {
 
 const ROOM_QUERY_KEY = ['game', 'room', 'detail'] as const;
 
+/** 방 상세 정보를 불러오고 데코 스토어 상태로 동기화하는 React Query 훅. */
 export const useRoomState = () => {
   const applyServerState = useDecoStore(state => state.applyServerState);
 

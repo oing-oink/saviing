@@ -5,13 +5,16 @@ import { useGestures } from './hooks/useGestures';
 import { type TabId } from '@/features/game/shop/types/item';
 import { type GridCell, type SurfacePolygon, useGrid } from './hooks/useGrid';
 
+/** Room 컴포넌트가 지원하는 렌더링 모드. */
 export type RoomMode = 'readonly' | 'preview' | 'edit';
 
+/** 확대/이동 상태를 표현하는 변환 정보. */
 export interface RoomTransform {
   scale: number;
   position: { x: number; y: number };
 }
 
+/** 하위 레이어가 Room 정보를 참조할 수 있도록 제공되는 렌더 컨텍스트. */
 export interface RoomRenderContext {
   containerRef: RefObject<HTMLDivElement | null>;
   imageRef: RefObject<HTMLImageElement | null>;
@@ -22,10 +25,12 @@ export interface RoomRenderContext {
   surfacePolygon: SurfacePolygon | null;
 }
 
+/** Room 내부에 렌더링될 콘텐츠 (정적 요소 또는 컨텍스트 기반 렌더 함수). */
 export type RoomRenderable =
   | ReactNode
   | ((context: RoomRenderContext) => ReactNode);
 
+/** RoomBase 컴포넌트에 전달되는 속성. */
 export interface RoomBaseProps {
   mode?: RoomMode;
   gridType: TabId | null;
@@ -35,6 +40,7 @@ export interface RoomBaseProps {
   panEnabled?: boolean;
 }
 
+/** Room 하위 콘텐츠를 렌더링 가능한 형태로 변환하는 보조 함수. */
 const renderRoomChildren = (
   renderable: RoomRenderable | undefined,
   context: RoomRenderContext,
@@ -45,6 +51,7 @@ const renderRoomChildren = (
   return typeof renderable === 'function' ? renderable(context) : renderable;
 };
 
+/** Room 배경 이미지와 제스처 인터랙션을 처리하는 기반 컴포넌트. */
 const RoomBase = ({
   mode = 'readonly',
   gridType,

@@ -2,13 +2,16 @@ import { useEffect, useState } from 'react';
 import type { RefObject } from 'react';
 import type { TabId } from '@/features/game/shop/types/item';
 
+/** Room에서 사용하는 격자의 면 구분. */
 export type GridType = 'floor' | 'leftWall' | 'rightWall';
 
+/** 2차원 좌표를 나타내는 구조체. */
 export interface Point {
   x: number;
   y: number;
 }
 
+/** 격자 셀의 정보와 꼭짓점 좌표. */
 export interface GridCell {
   id: string;
   gridType: GridType;
@@ -16,8 +19,10 @@ export interface GridCell {
   vertices: [Point, Point, Point, Point];
 }
 
+/** Room 표면을 감싸는 사각형 폴리곤. */
 export type SurfacePolygon = [Point, Point, Point, Point];
 
+/** Room 이미지와 스케일 정보를 기반으로 격자를 계산하기 위한 옵션. */
 interface UseGridProps {
   scale: number;
   position: { x: number; y: number };
@@ -56,11 +61,13 @@ const AREAS_CONFIG: Partial<Record<GridType, [Point, Point, Point, Point]>> = {
   ],
 };
 
+/** 두 점 사이를 t 비율만큼 선형 보간한다. */
 const lerp = (p1: Point, p2: Point, t: number): Point => ({
   x: p1.x + (p2.x - p1.x) * t,
   y: p1.y + (p2.y - p1.y) * t,
 });
 
+/** Room 이미지 크기와 이동 값에 맞춰 격자선과 셀 좌표를 계산하는 훅. */
 export const useGrid = ({
   scale,
   position,

@@ -1,11 +1,13 @@
 import type { GridType } from '@/features/game/room/hooks/useGrid';
 import type { TabId } from '@/features/game/shop/types/item';
 
+/** 방 그리드 크기 및 레이어 구성을 표현하는 메타 정보. */
 export interface RoomMeta {
   cellSize?: number;
   layers?: GridType[];
 }
 
+/** 방에 배치된 아이템의 좌표, 크기, 회전 정보를 담는 엔티티. */
 export interface PlacedItem {
   id: string;
   inventoryItemId?: number;
@@ -25,6 +27,7 @@ export interface PlacedItem {
   isPreview?: boolean;
 }
 
+/** 드래그 중인 아이템의 상태를 추적하기 위한 세션 정보. */
 export interface DragSession {
   itemId: string;
   originPlacedId?: string;
@@ -41,6 +44,7 @@ export interface DragSession {
   isPreview?: boolean;
 }
 
+/** 데코 스토어가 관리하는 전체 상태 구조. */
 export interface DecoState {
   roomMeta: RoomMeta;
   placedItems: PlacedItem[];

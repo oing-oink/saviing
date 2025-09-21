@@ -1,3 +1,4 @@
+/** 데코 편집 툴바 버튼 상태를 제어하기 위한 속성. */
 interface ToolbarProps {
   onSaveClick?: () => void;
   onCancelClick?: () => void;
@@ -5,6 +6,7 @@ interface ToolbarProps {
   isDirty?: boolean;
 }
 
+/** 저장/취소 액션 버튼을 제공하는 데코 페이지 툴바. */
 const Toolbar = ({
   onSaveClick,
   onCancelClick,

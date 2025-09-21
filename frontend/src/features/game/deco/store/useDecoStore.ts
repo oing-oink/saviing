@@ -11,6 +11,7 @@ import type { TabId } from '@/features/game/shop/types/item';
 import { buildFootprint, parseCellId } from '@/features/game/deco/utils/grid';
 import { getItemImage } from '@/features/game/shop/utils/getItemImage';
 
+/** 인벤토리에서 드래그를 시작할 때 필요한 옵션 값. */
 interface StartDragOptions {
   allowedGridType?: TabId | null;
   xLength?: number;
@@ -23,11 +24,13 @@ interface StartDragOptions {
   itemType?: PlacedItem['itemType'];
 }
 
+/** 서버에서 내려온 방 상태를 스토어에 주입할 때 사용하는 페이로드. */
 interface ApplyServerStatePayload {
   roomMeta?: RoomMeta;
   placedItems: PlacedItem[];
 }
 
+/** 데코 편집 상태를 조작하기 위한 액션 모음. */
 interface DecoActions {
   startDragFromInventory: (itemId: string, options?: StartDragOptions) => void;
   startDragFromPlaced: (placedId: string) => void;
@@ -46,11 +49,13 @@ interface DecoActions {
 
 type DecoStore = DecoState & DecoActions;
 
+/** 초깃값으로 사용하는 방 메타 정보. */
 const initialRoomMeta: RoomMeta = {
   cellSize: 1,
   layers: ['floor', 'leftWall', 'rightWall'],
 };
 
+/** 드래그 세션 정보를 기반으로 배치 아이템 엔티티를 생성한다. */
 const buildPlacedItemFromSession = (
   session: DragSession,
   cellId: string,
@@ -102,6 +107,7 @@ const buildPlacedItemFromSession = (
   };
 };
 
+/** 드래그를 추적하기 위한 세션 객체를 생성한다. */
 const createDragSession = (
   itemId: string,
   overrides?: Partial<DragSession>,
@@ -119,6 +125,7 @@ const createDragSession = (
   ...overrides,
 });
 
+/** 서버에서 내려온 아이템에 고유 ID가 없을 경우 인스턴스 ID를 부여한다. */
 const withInstanceId = (items: PlacedItem[]): PlacedItem[] =>
   items.map((item, index) => ({
     id:
@@ -142,9 +149,11 @@ const withInstanceId = (items: PlacedItem[]): PlacedItem[] =>
     itemType: item.itemType,
   }));
 
+/** 드래프트 아이템 배열에서 특정 ID의 인덱스를 찾는다. */
 const findDraftIndex = (items: PlacedItem[], id: string) =>
   items.findIndex(item => item.id === id);
 
+/** 방 데코 편집 전용 Zustand 스토어 인스턴스. */
 export const decoStore = createStore<DecoStore>(set => ({
   roomMeta: initialRoomMeta,
   placedItems: [],
@@ -355,5 +364,6 @@ export const decoStore = createStore<DecoStore>(set => ({
   setScale: scale => set(() => ({ scale })),
 }));
 
+/** 컴포넌트에서 데코 스토어를 구독하기 위한 커스텀 훅. */
 export const useDecoStore = <T>(selector: (state: DecoStore) => T) =>
   useStore(decoStore, selector);

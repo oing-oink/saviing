@@ -1,6 +1,7 @@
 import type { RefObject } from 'react';
 import { useState, useRef, useEffect } from 'react';
 
+/** Room 제스처 동작을 제어하기 위한 옵션. */
 interface UseGesturesProps {
   containerRef: RefObject<HTMLElement | null>;
   targetRef: RefObject<HTMLElement | null>;
@@ -9,6 +10,7 @@ interface UseGesturesProps {
   panEnabled?: boolean;
 }
 
+/** 배경 이미지를 확대·이동할 수 있도록 제스처 이벤트를 관리하는 훅. */
 export const useGestures = ({
   containerRef,
   targetRef,

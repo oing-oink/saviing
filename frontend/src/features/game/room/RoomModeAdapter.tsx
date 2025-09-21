@@ -6,6 +6,7 @@ import RoomBase, {
   type RoomRenderContext,
 } from './RoomBase';
 
+/** RoomBase에 모드별 오버레이를 주입할 때 사용하는 속성. */
 interface RoomModeAdapterProps
   extends Omit<RoomBaseProps, 'mode' | 'children'> {
   mode?: RoomMode;
@@ -14,6 +15,9 @@ interface RoomModeAdapterProps
   editOverlay?: (context: RoomRenderContext) => ReactNode;
 }
 
+/**
+ * RoomBase 위에 모드(preview/edit)에 따른 오버레이 콘텐츠를 간단히 배치할 수 있도록 도와주는 어댑터 컴포넌트.
+ */
 const RoomModeAdapter = ({
   mode = 'readonly',
   children,

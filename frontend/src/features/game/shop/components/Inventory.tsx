@@ -6,6 +6,7 @@ import { getItemImage } from '@/features/game/shop/utils/getItemImage';
 import inventory_square from '@/assets/inventory_square.png';
 import ItemDetailModal from './ItemDetailModal';
 
+/** 상점/데코 인벤토리 영역을 구성하기 위한 속성. */
 interface InventoryProps {
   items: Item[];
   activeTab: Tab;
@@ -20,6 +21,7 @@ interface InventoryProps {
   emptyMessage?: string;
 }
 
+/** 상점 또는 데코 화면에서 아이템 슬롯과 탭을 렌더링하는 컴포넌트. */
 const Inventory = ({
   items,
   activeTab,

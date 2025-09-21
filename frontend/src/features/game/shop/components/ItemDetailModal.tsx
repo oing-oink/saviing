@@ -8,6 +8,7 @@ import type { Item, PaymentMethod } from '@/features/game/shop/types/item';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 
+/** 상점 아이템 상세 모달에 필요한 속성. */
 interface ItemDetailModalProps {
   itemId: number | null;
   isOpen: boolean;
@@ -15,6 +16,7 @@ interface ItemDetailModalProps {
   onPreview?: (item: Item) => void;
 }
 
+/** 아이템 상세 정보 조회 및 구매/미리보기를 제공하는 모달 컴포넌트. */
 const ItemDetailModal = ({
   itemId,
   isOpen,

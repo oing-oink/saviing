@@ -12,6 +12,9 @@ import PlacedItem from './PlacedItem';
 import GhostItem from './GhostItem';
 import { useGrid } from '@/features/game/room/hooks/useGrid';
 
+/**
+ * RoomCanvas 컴포넌트에서 필요한 컨텍스트와 동작 제어 옵션.
+ */
 interface RoomCanvasProps {
   context: RoomRenderContext;
   onAutoPlacementFail?: () => void;
@@ -22,7 +25,9 @@ interface RoomCanvasProps {
   deleteOnlyPreview?: boolean;
 }
 
-// RoomCanvas는 드래그 중/확정된 아이템 스프라이트와 하이라이트를 관리하는 캔버스 레이어다.
+/**
+ * 드래그 중인 아이템과 확정된 배치를 시각화하고 배치 액션을 처리하는 캔버스 레이어.
+ */
 const RoomCanvas = ({
   context,
   onAutoPlacementFail,

@@ -1,11 +1,13 @@
 import type { GridCell, GridType } from '@/features/game/room/hooks/useGrid';
 
+/** 셀 ID를 해석했을 때 얻을 수 있는 그리드 정보. */
 interface ParsedCellId {
   gridType: GridType;
   col: number;
   row: number;
 }
 
+/** 셀 ID 문자열을 그리드 타입과 좌표로 파싱한다. */
 export const parseCellId = (cellId: string): ParsedCellId | null => {
   const parts = cellId.split('-');
   if (parts.length !== 3) {
@@ -22,6 +24,7 @@ export const parseCellId = (cellId: string): ParsedCellId | null => {
   return { gridType: gridType as GridType, col, row };
 };
 
+/** 기준 셀에서 시작해 x/y 길이만큼의 footprint ID 목록을 만든다. */
 export const buildFootprint = (
   cellId: string,
   xLength: number,
@@ -45,6 +48,7 @@ export const buildFootprint = (
   return footprint;
 };
 
+/** 주어진 좌표와 가장 가까운 셀을 찾는다. */
 export const findNearestCell = (
   cells: GridCell[],
   px: number,
@@ -70,6 +74,7 @@ export const findNearestCell = (
   return nearest;
 };
 
+/** 셀 집합의 중심 좌표를 기준으로 최소/최대 범위를 구한다. */
 export const getCellBounds = (cells: GridCell[]) => {
   if (!cells.length) {
     return { minX: 0, maxX: 0, minY: 0, maxY: 0 };
@@ -84,6 +89,7 @@ export const getCellBounds = (cells: GridCell[]) => {
   };
 };
 
+/** 특정 셀이 점유 목록에 포함돼 있는지 여부를 확인한다. */
 export const isCellFree = (occupied: Set<string>, cellId: string): boolean => {
   return !occupied.has(cellId);
 };
