@@ -56,6 +56,11 @@ const AccountCreationFunnel = () => {
       if (typeParam) {
         params.set('type', typeParam);
       }
+      // from 파라미터 보존
+      const fromParam = searchParams.get('from');
+      if (fromParam) {
+        params.set('from', fromParam);
+      }
 
       navigate(`${PAGE_PATH.ACCOUNT_CREATION}?${params.toString()}`, {
         replace: true,
@@ -69,6 +74,11 @@ const AccountCreationFunnel = () => {
       params.set('step', 'START');
       if (typeParam) {
         params.set('type', typeParam);
+      }
+      // from 파라미터 보존
+      const fromParam = searchParams.get('from');
+      if (fromParam) {
+        params.set('from', fromParam);
       }
       navigate(`${PAGE_PATH.ACCOUNT_CREATION}?${params.toString()}`, {
         replace: true,
