@@ -8,8 +8,6 @@ import java.util.Objects;
 
 import saviing.bank.common.vo.MoneyWon;
 import saviing.bank.transaction.domain.model.TransactionDirection;
-import saviing.bank.transaction.domain.model.transfer.TransferStatus;
-import saviing.bank.transaction.domain.model.transfer.TransferType;
 import saviing.bank.transaction.domain.vo.IdempotencyKey;
 import saviing.bank.transaction.domain.vo.TransactionId;
 import saviing.bank.transaction.exception.InvalidLedgerStateException;

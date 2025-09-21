@@ -28,7 +28,7 @@ class TransactionTests {
 
         // When
         Transaction transaction = Transaction.create(
-            accountId, transactionType, direction, amount,
+            accountId, transactionType, direction, amount, MoneyWon.of(5000000L),
             valueDate, postedAt, description
         );
 
@@ -37,6 +37,7 @@ class TransactionTests {
         assertThat(transaction.getTransactionType()).isEqualTo(transactionType);
         assertThat(transaction.getDirection()).isEqualTo(direction);
         assertThat(transaction.getAmount()).isEqualTo(amount);
+        assertThat(transaction.getBalanceAfter()).isEqualTo(MoneyWon.of(5000000L));
         assertThat(transaction.getValueDate()).isEqualTo(valueDate);
         assertThat(transaction.getPostedAt()).isEqualTo(postedAt);
         assertThat(transaction.getStatus()).isEqualTo(TransactionStatus.POSTED);
@@ -56,7 +57,7 @@ class TransactionTests {
 
         // When & Then
         assertThatThrownBy(() -> Transaction.create(
-            accountId, transactionType, direction, amount,
+            accountId, transactionType, direction, amount, MoneyWon.of(5000000L),
             valueDate, postedAt, null
         )).isInstanceOf(saviing.bank.transaction.exception.InvalidTransactionStateException.class)
           .hasMessageContaining("거래 유형")
@@ -100,6 +101,7 @@ class TransactionTests {
             TransactionType.TRANSFER_IN,
             TransactionDirection.CREDIT,
             MoneyWon.of(10000),
+            MoneyWon.of(5010000L),
             LocalDate.now(),
             Instant.now(),
             null
@@ -121,6 +123,7 @@ class TransactionTests {
             TransactionType.TRANSFER_OUT,
             TransactionDirection.DEBIT,
             MoneyWon.of(5000),
+            MoneyWon.of(4995000L),
             LocalDate.now(),
             Instant.now(),
             null
@@ -153,6 +156,7 @@ class TransactionTests {
             TransactionType.TRANSFER_IN,
             TransactionDirection.CREDIT,
             MoneyWon.of(10000),
+            MoneyWon.of(5010000L),
             LocalDate.now(),
             Instant.now(),
             "테스트 거래"

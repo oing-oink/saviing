@@ -136,13 +136,14 @@ public class TransferService implements TransferUseCase {
 
         try {
             // 출금/입금은 AccountInternalApi를 통해 처리하며 실패 시 도메인 예외로 변환한다.
-            withdraw(command.sourceAccountId(), command.amount());
+            BalanceUpdateResponse withdrawResponse = withdraw(command.sourceAccountId(), command.amount());
             withdrawCompleted = true;
             debitTransactionId = createTransaction(
                 command.sourceAccountId(),
                 TransactionType.TRANSFER_OUT,
                 TransactionDirection.DEBIT,
                 command.amount(),
+                MoneyWon.of(withdrawResponse.currentBalance()),
                 command.valueDate(),
                 command.memo(),
                 startedAt
@@ -155,12 +156,13 @@ public class TransferService implements TransferUseCase {
                 startedAt
             );
 
-            deposit(command.targetAccountId(), command.amount());
+            BalanceUpdateResponse depositResponse = deposit(command.targetAccountId(), command.amount());
             creditTransactionId = createTransaction(
                 command.targetAccountId(),
                 TransactionType.TRANSFER_IN,
                 TransactionDirection.CREDIT,
                 command.amount(),
+                MoneyWon.of(depositResponse.currentBalance()),
                 command.valueDate(),
                 command.memo(),
                 Instant.now()
@@ -249,6 +251,7 @@ public class TransferService implements TransferUseCase {
         TransactionType transactionType,
         TransactionDirection direction,
         MoneyWon amount,
+        MoneyWon balanceAfter,
         LocalDate valueDate,
         String description,
         Instant postedAt
@@ -258,6 +261,7 @@ public class TransferService implements TransferUseCase {
             transactionType,
             direction,
             amount,
+            balanceAfter,
             valueDate,
             postedAt,
             description
@@ -314,13 +318,14 @@ public class TransferService implements TransferUseCase {
             log.warn("[COMPENSATION-START] 송금 보상 처리 시작 - idempotencyKey: {}, accountId: {}, amount: {}",
                 idempotencyKey.value(), command.sourceAccountId(), command.amount().amount());
 
-            deposit(command.sourceAccountId(), command.amount());
+            BalanceUpdateResponse compensationResponse = deposit(command.sourceAccountId(), command.amount());
 
             TransactionId compensationTxId = createTransaction(
                 command.sourceAccountId(),
                 TransactionType.REVERSAL,
                 TransactionDirection.CREDIT,
                 command.amount(),
+                MoneyWon.of(compensationResponse.currentBalance()),
                 command.valueDate(),
                 "Transfer compensation for " + idempotencyKey.value(),
                 Instant.now()
