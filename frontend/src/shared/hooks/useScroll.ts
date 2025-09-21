@@ -48,9 +48,11 @@ export const useScroll = (options: UseScrollOptions = {}): UseScrollReturn => {
 
   const readAndUpdate = useCallback(() => {
     // PageScrollArea의 viewport를 우선 확인
-    const scrollViewport = document.querySelector('[data-slot="scroll-area-viewport"]') as HTMLElement;
+    const scrollViewport = document.querySelector(
+      '[data-slot="scroll-area-viewport"]',
+    ) as HTMLElement;
     let y = 0;
-    
+
     if (scrollViewport) {
       // PageScrollArea가 있으면 해당 컨테이너의 scrollTop 사용
       y = scrollViewport.scrollTop ?? 0;
@@ -59,7 +61,7 @@ export const useScroll = (options: UseScrollOptions = {}): UseScrollReturn => {
       const doc = document.documentElement;
       y = window.scrollY ?? doc.scrollTop ?? 0;
     }
-    
+
     const diff = y - lastY.current;
 
     setState(prev => {
@@ -73,7 +75,9 @@ export const useScroll = (options: UseScrollOptions = {}): UseScrollReturn => {
       // isAtBottom 계산
       let isAtBottom = false;
       if (scrollViewport) {
-        isAtBottom = y + scrollViewport.clientHeight >= scrollViewport.scrollHeight - bottomOffset;
+        isAtBottom =
+          y + scrollViewport.clientHeight >=
+          scrollViewport.scrollHeight - bottomOffset;
       } else {
         const doc = document.documentElement;
         isAtBottom = y + doc.clientHeight >= doc.scrollHeight - bottomOffset;
@@ -146,8 +150,10 @@ export const useScroll = (options: UseScrollOptions = {}): UseScrollReturn => {
     }
 
     // PageScrollArea viewport 확인
-    const scrollViewport = document.querySelector('[data-slot="scroll-area-viewport"]') as HTMLElement;
-    
+    const scrollViewport = document.querySelector(
+      '[data-slot="scroll-area-viewport"]',
+    ) as HTMLElement;
+
     // 초기화
     let initialY = 0;
     if (scrollViewport) {
@@ -155,7 +161,7 @@ export const useScroll = (options: UseScrollOptions = {}): UseScrollReturn => {
     } else {
       initialY = window.scrollY ?? 0;
     }
-    
+
     lastY.current = initialY;
     setState(prev => ({
       ...prev,

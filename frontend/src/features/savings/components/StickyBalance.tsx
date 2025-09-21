@@ -5,8 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { PAGE_PATH } from '@/shared/constants/path';
 import type { SavingsDisplayData } from '@/features/savings/types/savingsTypes';
 import { Card, CardContent } from '@/shared/components/ui/card';
-
-type ScrollDirection = 'up' | 'down' | null;
+import type { ScrollDirection } from '@/shared/types/scroll.types';
 
 interface StickyBalanceProps {
   data: SavingsDisplayData;

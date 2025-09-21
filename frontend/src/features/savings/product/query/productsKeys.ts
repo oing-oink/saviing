@@ -28,5 +28,6 @@ export const productsKeys = {
   /**
    * 특정 상품 상세 조회 쿼리 키
    */
-  detail: (productCode: string) => [...productsKeys.details(), productCode] as const,
+  detail: (productCode: string) =>
+    [...productsKeys.details(), productCode] as const,
 } as const;

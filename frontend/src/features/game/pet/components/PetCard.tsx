@@ -19,7 +19,7 @@ const PetCard = ({ petId }: PetCardProps) => {
 
   if (isLoading) {
     return (
-      <Card className="game relative flex w-full flex-col items-center gap-4 rounded-2xl py-4 font-galmuri shadow overflow-hidden">
+      <Card className="game relative flex w-full flex-col items-center gap-4 overflow-hidden rounded-2xl py-4 font-galmuri shadow">
         <GameBackground />
         <div className="relative z-10 flex h-full items-center justify-center">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -33,15 +33,17 @@ const PetCard = ({ petId }: PetCardProps) => {
 
   if (error || !petData) {
     return (
-      <Card className="game relative flex w-full flex-col items-center gap-4 rounded-2xl py-4 shadow overflow-hidden">
+      <Card className="game relative flex w-full flex-col items-center gap-4 overflow-hidden rounded-2xl py-4 shadow">
         <GameBackground />
-        <div className="relative z-10 text-red-500">데이터를 불러올 수 없습니다</div>
+        <div className="relative z-10 text-red-500">
+          데이터를 불러올 수 없습니다
+        </div>
       </Card>
     );
   }
 
   return (
-    <Card className="game relative flex w-full flex-col items-center gap-4 rounded-2xl py-4 font-galmuri shadow overflow-hidden">
+    <Card className="game relative flex w-full flex-col items-center gap-4 overflow-hidden rounded-2xl py-4 font-galmuri shadow">
       <GameBackground />
 
       {/* 레벨 배지 */}
@@ -51,7 +53,7 @@ const PetCard = ({ petId }: PetCardProps) => {
       <img
         src={sampleCat}
         alt={petData.name}
-        className="relative z-10 image-render-pixel h-28 w-auto"
+        className="image-render-pixel relative z-10 h-28 w-auto"
       />
 
       {/* 스탯 패널 */}
@@ -67,7 +69,10 @@ const PetCard = ({ petId }: PetCardProps) => {
       </div>
 
       {/* PLAY 버튼 */}
-      <button className="relative z-10 mt-2" onClick={() => navigate(PAGE_PATH.GAME)}>
+      <button
+        className="relative z-10 mt-2"
+        onClick={() => navigate(PAGE_PATH.GAME)}
+      >
         <img src={playButton} alt="playButton" className="h-12 w-auto" />
       </button>
     </Card>

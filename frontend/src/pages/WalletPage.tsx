@@ -46,9 +46,7 @@ const WalletPage = () => {
         {savingsAccount && (
           <SavingsAccountWalletCard account={savingsAccount} />
         )}
-        {demandAccount && (
-          <CheckingAccountWalletCard account={demandAccount} />
-        )}
+        {demandAccount && <CheckingAccountWalletCard account={demandAccount} />}
         <div className="flex w-full gap-4">
           {buttons.map((btn, i) => (
             <WalletButton

@@ -1,5 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import { getProducts, getProductDetail } from '@/features/savings/product/api/productsApi';
+import {
+  getProducts,
+  getProductDetail,
+} from '@/features/savings/product/api/productsApi';
 import { productsKeys } from '@/features/savings/product/query/productsKeys';
 
 /**
@@ -15,7 +18,7 @@ export const useProductsQuery = () => {
     queryKey: productsKeys.list(),
     queryFn: getProducts,
     staleTime: 5 * 60 * 1000, // 5분 - 상품 정보는 자주 변경되지 않음
-    gcTime: 10 * 60 * 1000,   // 10분 - 캐시 보관 시간
+    gcTime: 10 * 60 * 1000, // 10분 - 캐시 보관 시간
   });
 };
 
@@ -31,9 +34,14 @@ export const useProductsQuery = () => {
 export const useProductDetail = (productCode?: string) => {
   return useQuery({
     queryKey: productsKeys.detail(productCode || ''),
-    queryFn: () => getProductDetail(productCode!),
-    enabled: !!productCode, // productCode가 있을 때만 쿼리 실행
+    queryFn: () => {
+      if (!productCode) {
+        throw new Error('productCode is required');
+      }
+      return getProductDetail(productCode);
+    },
+    enabled: productCode !== undefined && productCode !== '', // productCode가 있을 때만 쿼리 실행
     staleTime: 5 * 60 * 1000, // 5분 - 상품 상세 정보는 자주 변경되지 않음
-    gcTime: 10 * 60 * 1000,   // 10분 - 캐시 보관 시간
+    gcTime: 10 * 60 * 1000, // 10분 - 캐시 보관 시간
   });
 };

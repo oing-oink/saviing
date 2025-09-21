@@ -1,5 +1,8 @@
 import { http } from '@/shared/services/api/http';
-import type { Product, ProductDetail } from '@/features/savings/product/types/productTypes';
+import type {
+  Product,
+  ProductDetail,
+} from '@/features/savings/product/types/productTypes';
 
 /**
  * 은행 상품 목록을 조회하는 API 함수

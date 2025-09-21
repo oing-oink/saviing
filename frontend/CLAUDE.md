@@ -92,6 +92,71 @@ const ComponentName = ({ prop1, prop2 }: ComponentProps) => {
 - Radix UI primitives with custom styling
 - CVA for component variants
 
+**Component Categories:**
+
+```typescript
+// Layout Components
+src/features/savings/layouts/
+├── SavingsLayout.tsx          # Main app layout with bottom nav
+├── SavingsDetailLayout.tsx    # Detail pages with top bar
+└── FunnelLayout.tsx          # Account creation funnel
+
+// Navigation Components
+src/features/savings/components/
+├── DetailTopBar.tsx          # Detail page header with back button
+├── StepHeader.tsx           # Funnel step header with back navigation
+└── FunnelProgressBar.tsx    # Step progress indicator
+
+// Page Components
+src/pages/
+├── HomePage.tsx             # Main dashboard
+├── WalletPage.tsx          # Account overview
+├── ProductsPage.tsx        # Product catalog
+├── SavingsDetailPage.tsx   # Savings account details
+└── AccountDetailPage.tsx   # Checking account details
+
+// Sticky Components (Scroll-aware)
+src/features/savings/components/
+├── StickyBalance.tsx       # Savings sticky header with progress
+├── AccountBalance.tsx      # Account sticky header (balance only)
+├── SavingsDetailCard.tsx   # Main savings info card
+└── AccountDetailCard.tsx   # Main account info card
+
+// Funnel Components
+src/features/savings/components/funnelSteps/
+├── StartStep.tsx           # Account type selection
+├── UserInfoStep.tsx        # User information input
+├── AuthStep.tsx           # Authentication verification
+└── CompleteStep.tsx       # Success confirmation
+
+// Shared Components
+src/shared/components/
+├── layout/
+│   └── PageScrollArea.tsx   # Custom scroll container wrapper
+├── ui/
+│   ├── scroll-area.tsx     # Radix ScrollArea primitive
+│   ├── card.tsx           # Card component variants
+│   ├── button.tsx         # Button component variants
+│   └── progress.tsx       # Progress bar component
+└── common/
+    └── ProtectedRoute.tsx  # Route authentication wrapper
+```
+
+**Scroll System Components:**
+
+```typescript
+// PageScrollArea: Custom scroll container
+<PageScrollArea className="flex-1">
+  {children}
+</PageScrollArea>
+
+// useScroll: Scroll state management
+const { scrollY, scrollDirection, isAtTop, isAtBottom } = useScroll();
+
+// useScrollReset: Auto-scroll reset
+useScrollReset(); // in layout components
+```
+
 ### Theming System
 
 **Multi-theme architecture:**
@@ -119,11 +184,124 @@ const ComponentName = ({ prop1, prop2 }: ComponentProps) => {
 - Feature co-location principle
 - No relative imports except within same folder
 
-### Routing
+### Router Architecture
+
+**Main Router Setup:**
 
 - React Router v7 with `createBrowserRouter`
-- Centralized route definitions in `src/app/router/routes.tsx`
-- Path constants for type-safe navigation
+- Feature-based route separation in `src/app/router/`
+- Path constants for type-safe navigation in `src/shared/constants/path.ts`
+
+**Route Structure:**
+
+```typescript
+src/app/router/
+├── routes.tsx          # Main router configuration
+├── authRoutes.tsx      # Authentication routes
+├── savingsRoutes.tsx   # Financial app routes
+├── gameRoutes.tsx      # Pet game routes
+└── devRoutes.tsx       # Development/fallback routes
+```
+
+**SavingsRoutes Architecture:**
+
+```typescript
+// 3-tier layout system
+1. homePages: SavingsLayout (/, /wallet, /products)
+   - Main navigation with bottom tab bar
+   - Protected with ProtectedRoute wrapper
+
+2. independentPages: Standalone pages (/savings, /account-creation/*)
+   - Funnel pages with step-by-step navigation
+   - Full-screen layouts without main navigation
+
+3. detailPages: SavingsDetailLayout (/savings-detail/:id, /account-detail/:id)
+   - Detail pages with custom top bar
+   - Scroll-aware sticky components
+```
+
+### Layout System
+
+**Layout Hierarchy:**
+
+- **SavingsLayout**: Main app layout with bottom navigation
+- **SavingsDetailLayout**: Detail pages with DetailTopBar + PageScrollArea
+- **FunnelLayout**: Account creation steps with StepHeader + ProgressBar
+
+**Layout Components:**
+
+```typescript
+// Main layout for home pages
+<SavingsLayout>
+  <PageScrollArea>
+    {children} // HomePage, WalletPage, ProductsPage
+  </PageScrollArea>
+</SavingsLayout>
+
+// Detail pages with scroll management
+<SavingsDetailLayout title="페이지 제목">
+  <PageScrollArea>
+    {children} // SavingsDetailPage, AccountDetailPage
+  </PageScrollArea>
+</SavingsDetailLayout>
+
+// Funnel with step navigation
+<FunnelLayout>
+  <StepHeader />
+  {children} // Account creation steps
+</FunnelLayout>
+```
+
+### Scroll Management System
+
+**PageScrollArea Integration:**
+
+- Radix UI ScrollArea with custom viewport selector
+- Global scroll state management via `useScroll` hook
+- Automatic scroll reset on route changes via `useScrollReset`
+
+**Scroll-Based Components:**
+
+```typescript
+// Sticky components with scroll detection
+<StickyBalance
+  isVisible={isSticky}
+  scrollDirection={scrollDirection}
+/>
+
+// useScroll integration
+const { scrollY, scrollDirection } = useScroll();
+const shouldBeSticky = balanceRef.current?.getBoundingClientRect().top <= 56;
+```
+
+**Scroll Utilities:**
+
+- `scrollToTop()`: Scroll to page top (PageScrollArea-aware)
+- `scrollToElement()`: Scroll to specific element
+- `useScrollReset()`: Auto-reset scroll on navigation
+
+### Navigation System
+
+**Context-Aware Back Navigation:**
+
+```typescript
+// URL parameter-based navigation
+navigate(`/account-creation/start?type=${accountType}&from=products`);
+
+// Smart back button logic
+const fromParam = searchParams.get('from');
+if (fromParam === 'products') {
+  navigate(PAGE_PATH.PRODUCTS);
+} else {
+  navigate(PAGE_PATH.WALLET); // default
+}
+```
+
+**Funnel Navigation:**
+
+- `useStepProgress`: Step-by-step navigation with URL persistence
+- URL parameter preservation across funnel steps
+- Dynamic step arrays based on account type (SAVINGS vs CHECKING)
 
 ## Environment Setup
 
