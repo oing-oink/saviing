@@ -18,7 +18,7 @@ const CurrentInfoStep = () => {
       currentAmount: 300000,
       currentTransferDate: '25',
       currentBalance: 3600000,
-      currentAutoAccount: 123456789, // 현재 연결된 자동이체 계좌 ID
+      currentAutoAccount: '123456789', // 현재 연결된 자동이체 계좌 ID
     };
 
     setCurrentInfo(mockCurrentInfo);
@@ -26,7 +26,7 @@ const CurrentInfoStep = () => {
 
   // 현재 연결된 자동이체 계좌 찾기
   const currentAutoAccount = accounts?.find(
-    account => account.accountId === 123456789, // Mock ID - 실제로는 API에서 받은 현재 계좌 ID
+    account => String(account.accountId) === '123456789', // Mock ID - 실제로는 API에서 받은 현재 계좌 ID
   );
 
   // 계좌가 없으면 기본값 표시
