@@ -79,7 +79,7 @@ const ConfirmStep = () => {
                     <span className="text-gray-700">연결 계좌</span>
                     <span className="font-medium text-primary">
                       {currentInfo?.currentAutoAccount
-                        ? `현재 계좌 (*${currentInfo.currentAutoAccount.slice(-4)})`
+                        ? `현재 계좌 (*${String(currentInfo.currentAutoAccount).slice(-4)})`
                         : '하나 입출금통장 (*1234)'}{' '}
                       → 새 계좌 (*{newSettings.newAutoAccount.slice(-4)})
                     </span>
