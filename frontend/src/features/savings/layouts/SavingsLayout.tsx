@@ -7,8 +7,10 @@ const SavingsLayout = () => {
   return (
     <div className="saving mx-auto flex h-dvh w-full max-w-md flex-col bg-violet-50">
       <TopBar />
-      <PageScrollArea className="flex-1 pb-20">
-        <Outlet />
+      <PageScrollArea className="flex-1">
+        <div className="pb-30">
+          <Outlet />
+        </div>
       </PageScrollArea>
       <BottomNav />
     </div>

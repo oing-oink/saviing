@@ -1,16 +1,22 @@
 import type { ReactNode } from 'react';
 import StepHeader from '@/features/savings/components/StepHeader';
+import { PageScrollArea } from '@/shared/components/layout/PageScrollArea';
+import { useScrollReset } from '@/shared/utils/scrollUtils';
 
 interface FunnelLayoutProps {
   children: ReactNode;
 }
 
 const FunnelLayout = ({ children }: FunnelLayoutProps) => {
+  // 스텝 변경 시 자동 스크롤 리셋
+  useScrollReset();
+
   return (
-    // 프로그레스 바 높이만큼 빼줘서 불필요한 스크롤 방지
-    <div className="flex min-h-[calc(100vh-0.5rem)] flex-col bg-white">
+    <div className="saving mx-auto flex h-dvh w-full max-w-md flex-col bg-white">
       <StepHeader />
-      {children}
+      <PageScrollArea className="h-[calc(100dvh-56px)]">
+        {children}
+      </PageScrollArea>
     </div>
   );
 };
