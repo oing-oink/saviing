@@ -14,6 +14,7 @@ interface AccountDetailCardProps {
   data?: SavingsAccountData;
   isLoading: boolean;
   error: Error | null;
+  balanceSectionRef?: React.RefObject<HTMLDivElement | null>;
   isSticky?: boolean;
 }
 
@@ -21,6 +22,7 @@ const AccountDetailCard = ({
   data: accountData,
   isLoading,
   error,
+  balanceSectionRef,
   isSticky = false,
 }: AccountDetailCardProps) => {
   const navigate = useNavigate();
@@ -80,7 +82,7 @@ const AccountDetailCard = ({
             <p>{formatDate(accountData.openedAt)}</p>
           </div>
 
-          <div className="pt-2">
+          <div ref={balanceSectionRef} className="pt-2">
             <div className="flex items-center justify-between gap-1">
               <p className="text-2xl font-bold text-primary">
                 {accountData.balance.toLocaleString()}원

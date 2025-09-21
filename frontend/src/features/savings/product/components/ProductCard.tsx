@@ -41,7 +41,9 @@ const ProductCard = ({ product }: ProductCardProps) => {
         ? ACCOUNT_TYPES.SAVINGS
         : ACCOUNT_TYPES.CHECKING;
 
-    navigate(`${PAGE_PATH.ACCOUNT_CREATION}/start?type=${accountType}&from=products`);
+    navigate(
+      `${PAGE_PATH.ACCOUNT_CREATION}/start?type=${accountType}&from=products`,
+    );
   };
 
   const getAccountCreationButton = () => {
@@ -106,6 +108,15 @@ const ProductCard = ({ product }: ProductCardProps) => {
                 )}
               </span>
             </div>
+
+            {/* 계좌 개설 버튼 */}
+            <Button
+              onClick={handleAccountCreation}
+              className="w-full bg-primary text-white"
+            >
+              <ButtonIcon className="mr-2 h-4 w-4" />
+              {buttonConfig.label}
+            </Button>
           </div>
         </div>
 
@@ -209,15 +220,6 @@ const ProductCard = ({ product }: ProductCardProps) => {
                     </div>
                   </div>
                 )}
-
-                {/* 계좌 개설 버튼 */}
-                <Button
-                  onClick={handleAccountCreation}
-                  className="w-full bg-primary text-white"
-                >
-                  <ButtonIcon className="mr-2 h-4 w-4" />
-                  {buttonConfig.label}
-                </Button>
               </div>
             ) : (
               <div className="py-6 text-center text-gray-500">
