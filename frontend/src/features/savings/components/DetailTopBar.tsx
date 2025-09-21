@@ -10,10 +10,14 @@ const DetailTopBar = () => {
     // URL 파라미터에서 from 값 확인
     const fromParam = searchParams.get('from');
 
-    if (fromParam === 'products') {
+    if (fromParam === 'home') {
+      navigate(PAGE_PATH.HOME);
+    } else if (fromParam === 'wallet') {
+      navigate(PAGE_PATH.WALLET);
+    } else if (fromParam === 'products') {
       navigate(PAGE_PATH.PRODUCTS);
     } else {
-      // 기본값: WalletPage로 이동
+      // 기본값: WalletPage로 이동 (하위호환성)
       navigate(PAGE_PATH.WALLET);
     }
   };

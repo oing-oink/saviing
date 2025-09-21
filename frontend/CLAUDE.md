@@ -189,35 +189,94 @@ useScrollReset(); // in layout components
 **Main Router Setup:**
 
 - React Router v7 with `createBrowserRouter`
-- Feature-based route separation in `src/app/router/`
+- Centralized route configuration in `src/app/router/routes.tsx`
 - Path constants for type-safe navigation in `src/shared/constants/path.ts`
 
-**Route Structure:**
+**Unified Route Structure:**
 
 ```typescript
 src/app/router/
-├── routes.tsx          # Main router configuration
-├── authRoutes.tsx      # Authentication routes
-├── savingsRoutes.tsx   # Financial app routes
-├── gameRoutes.tsx      # Pet game routes
-└── devRoutes.tsx       # Development/fallback routes
+└── routes.tsx          # Single centralized router configuration
 ```
 
-**SavingsRoutes Architecture:**
+**Route Architecture (3-tier system):**
 
 ```typescript
-// 3-tier layout system
-1. homePages: SavingsLayout (/, /wallet, /products)
-   - Main navigation with bottom tab bar
-   - Protected with ProtectedRoute wrapper
+// 1. SavingsLayout Routes (Main Navigation)
+const savingsLayoutRoutes = [
+  { path: '', element: <HomePage /> },        // '/' 경로
+  { path: 'wallet', element: <WalletPage /> }, // '/wallet' 경로  
+  { path: 'products', element: <ProductsPage /> }, // '/products' 경로
+];
 
-2. independentPages: Standalone pages (/savings, /account-creation/*)
-   - Funnel pages with step-by-step navigation
-   - Full-screen layouts without main navigation
+// 2. Protected Routes without Layout
+const protectedRoutesWithoutLayout = [
+  // Game Routes
+  { path: PAGE_PATH.GAME, element: <GamePage /> },
+  { path: PAGE_PATH.SHOP, element: <ShopPage /> },
+  { path: PAGE_PATH.GACHA, element: <GachaPage /> },
+  { path: PAGE_PATH.GACHA_ROLLING, element: <GachaRollingPage /> },
+  { path: PAGE_PATH.DECO, element: <DecoPage /> },
+  
+  // Savings Routes
+  { path: PAGE_PATH.SAVINGS, element: <SavingsPage /> },
+  { path: PAGE_PATH.DEPOSIT, element: <DepositPage /> },
+  { path: PAGE_PATH.DEPOSIT_RESULT, element: <DepositResultPage /> },
+  
+  // Account Creation Funnel
+  { path: PAGE_PATH.ACCOUNT_CREATION, element: <AccountCreationFunnel /> },
+  { path: `${PAGE_PATH.ACCOUNT_CREATION}/*`, element: <AccountCreationFunnel /> },
+];
 
-3. detailPages: SavingsDetailLayout (/savings-detail/:id, /account-detail/:id)
-   - Detail pages with custom top bar
-   - Scroll-aware sticky components
+// 3. Public Routes (No Authentication)
+const publicRoutes = [
+  { path: PAGE_PATH.LOGIN, element: <LoginPage /> },
+  { path: PAGE_PATH.ONBOARDING, element: <OnboardingPage /> },
+  { path: PAGE_PATH.AUTH_CALLBACK, element: <AuthCallbackPage /> },
+  { path: PAGE_PATH.COLORTEST, element: <ColorTestPage /> },
+];
+```
+
+**Router Configuration Pattern:**
+
+```typescript
+export const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <Outlet />,
+    children: [
+      // Public routes (no auth required)
+      ...publicRoutes,
+      
+      // SavingsLayout routes (main navigation)
+      {
+        path: '/',
+        element: (
+          <ProtectedRoute>
+            <SavingsLayout />
+          </ProtectedRoute>
+        ),
+        children: savingsLayoutRoutes,
+      },
+      
+      // Detail pages with SavingsDetailLayout
+      {
+        path: PAGE_PATH.SAVINGS_DETAIL_WITH_ID,
+        element: <SavingsDetailLayout title="적금 상세" />,
+        children: [{ index: true, element: <SavingsDetailPage /> }],
+      },
+      
+      // Standalone protected routes
+      ...protectedRoutesWithoutLayout.map(({ path, element }) => ({
+        path,
+        element: <ProtectedRoute>{element}</ProtectedRoute>,
+      })),
+      
+      // Fallback
+      { path: '*', element: <NotFoundPage /> },
+    ],
+  },
+]);
 ```
 
 ### Layout System

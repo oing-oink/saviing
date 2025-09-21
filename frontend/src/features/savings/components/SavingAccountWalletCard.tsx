@@ -25,7 +25,7 @@ const SavingsAccountWalletCard = ({
   // 저축 관리 페이지로 이동
   const handleSavingsManagement = () => {
     if (account?.accountId) {
-      navigate(createSavingsDetailPath(account.accountId));
+      navigate(`${createSavingsDetailPath(account.accountId)}?from=wallet`);
     }
   };
 
