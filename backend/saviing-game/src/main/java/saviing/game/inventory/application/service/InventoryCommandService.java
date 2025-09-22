@@ -19,13 +19,16 @@ import saviing.game.item.domain.model.aggregate.Item;
 import saviing.game.item.domain.model.enums.Accessory;
 import saviing.game.item.domain.model.enums.Consumption;
 import saviing.game.item.domain.model.enums.Decoration;
+import saviing.game.item.domain.model.enums.ItemType;
 import saviing.game.item.domain.model.enums.Pet;
 import saviing.game.item.domain.repository.ItemRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import saviing.game.inventory.domain.event.ItemPurchasedEvent;
 
 import java.util.Optional;
 
@@ -41,6 +44,7 @@ public class InventoryCommandService {
 
     private final InventoryRepository inventoryRepository;
     private final ItemRepository itemRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 인벤토리에 새 아이템을 추가합니다.
@@ -54,12 +58,26 @@ public class InventoryCommandService {
         Item item = itemRepository.findById(command.itemId())
             .orElseThrow(() -> ItemNotFoundException.withItemId(command.itemId()));
 
-        return switch (item.getItemType()) {
+        InventoryAddedResult result = switch (item.getItemType()) {
             case PET -> createPetInventory(command, item);
             case ACCESSORY -> createAccessoryInventory(command, item);
             case DECORATION -> createDecorationInventory(command, item);
             case CONSUMPTION -> handleConsumptionInventory(command, item);
         };
+
+        // PET 아이템일 때만 이벤트 발행
+        if (item.getItemType() == ItemType.PET) {
+            eventPublisher.publishEvent(ItemPurchasedEvent.of(
+                command.characterId(),
+                command.itemId(),
+                InventoryItemId.of(result.inventoryItemId()),
+                item.getItemName().value()
+            ));
+            log.info("Published ItemPurchasedEvent for PET item: characterId={}, itemId={}, inventoryItemId={}",
+                command.characterId().value(), command.itemId().value(), result.inventoryItemId());
+        }
+
+        return result;
     }
 
     /**
