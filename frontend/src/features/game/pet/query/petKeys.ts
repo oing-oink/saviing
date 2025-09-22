@@ -22,4 +22,10 @@ export const petKeys = {
    */
   interaction: (petId: number) =>
     [...petKeys.detail(petId), 'interaction'] as const,
+
+  /**
+   * 펫 이름 변경 뮤테이션 키
+   */
+  rename: (petId: number) =>
+    [...petKeys.detail(petId), 'rename'] as const,
 };

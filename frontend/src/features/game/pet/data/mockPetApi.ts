@@ -105,3 +105,22 @@ export const mockPetInteraction = async (
     },
   };
 };
+
+/**
+ * 펫 이름 변경 모의 API
+ */
+export const mockRenamePetName = async (
+  _petId: number,
+  name: string,
+): Promise<ApiSuccessResponse<PetData>> => {
+  await new Promise(resolve => setTimeout(resolve, 300));
+
+  // mock 상태 업데이트
+  Object.assign(mockPetData, { name });
+
+  return {
+    success: true,
+    status: 200,
+    body: { ...mockPetData },
+  };
+};
