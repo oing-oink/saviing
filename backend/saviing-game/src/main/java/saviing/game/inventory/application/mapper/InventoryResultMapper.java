@@ -44,7 +44,7 @@ public class InventoryResultMapper {
             .isUsed(inventory.isUsed())
             .itemName(item.itemName())
             .itemDescription(item.itemDescription())
-            .category(getCategoryString(inventory, item))
+            .itemCategory(item.itemCategory().name())
             .imageUrl(item.imageUrl())
             .rarity(item.rarity())
             .xLength(item.xLength())
@@ -108,37 +108,6 @@ public class InventoryResultMapper {
         };
     }
 
-    /**
-     * 인벤토리 타입에 따른 카테고리 문자열을 반환합니다.
-     */
-    private String getCategoryString(Inventory inventory, ItemResult item) {
-        return switch (inventory.getType()) {
-            case PET -> {
-                if (inventory instanceof PetInventory petInventory) {
-                    yield petInventory.getCategory() != null ? petInventory.getCategory().name().toLowerCase() : "pet";
-                }
-                yield "pet";
-            }
-            case ACCESSORY -> {
-                if (inventory instanceof AccessoryInventory accessoryInventory) {
-                    yield accessoryInventory.getCategory() != null ? accessoryInventory.getCategory().name().toLowerCase() : "accessory";
-                }
-                yield "accessory";
-            }
-            case DECORATION -> {
-                if (inventory instanceof DecorationInventory decorationInventory) {
-                    yield decorationInventory.getCategory() != null ? decorationInventory.getCategory().name().toLowerCase() : "decoration";
-                }
-                yield "decoration";
-            }
-            case CONSUMPTION -> {
-                if (inventory instanceof ConsumptionInventory consumptionInventory) {
-                    yield consumptionInventory.getCategory() != null ? consumptionInventory.getCategory().name().toLowerCase() : "consumption";
-                }
-                yield "consumption";
-            }
-        };
-    }
 
     /**
      * PetInventory 도메인 객체를 PetInventoryResult로 변환합니다.
@@ -158,12 +127,6 @@ public class InventoryResultMapper {
             .type(petInventory.getType())
             .isUsed(petInventory.isUsed())
             .roomId(petInventory.getRoomId())
-            .petName(null) // Pet 이름은 Pet 도메인에서 관리
-            .level(null) // Pet 레벨은 Pet 도메인에서 관리
-            .experience(null) // Pet 경험치는 Pet 도메인에서 관리
-            .affection(null) // Pet 애정도는 Pet 도메인에서 관리
-            .energy(null) // Pet 에너지는 Pet 도메인에서 관리
-            .hatAccessoryId(null)
             .createdAt(petInventory.getCreatedAt())
             .updatedAt(petInventory.getUpdatedAt())
             .build();
@@ -187,7 +150,7 @@ public class InventoryResultMapper {
             .itemId(accessoryInventory.getItemId().value())
             .type(accessoryInventory.getType())
             .isUsed(accessoryInventory.isUsed())
-            .category(accessoryInventory.getCategory())
+            .category(accessoryInventory.getCategory() != null ? accessoryInventory.getCategory().name() : null)
             .petInventoryItemId(accessoryInventory.getPetInventoryItemId() != null ?
                 accessoryInventory.getPetInventoryItemId().value() : null)
             .createdAt(accessoryInventory.getCreatedAt())
@@ -213,7 +176,7 @@ public class InventoryResultMapper {
             .itemId(decorationInventory.getItemId().value())
             .type(decorationInventory.getType())
             .isUsed(decorationInventory.isUsed())
-            .category(decorationInventory.getCategory())
+            .category(decorationInventory.getCategory() != null ? decorationInventory.getCategory().name() : null)
             .roomId(null) // TODO: Implement decoration placement tracking
             .xPosition(null) // TODO: Implement decoration position tracking
             .yPosition(null) // TODO: Implement decoration position tracking

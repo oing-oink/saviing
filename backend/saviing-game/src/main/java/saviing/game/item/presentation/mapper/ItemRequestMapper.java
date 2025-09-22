@@ -7,6 +7,7 @@ import saviing.game.item.application.dto.enums.SortDirection;
 import saviing.game.item.application.dto.enums.SortField;
 import saviing.game.item.application.dto.query.GetListItemsQuery;
 import saviing.game.item.domain.model.enums.Accessory;
+import saviing.game.item.domain.model.enums.Consumption;
 import saviing.game.item.domain.model.enums.Decoration;
 import saviing.game.item.domain.model.enums.ItemType;
 import saviing.game.item.domain.model.enums.Pet;
@@ -49,9 +50,12 @@ public class ItemRequestMapper {
         String type, String category, String rarity,
         String keyword, Boolean available, String sort, String order, String coinType
     ) {
+        ItemType itemType = parseItemType(type);
+        Category validatedCategory = validateTypeAndCategory(itemType, category);
+
         return GetListItemsQuery.builder()
-            .itemType(parseItemType(type))
-            .category(parseCategory(category))
+            .itemType(itemType)
+            .category(validatedCategory)
             .rarity(parseRarity(rarity))
             .nameKeyword(keyword)
             .isAvailable(available)
@@ -71,34 +75,93 @@ public class ItemRequestMapper {
         try {
             return ItemType.valueOf(type);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("유효하지 않은 아이템 타입: " + type + ". 사용 가능한 값: PET, ACCESSORY, DECORATION");
+            throw new IllegalArgumentException("유효하지 않은 아이템 타입: " + type + ". 사용 가능한 값: PET, ACCESSORY, DECORATION, CONSUMPTION");
         }
     }
 
     /**
-     * 문자열을 Category로 변환합니다.
+     * 타입과 카테고리의 조합이 유효한지 검증하고 유효한 카테고리를 반환합니다.
      */
-    private Category parseCategory(String category) {
+    private Category validateTypeAndCategory(ItemType itemType, String category) {
         if (category == null || category.isBlank()) {
             return null;
         }
 
+        // 타입이 지정되지 않은 경우, 모든 카테고리에서 검색
+        if (itemType == null) {
+            return parseAnyCategory(category);
+        }
+
+        // 타입이 지정된 경우, 해당 타입에 유효한 카테고리인지 검증
+        return parseCategoryForType(itemType, category);
+    }
+
+    /**
+     * 모든 카테고리 타입에서 유효한 카테고리를 찾습니다.
+     */
+    private Category parseAnyCategory(String category) {
         // PET 카테고리 시도
         try {
-            return Pet.valueOf(category);
+            return Pet.valueOf(category.toUpperCase());
         } catch (IllegalArgumentException ignored) {}
 
         // ACCESSORY 카테고리 시도
         try {
-            return Accessory.valueOf(category);
+            return Accessory.valueOf(category.toUpperCase());
         } catch (IllegalArgumentException ignored) {}
 
         // DECORATION 카테고리 시도
         try {
-            return Decoration.valueOf(category);
+            return Decoration.valueOf(category.toUpperCase());
         } catch (IllegalArgumentException ignored) {}
 
-        throw new IllegalArgumentException("유효하지 않은 카테고리: " + category + ". 사용 가능한 값: CAT (펫); HAT (액세서리); LEFT, RIGHT, BOTTOM, ROOM_COLOR (데코레이션)");
+        // CONSUMPTION 카테고리 시도
+        try {
+            return Consumption.valueOf(category.toUpperCase());
+        } catch (IllegalArgumentException ignored) {}
+
+        throw new IllegalArgumentException("유효하지 않은 카테고리: " + category +
+            ". 사용 가능한 값: CAT (펫), HAT (액세서리), LEFT, RIGHT, BOTTOM, ROOM_COLOR (데코레이션), TOY, FOOD (소모품)");
+    }
+
+    /**
+     * 특정 타입에 대해 유효한 카테고리인지 검증합니다.
+     */
+    private Category parseCategoryForType(ItemType itemType, String category) {
+        return switch (itemType) {
+            case PET -> {
+                try {
+                    yield Pet.valueOf(category.toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException("PET 타입에 유효하지 않은 카테고리: " + category +
+                        ". PET 타입에서 사용 가능한 값: CAT");
+                }
+            }
+            case ACCESSORY -> {
+                try {
+                    yield Accessory.valueOf(category.toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException("ACCESSORY 타입에 유효하지 않은 카테고리: " + category +
+                        ". ACCESSORY 타입에서 사용 가능한 값: HAT");
+                }
+            }
+            case DECORATION -> {
+                try {
+                    yield Decoration.valueOf(category.toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException("DECORATION 타입에 유효하지 않은 카테고리: " + category +
+                        ". DECORATION 타입에서 사용 가능한 값: LEFT, RIGHT, BOTTOM, ROOM_COLOR");
+                }
+            }
+            case CONSUMPTION -> {
+                try {
+                    yield Consumption.valueOf(category.toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException("CONSUMPTION 타입에 유효하지 않은 카테고리: " + category +
+                        ". CONSUMPTION 타입에서 사용 가능한 값: TOY, FOOD");
+                }
+            }
+        };
     }
 
     /**

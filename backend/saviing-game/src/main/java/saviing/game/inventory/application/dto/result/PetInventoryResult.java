@@ -14,12 +14,6 @@ import java.time.LocalDateTime;
  * @param type 인벤토리 타입
  * @param isUsed 사용 여부
  * @param roomId 배치된 방 ID
- * @param petName 펫 이름
- * @param level 레벨
- * @param experience 경험치
- * @param affection 애정도
- * @param energy 에너지
- * @param hatAccessoryId 모자 액세서리 ID
  * @param createdAt 생성 일시
  * @param updatedAt 최종 수정 일시
  */
@@ -31,12 +25,6 @@ public record PetInventoryResult(
     InventoryType type,
     Boolean isUsed,
     Long roomId,
-    String petName,
-    Integer level,
-    Integer experience,
-    Integer affection,
-    Integer energy,
-    Long hatAccessoryId,
     LocalDateTime createdAt,
     LocalDateTime updatedAt
 ) {

@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
  * @param isUsed 사용 여부
  * @param itemName 아이템 이름
  * @param itemDescription 아이템 설명
- * @param category 아이템 카테고리
+ * @param itemCategory 아이템 카테고리
  * @param imageUrl 아이템 이미지 URL
  * @param rarity 아이템 희귀도
  * @param xLength 아이템 가로 크기
@@ -37,7 +37,7 @@ public record InventoryResult(
     Boolean isUsed,
     String itemName,
     String itemDescription,
-    String category,
+    String itemCategory,
     String imageUrl,
     Rarity rarity,
     Integer xLength,

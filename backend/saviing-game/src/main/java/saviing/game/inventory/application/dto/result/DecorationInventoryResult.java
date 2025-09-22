@@ -2,7 +2,6 @@ package saviing.game.inventory.application.dto.result;
 
 import lombok.Builder;
 import saviing.game.inventory.domain.model.enums.InventoryType;
-import saviing.game.item.domain.model.enums.Decoration;
 
 import java.time.LocalDateTime;
 
@@ -28,7 +27,7 @@ public record DecorationInventoryResult(
     Long itemId,
     InventoryType type,
     Boolean isUsed,
-    Decoration category,
+    String category,
     Long roomId,
     Integer xPosition,
     Integer yPosition,

@@ -2,7 +2,6 @@ package saviing.game.inventory.application.dto.result;
 
 import lombok.Builder;
 import saviing.game.inventory.domain.model.enums.InventoryType;
-import saviing.game.item.domain.model.enums.Accessory;
 
 import java.time.LocalDateTime;
 
@@ -26,7 +25,7 @@ public record AccessoryInventoryResult(
     Long itemId,
     InventoryType type,
     Boolean isUsed,
-    Accessory category,
+    String category,
     Long petInventoryItemId,
     LocalDateTime createdAt,
     LocalDateTime updatedAt

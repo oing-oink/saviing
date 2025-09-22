@@ -35,8 +35,8 @@ public record InventoryItemResponse(
     @Schema(description = "아이템 설명", example = "방을 꾸밀 수 있는 고급 벽지 아이템입니다.")
     String description,
 
-    @Schema(description = "아이템 카테고리", example = "wall")
-    String category,
+    @Schema(description = "아이템 카테고리", example = "WALL")
+    String itemCategory,
 
     @Schema(description = "아이템 이미지 URL", example = "wallpaper_luxury.png")
     String image,

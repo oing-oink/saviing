@@ -59,14 +59,20 @@ public class InventoryQueryService {
     }
 
     /**
-     * 캐릭터의 모든 인벤토리 아이템을 조회합니다.
+     * 캐릭터의 인벤토리 아이템을 필터링 조건에 따라 조회합니다.
      *
      * @param query 캐릭터별 인벤토리 조회 Query
      * @return 인벤토리 목록 조회 결과
      */
     public InventoryListResult getInventoriesByCharacter(GetInventoriesByCharacterQuery query) {
         List<Inventory> inventories = inventoryRepository.findByCharacterId(query.characterId());
-        List<InventoryResult> results = inventories.stream()
+
+        // 필터링 적용
+        List<Inventory> filteredInventories = inventories.stream()
+                .filter(inventory -> applyFilters(inventory, query))
+                .toList();
+
+        List<InventoryResult> results = filteredInventories.stream()
                 .map(inventory -> {
                     ItemResult item = itemQueryService.getItem(
                         GetItemQuery.builder().itemId(inventory.getItemId().value()).build());
@@ -74,6 +80,69 @@ public class InventoryQueryService {
                 })
                 .toList();
         return InventoryListResult.of(results);
+    }
+
+    /**
+     * 인벤토리 아이템에 필터링 조건을 적용합니다.
+     *
+     * @param inventory 인벤토리 아이템
+     * @param query 필터링 조건이 포함된 Query
+     * @return 필터링 조건을 만족하는지 여부
+     */
+    private boolean applyFilters(Inventory inventory, GetInventoriesByCharacterQuery query) {
+        // 타입 필터링
+        if (query.type() != null && !inventory.getType().equals(query.type())) {
+            return false;
+        }
+
+        // 사용 여부 필터링
+        if (query.isUsed() != null && inventory.isUsed() != query.isUsed()) {
+            return false;
+        }
+
+        // 카테고리 필터링 (각 타입별로 다르게 처리)
+        if (query.category() != null) {
+            return matchesCategory(inventory, query.category());
+        }
+
+        return true;
+    }
+
+    /**
+     * 인벤토리 아이템의 카테고리가 필터링 조건과 일치하는지 확인합니다.
+     *
+     * @param inventory 인벤토리 아이템
+     * @param categoryFilter 카테고리 필터링 조건
+     * @return 카테고리가 일치하는지 여부
+     */
+    private boolean matchesCategory(Inventory inventory, String categoryFilter) {
+        return switch (inventory.getType()) {
+            case PET -> {
+                if (inventory instanceof PetInventory petInventory) {
+                    yield petInventory.getCategory() != null &&
+                          petInventory.getCategory().name().equalsIgnoreCase(categoryFilter);
+                }
+                yield false;
+            }
+            case ACCESSORY -> {
+                if (inventory instanceof AccessoryInventory accessoryInventory) {
+                    yield accessoryInventory.getCategory() != null &&
+                          accessoryInventory.getCategory().name().equalsIgnoreCase(categoryFilter);
+                }
+                yield false;
+            }
+            case DECORATION -> {
+                if (inventory instanceof DecorationInventory decorationInventory) {
+                    yield decorationInventory.getCategory() != null &&
+                          decorationInventory.getCategory().name().equalsIgnoreCase(categoryFilter);
+                }
+                yield false;
+            }
+            case CONSUMPTION -> {
+                // 소모품은 현재 별도 카테고리가 없으므로 기본적으로 false 반환
+                yield false;
+            }
+        };
     }
 
     /**

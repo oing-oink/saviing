@@ -31,7 +31,7 @@ public class InventoryResponseMapper {
             .isUsed(result.isUsed())
             .name(result.itemName())
             .description(result.itemDescription())
-            .category(result.category())
+            .itemCategory(result.itemCategory())
             .image(result.imageUrl())
             .rarity(result.rarity())
             .xLength(result.xLength())
