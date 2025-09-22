@@ -195,7 +195,7 @@ const CompleteStep = () => {
                       </span>
                     </div>
                     <span className="font-semibold text-primary">
-                      {setting.value}
+                      {typeof setting.value === 'string' ? setting.value : ''}
                     </span>
                   </div>
                 )}

@@ -9,7 +9,10 @@ import {
 } from '@/features/savings/components/settingsSteps';
 import FunnelProgressBar from '@/features/savings/components/FunnelProgressBar';
 import FunnelLayout from '@/features/savings/components/FunnelLayout';
-import { useSavingsSettingsStore } from '@/features/savings/store/useSavingsSettingsStore';
+import {
+  useSavingsSettingsStore,
+  type SavingsSettingsStep,
+} from '@/features/savings/store/useSavingsSettingsStore';
 import { useSavingsStore } from '@/features/savings/store/useSavingsStore';
 import { PAGE_PATH } from '@/shared/constants/path';
 
