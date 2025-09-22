@@ -1,11 +1,13 @@
 import { Modal } from '@/features/game/shared/components/GameModal';
 
+/** 방 저장 확인 모달에 필요한 속성. */
 interface SaveModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: () => void;
 }
 
+/** 방 편집 내용을 저장할지 사용자에게 묻는 확인 모달. */
 export const SaveModal = ({ isOpen, onClose, onSave }: SaveModalProps) => {
   const buttons = [
     {

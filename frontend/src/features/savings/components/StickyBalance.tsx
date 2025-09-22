@@ -5,8 +5,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { PAGE_PATH, changeSavingsSettingsPath } from '@/shared/constants/path';
 import type { SavingsDisplayData } from '@/features/savings/types/savingsTypes';
 import { Card, CardContent } from '@/shared/components/ui/card';
-
-type ScrollDirection = 'up' | 'down' | null;
+import type { ScrollDirection } from '@/shared/types/scroll.types';
 
 interface StickyBalanceProps {
   data: SavingsDisplayData;
@@ -37,7 +36,7 @@ const StickyBalance = ({
   }
 
   return (
-    <Card className="fixed top-16 right-0 left-0 z-40 mx-auto max-w-md gap-5 rounded-t-none rounded-b-xl px-3 pt-2 pb-6">
+    <Card className="fixed top-14 right-0 left-0 z-50 mx-auto max-w-md gap-5 rounded-t-none rounded-b-xl px-3 pt-2 pb-6">
       <CardContent>
         <div>
           <div className="flex items-center justify-between gap-1">

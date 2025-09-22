@@ -22,8 +22,9 @@ const SavingsDetailPage = () => {
   useEffect(() => {
     if (balanceSectionRef.current && savingsData) {
       const rect = balanceSectionRef.current.getBoundingClientRect();
-      // progressSectionRef가 DetailTopBar(64px) 위치에 도달하면 sticky 활성화
-      const shouldBeSticky = rect.top <= 64;
+      // progressSectionRef가 DetailTopBar 위치에 도달하면 sticky 활성화
+      // DetailTopBar 높이: border-b px-6 py-4 = 대략 56px
+      const shouldBeSticky = rect.top <= 56;
 
       setIsSticky(shouldBeSticky);
     }

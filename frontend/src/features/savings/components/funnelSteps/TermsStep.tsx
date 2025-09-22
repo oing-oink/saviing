@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useAccountCreationStore } from '@/features/savings/store/useAccountCreationStore';
 import { useStepProgress } from '@/features/savings/hooks/useStepProgress';
+import { useAccountCreation } from '@/features/savings/hooks/useAccountCreation';
 import { Button } from '@/shared/components/ui/button';
+import { ACCOUNT_TYPES } from '@/features/savings/constants/accountTypes';
 import {
   Dialog,
   DialogContent,
@@ -13,6 +15,8 @@ import {
 const TermsStep = () => {
   const { setForm, form } = useAccountCreationStore();
   const { goToNextStep } = useStepProgress();
+  const { createAccount, isCreatingChecking, createCheckingError } =
+    useAccountCreation();
 
   const [allChecked, setAllChecked] = useState(
     Boolean(form.terms.service && form.terms.privacy && form.terms.marketing),
@@ -27,6 +31,8 @@ const TermsStep = () => {
   >(null);
 
   const isValid = requiredChecked.service && requiredChecked.privacy;
+  const isCheckingAccount = form.productType === ACCOUNT_TYPES.CHECKING;
+  const isLoading = isCreatingChecking;
 
   // 전체 동의 토글
   const handleAllToggle = () => {
@@ -36,11 +42,13 @@ const TermsStep = () => {
     setOptionalChecked(newValue);
   };
 
-  // 다음 단계로 이동
+  // 다음 단계로 이동 또는 계좌 생성
   const handleNext = () => {
     if (!isValid) {
       return;
     }
+
+    // 폼 데이터 업데이트
     setForm({
       terms: {
         service: requiredChecked.service,
@@ -48,7 +56,14 @@ const TermsStep = () => {
         marketing: optionalChecked,
       },
     });
-    goToNextStep(); // 계좌 타입에 따라 자동으로 다음 단계 결정
+
+    if (isCheckingAccount) {
+      // 입출금통장인 경우: API 호출
+      createAccount();
+    } else {
+      // 적금인 경우: 다음 단계로 이동
+      goToNextStep();
+    }
   };
 
   return (
@@ -142,16 +157,25 @@ const TermsStep = () => {
             </button>
           </div>
         </div>
+
+        {/* 에러 메시지 */}
+        {createCheckingError && (
+          <div className="mt-4 rounded-lg bg-red-50 p-3">
+            <p className="text-sm text-red-600">
+              계좌 개설 중 오류가 발생했습니다. 다시 시도해주세요.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* 하단 버튼 */}
       <div className="bg-white p-4">
         <Button
           onClick={handleNext}
-          disabled={!isValid}
+          disabled={!isValid || isLoading}
           className="h-12 w-full rounded-lg bg-primary text-white disabled:bg-gray-200 disabled:text-gray-400"
         >
-          동의하고 계속
+          {isLoading ? '계좌 개설 중...' : '동의하고 계속'}
         </Button>
       </div>
 

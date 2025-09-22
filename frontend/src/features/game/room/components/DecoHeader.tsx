@@ -4,11 +4,7 @@ import storeButton from '@/assets/game_button/storeButton.png';
 import { useNavigate } from 'react-router-dom';
 import { PAGE_PATH } from '@/shared/constants/path';
 
-/**
- * 게임 데코 페이지 상단바
- *
- * home 버튼 + 코인 + shop 버튼
- */
+/** 게임 데코 페이지 상단 바로, 홈/샵 이동 버튼과 보유 코인을 보여준다. */
 const DecoHeader = () => {
   const navigate = useNavigate();
   return (

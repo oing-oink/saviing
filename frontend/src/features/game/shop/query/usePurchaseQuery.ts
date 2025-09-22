@@ -4,11 +4,11 @@ import type { PurchaseRequest } from '@/features/game/shop/types/item';
 import { gameKeys } from '@/features/game/shared/query/gameKeys';
 
 /**
- * 아이템 구매를 위한 React Query Mutation 훅
+ * 아이템 구매를 처리하는 React Query Mutation 훅.
  *
- * 구매 성공 시 게임 데이터를 다시 불러와 코인 잔액을 업데이트합니다.
+ * 구매 성공 시 캐릭터 정보를 재조회하여 코인 잔액을 최신화한다.
  *
- * @returns useMutation 결과 객체
+ * @returns React Query useMutation 반환값
  */
 export const usePurchase = () => {
   const queryClient = useQueryClient();

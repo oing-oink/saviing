@@ -17,7 +17,7 @@ const CheckingAccountWalletCard = ({
   // 계좌 관리 페이지로 이동
   const handleAccountManagement = () => {
     if (account?.accountId) {
-      navigate(createAccountDetailPath(account.accountId));
+      navigate(`${createAccountDetailPath(account.accountId)}?from=wallet`);
     }
   };
   return (

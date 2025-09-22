@@ -39,14 +39,16 @@ export const useAccountsList = () => {
  * @param accountId - 조회할 적금 계좌의 ID
  * @returns 적금 계좌 상세 정보 쿼리 결과
  */
-export const useSavingsAccount = (accountId: string) => {
+export const useSavingsAccount = (
+  accountId: string,
+  options?: { enabled?: boolean },
+) => {
   return useQuery({
     queryKey: savingsKeys.detail(accountId),
     queryFn: () => {
       return getSavingsAccount(accountId);
     },
-    staleTime: 0, // 항상 fresh 체크
-    gcTime: 1000 * 60, // 1분 후 가비지 컬렉션
+    enabled: options?.enabled,
   });
 };
 

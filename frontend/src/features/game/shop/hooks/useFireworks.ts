@@ -2,13 +2,13 @@ import { useEffect } from 'react';
 import confetti from 'canvas-confetti';
 
 /**
- * 가챠 결과 화면에서 폭죽 효과를 관리하는 훅
- * @param isActive - 폭죽 효과 활성화 여부
+ * 가챠 결과 화면에서 폭죽 애니메이션을 제어한다.
+ * @param isActive 폭죽 효과 활성화 여부
  */
 export const useFireworks = (isActive: boolean) => {
   /**
-   * 화면 중앙에서 랜덤한 위치로 폭죽을 발사하는 함수
-   * @returns 폭죽 애니메이션을 관리하는 interval ID
+   * 화면 중앙 부근에서 일정 시간 동안 폭죽을 랜덤 발사한다.
+   * @returns 애니메이션 제어에 사용되는 interval ID
    */
   const startCenterFireworks = () => {
     const duration = 3 * 1000;
@@ -38,9 +38,7 @@ export const useFireworks = (isActive: boolean) => {
     return interval;
   };
 
-  /**
-   * 화면 양쪽에서 교차로 폭죽을 발사하는 함수
-   */
+  /** 화면 양쪽 끝에서 교차로 폭죽을 발사한다. */
   const startSideFireworks = () => {
     const duration = 2000;
     const end = Date.now() + duration;

@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, Wallet, PieChart, User } from 'lucide-react';
+import { Home, Wallet, Package, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PAGE_PATH } from '@/shared/constants/path';
 
 const MENUS = [
   { name: 'Home', icon: Home },
   { name: 'Wallet', icon: Wallet },
-  { name: 'Stats', icon: PieChart },
+  { name: 'Products', icon: Package },
   { name: 'Profile', icon: User },
 ] as const;
 
@@ -23,8 +23,10 @@ const useBottomNav = () => {
     if (pathname.startsWith('/wallet')) {
       return 'Wallet';
     }
-    // 게임, 쇼핑 등 다른 페이지들은 추후 추가 가능
-    // if (pathname.startsWith('/game')) return 'Stats';
+    if (pathname.startsWith('/products')) {
+      return 'Products';
+    }
+    // 게임, 프로필 등 다른 페이지들은 추후 추가 가능
     // if (pathname.startsWith('/profile')) return 'Profile';
     return 'Home'; // 기본값
   };
@@ -70,7 +72,7 @@ const useBottomNav = () => {
   const handleMenuClick = (menuName: string) => {
     setActive(menuName);
 
-    // Home과 Wallet만 실제 페이지 이동
+    // Home, Wallet, Products 페이지 이동
     switch (menuName) {
       case 'Home':
         navigate(PAGE_PATH.HOME);
@@ -78,7 +80,10 @@ const useBottomNav = () => {
       case 'Wallet':
         navigate(PAGE_PATH.WALLET);
         break;
-      // Stats, Profile은 상태 변경만 (추후 페이지 구현 시 추가)
+      case 'Products':
+        navigate(PAGE_PATH.PRODUCTS);
+        break;
+      // Profile은 상태 변경만 (추후 페이지 구현 시 추가)
     }
   };
 

@@ -1,5 +1,6 @@
 import type { GridType } from '@/features/game/room/hooks/useGrid';
 
+/** 상점과 인벤토리에서 사용하는 기본 아이템 정보. */
 export interface Item {
   itemId: number;
   itemName: string;
@@ -17,19 +18,23 @@ export interface Item {
   updatedAt: string;
 }
 
+/** 아이템 목록 조회 응답. */
 export interface ItemsResponse {
   items: Item[];
   totalCount: number;
 }
 
+/** 결제 수단 종류. */
 export type PaymentMethod = 'COIN' | 'FISH_COIN';
 
+/** 아이템 구매 요청 페이로드. */
 export interface PurchaseRequest {
   characterId: number;
   itemId: number;
   paymentMethod: PaymentMethod;
 }
 
+/** 아이템 구매 응답 구조. */
 export interface PurchaseResponse {
   success: boolean;
   message: string;
@@ -39,14 +44,16 @@ export interface PurchaseResponse {
   };
 }
 
-// 탭/카테고리 상수 및 타입
+/** 상점/데코 탭에서 사용하는 식별자. */
 export type TabId = GridType | 'cat';
 
+/** 탭 UI에서 사용하는 메타 정보. */
 export interface TabInfo {
   id: TabId;
   name: string;
 }
 
+/** 상점 탭 리스트. */
 export const TABS: readonly TabInfo[] = [
   { id: 'cat', name: '냥이' },
   { id: 'leftWall', name: '왼쪽벽' },
@@ -54,10 +61,10 @@ export const TABS: readonly TabInfo[] = [
   { id: 'floor', name: '바닥' },
 ] as const;
 
-// Tab 타입은 TABS 배열의 값 중 하나임
+/** TABS 배열에서 파생되는 탭 타입. */
 export type Tab = (typeof TABS)[number];
 
-// 탭과 API 파라미터 매핑
+/** 각 탭을 API 요청 파라미터로 변환하는 매핑. */
 export const TAB_TO_API_PARAMS: Record<
   string,
   { type: string; category: string }

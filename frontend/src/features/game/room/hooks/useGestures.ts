@@ -1,22 +1,28 @@
 import type { RefObject } from 'react';
 import { useState, useRef, useEffect } from 'react';
 
+/** Room 제스처 동작을 제어하기 위한 옵션. */
 interface UseGesturesProps {
   containerRef: RefObject<HTMLElement | null>;
   targetRef: RefObject<HTMLElement | null>;
   minScale?: number;
   maxScale?: number;
+  panEnabled?: boolean;
 }
 
+/** 배경 이미지를 확대·이동할 수 있도록 제스처 이벤트를 관리하는 훅. */
 export const useGestures = ({
   containerRef,
   targetRef,
   minScale = 1,
   maxScale = 4,
+  panEnabled = true,
 }: UseGesturesProps) => {
   // 화면에 반영할 값 (배율, 위치)
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
+  const scaleRef = useRef(scale);
+  const positionRef = useRef(position);
 
   // 제스처 임시 저장값 -> 렌더링 필요 x(ref 사용)
   const isPanningRef = useRef(false);
@@ -59,44 +65,56 @@ export const useGestures = ({
   // 2-1. 마우스 휠로 확대축소
   const handleWheel = (e: React.WheelEvent<HTMLElement>) => {
     e.preventDefault();
-    const newScale = scale - e.deltaY * 0.001;
+    const newScale = scaleRef.current - e.deltaY * 0.001;
     const clampedScale = Math.min(Math.max(minScale, newScale), maxScale); // 최소 1배 ~ 최대 4배
 
-    if (clampedScale === scale) {
+    if (clampedScale === scaleRef.current) {
       return;
     } // 한계값이면 무시
 
-    const newPosition = getBoundedPosition(position, clampedScale);
+    const newPosition = getBoundedPosition(positionRef.current, clampedScale);
 
-    setScale(clampedScale);
-    setPosition(newPosition);
+    setScale(prev => (prev === clampedScale ? prev : clampedScale));
+    setPosition(prev => {
+      if (prev.x === newPosition.x && prev.y === newPosition.y) {
+        return prev;
+      }
+      return newPosition;
+    });
   };
 
   // 2-2. 마우스로 드래그(패닝)
   // 클릭 시작 지점 저장 + 드래그 모드 활성화
   const handleMouseDown = (e: React.MouseEvent<HTMLElement>) => {
-    // 확대된 경우에만 드래그
-    if (scale > minScale) {
-      e.preventDefault();
-      isPanningRef.current = true;
-      panStartRef.current = {
-        x: e.clientX - position.x,
-        y: e.clientY - position.y,
-      };
-      if (containerRef.current) {
-        containerRef.current.style.cursor = 'grabbing';
-      }
+    if (!panEnabled) {
+      isPanningRef.current = false;
+      return;
+    }
+    e.preventDefault();
+    isPanningRef.current = true;
+    panStartRef.current = {
+      x: e.clientX - positionRef.current.x,
+      y: e.clientY - positionRef.current.y,
+    };
+    if (containerRef.current) {
+      containerRef.current.style.cursor = 'grabbing';
     }
   };
   // 드래그 중일 때 마우스 위치에 따라 position 업데이트
   const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
-    if (isPanningRef.current) {
+    if (isPanningRef.current && panEnabled) {
       e.preventDefault();
       const newPos = {
         x: e.clientX - panStartRef.current.x,
         y: e.clientY - panStartRef.current.y,
       };
-      setPosition(getBoundedPosition(newPos, scale));
+      setPosition(prev => {
+        const bounded = getBoundedPosition(newPos, scaleRef.current);
+        if (bounded.x === prev.x && bounded.y === prev.y) {
+          return prev;
+        }
+        return bounded;
+      });
     }
   };
   // 마우스를 떼거나 밖으로 나가면 드래그 종료
@@ -111,19 +129,23 @@ export const useGestures = ({
   // 터치 시작
   const handleTouchStart = (e: React.TouchEvent<HTMLElement>) => {
     if (e.touches.length === 2) {
-      // 핀치 줌
       e.preventDefault();
       isPanningRef.current = false;
       initialPinchDistanceRef.current = getDistance(e.touches);
       initialScaleRef.current = scale;
-    } else if (e.touches.length === 1 && scale > minScale) {
-      // 드래그(패닝)
+      return;
+    }
+    if (!panEnabled) {
+      isPanningRef.current = false;
+      return;
+    }
+    if (e.touches.length === 1) {
       e.preventDefault();
       isPanningRef.current = true;
       const touch = e.touches[0];
       panStartRef.current = {
-        x: touch.clientX - position.x,
-        y: touch.clientY - position.y,
+        x: touch.clientX - positionRef.current.x,
+        y: touch.clientY - positionRef.current.y,
       };
     }
   };
@@ -138,11 +160,16 @@ export const useGestures = ({
         (newDistance / initialPinchDistanceRef.current);
       const clampedScale = Math.min(Math.max(minScale, newScale), maxScale);
 
-      const newPosition = getBoundedPosition(position, clampedScale);
+      const newPosition = getBoundedPosition(positionRef.current, clampedScale);
 
-      setScale(clampedScale);
-      setPosition(newPosition);
-    } else if (e.touches.length === 1 && isPanningRef.current) {
+      setScale(prev => (prev === clampedScale ? prev : clampedScale));
+      setPosition(prev => {
+        if (prev.x === newPosition.x && prev.y === newPosition.y) {
+          return prev;
+        }
+        return newPosition;
+      });
+    } else if (e.touches.length === 1 && isPanningRef.current && panEnabled) {
       // 드래그(패닝)
       e.preventDefault();
       const touch = e.touches[0];
@@ -150,7 +177,13 @@ export const useGestures = ({
         x: touch.clientX - panStartRef.current.x,
         y: touch.clientY - panStartRef.current.y,
       };
-      setPosition(getBoundedPosition(newPos, scale));
+      setPosition(prev => {
+        const bounded = getBoundedPosition(newPos, scaleRef.current);
+        if (bounded.x === prev.x && bounded.y === prev.y) {
+          return prev;
+        }
+        return bounded;
+      });
     }
   };
   // 터치 종료
@@ -178,10 +211,19 @@ export const useGestures = ({
     // React의 SyntheticEvent가 아닌 네이티브 이벤트를 직접 사용하므로, 타입 변환이 필요합니다.
     const onWheel = (e: Event) =>
       handleWheel(e as unknown as React.WheelEvent<HTMLElement>);
-    const onMouseDown = (e: Event) =>
+    // RoomCanvas에서 panEnabled를 끄면 마우스 이벤트가 들어와도 패닝을 시작하지 않는다.
+    const onMouseDown = (e: Event) => {
+      if (!panEnabled) {
+        return;
+      }
       handleMouseDown(e as unknown as React.MouseEvent<HTMLElement>);
-    const onMouseMove = (e: Event) =>
+    };
+    const onMouseMove = (e: Event) => {
+      if (!panEnabled) {
+        return;
+      }
       handleMouseMove(e as unknown as React.MouseEvent<HTMLElement>);
+    };
     const onMouseUpOrLeave = () => handleMouseUpOrLeave();
     const onTouchStart = (e: Event) =>
       handleTouchStart(e as unknown as React.TouchEvent<HTMLElement>);
@@ -192,28 +234,62 @@ export const useGestures = ({
     // preventDefault가 필요한 이벤트에 passive: false 옵션 추가해 브라우저에 명시적으로 사용 알려주기
     element.addEventListener('wheel', onWheel, { passive: false });
     element.addEventListener('mousedown', onMouseDown, { passive: false });
-    element.addEventListener('mousemove', onMouseMove, { passive: false });
     element.addEventListener('touchstart', onTouchStart, { passive: false });
-    element.addEventListener('touchmove', onTouchMove, { passive: false });
 
-    // passive 옵션이 필요 없는 나머지 이벤트 등록
-    element.addEventListener('mouseup', onMouseUpOrLeave);
-    element.addEventListener('mouseleave', onMouseUpOrLeave);
-    element.addEventListener('touchend', onTouchEnd);
+    const targetWindow = typeof window !== 'undefined' ? window : undefined;
+    if (targetWindow) {
+      targetWindow.addEventListener('mousemove', onMouseMove, {
+        passive: false,
+      });
+      targetWindow.addEventListener('mouseup', onMouseUpOrLeave);
+      targetWindow.addEventListener('touchmove', onTouchMove, {
+        passive: false,
+      });
+      targetWindow.addEventListener('touchend', onTouchEnd);
+      targetWindow.addEventListener('touchcancel', onTouchEnd);
+    }
 
     // 클린업 함수: 컴포넌트 언마운트 시 등록했던 이벤트 리스너 모두 제거하여 메모리 차지 방지
     return () => {
       element.removeEventListener('wheel', onWheel);
       element.removeEventListener('mousedown', onMouseDown);
-      element.removeEventListener('mousemove', onMouseMove);
-      element.removeEventListener('mouseup', onMouseUpOrLeave);
-      element.removeEventListener('mouseleave', onMouseUpOrLeave);
       element.removeEventListener('touchstart', onTouchStart);
-      element.removeEventListener('touchmove', onTouchMove);
-      element.removeEventListener('touchend', onTouchEnd);
+      if (targetWindow) {
+        targetWindow.removeEventListener('mousemove', onMouseMove);
+        targetWindow.removeEventListener('mouseup', onMouseUpOrLeave);
+        targetWindow.removeEventListener('touchmove', onTouchMove);
+        targetWindow.removeEventListener('touchend', onTouchEnd);
+        targetWindow.removeEventListener('touchcancel', onTouchEnd);
+      }
     };
     // 의존성 배열: 핸들러 함수들이 새로운 state를 참조할 수 있도록 관련 state와 함수 포함
-  }, [containerRef, scale, position, minScale, maxScale]);
+  }, [containerRef, minScale, maxScale, panEnabled]);
+
+  useEffect(() => {
+    if (!panEnabled) {
+      isPanningRef.current = false;
+      if (containerRef.current) {
+        containerRef.current.style.cursor = 'default';
+      }
+    }
+  }, [panEnabled]);
+
+  useEffect(() => {
+    scaleRef.current = scale;
+  }, [scale]);
+
+  useEffect(() => {
+    positionRef.current = position;
+  }, [position]);
+
+  useEffect(() => {
+    if (!panEnabled) {
+      isPanningRef.current = false;
+      if (containerRef.current) {
+        containerRef.current.style.cursor = 'default';
+      }
+    }
+  }, [panEnabled, containerRef]);
 
   return { scale, position };
 };

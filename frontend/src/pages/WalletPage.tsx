@@ -19,11 +19,9 @@ const WalletPage = () => {
   // 로딩 상태
   if (isLoading) {
     return (
-      <div className="flex min-h-screen flex-col">
-        <div className="flex-1 px-5">
-          <div className="flex flex-col items-center gap-4">
-            <div className="text-center">계좌 정보를 불러오는 중...</div>
-          </div>
+      <div className="px-5 py-4">
+        <div className="flex flex-col items-center gap-4">
+          <div className="text-center">계좌 정보를 불러오는 중...</div>
         </div>
       </div>
     );
@@ -32,12 +30,10 @@ const WalletPage = () => {
   // 에러 상태
   if (error) {
     return (
-      <div className="flex min-h-screen flex-col">
-        <div className="flex-1 px-5">
-          <div className="flex flex-col items-center gap-4">
-            <div className="text-center text-red-500">
-              계좌 정보를 불러오는 데 실패했습니다.
-            </div>
+      <div className="px-5 py-4">
+        <div className="flex flex-col items-center gap-4">
+          <div className="text-center text-red-500">
+            계좌 정보를 불러오는 데 실패했습니다.
           </div>
         </div>
       </div>
@@ -45,25 +41,21 @@ const WalletPage = () => {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <div className="flex-1 px-5">
-        <div className="flex flex-col items-center gap-4">
-          {savingsAccount && (
-            <SavingsAccountWalletCard account={savingsAccount} />
-          )}
-          {demandAccount && (
-            <CheckingAccountWalletCard account={demandAccount} />
-          )}
-          <div className="flex w-full gap-4">
-            {buttons.map((btn, i) => (
-              <WalletButton
-                key={i}
-                icon={btn.icon}
-                label={btn.label}
-                onClick={btn.onClick}
-              />
-            ))}
-          </div>
+    <div className="px-5 py-4">
+      <div className="flex flex-col items-center gap-4">
+        {savingsAccount && (
+          <SavingsAccountWalletCard account={savingsAccount} />
+        )}
+        {demandAccount && <CheckingAccountWalletCard account={demandAccount} />}
+        <div className="flex w-full gap-4">
+          {buttons.map((btn, i) => (
+            <WalletButton
+              key={i}
+              icon={btn.icon}
+              label={btn.label}
+              onClick={btn.onClick}
+            />
+          ))}
         </div>
       </div>
     </div>

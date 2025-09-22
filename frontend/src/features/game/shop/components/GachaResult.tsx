@@ -3,11 +3,13 @@ import closeButton from '@/assets/game_button/closeButton.png';
 import { useNavigate } from 'react-router-dom';
 import { PAGE_PATH } from '@/shared/constants/path';
 
+/** 가챠 결과 모달에 필요한 속성. */
 interface ItemDetailModalProps {
   item: Item;
   onClose: () => void;
 }
 
+/** 가챠에서 획득한 아이템 정보를 보여주는 전체 화면 모달. */
 const GachaResult = ({ item }: ItemDetailModalProps) => {
   const navigate = useNavigate();
 

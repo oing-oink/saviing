@@ -31,7 +31,7 @@ export const useWalletButtons = (): { buttons: WalletButtonConfig[] } => {
       label: '자유적금 개설',
       onClick: () =>
         navigate(
-          `${PAGE_PATH.ACCOUNT_CREATION}/start?type=${ACCOUNT_TYPES.SAVINGS}`,
+          `${PAGE_PATH.ACCOUNT_CREATION}/start?type=${ACCOUNT_TYPES.SAVINGS}&from=wallet`,
         ),
     },
     {
@@ -39,7 +39,7 @@ export const useWalletButtons = (): { buttons: WalletButtonConfig[] } => {
       label: '입출금계좌 개설',
       onClick: () =>
         navigate(
-          `${PAGE_PATH.ACCOUNT_CREATION}/start?type=${ACCOUNT_TYPES.CHECKING}`,
+          `${PAGE_PATH.ACCOUNT_CREATION}/start?type=${ACCOUNT_TYPES.CHECKING}&from=wallet`,
         ),
     },
   ];

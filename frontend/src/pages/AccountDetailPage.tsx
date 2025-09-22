@@ -4,6 +4,7 @@ import { useSavingsAccount } from '@/features/savings/query/useSavingsQuery';
 import { useScroll } from '@/shared/hooks/useScroll';
 import AccountDetailCard from '@/features/savings/components/AccountDetailCard';
 import SavingsTransactionList from '@/features/savings/components/SavingsTransactionList';
+import AccountBalance from '@/features/savings/components/AccountBalance';
 
 const AccountDetailPage = () => {
   const { accountId } = useParams<{ accountId: string }>();
@@ -13,7 +14,7 @@ const AccountDetailPage = () => {
     error,
   } = useSavingsAccount(accountId || '');
 
-  const { scrollY } = useScroll();
+  const { scrollY, scrollDirection } = useScroll();
   const [isSticky, setIsSticky] = useState(false);
   const balanceSectionRef = useRef<HTMLDivElement>(null);
 
@@ -21,8 +22,9 @@ const AccountDetailPage = () => {
   useEffect(() => {
     if (balanceSectionRef.current && accountData) {
       const rect = balanceSectionRef.current.getBoundingClientRect();
-      // progressSectionRef가 DetailTopBar(64px) 위치에 도달하면 sticky 활성화
-      const shouldBeSticky = rect.top <= 64;
+      // balanceSectionRef가 DetailTopBar 위치에 도달하면 sticky 활성화
+      // DetailTopBar 높이: border-b px-6 py-4 = 대략 56px
+      const shouldBeSticky = rect.top <= 56;
 
       setIsSticky(shouldBeSticky);
     }
@@ -30,12 +32,22 @@ const AccountDetailPage = () => {
 
   return (
     <>
+      {/* Sticky Balance */}
+      {accountData && (
+        <AccountBalance
+          data={accountData}
+          isVisible={isSticky}
+          scrollDirection={scrollDirection}
+        />
+      )}
+
       {/* 메인 컨텐츠 */}
       <div className="space-y-4">
         <AccountDetailCard
           data={accountData}
           isLoading={isLoading}
           error={error}
+          balanceSectionRef={balanceSectionRef}
           isSticky={isSticky}
         />
 

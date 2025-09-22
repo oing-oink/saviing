@@ -1,9 +1,44 @@
 import type { Item } from '@/features/game/shop/types/item';
 import mouse_item from '@/assets/mouse_item.png';
 
+/** 상점/인벤토리 개발용 목업 데이터. */
 export const mockInventoryItems: Item[] = [
   {
-    itemId: 1,
+    itemId: 48,
+    itemName: '쥐돌이',
+    itemDescription:
+      '냥이가 가장 좋아하는 높은 곳이다옹!\n물건을 두기에도 완벽하고,\n뭔가 안정감이 있어서 든든하고 좋다냥!',
+    itemType: 'DECORATION',
+    itemCategory: 'LEFT',
+    rarity: 'COMMON',
+    xLength: 1,
+    yLength: 1,
+    coin: 100,
+    fishCoin: 50,
+    imageUrl: mouse_item,
+    isAvailable: true,
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z',
+  },
+  {
+    itemId: 49,
+    itemName: '쥐돌이',
+    itemDescription:
+      '냥이가 가장 좋아하는 높은 곳이다옹!\n물건을 두기에도 완벽하고,\n뭔가 안정감이 있어서 든든하고 좋다냥!',
+    itemType: 'DECORATION',
+    itemCategory: 'LEFT',
+    rarity: 'COMMON',
+    xLength: 1,
+    yLength: 1,
+    coin: 100,
+    fishCoin: 50,
+    imageUrl: mouse_item,
+    isAvailable: true,
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z',
+  },
+  {
+    itemId: 61,
     itemName: '쥐돌이',
     itemDescription:
       '냥이가 가장 좋아하는 높은 곳이다옹!\n물건을 두기에도 완벽하고,\n뭔가 안정감이 있어서 든든하고 좋다냥!',
@@ -20,11 +55,11 @@ export const mockInventoryItems: Item[] = [
     updatedAt: '2024-01-01T00:00:00Z',
   },
   {
-    itemId: 2,
+    itemId: 62,
     itemName: '쥐돌이',
     itemDescription:
       '냥이가 가장 좋아하는 높은 곳이다옹!\n물건을 두기에도 완벽하고,\n뭔가 안정감이 있어서 든든하고 좋다냥!',
-    itemType: 'PET',
+    itemType: 'DECORATION',
     itemCategory: 'CAT',
     rarity: 'COMMON',
     xLength: 1,
@@ -37,46 +72,12 @@ export const mockInventoryItems: Item[] = [
     updatedAt: '2024-01-01T00:00:00Z',
   },
   {
-    itemId: 3,
+    itemId: 63,
     itemName: '쥐돌이',
     itemDescription:
       '냥이가 가장 좋아하는 높은 곳이다옹!\n물건을 두기에도 완벽하고,\n뭔가 안정감이 있어서 든든하고 좋다냥!',
-    itemType: 'PET',
-    itemCategory: 'CAT',
-    rarity: 'COMMON',
-    xLength: 1,
-    yLength: 1,
-    coin: 100,
-    fishCoin: 50,
-    imageUrl: mouse_item,
-    isAvailable: true,
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-01T00:00:00Z',
-  },
-  {
-    itemId: 4,
-    itemName: '쥐돌이',
-    itemDescription:
-      '냥이가 가장 좋아하는 높은 곳이다옹!\n물건을 두기에도 완벽하고,\n뭔가 안정감이 있어서 든든하고 좋다냥!',
-    itemType: 'PET',
-    itemCategory: 'CAT',
-    rarity: 'COMMON',
-    xLength: 1,
-    yLength: 1,
-    coin: 100,
-    fishCoin: 50,
-    imageUrl: mouse_item,
-    isAvailable: true,
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-01T00:00:00Z',
-  },
-  {
-    itemId: 5,
-    itemName: '쥐돌이',
-    itemDescription:
-      '냥이가 가장 좋아하는 높은 곳이다옹!\n물건을 두기에도 완벽하고,\n뭔가 안정감이 있어서 든든하고 좋다냥!',
-    itemType: 'PET',
-    itemCategory: 'CAT',
+    itemType: 'DECORATION',
+    itemCategory: 'LEFT',
     rarity: 'COMMON',
     xLength: 1,
     yLength: 1,
