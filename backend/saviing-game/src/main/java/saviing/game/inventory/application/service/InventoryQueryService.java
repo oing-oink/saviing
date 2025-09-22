@@ -13,9 +13,11 @@ import saviing.game.inventory.application.dto.result.PetInventoryResult;
 import saviing.game.inventory.application.mapper.InventoryResultMapper;
 import saviing.game.inventory.domain.exception.InventoryItemNotFoundException;
 import saviing.game.inventory.domain.model.aggregate.AccessoryInventory;
+import saviing.game.inventory.domain.model.aggregate.ConsumptionInventory;
 import saviing.game.inventory.domain.model.aggregate.DecorationInventory;
 import saviing.game.inventory.domain.model.aggregate.Inventory;
 import saviing.game.inventory.domain.model.aggregate.PetInventory;
+import saviing.game.inventory.domain.model.enums.ItemCategory;
 import saviing.game.inventory.domain.repository.InventoryRepository;
 import saviing.game.item.application.dto.query.GetItemQuery;
 import saviing.game.item.application.dto.result.ItemResult;
@@ -115,31 +117,35 @@ public class InventoryQueryService {
      * @param categoryFilter 카테고리 필터링 조건
      * @return 카테고리가 일치하는지 여부
      */
-    private boolean matchesCategory(Inventory inventory, String categoryFilter) {
+    private boolean matchesCategory(Inventory inventory, ItemCategory categoryFilter) {
         return switch (inventory.getType()) {
             case PET -> {
                 if (inventory instanceof PetInventory petInventory) {
                     yield petInventory.getCategory() != null &&
-                          petInventory.getCategory().name().equalsIgnoreCase(categoryFilter);
+                          petInventory.getCategory().equals(categoryFilter.getDomainCategory());
                 }
                 yield false;
             }
             case ACCESSORY -> {
                 if (inventory instanceof AccessoryInventory accessoryInventory) {
                     yield accessoryInventory.getCategory() != null &&
-                          accessoryInventory.getCategory().name().equalsIgnoreCase(categoryFilter);
+                          accessoryInventory.getCategory().equals(categoryFilter.getDomainCategory());
                 }
                 yield false;
             }
             case DECORATION -> {
                 if (inventory instanceof DecorationInventory decorationInventory) {
                     yield decorationInventory.getCategory() != null &&
-                          decorationInventory.getCategory().name().equalsIgnoreCase(categoryFilter);
+                          decorationInventory.getCategory().equals(categoryFilter.getDomainCategory());
                 }
                 yield false;
             }
             case CONSUMPTION -> {
-                // 소모품은 현재 별도 카테고리가 없으므로 기본적으로 false 반환
+                // 소모품도 카테고리 필터링 지원
+                if (inventory instanceof ConsumptionInventory consumptionInventory) {
+                    yield consumptionInventory.getCategory() != null &&
+                          consumptionInventory.getCategory().equals(categoryFilter.getDomainCategory());
+                }
                 yield false;
             }
         };

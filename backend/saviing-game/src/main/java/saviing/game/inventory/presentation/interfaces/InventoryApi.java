@@ -11,6 +11,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.PathVariable;
 import saviing.common.response.ApiResult;
 import saviing.common.response.ErrorResult;
+import saviing.game.inventory.domain.model.enums.InventoryType;
+import saviing.game.inventory.domain.model.enums.ItemCategory;
 import saviing.game.inventory.presentation.dto.response.InventoryItemResponse;
 import saviing.game.inventory.presentation.dto.response.InventoryListResponse;
 
@@ -59,10 +61,10 @@ public interface InventoryApi {
         @PathVariable Long characterId,
 
         @Parameter(description = "인벤토리 타입 (PET, ACCESSORY, DECORATION, CONSUMPTION)", example = "PET")
-        String type,
+        InventoryType type,
 
         @Parameter(description = "아이템 카테고리 (CAT, HAT, LEFT, RIGHT, BOTTOM, ROOM_COLOR, TOY, FOOD)", example = "HAT")
-        String category,
+        ItemCategory category,
 
         @Parameter(description = "사용 여부 (true: 사용중, false: 미사용)", example = "false")
         Boolean isUsed

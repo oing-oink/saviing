@@ -2,6 +2,7 @@ package saviing.game.inventory.application.dto.query;
 
 import saviing.game.character.domain.model.vo.CharacterId;
 import saviing.game.inventory.domain.model.enums.InventoryType;
+import saviing.game.inventory.domain.model.enums.ItemCategory;
 
 /**
  * 캐릭터별 인벤토리 목록 조회 Query
@@ -9,7 +10,7 @@ import saviing.game.inventory.domain.model.enums.InventoryType;
 public record GetInventoriesByCharacterQuery(
     CharacterId characterId,
     InventoryType type,
-    String category,
+    ItemCategory category,
     Boolean isUsed
 ) {
     /**
@@ -31,7 +32,7 @@ public record GetInventoriesByCharacterQuery(
      * @param isUsed 사용 여부
      * @return GetInventoriesByCharacterQuery
      */
-    public static GetInventoriesByCharacterQuery of(Long characterId, InventoryType type, String category, Boolean isUsed) {
+    public static GetInventoriesByCharacterQuery of(Long characterId, InventoryType type, ItemCategory category, Boolean isUsed) {
         return new GetInventoriesByCharacterQuery(CharacterId.of(characterId), type, category, isUsed);
     }
 }

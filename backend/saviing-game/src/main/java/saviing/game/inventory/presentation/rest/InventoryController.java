@@ -6,6 +6,8 @@ import saviing.game.inventory.application.dto.query.GetInventoryQuery;
 import saviing.game.inventory.application.dto.result.InventoryListResult;
 import saviing.game.inventory.application.dto.result.InventoryResult;
 import saviing.game.inventory.application.service.InventoryQueryService;
+import saviing.game.inventory.domain.model.enums.InventoryType;
+import saviing.game.inventory.domain.model.enums.ItemCategory;
 import saviing.game.inventory.presentation.dto.response.InventoryItemResponse;
 import saviing.game.inventory.presentation.dto.response.InventoryListResponse;
 import saviing.game.inventory.presentation.interfaces.InventoryApi;
@@ -37,8 +39,8 @@ public class InventoryController implements InventoryApi {
     @GetMapping("/characters/{characterId}")
     public ApiResult<InventoryListResponse> getInventory(
         @PathVariable Long characterId,
-        @RequestParam(required = false) String type,
-        @RequestParam(required = false) String category,
+        @RequestParam(required = false) InventoryType type,
+        @RequestParam(required = false) ItemCategory category,
         @RequestParam(required = false) Boolean isUsed
     ) {
         log.info("캐릭터 인벤토리 조회 요청 - characterId={}, type={}, category={}, isUsed={}",
