@@ -1,14 +1,14 @@
-package saviing.game.room.domain.model.dto;
+package saviing.game.room.application.dto.command;
 
 import java.util.Objects;
 
 import saviing.game.room.domain.model.aggregate.Category;
 
 /**
- * 배치 요청을 나타내는 임시 DTO
- * 도메인 서비스에서 검증 전 단계의 데이터를 담는 용도
+ * 아이템 배치 명령을 나타내는 DTO
+ * 애플리케이션 서비스에서 외부 요청을 도메인 객체로 변환하기 전 단계의 데이터를 담는 용도
  */
-public record PlacementDraft(
+public record PlaceItemCommand(
     Long inventoryItemId,
     int positionX,
     int positionY,
@@ -17,7 +17,7 @@ public record PlacementDraft(
     Category category
 ) {
 
-    public PlacementDraft {
+    public PlaceItemCommand {
         Objects.requireNonNull(inventoryItemId, "inventoryItemId");
         Objects.requireNonNull(category, "category");
 

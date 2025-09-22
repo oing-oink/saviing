@@ -37,27 +37,6 @@ class ValueObjectsTests {
                 .hasMessage("roomId must be positive");
     }
 
-    @Test
-    @DisplayName("PlacementId 생성 테스트")
-    void PlacementId_생성() {
-        // Given & When
-        PlacementId placementId = new PlacementId(200L);
-
-        // Then
-        assertThat(placementId.value()).isEqualTo(200L);
-    }
-
-    @Test
-    @DisplayName("PlacementId 잘못된 값으로 생성 시 예외 발생")
-    void PlacementId_잘못된_값_예외() {
-        // When & Then
-        assertThatThrownBy(() -> new PlacementId(null))
-                .isInstanceOf(NullPointerException.class);
-
-        assertThatThrownBy(() -> new PlacementId(0L))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("placementId must be positive");
-    }
 
     @Test
     @DisplayName("Position 생성 및 거리 계산 테스트")
