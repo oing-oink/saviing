@@ -57,6 +57,22 @@ public enum ItemType {
         public boolean isValidCategory(Category category) {
             return category instanceof Decoration;
         }
+    },
+
+    /**
+     * 소모품 아이템
+     * 사용하면 개수가 감소하는 소모성 아이템
+     */
+    CONSUMPTION {
+        @Override
+        public List<Category> getCategories() {
+            return Arrays.asList(Consumption.values());
+        }
+
+        @Override
+        public boolean isValidCategory(Category category) {
+            return category instanceof Consumption;
+        }
     };
 
     /**

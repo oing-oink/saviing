@@ -13,7 +13,7 @@ public record AccountConnectedEvent(
     CustomerId customerId,
     Long accountId,
     LocalDateTime occurredOn
-) implements DomainEvent {
+) implements CharacterDomainEvent {
     /**
      * 계좌 연결 완료 이벤트를 생성합니다.
      * 

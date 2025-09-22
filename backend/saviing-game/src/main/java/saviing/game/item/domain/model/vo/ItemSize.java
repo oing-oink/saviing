@@ -10,7 +10,7 @@ public record ItemSize(
     Integer yLength
 ) {
     private static final int MIN_SIZE = 1;
-    private static final int MAX_SIZE = 10;
+    private static final int MAX_SIZE = 24;
 
     public ItemSize {
         if (xLength != null && (xLength < MIN_SIZE || xLength > MAX_SIZE)) {

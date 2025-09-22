@@ -13,7 +13,7 @@ public record AccountTerminatedEvent(
     CustomerId customerId,
     String reason,
     LocalDateTime occurredOn
-) implements DomainEvent {
+) implements CharacterDomainEvent {
     
     /**
      * 계좌 해지 처리 이벤트를 생성합니다.

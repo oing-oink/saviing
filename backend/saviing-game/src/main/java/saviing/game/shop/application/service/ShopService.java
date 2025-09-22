@@ -7,10 +7,13 @@ import org.springframework.transaction.annotation.Transactional;
 import saviing.game.character.application.dto.command.DebitCoinsCommand;
 import saviing.game.character.application.service.CharacterCommandService;
 import saviing.game.character.application.service.CharacterQueryService;
-import saviing.game.character.domain.model.vo.CharacterId;  // TODO: domain 참조 개선
+import saviing.game.character.domain.model.vo.CharacterId;
+import saviing.game.inventory.application.dto.command.AddInventoryItemCommand;
+import saviing.game.inventory.application.service.InventoryCommandService;
 import saviing.game.item.application.dto.query.GetItemQuery;
 import saviing.game.item.application.dto.result.ItemResult;
 import saviing.game.item.application.service.ItemQueryService;
+import saviing.game.item.domain.model.vo.ItemId;
 import saviing.game.shop.application.dto.command.PurchaseItemCommand;
 import saviing.game.character.application.dto.query.GetCharacterQuery;
 import saviing.game.character.application.dto.result.CharacterResult;
@@ -34,7 +37,7 @@ public class ShopService {
     private final ItemQueryService itemQueryService;
     private final CharacterQueryService characterQueryService;
     private final CharacterCommandService characterCommandService;
-    private final InventoryMockService inventoryMockService;
+    private final InventoryCommandService inventoryCommandService;
 
     /**
      * 아이템 구매를 동기식으로 처리합니다.
@@ -205,7 +208,8 @@ public class ShopService {
     }
 
     /**
-     * 인벤토리 도메인과 통신하여 아이템을 지급합니다.
+     * 인벤토리 도메인과 직접 통신하여 아이템을 지급합니다.
+     * InventoryCommandService를 직접 호출하여 동기적으로 처리합니다.
      *
      * @param command 구매 명령
      * @param item 아이템 정보
@@ -215,7 +219,25 @@ public class ShopService {
         log.info("아이템 지급 시작: characterId={}, itemId={}", command.characterId(), command.itemId());
 
         try {
-            inventoryMockService.grantItemToCharacter(command.characterId(), item.itemId(), item.itemName());
+            // 아이템 타입에 따라 적절한 Command 생성
+            AddInventoryItemCommand addCommand;
+            if (item.itemType().name().equals("CONSUMPTION")) {
+                // 소모품의 경우 count 포함
+                addCommand = AddInventoryItemCommand.withCount(
+                    CharacterId.of(command.characterId()),
+                    ItemId.of(command.itemId()),
+                    1  // 구매 시 기본 1개
+                );
+            } else {
+                // 일반 아이템
+                addCommand = AddInventoryItemCommand.of(
+                    CharacterId.of(command.characterId()),
+                    ItemId.of(command.itemId())
+                );
+            }
+
+            inventoryCommandService.addInventoryItem(addCommand);
+
             log.info("아이템 지급 완료: characterId={}, itemId={}", command.characterId(), command.itemId());
 
         } catch (Exception e) {
