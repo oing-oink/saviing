@@ -8,7 +8,7 @@ import {
   CompleteStep,
 } from '@/features/savings/components/settingsSteps';
 import FunnelProgressBar from '@/features/savings/components/FunnelProgressBar';
-import FunnelLayout from '@/features/savings/components/FunnelLayout';
+import FunnelLayout from '@/features/savings/layouts/FunnelLayout';
 import {
   useSavingsSettingsStore,
   type SavingsSettingsStep,
