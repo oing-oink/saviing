@@ -81,7 +81,14 @@ const SavingsSettingsFunnel = () => {
         },
       );
     }
-  }, [searchParams, navigate, accountId, setCurrentAccount, setStep, entryPoint]);
+  }, [
+    searchParams,
+    navigate,
+    accountId,
+    setCurrentAccount,
+    setStep,
+    entryPoint,
+  ]);
 
   // 컴포넌트 언마운트 시 상태 초기화
   useEffect(() => {
