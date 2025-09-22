@@ -2,13 +2,12 @@ import {
   useNavigate,
   useSearchParams,
   useParams,
-  useLocation,
 } from 'react-router-dom';
 import {
   useSavingsSettingsStore,
   type SavingsSettingsStep,
 } from '@/features/savings/store/useSavingsSettingsStore';
-import { PAGE_PATH } from '@/shared/constants/path';
+import { PAGE_PATH, createSavingsDetailPath } from '@/shared/constants/path';
 
 // 적금 설정 변경 단계 순서
 const SAVINGS_SETTINGS_STEPS: SavingsSettingsStep[] = [
@@ -27,13 +26,13 @@ const SAVINGS_SETTINGS_STEPS: SavingsSettingsStep[] = [
  */
 export const useSavingsSettingsChange = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const [searchParams] = useSearchParams();
   const { accountId } = useParams<{ accountId: string }>();
   const { setStep } = useSavingsSettingsStore();
 
-  // 설정 변경 페이지로 진입할 때 전달된 entryPoint를 가져옴
-  const entryPoint = location.state?.entryPoint ?? PAGE_PATH.HOME;
+  // URL 파라미터에서 from 값을 읽어옴
+  const fromParam = searchParams.get('from');
+  const entryPoint = fromParam ? decodeURIComponent(fromParam) : PAGE_PATH.HOME;
 
   // 현재 URL 파라미터에서 step 결정
   const currentStepFromUrl =
@@ -54,12 +53,12 @@ export const useSavingsSettingsChange = () => {
       if (prevStep) {
         const params = new URLSearchParams();
         params.set('step', prevStep);
+        if (fromParam) {
+          params.set('from', fromParam);
+        }
         setStep(prevStep);
         navigate(
           `${PAGE_PATH.SAVINGS_SETTINGS_WITH_ID.replace(':accountId', accountId)}?${params.toString()}`,
-          {
-            state: { entryPoint },
-          },
         );
       }
     }
@@ -74,12 +73,12 @@ export const useSavingsSettingsChange = () => {
       if (nextStep) {
         const params = new URLSearchParams();
         params.set('step', nextStep);
+        if (fromParam) {
+          params.set('from', fromParam);
+        }
         setStep(nextStep);
         navigate(
           `${PAGE_PATH.SAVINGS_SETTINGS_WITH_ID.replace(':accountId', accountId)}?${params.toString()}`,
-          {
-            state: { entryPoint },
-          },
         );
       }
     }
@@ -92,12 +91,12 @@ export const useSavingsSettingsChange = () => {
     if (accountId) {
       const params = new URLSearchParams();
       params.set('step', targetStep);
+      if (fromParam) {
+        params.set('from', fromParam);
+      }
       setStep(targetStep);
       navigate(
         `${PAGE_PATH.SAVINGS_SETTINGS_WITH_ID.replace(':accountId', accountId)}?${params.toString()}`,
-        {
-          state: { entryPoint },
-        },
       );
     }
   };
@@ -107,10 +106,7 @@ export const useSavingsSettingsChange = () => {
    */
   const cancelAndGoBack = () => {
     if (accountId) {
-      navigate(`/savings/detail/${accountId}`, {
-        replace: true,
-        state: { entryPoint },
-      });
+      navigate(createSavingsDetailPath(accountId, entryPoint));
     }
   };
 

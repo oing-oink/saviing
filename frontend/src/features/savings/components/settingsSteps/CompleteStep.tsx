@@ -9,6 +9,7 @@ const CompleteStep = () => {
   const { newSettings, reset } = useSavingsSettingsStore();
   const { cancelAndGoBack } = useSavingsSettingsChange();
 
+
   const handleGoToDetail = () => {
     // 설정 변경 상태 초기화
     reset();
@@ -22,7 +23,7 @@ const CompleteStep = () => {
     reset();
 
     // 적금 목록 페이지로 이동
-    navigate(PAGE_PATH.SAVINGS, { replace: true });
+    navigate(PAGE_PATH.SAVINGS);
   };
 
   const getChangedSettings = () => {

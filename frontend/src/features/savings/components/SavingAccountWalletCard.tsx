@@ -25,9 +25,7 @@ const SavingsAccountWalletCard = ({
   // 저축 상세 페이지로 이동
   const handleSavingsManagement = () => {
     if (account?.accountId) {
-      navigate(createSavingsDetailPath(account.accountId), {
-        state: { entryPoint: PAGE_PATH.WALLET }, // 저축 상세 페이지에서 backButton을 통해 Wallet으로 돌아올 때
-      });
+      navigate(createSavingsDetailPath(account.accountId, PAGE_PATH.WALLET));
     }
   };
 

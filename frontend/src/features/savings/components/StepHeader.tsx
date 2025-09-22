@@ -21,8 +21,8 @@ const StepHeader = () => {
 
   const handleBackClick = () => {
     if (isSavingsSettings) {
-      if (currentStepFromUrl === 'CURRENT_INFO') {
-        // 첫 번째 단계에서는 적금 상세 페이지로 돌아가기
+      if (currentStepFromUrl === 'CURRENT_INFO' || currentStepFromUrl === 'COMPLETE') {
+        // 첫 번째 단계나 완료 단계에서는 적금 상세 페이지로 돌아가기
         cancelAndGoBack?.();
       } else {
         goToPreviousStep();

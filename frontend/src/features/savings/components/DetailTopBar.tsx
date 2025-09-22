@@ -1,21 +1,24 @@
-import { PAGE_PATH } from '@/shared/constants/path';
 import { ChevronLeft } from 'lucide-react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { PAGE_PATH } from '@/shared/constants/path';
 
 interface DetailTopBarProps {
   title: string;
-  backMode?: 'history' | 'entry'; // 기본값은 history
+  backMode?: 'history' | 'entry';
 }
 
 const DetailTopBar = ({ title, backMode = 'history' }: DetailTopBarProps) => {
   const navigate = useNavigate();
-  const location = useLocation();
+  const [searchParams] = useSearchParams();
 
-  const entryPoint = location.state?.entryPoint ?? PAGE_PATH.HOME;
+  // URL 파라미터에서 from 값을 읽어옴
+  const fromParam = searchParams.get('from');
+  const entryPoint = fromParam ? decodeURIComponent(fromParam) : PAGE_PATH.HOME;
 
   const handleBack = () => {
     if (backMode === 'entry') {
-      navigate(entryPoint, { replace: true });
+      // 명시적으로 entryPoint로 이동 (히스토리 조작 없음)
+      navigate(entryPoint);
     } else {
       navigate(-1);
     }
