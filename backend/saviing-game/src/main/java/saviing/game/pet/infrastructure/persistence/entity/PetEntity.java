@@ -14,15 +14,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /**
- * PetInfo JPA Entity
- * MySQL game.pet_info 테이블과 매핑됩니다.
+ * Pet JPA Entity
+ * MySQL game.pet 테이블과 매핑됩니다.
  * energy 컬럼은 포만감을 의미합니다.
  */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(name = "pet_info")
-public class PetInfoEntity {
+@Table(name = "pet")
+public class PetEntity {
 
     @Id
     @Column(name = "inventory_item_id")
@@ -50,7 +50,7 @@ public class PetInfoEntity {
     private LocalDateTime updatedAt;
 
     @Builder
-    public PetInfoEntity(
+    public PetEntity(
         Long inventoryItemId,
         Integer level,
         Integer experience,
@@ -71,10 +71,10 @@ public class PetInfoEntity {
     }
 
     /**
-     * 엔티티의 필드값들을 업데이트합니다.
+     * 펫의 필드값들을 업데이트합니다.
      * 수정 시간은 자동으로 현재 시간으로 설정됩니다.
      */
-    public void updateEntity(
+    public void updatePet(
         Integer level,
         Integer experience,
         Integer affection,

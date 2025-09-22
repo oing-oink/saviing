@@ -6,10 +6,10 @@ import saviing.game.inventory.domain.model.vo.InventoryItemId;
 import java.time.LocalDateTime;
 
 /**
- * 펫 정보 조회 결과 DTO
+ * 펫 조회 결과 DTO
  */
 @Builder
-public record PetInfoResult(
+public record PetResult(
     InventoryItemId inventoryItemId,
     int level,
     int experience,

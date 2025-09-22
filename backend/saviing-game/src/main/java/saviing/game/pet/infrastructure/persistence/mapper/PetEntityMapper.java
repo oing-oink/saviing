@@ -2,29 +2,29 @@ package saviing.game.pet.infrastructure.persistence.mapper;
 
 import org.springframework.stereotype.Component;
 import saviing.game.inventory.domain.model.vo.InventoryItemId;
-import saviing.game.pet.domain.model.aggregate.PetInfo;
+import saviing.game.pet.domain.model.aggregate.Pet;
 import saviing.game.pet.domain.model.vo.Affection;
 import saviing.game.pet.domain.model.vo.Energy;
 import saviing.game.pet.domain.model.vo.Experience;
 import saviing.game.pet.domain.model.vo.PetLevel;
 import saviing.game.pet.domain.model.vo.PetName;
-import saviing.game.pet.infrastructure.persistence.entity.PetInfoEntity;
+import saviing.game.pet.infrastructure.persistence.entity.PetEntity;
 
 /**
- * PetInfo Entity ↔ Domain 간 변환 매퍼
+ * Pet Entity ↔ Domain 간 변환 매퍼
  */
 @Component
-public class PetInfoEntityMapper {
+public class PetEntityMapper {
 
     /**
      * Entity → Domain 변환
      */
-    public PetInfo toDomain(PetInfoEntity entity) {
+    public Pet toDomain(PetEntity entity) {
         if (entity == null) {
             return null;
         }
 
-        return PetInfo.builder()
+        return Pet.builder()
             .inventoryItemId(InventoryItemId.of(entity.getInventoryItemId()))
             .level(PetLevel.of(entity.getLevel()))
             .experience(Experience.of(entity.getExperience()))
@@ -39,12 +39,12 @@ public class PetInfoEntityMapper {
     /**
      * Domain → Entity 변환
      */
-    public PetInfoEntity toEntity(PetInfo domain) {
+    public PetEntity toEntity(Pet domain) {
         if (domain == null) {
             return null;
         }
 
-        return PetInfoEntity.builder()
+        return PetEntity.builder()
             .inventoryItemId(domain.getInventoryItemId().value())
             .level(domain.getLevel().value())
             .experience(domain.getExperience().value())
@@ -60,12 +60,12 @@ public class PetInfoEntityMapper {
      * Domain의 변경사항을 기존 Entity에 적용
      * JPA의 더티 체킹을 활용한 업데이트용
      */
-    public void updateEntity(PetInfoEntity entity, PetInfo domain) {
+    public void updateEntity(PetEntity entity, Pet domain) {
         if (entity == null || domain == null) {
             return;
         }
 
-        entity.updateEntity(
+        entity.updatePet(
             domain.getLevel().value(),
             domain.getExperience().value(),
             domain.getAffection().value(),

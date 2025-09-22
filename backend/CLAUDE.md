@@ -419,7 +419,7 @@ Pet 도메인 구현 시 다음 파일들을 참고하여 동일한 패턴을 �
 
 ### **Pet Domain Implementation Checklist**
 1. ✅ Create `Pet` aggregate extending existing patterns from `Item`
-2. ✅ Implement `PetInfo` value object with pet-specific fields (level, experience, affection, energy)
+2. ✅ Implement `Pet` value object with pet-specific fields (level, experience, affection, energy)
 3. ✅ Extend `PetInventory` from base `Inventory` class (already exists)
 4. ✅ Create Pet-specific events for lifecycle management
 5. ✅ Implement CQRS services (`PetCommandService`, `PetQueryService`)

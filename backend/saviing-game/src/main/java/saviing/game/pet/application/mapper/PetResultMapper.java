@@ -1,8 +1,8 @@
 package saviing.game.pet.application.mapper;
 
 import org.springframework.stereotype.Component;
-import saviing.game.pet.application.dto.result.PetInfoResult;
-import saviing.game.pet.domain.model.aggregate.PetInfo;
+import saviing.game.pet.application.dto.result.PetResult;
+import saviing.game.pet.domain.model.aggregate.Pet;
 
 /**
  * 펫 도메인 객체를 애플리케이션 결과 DTO로 변환하는 매퍼
@@ -11,25 +11,25 @@ import saviing.game.pet.domain.model.aggregate.PetInfo;
 public class PetResultMapper {
 
     /**
-     * PetInfo 도메인 객체를 PetInfoResult DTO로 변환합니다.
+     * Pet 도메인 객체를 PetResult DTO로 변환합니다.
      *
-     * @param petInfo 펫 정보 도메인 객체
-     * @return PetInfoResult DTO
+     * @param pet 펫 도메인 객체
+     * @return PetResult DTO
      */
-    public PetInfoResult toResult(PetInfo petInfo) {
-        if (petInfo == null) {
+    public PetResult toResult(Pet pet) {
+        if (pet == null) {
             return null;
         }
 
-        return PetInfoResult.builder()
-            .inventoryItemId(petInfo.getInventoryItemId())
-            .level(petInfo.getLevel().value())
-            .experience(petInfo.getExperience().value())
-            .affection(petInfo.getAffection().value())
-            .energy(petInfo.getEnergy().value())
-            .petName(petInfo.getPetName().value())
-            .createdAt(petInfo.getCreatedAt())
-            .updatedAt(petInfo.getUpdatedAt())
+        return PetResult.builder()
+            .inventoryItemId(pet.getInventoryItemId())
+            .level(pet.getLevel().value())
+            .experience(pet.getExperience().value())
+            .affection(pet.getAffection().value())
+            .energy(pet.getEnergy().value())
+            .petName(pet.getPetName().value())
+            .createdAt(pet.getCreatedAt())
+            .updatedAt(pet.getUpdatedAt())
             .build();
     }
 }

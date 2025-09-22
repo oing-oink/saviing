@@ -49,12 +49,12 @@ public class PetInventoryEntity extends InventoryEntity {
     }
 
     /**
-     * 펫 정보를 업데이트합니다.
+     * 펫을 업데이트합니다.
      *
      * @param category 펫 카테고리
      * @param roomId 방 ID
      */
-    public void updatePetInfo(PetCategoryEntity category, Long roomId) {
+    public void updatePet(PetCategoryEntity category, Long roomId) {
         this.category = category;
         this.roomId = roomId;
     }

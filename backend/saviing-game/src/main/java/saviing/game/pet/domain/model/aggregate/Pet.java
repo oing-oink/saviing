@@ -12,13 +12,13 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
- * 펫 정보 Aggregate Root
+ * 펫 Aggregate Root
  * 펫의 상태 정보(레벨, 경험치, 애정도, 포만감)를 관리합니다.
  */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PetInfo {
-    private InventoryItemId inventoryItemId;  // PK: pet_inventory의 inventory_item_id
+public class Pet {
+    private InventoryItemId inventoryItemId;  // PK: pet의 inventory_item_id
     private PetLevel level;
     private Experience experience;
     private Affection affection;
@@ -28,7 +28,7 @@ public class PetInfo {
     private LocalDateTime updatedAt;
 
     @Builder
-    private PetInfo(
+    private Pet(
         InventoryItemId inventoryItemId,
         PetLevel level,
         Experience experience,
@@ -51,13 +51,13 @@ public class PetInfo {
     }
 
     /**
-     * 새로운 펫 정보를 생성합니다.
+     * 새로운 펫을 생성합니다.
      * ItemPurchasedEvent 핸들러에서 PET 아이템 구매 시 호출됩니다.
      */
-    public static PetInfo create(InventoryItemId inventoryItemId) {
+    public static Pet create(InventoryItemId inventoryItemId) {
         LocalDateTime now = LocalDateTime.now();
 
-        return PetInfo.builder()
+        return Pet.builder()
             .inventoryItemId(inventoryItemId)
             .level(PetLevel.initial())
             .experience(Experience.initial())
@@ -141,7 +141,7 @@ public class PetInfo {
      * 특정 활동에 필요한 포만감이 있는지 확인합니다.
      */
     public boolean hasEnoughEnergyFor(Energy requiredEnergy) {
-        return this.energy.hasEnoughEnergy(requiredEnergy.value());
+        return this.energy.hasEnoughEnergy(requiredEnergy);
     }
 
     /**
@@ -171,7 +171,7 @@ public class PetInfo {
         Objects.requireNonNull(experience, "펫 경험치는 null일 수 없습니다");
         Objects.requireNonNull(affection, "펫 애정도는 null일 수 없습니다");
         Objects.requireNonNull(energy, "펫 포만감은 null일 수 없습니다");
-        // petName은 null 허용 (초기 생성 시 이름 없음)
+        Objects.requireNonNull(petName, "펫 이름은 null일 수 없습니다");
         Objects.requireNonNull(createdAt, "생성 시간은 null일 수 없습니다");
         Objects.requireNonNull(updatedAt, "수정 시간은 null일 수 없습니다");
     }
@@ -181,9 +181,9 @@ public class PetInfo {
     }
 
     /**
-     * 펫 정보 ID를 반환합니다 (편의 메서드)
+     * 펫 ID를 반환합니다 (편의 메서드)
      */
-    public PetInfoId getPetInfoId() {
-        return PetInfoId.of(inventoryItemId.value());
+    public PetId getPetId() {
+        return PetId.of(inventoryItemId.value());
     }
 }

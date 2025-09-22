@@ -49,8 +49,8 @@ public record Energy(int value) {
         return new Energy(newValue);
     }
 
-    public boolean hasEnoughEnergy(int required) {
-        return value >= required;
+    public boolean hasEnoughEnergy(Energy required) {
+        return value >= required.value;
     }
 
     public boolean isMaxEnergy() {
