@@ -1,3 +1,4 @@
+/** 상점 아이템 관련 React Query 키 팩토리. */
 export const itemsKeys = {
   all: ['gameItems'] as const,
   list: () => [...itemsKeys.all, 'list'] as const,

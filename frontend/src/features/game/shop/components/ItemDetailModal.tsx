@@ -4,17 +4,25 @@ import { getItemImage } from '@/features/game/shop/utils/getItemImage';
 import closeButton from '@/assets/game_button/closeButton.png';
 import Coin from '@/features/game/shared/components/Coin';
 import itemHeader from '@/assets/game_etc/itemHeader.png';
-import type { PaymentMethod } from '@/features/game/shop/types/item';
+import type { Item, PaymentMethod } from '@/features/game/shop/types/item';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 
+/** 상점 아이템 상세 모달에 필요한 속성. */
 interface ItemDetailModalProps {
   itemId: number | null;
   isOpen: boolean;
   onClose: () => void;
+  onPreview?: (item: Item) => void;
 }
 
-const ItemDetailModal = ({ itemId, isOpen, onClose }: ItemDetailModalProps) => {
+/** 아이템 상세 정보 조회 및 구매/미리보기를 제공하는 모달 컴포넌트. */
+const ItemDetailModal = ({
+  itemId,
+  isOpen,
+  onClose,
+  onPreview,
+}: ItemDetailModalProps) => {
   const { data: item, isLoading, error } = useGameItemDetail(itemId);
   const { mutate: purchase, isPending: isPurchasing } = usePurchase();
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>('COIN');
@@ -46,6 +54,15 @@ const ItemDetailModal = ({ itemId, isOpen, onClose }: ItemDetailModalProps) => {
         },
       },
     );
+  };
+
+  const handlePreview = () => {
+    if (!item || !onPreview) {
+      return;
+    }
+
+    onPreview(item);
+    onClose();
   };
 
   if (!isOpen) {
@@ -111,9 +128,13 @@ const ItemDetailModal = ({ itemId, isOpen, onClose }: ItemDetailModalProps) => {
             <p className="px-10 pt-3 text-center text-sm leading-relaxed whitespace-pre-line text-gray-600">
               {item.itemDescription}
             </p>
-            <div className="mt-5 mb-2 rounded-3xl border-2 border-level-05 bg-store-bg p-2 px-10 text-lg">
-              PREVIEW
-            </div>
+            <button
+              type="button"
+              onClick={handlePreview}
+              className="mt-5 mb-2 rounded-3xl border-2 border-primary bg-store-bg px-10 py-2 text-lg font-semibold text-primary hover:bg-primary/10"
+            >
+              방에 미리 배치하기
+            </button>
             <Coin coin={item.coin} fishCoin={item.fishCoin} />
 
             {/* 결제 방법 선택 */}
