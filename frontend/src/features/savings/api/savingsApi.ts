@@ -8,6 +8,12 @@ import type {
   TransferRequest,
   TransferResponse,
 } from '@/features/savings/types/deposit';
+import type {
+  CreateCheckingAccountRequest,
+  CreateSavingsAccountRequest,
+  AccountCreationResponse,
+  ExistingAccountsResponse,
+} from '@/features/savings/types/accountCreation';
 // import {
 //   mockGetSavingsAccount,
 //   mockGetSavingsTransactions,
@@ -132,5 +138,57 @@ export const transferToSavings = async (
     transferData,
   );
 
+  return response.body!;
+};
+
+/**
+ * 고객의 기존 계좌 현황을 확인하는 API 함수
+ *
+ * 입출금 계좌 존재 여부를 확인하여 적금 개설 가능 여부를 판단합니다.
+ *
+ * @returns 기존 계좌 현황 정보가 담긴 ExistingAccountsResponse 객체
+ * @throws API 호출 실패 시 네트워크 오류 또는 HTTP 오류 발생
+ */
+export const checkExistingAccounts =
+  async (): Promise<ExistingAccountsResponse> => {
+    const response = await http.get<ExistingAccountsResponse>(
+      `/v1/accounts?customerId=${CUSTOMER_ID}`,
+    );
+    return response.body!;
+  };
+
+/**
+ * 입출금 통장을 개설하는 API 함수
+ *
+ * @param request - 입출금 통장 생성 요청 데이터
+ * @returns 생성된 계좌 정보가 담긴 AccountCreationResponse 객체
+ * @throws API 호출 실패 시 네트워크 오류 또는 HTTP 오류 발생
+ */
+export const createCheckingAccount = async (
+  request: CreateCheckingAccountRequest,
+): Promise<AccountCreationResponse> => {
+  const response = await http.post<AccountCreationResponse>(
+    '/v1/accounts',
+    request,
+  );
+  return response.body!;
+};
+
+/**
+ * 자유적금 통장을 개설하는 API 함수
+ *
+ * 입출금 계좌가 존재하는 경우에만 호출되어야 합니다.
+ *
+ * @param request - 자유적금 통장 생성 요청 데이터
+ * @returns 생성된 계좌 정보가 담긴 AccountCreationResponse 객체
+ * @throws API 호출 실패 시 네트워크 오류 또는 HTTP 오류 발생
+ */
+export const createSavingsAccount = async (
+  request: CreateSavingsAccountRequest,
+): Promise<AccountCreationResponse> => {
+  const response = await http.post<AccountCreationResponse>(
+    '/v1/accounts',
+    request,
+  );
   return response.body!;
 };
