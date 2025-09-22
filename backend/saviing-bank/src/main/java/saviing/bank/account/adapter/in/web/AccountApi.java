@@ -17,6 +17,7 @@ import java.util.List;
 import saviing.bank.account.adapter.in.web.dto.request.CreateAccountRequest;
 import saviing.bank.account.adapter.in.web.dto.request.UpdateAccountStatusRequest;
 import saviing.bank.account.adapter.in.web.dto.request.UpdateSavingsAccountRequest;
+import saviing.bank.account.adapter.in.web.dto.request.UpdateAutoTransferRequest;
 import saviing.bank.account.adapter.in.web.dto.response.CreateAccountResponse;
 import saviing.bank.account.adapter.in.web.dto.response.GetAccountResponse;
 import saviing.common.response.ApiResult;
@@ -57,7 +58,14 @@ public interface AccountApi {
                                 "value": 12,
                                 "unit": "WEEKS"
                               },
-                              "maturityWithdrawalAccount": "11012345678901234"
+                              "maturityWithdrawalAccount": "11012345678901234",
+                              "autoTransfer": {
+                                "enabled": true,
+                                "cycle": "MONTHLY",
+                                "transferDay": 15,
+                                "amount": 200000,
+                                "withdrawAccountId": 2001
+                              }
                             }
                         """
                     )
@@ -150,6 +158,21 @@ public interface AccountApi {
         @Parameter(description = "수정할 계좌 ID", example = "10")
         @PathVariable Long accountId,
         @Valid @RequestBody UpdateSavingsAccountRequest request
+    );
+
+    @Operation(
+        summary = "적금 자동이체 설정 수정",
+        description = "자동이체 주기, 일자, 금액을 수정하거나 비활성화합니다."
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "수정 성공",
+        useReturnTypeSchema = true
+    )
+    ApiResult<GetAccountResponse> updateAutoTransfer(
+        @Parameter(description = "수정할 계좌 ID", example = "10")
+        @PathVariable Long accountId,
+        @Valid @RequestBody UpdateAutoTransferRequest request
     );
 
     @Operation(

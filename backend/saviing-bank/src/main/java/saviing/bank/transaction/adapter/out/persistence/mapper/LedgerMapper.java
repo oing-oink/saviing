@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 import saviing.bank.common.vo.MoneyWon;
 import saviing.bank.transaction.adapter.out.persistence.entity.ledger.LedgerEntryJpaEntity;
 import saviing.bank.transaction.adapter.out.persistence.entity.ledger.TransferJpaEntity;
-import saviing.bank.transaction.domain.model.TransactionDirection;
 import saviing.bank.transaction.domain.model.transfer.LedgerEntry;
 import saviing.bank.transaction.domain.model.transfer.Transfer;
 import saviing.bank.transaction.domain.vo.IdempotencyKey;

@@ -30,6 +30,9 @@ public record TransactionResponse(
     @Schema(description = "거래 금액 (원)", example = "100000")
     BigDecimal amount,
 
+    @Schema(description = "거래 후 잔액 (원)", example = "9900000")
+    BigDecimal balanceAfter,
+
     @Schema(description = "가치일자", example = "2024-01-15")
     LocalDate valueDate,
 
@@ -59,6 +62,7 @@ public record TransactionResponse(
             .transactionType(result.transactionType())
             .direction(result.direction())
             .amount(result.amount())
+            .balanceAfter(result.balanceAfter())
             .valueDate(result.valueDate())
             .postedAt(result.postedAt())
             .status(result.status())

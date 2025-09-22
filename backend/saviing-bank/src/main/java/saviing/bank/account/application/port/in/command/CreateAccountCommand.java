@@ -1,10 +1,11 @@
 package saviing.bank.account.application.port.in.command;
 
-import saviing.bank.account.domain.vo.ProductId;
-import saviing.bank.common.vo.MoneyWon;
-import saviing.bank.account.domain.vo.TermPeriod;
-import saviing.bank.account.domain.vo.AccountNumber;
+import saviing.bank.account.domain.model.AutoTransferCycle;
 import saviing.bank.account.domain.model.TermUnit;
+import saviing.bank.account.domain.vo.AccountNumber;
+import saviing.bank.account.domain.vo.ProductId;
+import saviing.bank.account.domain.vo.TermPeriod;
+import saviing.bank.common.vo.MoneyWon;
 
 /**
  * 계좌 생성 명령의 최상위 인터페이스
@@ -36,6 +37,10 @@ public sealed interface CreateAccountCommand
      * @param termValue 기간 값 (적금용, null 가능)
      * @param termUnit 기간 단위 (적금용, null 가능)
      * @param maturityWithdrawalAccount 만기 시 출금계좌 (적금용, null 가능)
+     * @param autoTransferEnabled 자동이체 활성화 여부 (적금용, null 가능)
+     * @param autoTransferCycle 자동이체 주기 (적금용, null 가능)
+     * @param autoTransferDay 자동이체 납부 일자 (적금용, null 가능)
+     * @param autoTransferAmount 자동이체 금액 (적금용, null 가능)
      * @return 적절한 CreateAccountCommand 구현체
      * @throws IllegalArgumentException 적금 필드가 부분적으로만 제공된 경우
      */
@@ -45,10 +50,21 @@ public sealed interface CreateAccountCommand
         Long targetAmount,
         Integer termValue,
         String termUnit,
-        String maturityWithdrawalAccount
+        String maturityWithdrawalAccount,
+        Boolean autoTransferEnabled,
+        String autoTransferCycle,
+        Integer autoTransferDay,
+        Long autoTransferAmount,
+        Long autoTransferWithdrawAccountId
     ) {
         // 적금 필드가 하나라도 있는지 확인
         boolean hasSavingsFields = targetAmount != null || termValue != null || termUnit != null || maturityWithdrawalAccount != null;
+        boolean hasAutoTransferFields = autoTransferEnabled != null || autoTransferCycle != null
+            || autoTransferDay != null || autoTransferAmount != null;
+
+        if (hasAutoTransferFields && !hasSavingsFields) {
+            throw new IllegalArgumentException("자동이체 설정은 적금 계좌에서만 사용할 수 있습니다");
+        }
 
         if (hasSavingsFields) {
             // 적금 필드 중 하나라도 있으면 필수 필드들 검증 (기본적인 검증만)
@@ -63,12 +79,33 @@ public sealed interface CreateAccountCommand
             TermUnit unit = TermUnit.valueOf(termUnit.toUpperCase());
             TermPeriod period = TermPeriod.of(termValue, unit);
 
+            AutoTransferInitCommand autoTransfer = null;
+            if (hasAutoTransferFields) {
+                boolean enabled = Boolean.TRUE.equals(autoTransferEnabled);
+                if (enabled) {
+                    if (autoTransferCycle == null || autoTransferDay == null || autoTransferAmount == null || autoTransferWithdrawAccountId == null) {
+                        throw new IllegalArgumentException("자동이체를 활성화하려면 주기, 납부일, 금액, 출금 계좌 ID가 모두 필요합니다");
+                    }
+                    AutoTransferCycle cycle = AutoTransferCycle.valueOf(autoTransferCycle.toUpperCase());
+                    autoTransfer = new AutoTransferInitCommand(
+                        true,
+                        cycle,
+                        autoTransferDay,
+                        MoneyWon.of(autoTransferAmount),
+                        autoTransferWithdrawAccountId
+                    );
+                } else {
+                    autoTransfer = new AutoTransferInitCommand(false, null, null, null, null);
+                }
+            }
+
             return new CreateSavingsCommand(
                 customerId,
                 ProductId.of(productId),
                 MoneyWon.of(targetAmount),
                 period,
-                maturityWithdrawalAccount != null ? new AccountNumber(maturityWithdrawalAccount) : null
+                maturityWithdrawalAccount != null ? new AccountNumber(maturityWithdrawalAccount) : null,
+                autoTransfer
             );
         }
 

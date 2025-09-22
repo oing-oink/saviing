@@ -26,7 +26,11 @@ public record CreateAccountRequest(
     SavingsTermRequest termPeriod,
 
     @Schema(description = "만기 출금 계좌번호 (적금 계좌만, 선택사항)", example = "11012345678901234")
-    String maturityWithdrawalAccount
+    String maturityWithdrawalAccount,
+
+    @Schema(description = "자동이체 설정 (적금 계좌에서만 사용)")
+    @Valid
+    AutoTransferRequest autoTransfer
 ) {
 
     @Schema(description = "적금 기간 정보")
@@ -46,6 +50,25 @@ public record CreateAccountRequest(
         String unit
     ) {}
 
+    @Schema(description = "자동이체 설정 정보")
+    public record AutoTransferRequest(
+        @Schema(description = "자동이체 활성화 여부", example = "true")
+        Boolean enabled,
+
+        @Schema(description = "자동이체 주기", example = "WEEKLY", allowableValues = {"WEEKLY", "MONTHLY"})
+        String cycle,
+
+        @Schema(description = "자동이체 납부 일자", example = "3")
+        Integer transferDay,
+
+        @Schema(description = "자동이체 금액", example = "100000")
+        @Positive(message = "자동이체 금액은 양수여야 합니다")
+        Long amount,
+
+        @Schema(description = "자동이체 출금 계좌 ID", example = "2001")
+        Long withdrawAccountId
+    ) {}
+
     public CreateAccountCommand toCommand() {
         return CreateAccountCommand.of(
             customerId,
@@ -53,7 +76,12 @@ public record CreateAccountRequest(
             targetAmount,
             termPeriod != null ? termPeriod.value() : null,
             termPeriod != null ? termPeriod.unit() : null,
-            maturityWithdrawalAccount
+            maturityWithdrawalAccount,
+            autoTransfer != null ? autoTransfer.enabled() : null,
+            autoTransfer != null ? autoTransfer.cycle() : null,
+            autoTransfer != null ? autoTransfer.transferDay() : null,
+            autoTransfer != null ? autoTransfer.amount() : null,
+            autoTransfer != null ? autoTransfer.withdrawAccountId() : null
         );
     }
 }

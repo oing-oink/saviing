@@ -56,6 +56,9 @@ public class TransactionJpaEntity {
     @Column(name = "amount", nullable = false)
     private Long amount;
 
+    @Column(name = "balance_after", nullable = false)
+    private Long balanceAfter;
+
     @Column(name = "value_date", nullable = false)
     private LocalDate valueDate;
 
@@ -85,6 +88,7 @@ public class TransactionJpaEntity {
         entity.txnType = transaction.getTransactionType();
         entity.direction = transaction.getDirection();
         entity.amount = transaction.getAmount().amount();
+        entity.balanceAfter = transaction.getBalanceAfter().amount();
         entity.valueDate = transaction.getValueDate();
         entity.postedAt = transaction.getPostedAt();
         entity.status = transaction.getStatus();
@@ -103,6 +107,7 @@ public class TransactionJpaEntity {
             txnType,
             direction,
             MoneyWon.of(amount),
+            MoneyWon.of(balanceAfter),
             valueDate,
             postedAt,
             status,

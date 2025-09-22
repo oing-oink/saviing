@@ -82,3 +82,9 @@ management:
   endpoint:
     health:
       show-details: when-authorized
+
+# Auto Transfer Scheduler
+auto-transfer:
+  scheduler:
+    cron: ${AUTO_TRANSFER_SCHEDULER_CRON:0 0 17 * * *}
+    demo-reset-enabled: ${AUTO_TRANSFER_SCHEDULER_DEMO_RESET_ENABLED:false}

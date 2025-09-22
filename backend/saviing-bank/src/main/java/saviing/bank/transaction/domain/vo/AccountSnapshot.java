@@ -7,6 +7,7 @@ import saviing.bank.common.vo.MoneyWon;
  */
 public record AccountSnapshot(
     Long accountId,
+    Long customerId,
     MoneyWon balance,
     AccountStatusSnapshot status
 ) {

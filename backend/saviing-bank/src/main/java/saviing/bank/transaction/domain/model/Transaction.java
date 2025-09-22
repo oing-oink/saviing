@@ -24,6 +24,7 @@ public class Transaction {
     private TransactionType transactionType;
     private TransactionDirection direction;
     private MoneyWon amount;
+    private MoneyWon balanceAfter;
     private LocalDate valueDate;
     private Instant postedAt;
     private TransactionStatus status = TransactionStatus.POSTED;
@@ -39,6 +40,7 @@ public class Transaction {
      * @param transactionType 거래 유형
      * @param direction 거래 방향 (입금/출금)
      * @param amount 거래 금액
+     * @param balanceAfter 거래 후 잔액
      * @param valueDate 거래일
      * @param postedAt 거래 처리 시각
      * @param description 거래 설명
@@ -48,14 +50,19 @@ public class Transaction {
         @NonNull TransactionType transactionType,
         @NonNull TransactionDirection direction,
         @NonNull MoneyWon amount,
+        @NonNull MoneyWon balanceAfter,
         @NonNull LocalDate valueDate,
         @NonNull Instant postedAt,
         String description
     ) {
+        if (balanceAfter.amount() < 0) {
+            throw new IllegalArgumentException("거래 후 잔액은 음수일 수 없습니다");
+        }
         this.accountId = accountId;
         this.transactionType = transactionType;
         this.direction = direction;
         this.amount = amount;
+        this.balanceAfter = balanceAfter;
         this.valueDate = valueDate;
         this.postedAt = postedAt;
         this.description = description;
@@ -70,6 +77,7 @@ public class Transaction {
      * @param transactionType 거래 유형
      * @param direction 거래 방향 (입금/출금)
      * @param amount 거래 금액
+     * @param balanceAfter 거래 후 잔액
      * @param valueDate 거래일
      * @param postedAt 거래 처리 시각
      * @param description 거래 설명
@@ -80,13 +88,14 @@ public class Transaction {
         @NonNull TransactionType transactionType,
         @NonNull TransactionDirection direction,
         @NonNull MoneyWon amount,
+        @NonNull MoneyWon balanceAfter,
         @NonNull LocalDate valueDate,
         @NonNull Instant postedAt,
         String description
     ) {
         validateTransactionTypeAndDirection(transactionType, direction);
         return new Transaction(
-            accountId, transactionType, direction, amount,
+            accountId, transactionType, direction, amount, balanceAfter,
             valueDate, postedAt, description
         );
     }
@@ -99,6 +108,7 @@ public class Transaction {
      * @param transactionType 거래 유형
      * @param direction 거래 방향 (입금/출금)
      * @param amount 거래 금액
+     * @param balanceAfter 거래 후 잔액
      * @param valueDate 거래일
      * @param postedAt 거래 처리 시각
      * @param status 거래 상태
@@ -114,6 +124,7 @@ public class Transaction {
         @NonNull TransactionType transactionType,
         @NonNull TransactionDirection direction,
         @NonNull MoneyWon amount,
+        @NonNull MoneyWon balanceAfter,
         @NonNull LocalDate valueDate,
         @NonNull Instant postedAt,
         @NonNull TransactionStatus status,
@@ -123,7 +134,7 @@ public class Transaction {
         @NonNull Instant updatedAt
     ) {
         Transaction transaction = new Transaction(
-            accountId, transactionType, direction, amount,
+            accountId, transactionType, direction, amount, balanceAfter,
             valueDate, postedAt, description
         );
         transaction.id = id;

@@ -21,6 +21,7 @@ import saviing.bank.common.vo.MoneyWon;
 import saviing.bank.transaction.application.port.in.TransferUseCase;
 import saviing.bank.transaction.application.port.in.command.TransferCommand;
 import saviing.bank.transaction.application.port.in.result.TransferResult;
+import saviing.bank.transaction.application.port.out.LoadCustomerNamePort;
 import saviing.bank.transaction.application.port.out.LoadTransactionPort;
 import saviing.bank.transaction.application.port.out.SaveTransactionPort;
 import saviing.bank.transaction.domain.model.Transaction;
@@ -57,6 +58,7 @@ public class TransferService implements TransferUseCase {
     private final TransferDomainService transferDomainService;
     private final SaveTransactionPort saveTransactionPort;
     private final LoadTransactionPort loadTransactionPort;
+    private final LoadCustomerNamePort loadCustomerNamePort;
     private final AccountInternalApi accountInternalApi;
 
     /**
@@ -120,6 +122,12 @@ public class TransferService implements TransferUseCase {
         AccountSnapshot sourceAccount = loadAccount(command.sourceAccountId());
         AccountSnapshot targetAccount = loadAccount(command.targetAccountId());
 
+        // 고객 이름 미리 조회 (description 설정용)
+        String recipientName = loadCustomerNamePort.loadCustomerName(targetAccount.customerId())
+            .orElse("(알 수 없음)");
+        String senderName = loadCustomerNamePort.loadCustomerName(sourceAccount.customerId())
+            .orElse("(알 수 없음)");
+
         transferDomainService.validatePreconditions(
             sourceAccount,
             targetAccount,
@@ -135,16 +143,18 @@ public class TransferService implements TransferUseCase {
         boolean withdrawCompleted = false;
 
         try {
+
             // 출금/입금은 AccountInternalApi를 통해 처리하며 실패 시 도메인 예외로 변환한다.
-            withdraw(command.sourceAccountId(), command.amount());
+            BalanceUpdateResponse withdrawResponse = withdraw(command.sourceAccountId(), command.amount());
             withdrawCompleted = true;
             debitTransactionId = createTransaction(
                 command.sourceAccountId(),
                 TransactionType.TRANSFER_OUT,
                 TransactionDirection.DEBIT,
                 command.amount(),
+                MoneyWon.of(withdrawResponse.currentBalance()),
                 command.valueDate(),
-                command.memo(),
+                recipientName, // 출금 거래는 수취인 이름으로 설정
                 startedAt
             );
             currentSnapshot = ledgerService.markEntryPosted(
@@ -155,14 +165,19 @@ public class TransferService implements TransferUseCase {
                 startedAt
             );
 
-            deposit(command.targetAccountId(), command.amount());
+            BalanceUpdateResponse depositResponse = deposit(command.targetAccountId(), command.amount());
+            // 입금 거래는 memo > 송금자 이름 순으로 설정
+            String depositDescription = (command.memo() != null && !command.memo().trim().isEmpty())
+                ? command.memo()
+                : senderName;
             creditTransactionId = createTransaction(
                 command.targetAccountId(),
                 TransactionType.TRANSFER_IN,
                 TransactionDirection.CREDIT,
                 command.amount(),
+                MoneyWon.of(depositResponse.currentBalance()),
                 command.valueDate(),
-                command.memo(),
+                depositDescription,
                 Instant.now()
             );
             currentSnapshot = ledgerService.markEntryPosted(
@@ -183,10 +198,10 @@ public class TransferService implements TransferUseCase {
                 currentSnapshot.status());
             return mapToResult(currentSnapshot);
         } catch (TransactionException domainEx) {
-            handleDomainFailure(command, idempotencyKey, withdrawCompleted, domainEx);
+            handleDomainFailure(command, idempotencyKey, withdrawCompleted, recipientName, domainEx);
             throw domainEx;
         } catch (RuntimeException systemEx) {
-            handleSystemFailure(command, idempotencyKey, withdrawCompleted, systemEx);
+            handleSystemFailure(command, idempotencyKey, withdrawCompleted, recipientName, systemEx);
             throw systemEx;
         }
     }
@@ -199,6 +214,7 @@ public class TransferService implements TransferUseCase {
         if (response instanceof AccountApiResponse.Success<AccountInfoResponse>(AccountInfoResponse data)) {
             return new AccountSnapshot(
                 data.accountId(),
+                data.customerId(),
                 MoneyWon.of(data.balance()),
                 AccountStatusSnapshot.from(data.status())
             );
@@ -249,6 +265,7 @@ public class TransferService implements TransferUseCase {
         TransactionType transactionType,
         TransactionDirection direction,
         MoneyWon amount,
+        MoneyWon balanceAfter,
         LocalDate valueDate,
         String description,
         Instant postedAt
@@ -258,6 +275,7 @@ public class TransferService implements TransferUseCase {
             transactionType,
             direction,
             amount,
+            balanceAfter,
             valueDate,
             postedAt,
             description
@@ -309,20 +327,21 @@ public class TransferService implements TransferUseCase {
     /**
      * 출금 성공 후 실패가 발생한 경우 원복을 시도한다.
      */
-    private String attemptDebitCompensation(TransferCommand command, IdempotencyKey idempotencyKey) {
+    private String attemptDebitCompensation(TransferCommand command, IdempotencyKey idempotencyKey, String recipientName) {
         try {
             log.warn("[COMPENSATION-START] 송금 보상 처리 시작 - idempotencyKey: {}, accountId: {}, amount: {}",
                 idempotencyKey.value(), command.sourceAccountId(), command.amount().amount());
 
-            deposit(command.sourceAccountId(), command.amount());
+            BalanceUpdateResponse compensationResponse = deposit(command.sourceAccountId(), command.amount());
 
             TransactionId compensationTxId = createTransaction(
                 command.sourceAccountId(),
                 TransactionType.REVERSAL,
                 TransactionDirection.CREDIT,
                 command.amount(),
+                MoneyWon.of(compensationResponse.currentBalance()),
                 command.valueDate(),
-                "Transfer compensation for " + idempotencyKey.value(),
+                recipientName + " 송금취소",
                 Instant.now()
             );
 
@@ -341,11 +360,12 @@ public class TransferService implements TransferUseCase {
         TransferCommand command,
         IdempotencyKey idempotencyKey,
         boolean withdrawCompleted,
+        String recipientName,
         TransactionException domainEx
     ) {
         String failureReason = domainEx.getMessage();
         if (withdrawCompleted) {
-            failureReason += attemptDebitCompensation(command, idempotencyKey);
+            failureReason += attemptDebitCompensation(command, idempotencyKey, recipientName);
         }
         TransferSnapshot failedSnapshot = ledgerService.markTransferFailed(command.sourceAccountId(), idempotencyKey, failureReason);
         transferDomainService.onTransferFailed(idempotencyKey, failedSnapshot, domainEx);
@@ -357,11 +377,12 @@ public class TransferService implements TransferUseCase {
         TransferCommand command,
         IdempotencyKey idempotencyKey,
         boolean withdrawCompleted,
+        String recipientName,
         RuntimeException systemEx
     ) {
         String failureReason = GENERIC_FAILURE_MESSAGE;
         if (withdrawCompleted) {
-            failureReason += attemptDebitCompensation(command, idempotencyKey);
+            failureReason += attemptDebitCompensation(command, idempotencyKey, recipientName);
         }
         TransferSnapshot failedSnapshot = ledgerService.markTransferFailed(command.sourceAccountId(), idempotencyKey, failureReason);
         transferDomainService.onTransferFailed(idempotencyKey, failedSnapshot, systemEx);

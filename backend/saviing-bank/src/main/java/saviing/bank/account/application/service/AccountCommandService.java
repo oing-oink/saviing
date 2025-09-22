@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Map;
 
 import saviing.bank.common.vo.MoneyWon;
@@ -14,11 +15,16 @@ import saviing.bank.account.application.port.in.command.CreateAccountCommand;
 import saviing.bank.account.application.port.in.command.CreateDemandDepositCommand;
 import saviing.bank.account.application.port.in.command.CreateSavingsCommand;
 import saviing.bank.account.application.port.in.result.CreateAccountResult;
+import saviing.bank.account.application.port.out.AutoTransferSchedulePort;
 import saviing.bank.account.application.port.out.GenerateAccountNumberPort;
+import saviing.bank.account.application.port.out.LoadAccountPort;
 import saviing.bank.account.application.port.out.SaveAccountPort;
 import saviing.bank.account.domain.model.Account;
+import saviing.bank.account.domain.model.AccountStatus;
+import saviing.bank.account.domain.model.AutoTransferSchedule;
 import saviing.bank.account.domain.model.Product;
 import saviing.bank.account.domain.model.ProductCategory;
+import saviing.bank.account.domain.vo.AccountId;
 import saviing.bank.account.domain.vo.AccountNumber;
 import saviing.bank.account.domain.vo.BasisPoints;
 import saviing.bank.account.domain.vo.InterestRateRange;
@@ -26,6 +32,7 @@ import saviing.bank.account.domain.vo.ProductConfiguration;
 import saviing.bank.account.exception.InvalidProductTypeException;
 import saviing.bank.account.exception.InvalidSavingsTermException;
 import saviing.bank.account.exception.InvalidTargetAmountException;
+import saviing.bank.account.exception.InvalidWithdrawalAccountException;
 
 @ExecutionTime
 @Service
@@ -35,7 +42,9 @@ public class AccountCommandService implements CreateAccountUseCase {
 
     private final GenerateAccountNumberPort generateAccountNumberPort;
     private final SaveAccountPort saveAccountPort;
+    private final LoadAccountPort loadAccountPort;
     private final ProductService productService;
+    private final AutoTransferSchedulePort autoTransferSchedulePort;
     
     @Override
     public CreateAccountResult createAccount(CreateAccountCommand command) {
@@ -99,7 +108,8 @@ public class AccountCommandService implements CreateAccountUseCase {
         setDefaultInterestRate(account, product);
 
         Account savedAccount = saveAccountPort.save(account);
-        return CreateAccountResult.from(savedAccount, product);
+        AutoTransferSchedule schedule = initializeAutoTransferSchedule(command, savedAccount);
+        return CreateAccountResult.from(savedAccount, product, schedule);
     }
 
     private void setDefaultInterestRate(Account account, Product product) {
@@ -191,5 +201,77 @@ public class AccountCommandService implements CreateAccountUseCase {
                 "customerId", command.customerId()
             ));
         }
+    }
+
+    /**
+     * 적금 계좌 개설 시 초기 자동이체 설정을 저장한다.
+     *
+     * @param command 적금 계좌 생성 명령
+     * @param savedAccount 자동이체를 연결할 저장된 계좌
+     */
+    private AutoTransferSchedule initializeAutoTransferSchedule(CreateSavingsCommand command, Account savedAccount) {
+        if (command.autoTransfer() == null || !command.autoTransfer().enabled()) {
+            return null;
+        }
+
+        Account withdrawAccount = resolveAutoTransferWithdrawAccount(command.autoTransfer().withdrawAccountId(), savedAccount);
+
+        AutoTransferSchedule schedule = AutoTransferSchedule.create(
+            savedAccount.getId(),
+            command.autoTransfer().cycle(),
+            withdrawAccount.getId(),
+            command.autoTransfer().transferDay(),
+            command.autoTransfer().amount(),
+            true,
+            LocalDate.now(),
+            Instant.now()
+        );
+        autoTransferSchedulePort.create(schedule);
+        return schedule;
+    }
+
+    /**
+     * 자동이체 출금 계좌를 검증한다
+     * 
+     * @param withdrawAccountId 출금 계좌 ID
+     * @param savingsAccount 적금 계좌
+     * @return 출금 계좌
+     */
+    private Account resolveAutoTransferWithdrawAccount(Long withdrawAccountId, Account savingsAccount) {
+        if (withdrawAccountId == null) {
+            throw new InvalidWithdrawalAccountException(Map.of(
+                "reason", "WITHDRAW_ACCOUNT_REQUIRED"
+            ));
+        }
+
+        Account withdrawAccount = loadAccountPort.findById(AccountId.of(withdrawAccountId))
+            .orElseThrow(() -> new InvalidWithdrawalAccountException(Map.of(
+                "withdrawAccountId", withdrawAccountId,
+                "reason", "NOT_FOUND"
+            )));
+
+        if (!withdrawAccount.getCustomerId().equals(savingsAccount.getCustomerId())) {
+            throw new InvalidWithdrawalAccountException(Map.of(
+                "withdrawAccountId", withdrawAccountId,
+                "reason", "DIFFERENT_CUSTOMER"
+            ));
+        }
+
+        if (withdrawAccount.getStatus() != AccountStatus.ACTIVE) {
+            throw new InvalidWithdrawalAccountException(Map.of(
+                "withdrawAccountId", withdrawAccountId,
+                "reason", "ACCOUNT_INACTIVE"
+            ));
+        }
+
+        Product withdrawProduct = productService.getProduct(withdrawAccount.getProductId());
+        if (withdrawProduct.getCategory() != ProductCategory.DEMAND_DEPOSIT) {
+            throw new InvalidWithdrawalAccountException(Map.of(
+                "withdrawAccountId", withdrawAccountId,
+                "reason", "NOT_DEMAND_DEPOSIT"
+            ));
+        }
+
+        return withdrawAccount;
     }
 }

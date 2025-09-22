@@ -12,8 +12,10 @@ import saviing.bank.account.application.port.in.GetAccountsByCustomerIdUseCase;
 import saviing.bank.account.application.port.in.GetAccountUseCase;
 import saviing.bank.account.application.port.in.result.GetAccountResult;
 import saviing.bank.account.application.port.out.LoadAccountPort;
+import saviing.bank.account.application.port.out.AutoTransferSchedulePort;
 import saviing.bank.account.domain.model.Account;
 import saviing.bank.account.domain.model.Product;
+import saviing.bank.account.domain.model.AutoTransferSchedule;
 import saviing.bank.account.domain.vo.AccountId;
 import saviing.bank.account.domain.vo.AccountNumber;
 import saviing.bank.account.exception.AccountNotFoundException;
@@ -26,13 +28,17 @@ public class AccountQueryService implements GetAccountUseCase, GetAccountsByCust
 
     private final LoadAccountPort loadAccountPort;
     private final ProductService productService;
+    private final AutoTransferSchedulePort autoTransferSchedulePort;
 
     @Override
     public GetAccountResult getAccount(Long accountId) {
         Account account = loadAccountPort.findById(AccountId.of(accountId))
             .orElseThrow(() -> new AccountNotFoundException(Map.of("accountId", accountId)));
         Product product = productService.getProduct(account.getProductId());
-        return GetAccountResult.from(account, product);
+        AutoTransferSchedule schedule = account.isSavingsAccount()
+            ? autoTransferSchedulePort.findByAccountId(account.getId()).orElse(null)
+            : null;
+        return GetAccountResult.from(account, product, schedule);
     }
 
     @Override
@@ -40,7 +46,10 @@ public class AccountQueryService implements GetAccountUseCase, GetAccountsByCust
         Account account = loadAccountPort.findByAccountNumber(new AccountNumber(accountNumber))
             .orElseThrow(() -> new AccountNotFoundException(Map.of("accountNumber", accountNumber)));
         Product product = productService.getProduct(account.getProductId());
-        return GetAccountResult.from(account, product);
+        AutoTransferSchedule schedule = account.isSavingsAccount()
+            ? autoTransferSchedulePort.findByAccountId(account.getId()).orElse(null)
+            : null;
+        return GetAccountResult.from(account, product, schedule);
     }
 
     @Override
@@ -50,7 +59,10 @@ public class AccountQueryService implements GetAccountUseCase, GetAccountsByCust
         return accounts.stream()
             .map(account -> {
                 Product product = productService.getProduct(account.getProductId());
-                return GetAccountResult.from(account, product);
+                AutoTransferSchedule schedule = account.isSavingsAccount()
+                    ? autoTransferSchedulePort.findByAccountId(account.getId()).orElse(null)
+                    : null;
+                return GetAccountResult.from(account, product, schedule);
             })
             .toList();
     }

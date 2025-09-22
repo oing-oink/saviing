@@ -18,6 +18,7 @@ public record TransactionResult(
     String transactionType,
     String direction,
     BigDecimal amount,
+    BigDecimal balanceAfter,
     LocalDate valueDate,
     Instant postedAt,
     String status,
@@ -41,6 +42,7 @@ public record TransactionResult(
             .transactionType(transaction.getTransactionType().name())
             .direction(transaction.getDirection().name())
             .amount(BigDecimal.valueOf(transaction.getAmount().amount()))
+            .balanceAfter(BigDecimal.valueOf(transaction.getBalanceAfter().amount()))
             .valueDate(transaction.getValueDate())
             .postedAt(transaction.getPostedAt())
             .status(transaction.getStatus().name())
