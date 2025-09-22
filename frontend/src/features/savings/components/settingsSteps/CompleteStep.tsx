@@ -1,15 +1,43 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { useSavingsSettingsStore } from '@/features/savings/store/useSavingsSettingsStore';
 import { useSavingsSettingsChange } from '@/features/savings/hooks/useSavingsSettingsChange';
+import { useAccountsList } from '@/features/savings/query/useSavingsQuery';
+import { savingsKeys } from '@/features/savings/query/savingsKeys';
 import { Button } from '@/shared/components/ui/button';
 import { PAGE_PATH } from '@/shared/constants/path';
 
 const CompleteStep = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { accountId } = useParams<{ accountId: string }>();
   const { newSettings, reset } = useSavingsSettingsStore();
   const { cancelAndGoBack } = useSavingsSettingsChange();
 
+  // 계좌 목록 조회 (계좌명 표시용)
+  const { data: accounts } = useAccountsList();
+
   const handleGoToDetail = () => {
+    if (accountId) {
+      // 모든 적금 관련 캐시 무효화
+      queryClient.invalidateQueries({
+        queryKey: savingsKeys.all,
+      });
+
+      // 특정 계좌 관련 캐시 제거
+      queryClient.removeQueries({
+        queryKey: savingsKeys.detail(accountId),
+      });
+      queryClient.removeQueries({
+        queryKey: savingsKeys.savingsAccountDetail(accountId),
+      });
+
+      // 계좌 목록도 새로고침
+      queryClient.invalidateQueries({
+        queryKey: savingsKeys.accountsList(),
+      });
+    }
+
     // 설정 변경 상태 초기화
     reset();
 
@@ -27,15 +55,53 @@ const CompleteStep = () => {
 
   const getChangedSettings = () => {
     const changes = [];
+
     if (newSettings.newAmount) {
-      changes.push('월 납입금액');
+      changes.push({
+        label: '월 납입금액',
+        value: `${newSettings.newAmount.toLocaleString()}원`,
+      });
     }
-    if (newSettings.newTransferDate) {
-      changes.push('자동이체 날짜');
+
+    // 납입 주기와 자동이체 날짜를 하나로 합치기 (위아래 분리 표시)
+    if (newSettings.newTransferCycle || newSettings.newTransferDate) {
+      const cycleToUse = newSettings.newTransferCycle || 'MONTHLY'; // 기본값은 월간
+
+      // 납입 주기 정보
+      const cycleText = cycleToUse === 'WEEKLY' ? '주간' : '월간';
+
+      // 날짜 정보
+      let dayText = '';
+      if (newSettings.newTransferDate) {
+        if (cycleToUse === 'WEEKLY') {
+          const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
+          dayText = `매주 ${weekDays[Number(newSettings.newTransferDate)]}요일`;
+        } else {
+          dayText = `매월 ${newSettings.newTransferDate}일`;
+        }
+      }
+
+      changes.push({
+        label: '자동이체 날짜',
+        value: {
+          cycle: cycleText,
+          date: dayText,
+        },
+      });
     }
+
     if (newSettings.newAutoAccount) {
-      changes.push('연결 계좌');
+      const selectedAccount = accounts?.find(
+        acc => acc.accountId === Number(newSettings.newAutoAccount),
+      );
+      changes.push({
+        label: '연결 계좌',
+        value: selectedAccount
+          ? `${selectedAccount.product.productName} (*${selectedAccount.accountNumber.slice(-4)})`
+          : `계좌 ID: ${newSettings.newAutoAccount}`,
+      });
     }
+
     return changes;
   };
 
@@ -68,28 +134,71 @@ const CompleteStep = () => {
         </p>
 
         {/* 변경된 설정 요약 */}
-        <div className="mb-8 rounded-lg bg-white p-6 shadow-sm">
+        <div className="mb-8 w-full rounded-lg bg-white p-6 shadow-sm">
           <h3 className="mb-4 font-semibold text-gray-900">변경 완료된 설정</h3>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {getChangedSettings().map((setting, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-center space-x-2 rounded-lg bg-green-50 px-3 py-2"
-              >
-                <svg
-                  className="h-4 w-4 text-green-600"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <span className="text-sm font-medium text-green-700">
-                  {setting}
-                </span>
+              <div key={index} className="rounded-lg bg-primary/10 p-4">
+                {typeof setting.value === 'object' &&
+                setting.value.cycle &&
+                setting.value.date ? (
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <div className="flex items-start space-x-2">
+                        <svg
+                          className="mt-0.5 h-4 w-4 text-primary"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        <span className="font-medium text-gray-700">
+                          납입 주기
+                        </span>
+                      </div>
+                      <span className="font-semibold text-primary">
+                        {setting.value.cycle}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <div className="flex items-start space-x-2">
+                        <div className="mt-0.5 h-4 w-4"></div>
+                        <span className="font-medium text-gray-700">
+                          자동이체 날짜
+                        </span>
+                      </div>
+                      <span className="font-semibold text-primary">
+                        {setting.value.date}
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex justify-between">
+                    <div className="flex items-start space-x-2">
+                      <svg
+                        className="mt-0.5 h-4 w-4 text-primary"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      <span className="font-medium text-gray-700">
+                        {setting.label}
+                      </span>
+                    </div>
+                    <span className="font-semibold text-primary">
+                      {setting.value}
+                    </span>
+                  </div>
+                )}
               </div>
             ))}
           </div>

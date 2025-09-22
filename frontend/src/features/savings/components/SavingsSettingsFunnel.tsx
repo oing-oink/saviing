@@ -64,7 +64,7 @@ const SavingsSettingsFunnel = () => {
       'COMPLETE',
     ];
     if (validSteps.includes(stepParam)) {
-      setStep(stepParam as any);
+      setStep(stepParam as SavingsSettingsStep);
     } else {
       // 유효하지 않은 스텝이면 첫 번째 스텝으로 리다이렉트
       const params = new URLSearchParams();

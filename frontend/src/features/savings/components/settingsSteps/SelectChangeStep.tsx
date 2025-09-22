@@ -17,8 +17,8 @@ const SelectChangeStep = () => {
     },
     {
       type: 'TRANSFER_DATE' as ChangeType,
-      title: '자동이체 날짜 변경',
-      description: '매월 자동이체되는 날짜를 변경합니다',
+      title: '자동이체 날짜 및 주기 변경',
+      description: '자동이체 날짜와 납입 주기를 변경합니다',
     },
     {
       type: 'AUTO_ACCOUNT' as ChangeType,

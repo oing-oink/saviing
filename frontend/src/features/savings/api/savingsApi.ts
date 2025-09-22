@@ -3,6 +3,8 @@ import type {
   SavingsAccountData,
   TransactionData,
   GetTransactionsParams,
+  SavingsAccountDetailResponse,
+  UpdateAutoTransferRequest,
 } from '@/features/savings/types/savingsTypes';
 // import {
 //   mockGetSavingsAccount,
@@ -22,6 +24,9 @@ const CUSTOMER_ID = 1;
 //const USE_MOCK = import.meta.env.MODE === 'development';
 //const USE_MOCK = false;
 
+// 자동이체 설정 변경 테스트용 Mock 플래그
+const USE_MOCK_UPDATE = false;
+
 /**
  * 고객의 모든 계좌 목록을 조회하는 API 함수
  *
@@ -36,7 +41,9 @@ export const getAllAccounts = async (): Promise<SavingsAccountData[]> => {
   const response = await http.get<SavingsAccountData[]>(
     `/v1/accounts?customerId=${CUSTOMER_ID}`,
   );
-  return response.body!;
+
+  const accounts = response.body!;
+  return accounts;
 };
 
 /**
@@ -56,6 +63,71 @@ export const getSavingsAccount = async (
   const response = await http.get<SavingsAccountData>(
     `/v1/accounts/id/${accountId}`,
   );
+  return response.body!;
+};
+
+/**
+ * 특정 적금 계좌의 상세 정보를 조회하는 API 함수 (설정 변경용)
+ *
+ * 적금 정보(savings)와 자동이체 정보를 포함한 완전한 계좌 정보를 조회합니다.
+ * 설정 변경 시 현재 적금 정보를 표시하는 용도로 사용됩니다.
+ *
+ * @param accountId - 조회할 적금 계좌의 고유 식별자
+ * @returns 적금 상세 정보가 담긴 SavingsAccountDetailResponse 객체
+ * @throws API 호출 실패 시 네트워크 오류 또는 HTTP 오류 발생
+ */
+export const getSavingsAccountDetail = async (
+  accountId: string,
+): Promise<SavingsAccountDetailResponse> => {
+  // Mock 데이터로 변경된 설정 확인
+  if (USE_MOCK_UPDATE) {
+    const mockResponse: SavingsAccountDetailResponse = {
+      accountId: Number(accountId),
+      accountNumber: '11012345678901234',
+      customerId: 1001,
+      product: {
+        productId: 1,
+        productName: '자유적금',
+        productCode: 'FREE_SAVINGS',
+        productCategory: 'SAVINGS',
+        description: '자유롭게 적금하는 상품',
+      },
+      compoundingType: 'COMPOUND',
+      status: 'ACTIVE',
+      openedAt: '2024-01-15T09:30:00Z',
+      closedAt: '2024-12-31T17:00:00Z',
+      lastAccrualTs: '2024-01-15T23:59:59Z',
+      lastRateChangeAt: '2024-01-15T09:30:00Z',
+      createdAt: '2024-01-15T09:30:00Z',
+      updatedAt: new Date().toISOString(),
+      balance: 500000,
+      interestAccrued: 1250.5,
+      baseRate: 250,
+      bonusRate: 50,
+      savings: {
+        maturityWithdrawalAccount: '11012345678901234',
+        targetAmount: 1000000,
+        termPeriod: 12,
+        termPeriodUnit: 'MONTHS',
+        maturityDate: '2024-12-31',
+        autoTransfer: {
+          enabled: true,
+          cycle: 'MONTHLY',
+          transferDay: 1, // 변경된 값
+          amount: 500000, // 변경된 값
+          nextRunDate: '2024-02-14',
+          lastExecutedAt: '2024-01-07T09:00:00Z',
+          withdrawAccountId: 11, // 변경된 값
+        },
+      },
+    };
+    return mockResponse;
+  }
+
+  const response = await http.get<SavingsAccountDetailResponse>(
+    `/v1/accounts/id/${accountId}`,
+  );
+
   return response.body!;
 };
 
@@ -85,5 +157,84 @@ export const getSavingsTransactions = async (
       },
     },
   );
+  return response.body!;
+};
+
+/**
+ * 적금 계좌의 자동이체 설정을 변경하는 API 함수
+ *
+ * 적금 계좌의 자동이체 설정(납입금액, 납입일, 연결계좌)을 변경합니다.
+ * 변경하고자 하는 항목만 요청 본문에 포함하여 전송합니다.
+ *
+ * @param accountId - 변경할 적금 계좌의 고유 식별자
+ * @param updateData - 변경할 자동이체 설정 데이터
+ * @returns 변경된 적금 계좌 상세 정보가 담긴 SavingsAccountDetailResponse 객체
+ * @throws API 호출 실패 시 네트워크 오류 또는 HTTP 오류 발생
+ */
+
+export const updateSavingsAutoTransfer = async (
+  accountId: string,
+  updateData: UpdateAutoTransferRequest,
+): Promise<SavingsAccountDetailResponse> => {
+  // Mock 데이터로 성공 응답 시뮬레이션
+  if (USE_MOCK_UPDATE) {
+    // 2초 지연으로 실제 API 호출 시뮬레이션
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    const mockResponse: SavingsAccountDetailResponse = {
+      accountId: Number(accountId),
+      accountNumber: '11012345678901234',
+      customerId: 1001,
+      product: {
+        productId: 1,
+        productName: '자유적금',
+        productCode: 'FREE_SAVINGS',
+        productCategory: 'SAVINGS',
+        description: '자유롭게 적금하는 상품',
+      },
+      compoundingType: 'COMPOUND',
+      status: 'ACTIVE',
+      openedAt: '2024-01-15T09:30:00Z',
+      closedAt: '2024-12-31T17:00:00Z',
+      lastAccrualTs: '2024-01-15T23:59:59Z',
+      lastRateChangeAt: '2024-01-15T09:30:00Z',
+      createdAt: '2024-01-15T09:30:00Z',
+      updatedAt: new Date().toISOString(),
+      balance: 500000,
+      interestAccrued: 1250.5,
+      baseRate: 250,
+      bonusRate: 50,
+      savings: {
+        maturityWithdrawalAccount: '11012345678901234',
+        targetAmount: 1000000,
+        termPeriod: 12,
+        termPeriodUnit: 'MONTHS',
+        maturityDate: '2024-12-31',
+        autoTransfer: {
+          enabled: updateData.enabled !== undefined ? updateData.enabled : true,
+          cycle: updateData.cycle || 'MONTHLY',
+          transferDay: updateData.transferDay || 3,
+          amount: updateData.amount || 100000,
+          nextRunDate: '2024-02-14',
+          lastExecutedAt: '2024-01-07T09:00:00Z',
+          withdrawAccountId: updateData.withdrawAccountId || 2001,
+        },
+      },
+    };
+
+    return mockResponse;
+  }
+
+  // 실제 API 호출
+  const response = await http.patch<SavingsAccountDetailResponse>(
+    `/v1/accounts/id/${accountId}/savings/auto-transfer`,
+    updateData,
+    {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    },
+  );
+
   return response.body!;
 };

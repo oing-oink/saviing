@@ -16,6 +16,11 @@ export type SavingsSettingsStep =
 export type ChangeType = 'AMOUNT' | 'TRANSFER_DATE' | 'AUTO_ACCOUNT';
 
 /**
+ * 납입 주기 타입
+ */
+export type TransferCycle = 'WEEKLY' | 'MONTHLY';
+
+/**
  * 현재 적금 정보 (API에서 가져온 데이터)
  */
 interface CurrentSavingsInfo {
@@ -23,6 +28,8 @@ interface CurrentSavingsInfo {
   currentAmount: number;
   /** 현재 자동이체 날짜 */
   currentTransferDate: string;
+  /** 현재 납입 주기 */
+  currentTransferCycle: TransferCycle;
   /** 현재 누적 금액 */
   currentBalance: number;
   /** 현재 자동이체 연결 계좌 */
@@ -37,6 +44,8 @@ interface NewSettingsData {
   newAmount?: number;
   /** 새로운 자동이체 날짜 */
   newTransferDate?: string;
+  /** 새로운 납입 주기 */
+  newTransferCycle?: TransferCycle;
   /** 새로운 자동이체 연결 계좌 */
   newAutoAccount?: string;
 }

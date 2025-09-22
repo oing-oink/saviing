@@ -79,9 +79,7 @@ const StickyBalance = ({
                     state: { entryPoint },
                   });
                 } else {
-                  console.error(
-                    'accountId가 없어서 설정 변경 페이지로 이동할 수 없습니다.',
-                  );
+                  // accountId가 없어서 설정 변경 페이지로 이동할 수 없음
                 }
               }}
             >

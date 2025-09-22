@@ -1,62 +1,109 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { useSavingsSettingsStore } from '@/features/savings/store/useSavingsSettingsStore';
 import { useSavingsSettingsChange } from '@/features/savings/hooks/useSavingsSettingsChange';
+import {
+  useUpdateSavingsAutoTransfer,
+  useAccountsList,
+} from '@/features/savings/query/useSavingsQuery';
 import { Button } from '@/shared/components/ui/button';
+import type { UpdateAutoTransferRequest } from '@/features/savings/types/savingsTypes';
 
 const ConfirmStep = () => {
-  const { currentInfo, newSettings, impactAnalysis, setImpactAnalysis } =
-    useSavingsSettingsStore();
+  const { accountId } = useParams<{ accountId: string }>();
+  const { currentInfo, newSettings } = useSavingsSettingsStore();
   const { goToNextStep, goToPreviousStep } = useSavingsSettingsChange();
   const [isProcessing, setIsProcessing] = useState(false);
   const [hasAgreed, setHasAgreed] = useState(false);
 
-  // Mock 영향 분석 계산 (실제로는 API 호출)
-  const calculateImpact = () => {
-    if (!currentInfo) {
-      return;
-    }
+  // 자동이체 설정 변경 mutation
+  const updateAutoTransferMutation = useUpdateSavingsAutoTransfer();
 
-    // 간단한 Mock 계산
-    const amountChange = newSettings.newAmount
-      ? (newSettings.newAmount - currentInfo.currentAmount) * 12
-      : 0;
-    const interestChange = amountChange * 0.03; // 3% 이자율 적용
-
-    const analysis = {
-      finalAmountChange: amountChange,
-      interestChange: Math.round(interestChange),
-      completionDateChange: '변경 없음',
-      monthlyBurdenChange: newSettings.newAmount
-        ? newSettings.newAmount - currentInfo.currentAmount
-        : 0,
-    };
-
-    setImpactAnalysis(analysis);
-  };
-
-  // 컴포넌트 마운트 시 영향 분석 계산
-  useEffect(() => {
-    if (!impactAnalysis && currentInfo) {
-      calculateImpact();
-    }
-  }, [currentInfo, newSettings, impactAnalysis]);
+  // 계좌 목록 조회 (계좌 상태 확인용)
+  const { data: accounts } = useAccountsList();
 
   const handleConfirm = async () => {
-    if (!hasAgreed) {
+    if (!hasAgreed || !accountId) {
       return;
     }
 
     setIsProcessing(true);
 
     try {
-      // TODO: 실제 API 호출로 설정 변경 요청
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Mock delay
+      // API 요청 데이터 구성 (모든 필드 포함)
+      const updateData: UpdateAutoTransferRequest = {};
+
+      // 자동이체 설정을 변경하는 경우 기본적으로 활성화
+      updateData.enabled = true;
+
+      // 변경된 항목은 새 값 사용, 변경되지 않은 항목은 현재 값 사용
+      updateData.amount =
+        newSettings.newAmount || currentInfo?.currentAmount || 0;
+      updateData.cycle =
+        newSettings.newTransferCycle ||
+        currentInfo?.currentTransferCycle ||
+        'MONTHLY';
+      updateData.transferDay = newSettings.newTransferDate
+        ? Number(newSettings.newTransferDate)
+        : currentInfo?.currentTransferDate
+          ? Number(currentInfo.currentTransferDate)
+          : 1;
+      updateData.withdrawAccountId = newSettings.newAutoAccount
+        ? Number(newSettings.newAutoAccount)
+        : currentInfo?.currentAutoAccount
+          ? Number(currentInfo.currentAutoAccount)
+          : 0;
+
+      // 계좌 상태 검증
+      if (updateData.withdrawAccountId) {
+        const targetAccount = accounts?.find(
+          acc => acc.accountId === updateData.withdrawAccountId,
+        );
+
+        if (!targetAccount) {
+          alert('선택한 연결 계좌를 찾을 수 없습니다.');
+          setIsProcessing(false);
+          return;
+        }
+
+        if (targetAccount.status !== 'ACTIVE') {
+          alert(
+            `선택한 계좌(${targetAccount.product.productName})가 활성 상태가 아닙니다.`,
+          );
+          setIsProcessing(false);
+          return;
+        }
+      }
+
+      // 자동이체 설정 변경 API 호출
+      await updateAutoTransferMutation.mutateAsync({
+        accountId,
+        updateData,
+      });
 
       // 성공 시 완료 페이지로 이동
       goToNextStep();
-    } catch {
-      // 에러 처리
-      alert('설정 변경 중 오류가 발생했습니다. 다시 시도해주세요.');
+    } catch (error: unknown) {
+      // ApiError에서 실제 서버 응답 메시지 추출
+      const serverResponse = (
+        error as { axiosError?: { response?: { data?: any } } }
+      )?.axiosError?.response?.data;
+      const errorCode = serverResponse?.code;
+      const serverMessage =
+        serverResponse?.message || (error as Error)?.message;
+
+      let userMessage = serverMessage || '설정 변경 중 오류가 발생했습니다.';
+
+      // 특정 에러 코드에 대한 사용자 친화적 메시지
+      if (errorCode === 'ACCOUNT_INVALID_ACCOUNT_STATE') {
+        userMessage =
+          '현재 적금 계좌의 상태로는 자동이체 설정을 변경할 수 없습니다.\n계좌 상태를 확인해주시기 바랍니다.';
+      } else if (errorCode === 'INVALID_INPUT_VALUE') {
+        userMessage =
+          '입력값이 올바르지 않습니다.\n• 납입 금액이 너무 작거나 클 수 있습니다.\n• 유효하지 않은 날짜나 계좌를 선택했을 수 있습니다.';
+      }
+
+      alert(`오류: ${userMessage}`);
       setIsProcessing(false);
     }
   };
@@ -86,62 +133,103 @@ const ConfirmStep = () => {
                 <div className="rounded-lg bg-primary/10 p-3">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-700">월 납입금액</span>
-                    <span className="font-medium text-primary">
-                      {currentInfo?.currentAmount.toLocaleString()}원 →{' '}
-                      {newSettings.newAmount.toLocaleString()}원
+                    <span className="font-medium">
+                      <span className="text-gray-500">
+                        {currentInfo?.currentAmount.toLocaleString()}원
+                      </span>
+                      <span className="text-primary">
+                        {' '}
+                        → {newSettings.newAmount.toLocaleString()}원
+                      </span>
                     </span>
                   </div>
                 </div>
               )}
-              {newSettings.newTransferDate && (
+              {(newSettings.newTransferCycle ||
+                newSettings.newTransferDate) && (
                 <div className="rounded-lg bg-primary/10 p-3">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-700">자동이체 날짜</span>
-                    <span className="font-medium text-primary">
-                      매월 {currentInfo?.currentTransferDate}일 → 매월{' '}
-                      {newSettings.newTransferDate}일
-                    </span>
+                  <div className="space-y-2">
+                    {newSettings.newTransferCycle && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-700">납입 주기</span>
+                        <span className="font-medium">
+                          <span className="text-gray-500">
+                            {currentInfo?.currentTransferCycle === 'WEEKLY'
+                              ? '주간'
+                              : '월간'}
+                          </span>
+                          <span className="text-primary">
+                            {' → '}
+                            {newSettings.newTransferCycle === 'WEEKLY'
+                              ? '주간'
+                              : '월간'}
+                          </span>
+                        </span>
+                      </div>
+                    )}
+                    {newSettings.newTransferDate && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-700">자동이체 날짜</span>
+                        <span className="font-medium">
+                          <span className="text-gray-500">
+                            {currentInfo?.currentTransferCycle === 'WEEKLY'
+                              ? `매주 ${['일', '월', '화', '수', '목', '금', '토'][Number(currentInfo.currentTransferDate)]}요일`
+                              : `매월 ${currentInfo?.currentTransferDate}일`}
+                          </span>
+                          <span className="text-primary">
+                            {' → '}
+                            {newSettings.newTransferCycle === 'WEEKLY'
+                              ? `매주 ${['일', '월', '화', '수', '목', '금', '토'][Number(newSettings.newTransferDate)]}요일`
+                              : `매월 ${newSettings.newTransferDate}일`}
+                          </span>
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
               {newSettings.newAutoAccount && (
                 <div className="rounded-lg bg-primary/10 p-3">
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-700">연결 계좌</span>
-                    <span className="font-medium text-primary">
-                      {currentInfo?.currentAutoAccount
-                        ? `현재 계좌 (*${currentInfo.currentAutoAccount.slice(-4)})`
-                        : '하나 입출금통장 (*1234)'}{' '}
-                      → 새 계좌 (*{newSettings.newAutoAccount.slice(-4)})
+                    <span className="whitespace-nowrap text-gray-700">
+                      연결 계좌
                     </span>
+                    <div className="space-y-1 text-right">
+                      <div className="text-gray-500">
+                        {currentInfo?.currentAutoAccount
+                          ? (() => {
+                              const currentAccount = accounts?.find(
+                                acc =>
+                                  acc.accountId ===
+                                  Number(currentInfo.currentAutoAccount),
+                              );
+                              return currentAccount
+                                ? `${currentAccount.product.productName} (*${currentAccount.accountNumber.slice(-4)})`
+                                : `현재 계좌 (*${currentInfo.currentAutoAccount.slice(-4)})`;
+                            })()
+                          : '하나 입출금통장 (*1234)'}
+                      </div>
+                      <div className="flex items-center justify-end space-x-1 font-medium text-primary">
+                        <span>→</span>
+                        <span>
+                          {(() => {
+                            const newAccount = accounts?.find(
+                              acc =>
+                                acc.accountId ===
+                                Number(newSettings.newAutoAccount),
+                            );
+                            return newAccount
+                              ? `${newAccount.product.productName} (*${newAccount.accountNumber.slice(-4)})`
+                              : `계좌 ID: ${newSettings.newAutoAccount}`;
+                          })()}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
             </div>
           </div>
-
-          {/* 예상 변화 요약 */}
-          {impactAnalysis && (
-            <div className="border-b pb-4">
-              <h3 className="mb-3 font-semibold text-gray-900">
-                예상 변화 요약
-              </h3>
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div className="rounded bg-gray-50 p-2 text-center">
-                  <div className="text-gray-600">최종 금액</div>
-                  <div className="font-semibold text-green-600">
-                    +{impactAnalysis.finalAmountChange.toLocaleString()}원
-                  </div>
-                </div>
-                <div className="rounded bg-gray-50 p-2 text-center">
-                  <div className="text-gray-600">이자 수익</div>
-                  <div className="font-semibold text-blue-600">
-                    +{impactAnalysis.interestChange.toLocaleString()}원
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* 동의 체크박스 */}
           <div className="space-y-3">

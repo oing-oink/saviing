@@ -1,13 +1,21 @@
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
+import {
+  useQuery,
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query';
 import {
   getSavingsAccount,
   getSavingsTransactions,
   getAllAccounts,
+  getSavingsAccountDetail,
+  updateSavingsAutoTransfer,
 } from '@/features/savings/api/savingsApi';
 import { savingsKeys } from '@/features/savings/query/savingsKeys';
 import type {
   SavingsDisplayData,
   TransactionDisplayData,
+  UpdateAutoTransferRequest,
 } from '@/features/savings/types/savingsTypes';
 import { useMemo } from 'react';
 
@@ -19,7 +27,9 @@ import { useMemo } from 'react';
 export const useAccountsList = () => {
   return useQuery({
     queryKey: savingsKeys.accountsList(),
-    queryFn: () => getAllAccounts(),
+    queryFn: () => {
+      return getAllAccounts();
+    },
   });
 };
 
@@ -32,7 +42,28 @@ export const useAccountsList = () => {
 export const useSavingsAccount = (accountId: string) => {
   return useQuery({
     queryKey: savingsKeys.detail(accountId),
-    queryFn: () => getSavingsAccount(accountId),
+    queryFn: () => {
+      return getSavingsAccount(accountId);
+    },
+    staleTime: 0, // 항상 fresh 체크
+    gcTime: 1000 * 60, // 1분 후 가비지 컬렉션
+  });
+};
+
+/**
+ * 적금 계좌 상세 정보를 조회하는 React Query 훅 (설정 변경용)
+ *
+ * @param accountId - 조회할 적금 계좌의 ID
+ * @returns 적금 계좌 상세 정보 쿼리 결과
+ */
+export const useSavingsAccountDetail = (accountId: string) => {
+  return useQuery({
+    queryKey: savingsKeys.savingsAccountDetail(accountId),
+    queryFn: () => {
+      return getSavingsAccountDetail(accountId);
+    },
+    staleTime: 0, // 항상 fresh 체크
+    gcTime: 1000 * 60, // 1분 후 가비지 컬렉션
   });
 };
 
@@ -143,4 +174,56 @@ export const useSavingsTransactionsDisplay = (accountId: string) => {
     ...query,
     data: transactions,
   };
+};
+
+/**
+ * 적금 계좌의 자동이체 설정을 변경하는 React Query 훅
+ *
+ * 적금 계좌의 자동이체 설정(납입금액, 납입일, 연결계좌)을 변경하고
+ * 성공 시 관련 쿼리 캐시를 무효화하여 최신 데이터를 반영합니다.
+ *
+ * @returns 자동이체 설정 변경 mutation 객체
+ */
+export const useUpdateSavingsAutoTransfer = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      accountId,
+      updateData,
+    }: {
+      accountId: string;
+      updateData: UpdateAutoTransferRequest;
+    }) => {
+      return updateSavingsAutoTransfer(accountId, updateData);
+    },
+    onSuccess: (data, variables) => {
+      // 성공 시 관련 쿼리 캐시 무효화
+      queryClient.invalidateQueries({
+        queryKey: savingsKeys.savingsAccountDetail(variables.accountId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: savingsKeys.detail(variables.accountId),
+      });
+
+      // 추가로 모든 계좌 관련 캐시도 무효화
+      queryClient.invalidateQueries({
+        queryKey: savingsKeys.accounts(),
+      });
+
+      // 모든 적금 관련 캐시 강제 무효화
+      queryClient.invalidateQueries({
+        queryKey: ['savings'],
+      });
+
+      // 즉시 새 데이터로 업데이트
+      queryClient.setQueryData(
+        savingsKeys.savingsAccountDetail(variables.accountId),
+        data,
+      );
+    },
+    onError: () => {
+      // 에러 처리
+    },
+  });
 };

@@ -28,6 +28,13 @@ export const savingsKeys = {
     [...savingsKeys.accounts(), 'detail', accountId] as const,
 
   /**
+   * 특정 적금 계좌 상세 정보 조회 쿼리 키 (설정 변경용)
+   * @param accountId - 적금 계좌 ID
+   */
+  savingsAccountDetail: (accountId: string) =>
+    [...savingsKeys.accounts(), 'savings-detail', accountId] as const,
+
+  /**
    * 거래 내역 관련 쿼리의 기본 키
    */
   transactions: () => [...savingsKeys.all, 'transactions'] as const,
