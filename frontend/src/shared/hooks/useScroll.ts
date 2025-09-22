@@ -47,8 +47,21 @@ export const useScroll = (options: UseScrollOptions = {}): UseScrollReturn => {
   const rafId = useRef<number | null>(null);
 
   const readAndUpdate = useCallback(() => {
-    const doc = document.documentElement;
-    const y = window.scrollY ?? doc.scrollTop ?? 0; // 일부 브라우저 호환
+    // PageScrollArea의 viewport를 우선 확인
+    const scrollViewport = document.querySelector(
+      '[data-slot="scroll-area-viewport"]',
+    ) as HTMLElement;
+    let y = 0;
+
+    if (scrollViewport) {
+      // PageScrollArea가 있으면 해당 컨테이너의 scrollTop 사용
+      y = scrollViewport.scrollTop ?? 0;
+    } else {
+      // PageScrollArea가 없으면 기존 window 스크롤 사용
+      const doc = document.documentElement;
+      y = window.scrollY ?? doc.scrollTop ?? 0;
+    }
+
     const diff = y - lastY.current;
 
     setState(prev => {
@@ -59,12 +72,23 @@ export const useScroll = (options: UseScrollOptions = {}): UseScrollReturn => {
             : 'up'
           : prev.scrollDirection;
 
+      // isAtBottom 계산
+      let isAtBottom = false;
+      if (scrollViewport) {
+        isAtBottom =
+          y + scrollViewport.clientHeight >=
+          scrollViewport.scrollHeight - bottomOffset;
+      } else {
+        const doc = document.documentElement;
+        isAtBottom = y + doc.clientHeight >= doc.scrollHeight - bottomOffset;
+      }
+
       const next: UseScrollReturn = {
         scrollY: y,
         scrollDirection: nextDirection,
         isScrolling: true,
         isAtTop: y <= 0,
-        isAtBottom: y + doc.clientHeight >= doc.scrollHeight - bottomOffset,
+        isAtBottom,
       };
 
       // 값이 동일하면 리렌더 스킵
@@ -125,8 +149,19 @@ export const useScroll = (options: UseScrollOptions = {}): UseScrollReturn => {
       return;
     }
 
+    // PageScrollArea viewport 확인
+    const scrollViewport = document.querySelector(
+      '[data-slot="scroll-area-viewport"]',
+    ) as HTMLElement;
+
     // 초기화
-    const initialY = window.scrollY ?? 0;
+    let initialY = 0;
+    if (scrollViewport) {
+      initialY = scrollViewport.scrollTop ?? 0;
+    } else {
+      initialY = window.scrollY ?? 0;
+    }
+
     lastY.current = initialY;
     setState(prev => ({
       ...prev,
@@ -134,10 +169,19 @@ export const useScroll = (options: UseScrollOptions = {}): UseScrollReturn => {
       isAtTop: initialY <= 0,
     }));
 
-    window.addEventListener('scroll', onScroll, { passive: true });
+    // 스크롤 이벤트 리스너 추가
+    if (scrollViewport) {
+      scrollViewport.addEventListener('scroll', onScroll, { passive: true });
+    } else {
+      window.addEventListener('scroll', onScroll, { passive: true });
+    }
 
     return () => {
-      window.removeEventListener('scroll', onScroll);
+      if (scrollViewport) {
+        scrollViewport.removeEventListener('scroll', onScroll);
+      } else {
+        window.removeEventListener('scroll', onScroll);
+      }
       if (rafId.current != null) {
         cancelAnimationFrame(rafId.current);
       }

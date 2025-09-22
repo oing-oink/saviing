@@ -1,29 +1,22 @@
 import { Button } from '@/shared/components/ui/button';
-import { Badge } from '@/shared/components/ui/badge';
-import { Progress } from '@/shared/components/ui/progress';
 import { useNavigate } from 'react-router-dom';
 import { PAGE_PATH } from '@/shared/constants/path';
-import type { SavingsDisplayData } from '@/features/savings/types/savingsTypes';
+import type { SavingsAccountData } from '@/features/savings/types/savingsTypes';
 import { Card, CardContent } from '@/shared/components/ui/card';
 import type { ScrollDirection } from '@/shared/types/scroll.types';
 
-interface StickyBalanceProps {
-  data: SavingsDisplayData;
+interface AccountBalanceProps {
+  data: SavingsAccountData;
   isVisible: boolean;
   scrollDirection?: ScrollDirection;
 }
 
-const StickyBalance = ({
+const AccountBalance = ({
   data,
   isVisible,
   scrollDirection,
-}: StickyBalanceProps) => {
+}: AccountBalanceProps) => {
   const navigate = useNavigate();
-
-  // 달성률 계산
-  const progressPercentage = Math.round(
-    (data.balance / data.targetAmount) * 100,
-  );
 
   if (!isVisible) {
     return null;
@@ -37,21 +30,6 @@ const StickyBalance = ({
             <p className="text-2xl font-bold text-primary">
               {data.balance.toLocaleString()}원
             </p>
-            <div className="flex gap-2">
-              <Badge className="bg-gray/50 text-gray-600">
-                연 {data.interestRate}%
-              </Badge>
-              <Badge className="bg-primary/50">
-                달성 {progressPercentage}%
-              </Badge>
-            </div>
-          </div>
-          <Progress
-            value={(data.balance / data.targetAmount) * 100}
-            className="my-1 bg-gray"
-          />
-          <div className="flex justify-end text-sm text-gray-600">
-            <p>목표 {data.targetAmount.toLocaleString()}원</p>
           </div>
         </div>
 
@@ -68,7 +46,7 @@ const StickyBalance = ({
               className="text-black-900 flex-1 bg-secondary"
               onClick={() => navigate(PAGE_PATH.HOME)}
             >
-              설정 변경
+              계좌 설정
             </Button>
             <Button className="flex-1" onClick={() => navigate(PAGE_PATH.HOME)}>
               입금
@@ -80,4 +58,4 @@ const StickyBalance = ({
   );
 };
 
-export default StickyBalance;
+export default AccountBalance;

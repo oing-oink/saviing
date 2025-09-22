@@ -11,7 +11,7 @@ import {
   CompleteStep,
 } from '@/features/savings/components/funnelSteps';
 import FunnelProgressBar from '@/features/savings/components/FunnelProgressBar';
-import FunnelLayout from '@/features/savings/components/FunnelLayout';
+import FunnelLayout from '@/features/savings/layouts/FunnelLayout';
 import { useAccountCreationStore } from '@/features/savings/store/useAccountCreationStore';
 import {
   ACCOUNT_TYPES,
@@ -56,6 +56,11 @@ const AccountCreationFunnel = () => {
       if (typeParam) {
         params.set('type', typeParam);
       }
+      // from 파라미터 보존
+      const fromParam = searchParams.get('from');
+      if (fromParam) {
+        params.set('from', fromParam);
+      }
 
       navigate(`${PAGE_PATH.ACCOUNT_CREATION}?${params.toString()}`, {
         replace: true,
@@ -69,6 +74,11 @@ const AccountCreationFunnel = () => {
       params.set('step', 'START');
       if (typeParam) {
         params.set('type', typeParam);
+      }
+      // from 파라미터 보존
+      const fromParam = searchParams.get('from');
+      if (fromParam) {
+        params.set('from', fromParam);
       }
       navigate(`${PAGE_PATH.ACCOUNT_CREATION}?${params.toString()}`, {
         replace: true,

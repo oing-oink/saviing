@@ -8,6 +8,7 @@ import SavingsDetailLayout from '@/features/savings/layouts/SavingsDetailLayout'
 // Pages
 import HomePage from '@/pages/HomePage';
 import WalletPage from '@/pages/WalletPage';
+import ProductsPage from '@/pages/ProductsPage';
 import LoginPage from '@/pages/LoginPage';
 import OnboardingPage from '@/pages/OnboardingPage';
 import AuthCallbackPage from '@/pages/AuthCallbackPage';
@@ -28,6 +29,7 @@ import NotFoundPage from '@/pages/NotFoundPage';
 const savingsLayoutRoutes = [
   { path: '', element: <HomePage /> }, // '/' 경로
   { path: 'wallet', element: <WalletPage /> }, // '/wallet' 경로
+  { path: 'products', element: <ProductsPage /> }, // '/products' 경로
 ];
 
 // 레이아웃 없는 보호된 라우트들
@@ -50,12 +52,12 @@ const protectedRoutesWithoutLayout = [
   // Savings detail routes
   {
     path: PAGE_PATH.SAVINGS_DETAIL_WITH_ID,
-    element: <SavingsDetailLayout title="적금 상세" />,
+    element: <SavingsDetailLayout />,
     children: [{ index: true, element: <SavingsDetailPage /> }],
   },
   {
     path: PAGE_PATH.ACCOUNT_DETAIL_WITH_ID,
-    element: <SavingsDetailLayout title="계좌 상세" />,
+    element: <SavingsDetailLayout />,
     children: [{ index: true, element: <AccountDetailPage /> }],
   },
 ];
@@ -89,12 +91,12 @@ export const router = createBrowserRouter([
       },
       {
         path: PAGE_PATH.SAVINGS_DETAIL_WITH_ID,
-        element: <SavingsDetailLayout title="적금 상세" />,
+        element: <SavingsDetailLayout />,
         children: [{ index: true, element: <SavingsDetailPage /> }],
       },
       {
         path: PAGE_PATH.ACCOUNT_DETAIL_WITH_ID,
-        element: <SavingsDetailLayout title="계좌 상세" />,
+        element: <SavingsDetailLayout />,
         children: [{ index: true, element: <AccountDetailPage /> }],
       },
 
