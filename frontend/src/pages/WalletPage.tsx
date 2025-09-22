@@ -3,10 +3,17 @@ import SavingsAccountWalletCard from '@/features/savings/components/SavingAccoun
 import WalletButton from '@/features/savings/components/WalletButton';
 import { useWalletButtons } from '@/shared/hooks/useWalletButtons';
 import { useAccountsList } from '@/features/savings/query/useSavingsQuery';
+import { useGlobalGameBackground } from '@/features/game/shared/components/GlobalGameBackground';
+import { useEffect } from 'react';
 
 const WalletPage = () => {
   const { buttons } = useWalletButtons();
   const { data: accounts, isLoading, error } = useAccountsList();
+  const { hideGameBackground } = useGlobalGameBackground();
+
+  useEffect(() => {
+    hideGameBackground();
+  }, [hideGameBackground]);
 
   // 계좌 유형별로 분리
   const savingsAccount = accounts?.find(
