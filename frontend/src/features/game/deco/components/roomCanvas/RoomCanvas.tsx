@@ -660,9 +660,10 @@ const RoomCanvas = ({
   };
 
   const activeTouchIdRef = useRef<number | null>(null);
+  const canvasRef = useRef<HTMLDivElement>(null);
 
   // 터치 환경에서도 마우스와 동일한 흐름으로 고스트를 제어한다.
-  const handleTouchStartCapture = (event: ReactTouchEvent<HTMLDivElement>) => {
+  const handleTouchStartCapture = (event: TouchEvent) => {
     const touch = event.changedTouches[0];
     const target = event.target as HTMLElement | null;
     if (target && target.closest('[data-room-action="true"]')) {
@@ -673,12 +674,31 @@ const RoomCanvas = ({
     }
     event.preventDefault();
     event.stopPropagation();
-    event.nativeEvent.stopImmediatePropagation();
+    event.stopImmediatePropagation();
     activeTouchIdRef.current = touch.identifier;
     projectToOverlay(touch.clientX, touch.clientY);
     isPointerActiveRef.current = true;
     setIsPointerActive(true);
   };
+
+  // passive: false로 터치 이벤트 등록
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) {
+      return;
+    }
+
+    canvas.addEventListener('touchstart', handleTouchStartCapture, {
+      passive: false,
+      capture: true,
+    });
+
+    return () => {
+      canvas.removeEventListener('touchstart', handleTouchStartCapture, {
+        capture: true,
+      });
+    };
+  }, []);
 
   const handleTouchStart = (event: ReactTouchEvent<HTMLDivElement>) => {
     const touch = event.changedTouches[0];
@@ -785,6 +805,7 @@ const RoomCanvas = ({
 
   return (
     <div
+      ref={canvasRef}
       className="absolute inset-0"
       style={{ pointerEvents: overlayActive ? 'auto' : 'none' }}
       onMouseDownCapture={handleMouseDownCapture}
@@ -792,7 +813,6 @@ const RoomCanvas = ({
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseLeave}
-      onTouchStartCapture={handleTouchStartCapture}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
