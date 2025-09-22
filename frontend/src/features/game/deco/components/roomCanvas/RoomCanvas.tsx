@@ -840,6 +840,7 @@ const RoomCanvas = ({
           </div>
         </div>
       ) : null}
+      {/* 메인 SVG 캔버스 (3배 확장으로 스크롤/팬 지원) */}
       <svg
         className="absolute inset-0"
         style={{
@@ -849,6 +850,7 @@ const RoomCanvas = ({
           top: '-100%',
         }}
       >
+        {/* 방의 유효한 표면 영역 표시 (반투명 회색) */}
         {surfacePolygon ? (
           <polygon
             points={surfacePolygon.map(({ x, y }) => `${x},${y}`).join(' ')}
