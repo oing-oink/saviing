@@ -1,9 +1,5 @@
 import { useEffect } from 'react';
-import {
-  useSearchParams,
-  useNavigate,
-  useParams,
-} from 'react-router-dom';
+import { useSearchParams, useNavigate, useParams } from 'react-router-dom';
 import {
   CurrentInfoStep,
   SelectChangeStep,

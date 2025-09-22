@@ -9,7 +9,6 @@ const CompleteStep = () => {
   const { newSettings, reset } = useSavingsSettingsStore();
   const { cancelAndGoBack } = useSavingsSettingsChange();
 
-
   const handleGoToDetail = () => {
     // 설정 변경 상태 초기화
     reset();

@@ -23,14 +23,24 @@ export const PAGE_PATH = {
 } as const;
 
 // 동적 경로 생성 헬퍼 함수
-export const createSavingsDetailPath = (accountId: string | number, entryPoint?: string) => {
+export const createSavingsDetailPath = (
+  accountId: string | number,
+  entryPoint?: string,
+) => {
   const basePath = `/savings/detail/${accountId}`;
-  return entryPoint ? `${basePath}?from=${encodeURIComponent(entryPoint)}` : basePath;
+  return entryPoint
+    ? `${basePath}?from=${encodeURIComponent(entryPoint)}`
+    : basePath;
 };
 
-export const changeSavingsSettingsPath = (accountId: string | number, entryPoint?: string) => {
+export const changeSavingsSettingsPath = (
+  accountId: string | number,
+  entryPoint?: string,
+) => {
   const basePath = `/savings/detail/${accountId}/settings?step=CURRENT_INFO`;
-  return entryPoint ? `${basePath}&from=${encodeURIComponent(entryPoint)}` : basePath;
+  return entryPoint
+    ? `${basePath}&from=${encodeURIComponent(entryPoint)}`
+    : basePath;
 };
 
 export const createAccountDetailPath = (accountId: string | number) =>
