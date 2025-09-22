@@ -53,7 +53,7 @@ public class PetItemPurchasedEventHandler {
             InventoryItemId inventoryItemId = event.getInventoryItemId();
 
             // 4. PetCommandService를 통해 펫 생성
-            CreatePetCommand command = CreatePetCommand.of(inventoryItemId);
+            CreatePetCommand command = CreatePetCommand.of(inventoryItemId, item.getItemName().value());
             petCommandService.createPet(command);
 
             log.info("Successfully created pet: characterId={}, itemId={}, inventoryItemId={}",

@@ -29,7 +29,7 @@ public record Experience(int value) {
         return new Experience(value + amount.value);
     }
 
-    public boolean isGreaterThanOrEqual(int targetExp) {
-        return value >= targetExp;
+    public boolean isGreaterThanOrEqual(Experience targetExp) {
+        return value >= targetExp.value;
     }
 }

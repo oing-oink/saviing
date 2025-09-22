@@ -47,7 +47,7 @@ public class PetCommandService {
         }
 
         // 펫 생성
-        Pet pet = Pet.create(command.inventoryItemId());
+        Pet pet = Pet.create(command.inventoryItemId(), command.itemName());
 
         // 저장
         Pet savedPet = petRepository.save(pet);

@@ -25,6 +25,20 @@ public record PetName(String value) {
         return new PetName("");
     }
 
+    /**
+     * 아이템 이름으로 펫 이름을 생성합니다.
+     * 펫 생성 시 기본 이름으로 사용됩니다.
+     */
+    public static PetName fromItemName(String itemName) {
+        if (itemName == null) {
+            throw new IllegalArgumentException("아이템 이름은 null일 수 없습니다");
+        }
+        if (itemName.trim().isEmpty()) {
+            return empty();
+        }
+        return new PetName(itemName.trim());
+    }
+
     public boolean isEmpty() {
         return value.trim().isEmpty();
     }

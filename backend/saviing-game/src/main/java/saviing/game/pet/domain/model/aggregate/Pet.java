@@ -54,7 +54,7 @@ public class Pet {
      * 새로운 펫을 생성합니다.
      * ItemPurchasedEvent 핸들러에서 PET 아이템 구매 시 호출됩니다.
      */
-    public static Pet create(InventoryItemId inventoryItemId) {
+    public static Pet create(InventoryItemId inventoryItemId, String itemName) {
         LocalDateTime now = LocalDateTime.now();
 
         return Pet.builder()
@@ -63,7 +63,7 @@ public class Pet {
             .experience(Experience.initial())
             .affection(Affection.initial())
             .energy(Energy.initial())
-            .petName(PetName.empty())  // 초기 생성 시 이름 없음 (사용자가 나중에 설정)
+            .petName(PetName.fromItemName(itemName))  // 아이템 이름을 기본 펫 이름으로 설정
             .createdAt(now)
             .updatedAt(now)
             .build();
@@ -77,7 +77,7 @@ public class Pet {
         Experience newExperience = this.experience.add(amount);
 
         // 레벨업 가능 여부 확인
-        if (level.canLevelUp(newExperience, requiredExpForNextLevel.value())) {
+        if (level.canLevelUp(newExperience, requiredExpForNextLevel)) {
             this.level = level.levelUp();
             this.experience = newExperience;
             updateTimestamp();

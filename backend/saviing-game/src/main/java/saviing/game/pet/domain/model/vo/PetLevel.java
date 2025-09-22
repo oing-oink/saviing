@@ -34,7 +34,7 @@ public record PetLevel(int value) {
         return new PetLevel(value + 1);
     }
 
-    public boolean canLevelUp(Experience experience, int requiredExp) {
-        return !isMaxLevel() && experience.value() >= requiredExp;
+    public boolean canLevelUp(Experience experience, Experience requiredExp) {
+        return !isMaxLevel() && experience.isGreaterThanOrEqual(requiredExp);
     }
 }
