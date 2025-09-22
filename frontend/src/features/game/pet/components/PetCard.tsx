@@ -4,7 +4,7 @@ import PetStatsPanel from '@/features/savings/components/PetStatsPanel';
 import { usePetStatusCard } from '@/features/game/pet/hooks/usePetStatusCard';
 import GameBackground from '@/features/game/shared/components/GameBackground';
 import playButton from '@/assets/game_button/playButton.png';
-import sampleCat from '@/assets/sampleCat.png';
+import CatSprite from '@/features/game/pet/components/CatSprite';
 import { Loader2 } from 'lucide-react';
 import { PAGE_PATH } from '@/shared/constants/path';
 import { useNavigate } from 'react-router-dom';
@@ -50,11 +50,13 @@ const PetCard = ({ petId }: PetCardProps) => {
       <Badge className={`relative z-10 ${levelClass}`}>Lv{petData.level}</Badge>
 
       {/* 캐릭터 */}
-      <img
-        src={sampleCat}
-        alt={petData.name}
-        className="image-render-pixel relative z-10 h-28 w-auto"
-      />
+      <div className="relative z-10 flex h-28 items-center justify-center">
+        <CatSprite
+          petId={petData.petId}
+          currentAnimation="sleep"
+          className="scale-400"
+        />
+      </div>
 
       {/* 스탯 패널 */}
       <div className="relative z-10">

@@ -15,7 +15,7 @@ import { usePetStore } from '@/features/game/pet/store/usePetStore';
 
 const GamePage = () => {
   // TODO: API 연결 후 동적으로 관리
-  const currentPetId = 7;
+  const currentPetId = 9;
   const { behavior, setBehavior } = usePetStore();
 
   // Popover 상태 관리
