@@ -1,8 +1,8 @@
-import type { GridCell, GridType } from '@/features/game/room/hooks/useGrid';
+import type { GridCell, PlacementArea } from '@/features/game/room/hooks/useGrid';
 
 /** 셀 ID를 해석했을 때 얻을 수 있는 그리드 정보. */
 interface ParsedCellId {
-  gridType: GridType;
+  placementArea: PlacementArea;
   col: number;
   row: number;
 }
@@ -14,14 +14,14 @@ export const parseCellId = (cellId: string): ParsedCellId | null => {
     return null;
   }
 
-  const [gridType, colRaw, rowRaw] = parts;
+  const [placementArea, colRaw, rowRaw] = parts;
   const col = Number.parseInt(colRaw, 10);
   const row = Number.parseInt(rowRaw, 10);
   if (!Number.isFinite(col) || !Number.isFinite(row)) {
     return null;
   }
 
-  return { gridType: gridType as GridType, col, row };
+  return { placementArea: placementArea as PlacementArea, col, row };
 };
 
 /** 기준 셀에서 시작해 x/y 길이만큼의 footprint ID 목록을 만든다. */
@@ -34,14 +34,14 @@ export const buildFootprint = (
   if (!parsed) {
     return [];
   }
-  const { gridType, col, row } = parsed;
+  const { placementArea, col, row } = parsed;
   const footprint: string[] = [];
   const safeX = Math.max(1, Math.floor(xLength) || 1);
   const safeY = Math.max(1, Math.floor(yLength) || 1);
 
   for (let dx = 0; dx < safeX; dx += 1) {
     for (let dy = 0; dy < safeY; dy += 1) {
-      footprint.push(`${gridType}-${col + dx}-${row + dy}`);
+      footprint.push(`${placementArea}-${col + dx}-${row + dy}`);
     }
   }
 

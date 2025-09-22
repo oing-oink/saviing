@@ -1,4 +1,4 @@
-import type { GridType } from '@/features/game/room/hooks/useGrid';
+import type { PlacementArea } from '@/features/game/room/hooks/useGrid';
 import type { TabId } from '@/features/game/shop/types/item';
 import type { Item } from '@/features/game/shop/types/item';
 
@@ -17,10 +17,10 @@ export interface RoomMeta {
 
   /**
    * 아이템을 배치할 수 있는 레이어 목록.
-   * ['floor', 'leftWall', 'rightWall'] 등의 값을 가지며,
+   * ['LEFT', 'RIGHT', 'BOTTOM', 'ROOM_COLOR'] 등의 API 표준 카테고리를 가지며,
    * 각 레이어는 서로 다른 배치 규칙과 시각적 렌더링을 적용받습니다.
    */
-  layers?: GridType[];
+  layers?: PlacementArea[];
 }
 
 /**
@@ -51,7 +51,7 @@ export interface PlacedItem {
 
   /**
    * 아이템이 배치된 그리드 셀의 식별자.
-   * `{gridType}-{row}-{col}` 형식 (예: "floor-5-3")으로 구성되며,
+   * `{placementArea}-{row}-{col}` 형식 (예: "BOTTOM-5-3")으로 구성되며,
    * 아이템의 좌상단 기준점이 위치한 셀을 나타냅니다.
    */
   cellId: string;
@@ -77,10 +77,10 @@ export interface PlacedItem {
 
   /**
    * 아이템이 배치된 레이어 타입.
-   * 'floor', 'leftWall', 'rightWall' 등의 값을 가지며,
+   * 'LEFT', 'RIGHT', 'BOTTOM', 'ROOM_COLOR' 등의 API 표준 카테고리를 가지며,
    * 렌더링 순서와 상호작용 규칙을 결정합니다.
    */
-  layer?: GridType | string;
+  layer?: PlacementArea | string;
 
   /**
    * 아이템이 차지하는 그리드의 가로 길이 (셀 개수).

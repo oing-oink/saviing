@@ -44,21 +44,21 @@ const RoomCanvas = ({
     position: context.position,
     roomImageRef: context.imageRef,
     containerRef: context.containerRef,
-    gridType: 'leftWall',
+    placementArea: 'LEFT',
   });
   const allRight = useGrid({
     scale,
     position: context.position,
     roomImageRef: context.imageRef,
     containerRef: context.containerRef,
-    gridType: 'rightWall',
+    placementArea: 'RIGHT',
   });
   const allFloor = useGrid({
     scale,
     position: context.position,
     roomImageRef: context.imageRef,
     containerRef: context.containerRef,
-    gridType: 'floor',
+    placementArea: 'BOTTOM',
   });
 
   const dragSession = useDecoStore(state => state.dragSession);

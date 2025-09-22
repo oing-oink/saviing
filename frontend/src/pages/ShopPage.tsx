@@ -12,7 +12,7 @@ import { PlacementBlockedModal } from '@/features/game/deco/components/Placement
 
 const ShopPage = () => {
   const { activeTab, setActiveTab } = useTabs();
-  const [gridType, setGridType] = useState<TabId | null>('floor');
+  const [placementArea, setPlacementArea] = useState<TabId | null>('BOTTOM');
   const [isPlacementBlockedOpen, setIsPlacementBlockedOpen] = useState(false);
 
   const { items, isLoading, isError, error } = useShopInventory(activeTab);
@@ -24,27 +24,19 @@ const ShopPage = () => {
   const cancelDrag = useDecoStore(state => state.cancelDrag);
   const draftItems = useDecoStore(state => state.draftItems);
 
-  const mapCategoryToGridType = (category: string): TabId | null => {
-    switch (category) {
-      case 'LEFT':
-        return 'leftWall';
-      case 'RIGHT':
-        return 'rightWall';
-      case 'BOTTOM':
-      case 'FLOOR':
-      case 'ROOM_COLOR':
-        return 'floor';
-      default:
-        return null;
-    }
+  const getCategoryPlacementArea = (category: string): TabId | null => {
+    if (category === 'LEFT') return 'LEFT';
+    if (category === 'RIGHT') return 'RIGHT';
+    if (category === 'BOTTOM' || category === 'ROOM_COLOR') return 'BOTTOM';
+    return null;
   };
 
   const handleTabChange = (tab: Tab) => {
     setActiveTab(tab);
-    if (tab.id === 'cat') {
-      setGridType(null);
+    if (tab.id === 'CAT') {
+      setPlacementArea(null);
     } else {
-      setGridType(tab.id);
+      setPlacementArea(tab.id);
     }
   };
 
@@ -69,10 +61,10 @@ const ShopPage = () => {
         setIsPlacementBlockedOpen(true);
         return;
       }
-      setGridType('floor');
+      setPlacementArea('BOTTOM');
       setIsPlacementBlockedOpen(false);
       startDragFromInventory(String(item.itemId), {
-        allowedGridType: 'floor',
+        allowedGridType: 'BOTTOM',
         xLength: item.xLength ?? 1,
         yLength: item.yLength ?? 1,
         itemType: item.itemType,
@@ -81,13 +73,13 @@ const ShopPage = () => {
       return;
     }
 
-    const targetGrid = mapCategoryToGridType(item.itemCategory);
-    if (targetGrid) {
-      setGridType(targetGrid);
+    const targetArea = getCategoryPlacementArea(item.itemCategory);
+    if (targetArea) {
+      setPlacementArea(targetArea);
     }
     setIsPlacementBlockedOpen(false);
     startDragFromInventory(String(item.itemId), {
-      allowedGridType: targetGrid,
+      allowedGridType: targetArea,
       xLength: item.xLength ?? 1,
       yLength: item.yLength ?? 1,
       itemType: item.itemType,
@@ -109,7 +101,7 @@ const ShopPage = () => {
         <div className="w-full max-w-5xl">
           <Room
             mode="preview"
-            gridType={gridType}
+            placementArea={placementArea}
             previewOverlay={ctx => (
               <RoomCanvas
                 context={ctx}

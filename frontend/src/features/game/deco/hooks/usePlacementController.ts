@@ -125,7 +125,7 @@ export const usePlacementController = ({
     const candidate = gridCells.find(cell => {
       if (
         dragSession.allowedGridType &&
-        cell.gridType !== dragSession.allowedGridType
+        cell.placementArea !== dragSession.allowedGridType
       ) {
         return false;
       }
@@ -203,7 +203,7 @@ export const usePlacementController = ({
         footprint.every(id => gridCellIdSet.has(id));
       const matchesGridRule =
         !dragSession.allowedGridType ||
-        dragSession.allowedGridType === nearest.gridType;
+        dragSession.allowedGridType === nearest.placementArea;
       const cellsAreFree = footprint.every(id => !occupiedCellIds.has(id));
       const isValidPlacement = Boolean(
         footprintWithinGrid && matchesGridRule && cellsAreFree,

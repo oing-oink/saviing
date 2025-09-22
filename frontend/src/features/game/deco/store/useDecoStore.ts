@@ -6,7 +6,7 @@ import type {
   PlacedItem,
   RoomMeta,
 } from '@/features/game/deco/types/decoTypes';
-import type { GridType } from '@/features/game/room/hooks/useGrid';
+import type { PlacementArea } from '@/features/game/room/hooks/useGrid';
 import type { TabId } from '@/features/game/shop/types/item';
 import { buildFootprint, parseCellId } from '@/features/game/deco/utils/grid';
 import { getItemImage } from '@/features/game/shop/utils/getItemImage';
@@ -197,7 +197,7 @@ const initialRoomMeta: RoomMeta = {
   /** 그리드 셀의 기본 크기 단위 */
   cellSize: 1,
   /** 기본 사용 가능한 배치 레이어들 */
-  layers: ['floor', 'leftWall', 'rightWall'],
+  layers: ['BOTTOM', 'LEFT', 'RIGHT', 'ROOM_COLOR'],
 };
 
 /**
@@ -222,7 +222,7 @@ const buildPlacedItemFromSession = (
     return null;
   }
 
-  if (session.allowedGridType && session.allowedGridType !== parsed.gridType) {
+  if (session.allowedGridType && session.allowedGridType !== parsed.placementArea) {
     return null;
   }
 
@@ -247,7 +247,7 @@ const buildPlacedItemFromSession = (
     positionX: parsed.col,
     positionY: parsed.row,
     rotation: session.originalItem?.rotation ?? 0,
-    layer: parsed.gridType,
+    layer: parsed.placementArea,
     xLength: session.xLength,
     yLength: session.yLength,
     footprintCellIds: resolvedFootprint,
@@ -384,8 +384,8 @@ export const decoStore = createStore<DecoStore>(set => ({
         item => item.id !== placedId,
       );
       const parsed = parseCellId(target.cellId);
-      const inferredGridType = (target.layer ?? parsed?.gridType) as
-        | GridType
+      const inferredPlacementArea = (target.layer ?? parsed?.placementArea) as
+        | PlacementArea
         | undefined;
       const resolvedFootprint =
         target.footprintCellIds && target.footprintCellIds.length > 0
@@ -402,7 +402,7 @@ export const decoStore = createStore<DecoStore>(set => ({
           originPlacedId: target.id,
           originalItem: target,
           hoverCellId: target.cellId,
-          allowedGridType: inferredGridType ?? null,
+          allowedGridType: inferredPlacementArea ?? null,
           xLength: target.xLength ?? 1,
           yLength: target.yLength ?? 1,
           footprintCellIds: resolvedFootprint,

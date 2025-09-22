@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { saveDecoRoom } from '@/features/game/deco/api/decoApi';
 import { decoStore } from '@/features/game/deco/store/useDecoStore';
-import type { GridType } from '@/features/game/room/hooks/useGrid';
+import type { PlacementArea } from '@/features/game/room/hooks/useGrid';
 
 /** 현재 드래프트 상태를 API 저장 포맷으로 변환한다. */
 const toRequestPayload = () => {
@@ -15,7 +15,7 @@ const toRequestPayload = () => {
       xLength: item.xLength,
       yLength: item.yLength,
       rotation: item.rotation,
-      layer: item.layer as GridType | string | undefined,
+      layer: item.layer as PlacementArea | string | undefined,
     })),
   };
 };
