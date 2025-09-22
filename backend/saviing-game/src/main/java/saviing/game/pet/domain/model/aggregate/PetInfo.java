@@ -23,7 +23,7 @@ public class PetInfo {
     private Experience experience;
     private Affection affection;
     private Energy energy;
-    private String petName;  // 펫 이름 (null 가능)
+    private PetName petName;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -34,7 +34,7 @@ public class PetInfo {
         Experience experience,
         Affection affection,
         Energy energy,
-        String petName,
+        PetName petName,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
     ) {
@@ -55,8 +55,6 @@ public class PetInfo {
      * ItemPurchasedEvent 핸들러에서 PET 아이템 구매 시 호출됩니다.
      */
     public static PetInfo create(InventoryItemId inventoryItemId) {
-        Objects.requireNonNull(inventoryItemId, "인벤토리 아이템 ID는 null일 수 없습니다");
-
         LocalDateTime now = LocalDateTime.now();
 
         return PetInfo.builder()
@@ -65,7 +63,7 @@ public class PetInfo {
             .experience(Experience.initial())
             .affection(Affection.initial())
             .energy(Energy.initial())
-            .petName(null)  // 초기 생성 시 이름 없음 (사용자가 나중에 설정)
+            .petName(PetName.empty())  // 초기 생성 시 이름 없음 (사용자가 나중에 설정)
             .createdAt(now)
             .updatedAt(now)
             .build();
@@ -74,12 +72,12 @@ public class PetInfo {
     /**
      * 경험치를 획득하고 레벨업을 확인합니다.
      */
-    public void gainExperience(int amount, int requiredExpForNextLevel) {
+    public void gainExperience(Experience amount, Experience requiredExpForNextLevel) {
         // Aggregate 레벨에서 null 안전성 보장 (값 검증은 VO에서)
         Experience newExperience = this.experience.add(amount);
 
         // 레벨업 가능 여부 확인
-        if (level.canLevelUp(newExperience, requiredExpForNextLevel)) {
+        if (level.canLevelUp(newExperience, requiredExpForNextLevel.value())) {
             this.level = level.levelUp();
             this.experience = newExperience;
             updateTimestamp();
@@ -92,7 +90,7 @@ public class PetInfo {
     /**
      * 애정도를 증가시킵니다 (상호작용, 먹이주기 등)
      */
-    public void increaseAffection(int amount) {
+    public void increaseAffection(Affection amount) {
         // Aggregate 레벨에서 null 안전성 보장 (값 검증은 VO에서)
         this.affection = this.affection.increase(amount);
         updateTimestamp();
@@ -101,7 +99,7 @@ public class PetInfo {
     /**
      * 애정도를 감소시킵니다 (시간 경과 등)
      */
-    public void decreaseAffection(int amount) {
+    public void decreaseAffection(Affection amount) {
         // Aggregate 레벨에서 null 안전성 보장 (값 검증은 VO에서)
         this.affection = this.affection.decrease(amount);
         updateTimestamp();
@@ -111,8 +109,6 @@ public class PetInfo {
      * 시간 경과에 따른 애정도 자동 감소를 적용합니다.
      */
     public void applyAffectionDecay(LocalDateTime lastAccessTime) {
-        Objects.requireNonNull(lastAccessTime, "마지막 접속 시간은 null일 수 없습니다");
-
         LocalDateTime currentTime = LocalDateTime.now();
         Affection oldAffection = this.affection;
         this.affection = this.affection.applyTimeDecay(lastAccessTime, currentTime);
@@ -126,7 +122,7 @@ public class PetInfo {
     /**
      * 포만감을 소모합니다 (활동, 놀기 등)
      */
-    public void consumeEnergy(int amount) {
+    public void consumeEnergy(Energy amount) {
         // Aggregate 레벨에서 null 안전성 보장 (값 검증은 VO에서)
         this.energy = this.energy.consume(amount);
         updateTimestamp();
@@ -135,7 +131,7 @@ public class PetInfo {
     /**
      * 포만감을 회복합니다 (시간 경과, 휴식 등)
      */
-    public void recoverEnergy(int amount) {
+    public void recoverEnergy(Energy amount) {
         // Aggregate 레벨에서 null 안전성 보장 (값 검증은 VO에서)
         this.energy = this.energy.recover(amount);
         updateTimestamp();
@@ -144,17 +140,17 @@ public class PetInfo {
     /**
      * 특정 활동에 필요한 포만감이 있는지 확인합니다.
      */
-    public boolean hasEnoughEnergyFor(int requiredEnergy) {
-        return this.energy.hasEnoughEnergy(requiredEnergy);
+    public boolean hasEnoughEnergyFor(Energy requiredEnergy) {
+        return this.energy.hasEnoughEnergy(requiredEnergy.value());
     }
 
     /**
      * 펫과 상호작용합니다 (놀아주기, 먹이주기 등)
      * 포만감 소모와 애정도 증가를 동시에 처리합니다.
      */
-    public void interact(int energyCost, int affectionGain) {
+    public void interact(Energy energyCost, Affection affectionGain) {
         if (!hasEnoughEnergyFor(energyCost)) {
-            throw new PetInsufficientEnergyException(this.energy.value(), energyCost);
+            throw new PetInsufficientEnergyException(this.energy.value(), energyCost.value());
         }
 
         consumeEnergy(energyCost);
@@ -164,7 +160,7 @@ public class PetInfo {
     /**
      * 펫의 이름을 변경합니다.
      */
-    public void changePetName(String newName) {
+    public void changePetName(PetName newName) {
         this.petName = newName;
         updateTimestamp();
     }
@@ -175,6 +171,7 @@ public class PetInfo {
         Objects.requireNonNull(experience, "펫 경험치는 null일 수 없습니다");
         Objects.requireNonNull(affection, "펫 애정도는 null일 수 없습니다");
         Objects.requireNonNull(energy, "펫 포만감은 null일 수 없습니다");
+        // petName은 null 허용 (초기 생성 시 이름 없음)
         Objects.requireNonNull(createdAt, "생성 시간은 null일 수 없습니다");
         Objects.requireNonNull(updatedAt, "수정 시간은 null일 수 없습니다");
     }

@@ -5,12 +5,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import saviing.game.inventory.domain.model.vo.InventoryItemId;
+import saviing.game.pet.application.dto.command.ApplyAffectionDecayCommand;
 import saviing.game.pet.application.dto.command.CreatePetCommand;
+import saviing.game.pet.application.dto.command.InteractWithPetCommand;
 import saviing.game.pet.application.dto.result.PetInfoResult;
 import saviing.game.pet.application.mapper.PetResultMapper;
 import saviing.game.pet.domain.exception.PetAlreadyExistsException;
 import saviing.game.pet.domain.exception.PetNotFoundException;
 import saviing.game.pet.domain.model.aggregate.PetInfo;
+import saviing.game.pet.domain.model.vo.Affection;
+import saviing.game.pet.domain.model.vo.Energy;
 import saviing.game.pet.domain.repository.PetInfoRepository;
 
 /**
@@ -59,26 +63,24 @@ public class PetCommandService {
     /**
      * 펫과 상호작용합니다 (놀아주기, 먹이주기 등)
      *
-     * @param inventoryItemId 펫의 인벤토리 아이템 ID
-     * @param energyCost 소모할 포만감
-     * @param affectionGain 증가할 애정도
+     * @param command 펫 상호작용 명령
      * @return 상호작용 후 펫 정보
      */
-    public PetInfoResult interactWithPet(Long inventoryItemId, int energyCost, int affectionGain) {
+    public PetInfoResult interactWithPet(InteractWithPetCommand command) {
         log.info("펫 상호작용 시작: inventoryItemId={}, energyCost={}, affectionGain={}",
-            inventoryItemId, energyCost, affectionGain);
+            command.inventoryItemId().value(), command.energyCost(), command.affectionGain());
 
-        PetInfo petInfo = petInfoRepository.findById(InventoryItemId.of(inventoryItemId))
-            .orElseThrow(() -> new PetNotFoundException(inventoryItemId));
+        PetInfo petInfo = petInfoRepository.findById(command.inventoryItemId())
+            .orElseThrow(() -> new PetNotFoundException(command.inventoryItemId().value()));
 
         // 상호작용 실행
-        petInfo.interact(energyCost, affectionGain);
+        petInfo.interact(Energy.of(command.energyCost()), Affection.of(command.affectionGain()));
 
         // 저장
         PetInfo savedPetInfo = petInfoRepository.save(petInfo);
 
         log.info("펫 상호작용 완료: inventoryItemId={}, energy={}, affection={}",
-            inventoryItemId, savedPetInfo.getEnergy().value(), savedPetInfo.getAffection().value());
+            command.inventoryItemId().value(), savedPetInfo.getEnergy().value(), savedPetInfo.getAffection().value());
 
         return petResultMapper.toResult(savedPetInfo);
     }
@@ -86,24 +88,23 @@ public class PetCommandService {
     /**
      * 시간 경과에 따른 애정도 감소를 적용합니다.
      *
-     * @param inventoryItemId 펫의 인벤토리 아이템 ID
-     * @param lastAccessTime 마지막 접속 시간
+     * @param command 애정도 감소 적용 명령
      * @return 애정도 감소 적용 후 펫 정보
      */
-    public PetInfoResult applyAffectionDecay(Long inventoryItemId, java.time.LocalDateTime lastAccessTime) {
-        log.debug("애정도 감소 적용 시작: inventoryItemId={}", inventoryItemId);
+    public PetInfoResult applyAffectionDecay(ApplyAffectionDecayCommand command) {
+        log.debug("애정도 감소 적용 시작: inventoryItemId={}", command.inventoryItemId().value());
 
-        PetInfo petInfo = petInfoRepository.findById(InventoryItemId.of(inventoryItemId))
-            .orElseThrow(() -> new PetNotFoundException(inventoryItemId));
+        PetInfo petInfo = petInfoRepository.findById(command.inventoryItemId())
+            .orElseThrow(() -> new PetNotFoundException(command.inventoryItemId().value()));
 
         // 애정도 감소 적용
-        petInfo.applyAffectionDecay(lastAccessTime);
+        petInfo.applyAffectionDecay(command.lastAccessTime());
 
         // 저장
         PetInfo savedPetInfo = petInfoRepository.save(petInfo);
 
         log.debug("애정도 감소 적용 완료: inventoryItemId={}, affection={}",
-            inventoryItemId, savedPetInfo.getAffection().value());
+            command.inventoryItemId().value(), savedPetInfo.getAffection().value());
 
         return petResultMapper.toResult(savedPetInfo);
     }

@@ -5,7 +5,7 @@ package saviing.game.pet.domain.model.vo;
  */
 public record PetLevel(int value) {
     private static final int MIN_LEVEL = 1;
-    private static final int MAX_LEVEL = 100;
+    private static final int MAX_LEVEL = 10;
 
     public PetLevel {
         if (value < MIN_LEVEL || value > MAX_LEVEL) {

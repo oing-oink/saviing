@@ -22,11 +22,11 @@ public record Experience(int value) {
         return new Experience(MIN_EXPERIENCE);
     }
 
-    public Experience add(int amount) {
-        if (amount < 0) {
+    public Experience add(Experience amount) {
+        if (amount.value < 0) {
             throw new IllegalArgumentException("경험치 증가량은 음수일 수 없습니다");
         }
-        return new Experience(value + amount);
+        return new Experience(value + amount.value);
     }
 
     public boolean isGreaterThanOrEqual(int targetExp) {

@@ -7,6 +7,7 @@ import saviing.game.pet.domain.model.vo.Affection;
 import saviing.game.pet.domain.model.vo.Energy;
 import saviing.game.pet.domain.model.vo.Experience;
 import saviing.game.pet.domain.model.vo.PetLevel;
+import saviing.game.pet.domain.model.vo.PetName;
 import saviing.game.pet.infrastructure.persistence.entity.PetInfoEntity;
 
 /**
@@ -29,7 +30,7 @@ public class PetInfoEntityMapper {
             .experience(Experience.of(entity.getExperience()))
             .affection(Affection.of(entity.getAffection()))
             .energy(Energy.of(entity.getEnergy()))
-            .petName(entity.getPetName())
+            .petName(PetName.of(entity.getPetName()))
             .createdAt(entity.getCreatedAt())
             .updatedAt(entity.getUpdatedAt())
             .build();
@@ -49,7 +50,7 @@ public class PetInfoEntityMapper {
             .experience(domain.getExperience().value())
             .affection(domain.getAffection().value())
             .energy(domain.getEnergy().value())
-            .petName(domain.getPetName())
+            .petName(domain.getPetName().value())
             .createdAt(domain.getCreatedAt())
             .updatedAt(domain.getUpdatedAt())
             .build();
@@ -69,7 +70,7 @@ public class PetInfoEntityMapper {
             domain.getExperience().value(),
             domain.getAffection().value(),
             domain.getEnergy().value(),
-            domain.getPetName()
+            domain.getPetName().value()
         );
     }
 }

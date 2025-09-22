@@ -27,7 +27,7 @@ public class PetResultMapper {
             .experience(petInfo.getExperience().value())
             .affection(petInfo.getAffection().value())
             .energy(petInfo.getEnergy().value())
-            .petName(petInfo.getPetName())
+            .petName(petInfo.getPetName().value())
             .createdAt(petInfo.getCreatedAt())
             .updatedAt(petInfo.getUpdatedAt())
             .build();

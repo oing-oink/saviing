@@ -38,19 +38,19 @@ public record Affection(int value) {
         return new Affection(MIN_AFFECTION);
     }
 
-    public Affection increase(int amount) {
-        if (amount < 0) {
+    public Affection increase(Affection amount) {
+        if (amount.value < 0) {
             throw new IllegalArgumentException("애정도 증가량은 음수일 수 없습니다");
         }
-        int newValue = Math.min(MAX_AFFECTION, value + amount);
+        int newValue = Math.min(MAX_AFFECTION, value + amount.value);
         return new Affection(newValue);
     }
 
-    public Affection decrease(int amount) {
-        if (amount < 0) {
+    public Affection decrease(Affection amount) {
+        if (amount.value < 0) {
             throw new IllegalArgumentException("애정도 감소량은 음수일 수 없습니다");
         }
-        int newValue = Math.max(MIN_AFFECTION, value - amount);
+        int newValue = Math.max(MIN_AFFECTION, value - amount.value);
         return new Affection(newValue);
     }
 
@@ -105,7 +105,7 @@ public record Affection(int value) {
         int totalDecay = (int) (decayIntervals * DECAY_AMOUNT_PER_INTERVAL);
 
         // 감소 적용 (0 미만으로는 떨어지지 않음)
-        return decrease(totalDecay);
+        return decrease(Affection.of(totalDecay));
     }
 
     public boolean isMaxAffection() {

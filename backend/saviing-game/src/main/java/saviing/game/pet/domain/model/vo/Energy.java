@@ -33,19 +33,19 @@ public record Energy(int value) {
         return new Energy(MIN_ENERGY);
     }
 
-    public Energy consume(int amount) {
-        if (amount < 0) {
+    public Energy consume(Energy amount) {
+        if (amount.value < 0) {
             throw new IllegalArgumentException("포만감 소모량은 음수일 수 없습니다");
         }
-        int newValue = Math.max(MIN_ENERGY, value - amount);
+        int newValue = Math.max(MIN_ENERGY, value - amount.value);
         return new Energy(newValue);
     }
 
-    public Energy recover(int amount) {
-        if (amount < 0) {
+    public Energy recover(Energy amount) {
+        if (amount.value < 0) {
             throw new IllegalArgumentException("포만감 회복량은 음수일 수 없습니다");
         }
-        int newValue = Math.min(MAX_ENERGY, value + amount);
+        int newValue = Math.min(MAX_ENERGY, value + amount.value);
         return new Energy(newValue);
     }
 
