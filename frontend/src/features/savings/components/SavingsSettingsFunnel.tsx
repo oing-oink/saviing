@@ -9,7 +9,6 @@ import {
   CurrentInfoStep,
   SelectChangeStep,
   NewSettingsStep,
-  ImpactReviewStep,
   ConfirmStep,
   CompleteStep,
 } from '@/features/savings/components/settingsSteps';
@@ -65,7 +64,6 @@ const SavingsSettingsFunnel = () => {
       'CURRENT_INFO',
       'SELECT_CHANGE',
       'NEW_SETTINGS',
-      'IMPACT_REVIEW',
       'CONFIRM',
       'COMPLETE',
     ];
@@ -83,7 +81,7 @@ const SavingsSettingsFunnel = () => {
         },
       );
     }
-  }, [searchParams, navigate, accountId, setCurrentAccount, setStep]);
+  }, [searchParams, navigate, accountId, setCurrentAccount, setStep, entryPoint]);
 
   // 컴포넌트 언마운트 시 상태 초기화
   useEffect(() => {
@@ -101,8 +99,6 @@ const SavingsSettingsFunnel = () => {
         return <SelectChangeStep />;
       case 'NEW_SETTINGS':
         return <NewSettingsStep />;
-      case 'IMPACT_REVIEW':
-        return <ImpactReviewStep />;
       case 'CONFIRM':
         return <ConfirmStep />;
       case 'COMPLETE':

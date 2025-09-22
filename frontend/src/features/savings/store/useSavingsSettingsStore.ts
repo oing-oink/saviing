@@ -7,7 +7,6 @@ export type SavingsSettingsStep =
   | 'CURRENT_INFO'
   | 'SELECT_CHANGE'
   | 'NEW_SETTINGS'
-  | 'IMPACT_REVIEW'
   | 'CONFIRM'
   | 'COMPLETE';
 

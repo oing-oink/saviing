@@ -1,14 +1,45 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSavingsSettingsStore } from '@/features/savings/store/useSavingsSettingsStore';
 import { useSavingsSettingsChange } from '@/features/savings/hooks/useSavingsSettingsChange';
 import { Button } from '@/shared/components/ui/button';
 
 const ConfirmStep = () => {
-  const { currentInfo, newSettings, impactAnalysis } =
+  const { currentInfo, newSettings, impactAnalysis, setImpactAnalysis } =
     useSavingsSettingsStore();
   const { goToNextStep, goToPreviousStep } = useSavingsSettingsChange();
   const [isProcessing, setIsProcessing] = useState(false);
   const [hasAgreed, setHasAgreed] = useState(false);
+
+  // Mock 영향 분석 계산 (실제로는 API 호출)
+  const calculateImpact = () => {
+    if (!currentInfo) {
+      return;
+    }
+
+    // 간단한 Mock 계산
+    const amountChange = newSettings.newAmount
+      ? (newSettings.newAmount - currentInfo.currentAmount) * 12
+      : 0;
+    const interestChange = amountChange * 0.03; // 3% 이자율 적용
+
+    const analysis = {
+      finalAmountChange: amountChange,
+      interestChange: Math.round(interestChange),
+      completionDateChange: '변경 없음',
+      monthlyBurdenChange: newSettings.newAmount
+        ? newSettings.newAmount - currentInfo.currentAmount
+        : 0,
+    };
+
+    setImpactAnalysis(analysis);
+  };
+
+  // 컴포넌트 마운트 시 영향 분석 계산
+  useEffect(() => {
+    if (!impactAnalysis && currentInfo) {
+      calculateImpact();
+    }
+  }, [currentInfo, newSettings, impactAnalysis]);
 
   const handleConfirm = async () => {
     if (!hasAgreed) {

@@ -15,7 +15,6 @@ const SAVINGS_SETTINGS_STEPS: SavingsSettingsStep[] = [
   'CURRENT_INFO',
   'SELECT_CHANGE',
   'NEW_SETTINGS',
-  'IMPACT_REVIEW',
   'CONFIRM',
   'COMPLETE',
 ];
