@@ -87,3 +87,29 @@ export const TYPE_TO_CATEGORIES: Record<ItemType, ItemCategory[]> = {
   DECORATION: ['LEFT', 'RIGHT', 'BOTTOM', 'ROOM_COLOR'],
   CONSUMPTION: ['TOY', 'FOOD'],
 } as const;
+
+/** 인벤토리 아이템 정보 (실제 API 응답 구조). */
+export interface InventoryItem {
+  inventoryItemId: number;
+  characterId: number;
+  itemId: number;
+  type: string;
+  isUsed: boolean;
+  name: string;
+  description: string;
+  itemCategory: string;
+  image: string;
+  rarity: string;
+  xLength: number;
+  yLength: number;
+  roomId: number | null;
+  petInventoryItemId: number | null;
+  count: number | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** 인벤토리 목록 조회 응답. */
+export interface InventoryResponse {
+  inventories: InventoryItem[];
+}

@@ -29,7 +29,7 @@ const DecoPage = () => {
   const { activeTab, setActiveTab } = useTabs(TABS[3]);
   const [placementArea, setPlacementArea] = useState<TabId | null>('BOTTOM');
 
-  const { items, isLoading, isError, error } = useDecoInventory();
+  const { items, isLoading, isError, error } = useDecoInventory(activeTab);
   const saveMutation = useDecoSaveMutation();
 
   const draftItems = useDecoStore(state => state.draftItems);
@@ -81,9 +81,15 @@ const DecoPage = () => {
   };
 
   const getCategoryPlacementArea = (category: string): TabId | null => {
-    if (category === 'LEFT') return 'LEFT';
-    if (category === 'RIGHT') return 'RIGHT';
-    if (category === 'BOTTOM' || category === 'ROOM_COLOR') return 'BOTTOM';
+    if (category === 'LEFT') {
+      return 'LEFT';
+    }
+    if (category === 'RIGHT') {
+      return 'RIGHT';
+    }
+    if (category === 'BOTTOM' || category === 'ROOM_COLOR') {
+      return 'BOTTOM';
+    }
     return null;
   };
 
