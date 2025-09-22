@@ -26,8 +26,9 @@ const useBottomNav = () => {
     if (pathname.startsWith('/products')) {
       return 'Products';
     }
-    // 게임, 프로필 등 다른 페이지들은 추후 추가 가능
-    // if (pathname.startsWith('/profile')) return 'Profile';
+    if (pathname.startsWith('/profile')) {
+      return 'Profile';
+    }
     return 'Home'; // 기본값
   };
 
@@ -83,7 +84,9 @@ const useBottomNav = () => {
       case 'Products':
         navigate(PAGE_PATH.PRODUCTS);
         break;
-      // Profile은 상태 변경만 (추후 페이지 구현 시 추가)
+      case 'Profile':
+        navigate(PAGE_PATH.PROFILE);
+        break;
     }
   };
 
