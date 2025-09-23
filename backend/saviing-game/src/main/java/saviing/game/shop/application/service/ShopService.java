@@ -9,6 +9,7 @@ import saviing.game.character.application.service.CharacterCommandService;
 import saviing.game.character.application.service.CharacterQueryService;
 import saviing.game.character.domain.model.vo.CharacterId;
 import saviing.game.inventory.application.dto.command.AddInventoryItemCommand;
+import saviing.game.inventory.application.dto.result.InventoryAddedResult;
 import saviing.game.inventory.application.service.InventoryCommandService;
 import saviing.game.item.application.dto.query.GetItemQuery;
 import saviing.game.item.application.dto.result.ItemResult;
