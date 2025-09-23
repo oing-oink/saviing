@@ -4,27 +4,56 @@ import { PAGE_PATH } from '@/shared/constants/path';
 import { useNavigate } from 'react-router-dom';
 import catPaw from '@/assets/catPaw.png';
 import gachaMachine from '@/assets/gachaMachine.png';
-import GachaResult from '@/features/game/shop/components/GachaResult';
-import { mockInventoryItems } from '@/features/game/shop/mocks/inventoryMockData';
+import { useGachaDraw } from '@/features/game/shop/query/useGachaDraw';
+import { useGachaInfo } from '@/features/game/shop/query/useGachaInfo';
 import { useFireworks } from '@/features/game/shop/hooks/useFireworks';
+import GachaResult from '@/features/game/shop/components/GachaResult';
+import type { GachaDrawResponse } from '@/features/game/shop/types/item';
+import toast from 'react-hot-toast';
 
 const GachaRollingPage = () => {
   const navigate = useNavigate();
-  const [showResult, setShowResult] = useState(false);
+  const { data: gachaInfo } = useGachaInfo();
+  const { mutate: drawGacha } = useGachaDraw();
+  const [gachaResult, setGachaResult] = useState<GachaDrawResponse | null>(
+    null,
+  );
 
-  useFireworks(showResult);
+  useFireworks(Boolean(gachaResult));
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowResult(true);
-    }, 3000);
+    // 페이지 진입과 동시에 가챠 API 호출
+    if (gachaInfo) {
+      const timer = setTimeout(() => {
+        drawGacha(
+          {
+            characterId: 1, // TODO: 실제 캐릭터 ID 사용
+            gachaPoolId: gachaInfo.gachaPoolId,
+            paymentMethod: 'COIN', // 기본적으로 코인 사용
+          },
+          {
+            onSuccess: result => {
+              setGachaResult(result);
+            },
+            onError: error => {
+              toast.error(`가챠 뽑기 실패: ${error.message}`, {
+                className: 'game font-galmuri',
+              });
+              navigate(PAGE_PATH.GACHA);
+            },
+          },
+        );
+      }, 3000);
 
-    return () => clearTimeout(timer);
-  }, []);
+      return () => clearTimeout(timer);
+    }
+  }, [gachaInfo, drawGacha, navigate]);
 
   const handleCloseResult = () => {
-    setShowResult(false);
+    setGachaResult(null);
+    navigate(PAGE_PATH.GACHA);
   };
+
   return (
     <div className="game flex min-h-screen flex-col bg-store-bg font-galmuri">
       {/* 상단 영역 */}
@@ -56,8 +85,13 @@ const GachaRollingPage = () => {
         <img src={catPaw} alt="" className="w-[85%]" />
       </div>
 
-      {showResult && (
-        <GachaResult item={mockInventoryItems[0]} onClose={handleCloseResult} />
+      {/* 가챠 결과 모달 */}
+      {gachaResult && (
+        <GachaResult
+          item={gachaResult.item}
+          currencies={gachaResult.currencies}
+          onClose={handleCloseResult}
+        />
       )}
     </div>
   );

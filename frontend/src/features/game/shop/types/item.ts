@@ -121,3 +121,64 @@ export interface InventoryItem {
 export interface InventoryResponse {
   inventories: InventoryItem[];
 }
+
+/** 가챠 아이템 정보. */
+export interface GachaItem {
+  itemId: number;
+  itemName: string;
+}
+
+/** 가챠 확률 정보. */
+export interface DropRates {
+  COMMON: number;
+  RARE: number;
+  EPIC: number;
+  LEGENDARY: number;
+}
+
+/** 가챠 뽑기 가격 정보. */
+export interface DrawPrice {
+  coin: number;
+  fishCoin: number | null;
+}
+
+/** 등급별 아이템 목록. */
+export interface RewardItemIds {
+  COMMON: GachaItem[];
+  RARE: GachaItem[];
+  EPIC: GachaItem[];
+  LEGENDARY: GachaItem[];
+}
+
+/** 가챠 상세 정보. */
+export interface GachaInfo {
+  drawPrice: DrawPrice;
+  dropRates: DropRates;
+  rewardItemIds: RewardItemIds;
+}
+
+/** 가챠 정보 조회 응답. */
+export interface GachaInfoResponse {
+  gachaPoolId: number;
+  gachaPoolName: string;
+  gachaInfo: GachaInfo;
+}
+
+/** 가챠 뽑기 요청. */
+export interface GachaDrawRequest {
+  characterId: number;
+  gachaPoolId: number;
+  paymentMethod: PaymentMethod;
+}
+
+/** 가챠 뽑기 결과 - 잔액 정보. */
+export interface GachaDrawCurrencies {
+  coinType: 'COIN' | 'FISH_COIN';
+  balance: number;
+}
+
+/** 가챠 뽑기 응답. */
+export interface GachaDrawResponse {
+  item: Item;
+  currencies: GachaDrawCurrencies;
+}
