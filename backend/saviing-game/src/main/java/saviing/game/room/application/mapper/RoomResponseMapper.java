@@ -7,11 +7,12 @@ import lombok.NonNull;
 import org.springframework.stereotype.Component;
 
 import saviing.game.room.application.dto.result.RoomPlacementListResult;
+import saviing.game.room.application.dto.result.RoomResult;
 import saviing.game.room.domain.model.aggregate.PlacedItem;
 
 /**
  * 도메인 객체를 응답 DTO로 변환하는 매퍼
- * PlacedItem 목록을 클라이언트가 사용할 수 있는 응답 형식으로 변환
+ * PlacedItem 목록 및 Room 정보를 클라이언트가 사용할 수 있는 응답 형식으로 변환
  */
 @Component
 public class RoomResponseMapper {
@@ -54,5 +55,17 @@ public class RoomResponseMapper {
             .yLength(placedItem.getSize().yLength())
             .category(placedItem.getCategory().name())
             .build();
+    }
+
+    /**
+     * RoomResult를 RoomResult 그대로 반환 (추가 변환 없음)
+     * Application layer의 Result DTO를 그대로 사용
+     *
+     * @param roomResult 방 조회 결과 DTO
+     * @return 동일한 RoomResult 인스턴스
+     * @throws IllegalArgumentException roomResult가 null인 경우
+     */
+    public RoomResult toRoomResult(@NonNull RoomResult roomResult) {
+        return roomResult;
     }
 }

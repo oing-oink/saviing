@@ -10,14 +10,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import saviing.common.response.ApiResult;
 import saviing.game.room.application.dto.query.GetRoomPlacementsQuery;
+import saviing.game.room.application.dto.query.GetRoomByCharacterQuery;
 import saviing.game.room.application.dto.result.RoomPlacementListResult;
+import saviing.game.room.application.dto.result.RoomResult;
 import saviing.game.room.application.dto.command.SaveRoomPlacementsCommand;
 import saviing.game.room.application.service.RoomCommandService;
 import saviing.game.room.application.service.RoomQueryService;
 import saviing.game.room.presentation.dto.request.SaveRoomPlacementsRequest;
 import saviing.game.room.presentation.dto.response.RoomPlacementsResponse;
+import saviing.game.room.presentation.dto.response.RoomResponse;
 import saviing.game.room.presentation.interfaces.RoomApi;
 import saviing.game.room.presentation.mapper.RoomPresentationMapper;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * 방 관련 API를 제공하는 REST 컨트롤러입니다.
@@ -75,5 +79,33 @@ public class RoomController implements RoomApi {
 
         log.info("방 배치 저장 완료: roomId={}, characterId={}", roomId, request.characterId());
         return ApiResult.ok();
+    }
+
+    /**
+     * 캐릭터 ID와 방 번호로 방을 조회합니다.
+     *
+     * @param characterId 조회할 캐릭터의 식별자
+     * @param roomNumber 조회할 방 번호
+     * @return 방 정보 조회 결과
+     * @throws IllegalArgumentException characterId나 roomNumber가 유효하지 않은 경우
+     */
+    @GetMapping
+    public ApiResult<RoomResponse> getRoomByCharacterIdAndRoomNumber(
+        @RequestParam Long characterId,
+        @RequestParam Integer roomNumber
+    ) {
+        log.info("캐릭터별 방 조회 요청: characterId={}, roomNumber={}", characterId, roomNumber);
+
+        GetRoomByCharacterQuery query = GetRoomByCharacterQuery.builder()
+            .characterId(characterId)
+            .roomNumber(roomNumber)
+            .build();
+
+        RoomResult result = roomQueryService.findRoomByCharacterIdAndRoomNumber(query);
+        RoomResponse response = roomPresentationMapper.toRoomResponse(result);
+
+        log.info("캐릭터별 방 조회 완료: characterId={}, roomNumber={}, roomId={}",
+            characterId, roomNumber, result.roomId());
+        return ApiResult.ok(response);
     }
 }

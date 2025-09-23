@@ -12,10 +12,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import saviing.common.response.ApiResult;
 import saviing.common.response.ErrorResult;
 import saviing.game.room.presentation.dto.request.SaveRoomPlacementsRequest;
 import saviing.game.room.presentation.dto.response.RoomPlacementsResponse;
+import saviing.game.room.presentation.dto.response.RoomResponse;
 
 @Tag(name = "Room", description = "게임 방 관리 API")
 public interface RoomApi {
@@ -182,5 +184,108 @@ public interface RoomApi {
             )
         )
         @RequestBody SaveRoomPlacementsRequest request
+    );
+
+    /**
+     * 캐릭터 ID와 방 번호로 방을 조회합니다.
+     *
+     * @param characterId 조회할 캐릭터의 식별자
+     * @param roomNumber 조회할 방 번호
+     * @return 방 정보 조회 결과
+     */
+    @Operation(
+        summary = "캐릭터별 방 조회",
+        description = "특정 캐릭터의 특정 번호 방 정보를 조회합니다. roomNumber가 1인 경우 해당 캐릭터의 첫 번째 방을 조회합니다."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "조회 성공",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = RoomResponse.class),
+                examples = @ExampleObject(
+                    name = "방 조회 결과 예시",
+                    summary = "캐릭터의 방 정보 조회 성공",
+                    value = """
+                        {
+                          "success": true,
+                          "status": 200,
+                          "data": {
+                            "roomId": 1,
+                            "characterId": 1,
+                            "roomNumber": 1,
+                            "createdAt": "2023-12-01T10:00:00",
+                            "updatedAt": "2023-12-01T10:00:00"
+                          }
+                        }
+                        """
+                )
+            )
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description = "잘못된 요청 (characterId나 roomNumber가 유효하지 않음)",
+            content = @Content(
+                schema = @Schema(implementation = ErrorResult.class),
+                examples = @ExampleObject(
+                    name = "잘못된 파라미터",
+                    summary = "characterId나 roomNumber가 유효하지 않은 경우",
+                    value = """
+                        {
+                          "success": false,
+                          "status": 400,
+                          "error": {
+                            "code": "INVALID_PARAMETER",
+                            "message": "characterId는 양수여야 합니다"
+                          }
+                        }
+                        """
+                )
+            )
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "해당 조건의 방을 찾을 수 없음",
+            content = @Content(
+                schema = @Schema(implementation = ErrorResult.class),
+                examples = @ExampleObject(
+                    name = "방 미발견",
+                    summary = "해당 캐릭터의 방 번호가 존재하지 않는 경우",
+                    value = """
+                        {
+                          "success": false,
+                          "status": 404,
+                          "error": {
+                            "code": "ROOM_NOT_FOUND",
+                            "message": "캐릭터 ID 1의 방 번호 1을 찾을 수 없습니다"
+                          }
+                        }
+                        """
+                )
+            )
+        ),
+        @ApiResponse(
+            responseCode = "500",
+            description = "서버 내부 오류",
+            content = @Content(schema = @Schema(implementation = ErrorResult.class))
+        )
+    })
+    @GetMapping
+    ApiResult<RoomResponse> getRoomByCharacterIdAndRoomNumber(
+        @Parameter(
+            description = "조회할 캐릭터의 식별자",
+            example = "1",
+            required = true,
+            schema = @Schema(type = "integer", format = "int64", minimum = "1")
+        )
+        @RequestParam Long characterId,
+        @Parameter(
+            description = "조회할 방 번호 (1~5 범위)",
+            example = "1",
+            required = true,
+            schema = @Schema(type = "integer", format = "int32", minimum = "1", maximum = "5")
+        )
+        @RequestParam Integer roomNumber
     );
 }

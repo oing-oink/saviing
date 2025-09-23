@@ -9,12 +9,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import saviing.game.room.application.dto.query.GetRoomPlacementsQuery;
+import saviing.game.room.application.dto.query.GetRoomByCharacterQuery;
 import saviing.game.room.application.dto.result.RoomPlacementListResult;
+import saviing.game.room.application.dto.result.RoomResult;
 import saviing.game.room.application.mapper.RoomResponseMapper;
 import saviing.game.room.domain.model.aggregate.PlacedItem;
 import saviing.game.room.domain.model.aggregate.Placement;
+import saviing.game.room.domain.model.aggregate.Room;
 import saviing.game.room.domain.model.vo.RoomId;
+import saviing.game.room.domain.model.vo.RoomNumber;
 import saviing.game.room.domain.repository.PlacementRepository;
+import saviing.game.room.domain.repository.RoomRepository;
+import saviing.game.room.domain.exception.RoomException;
+import saviing.game.room.domain.exception.RoomErrorCode;
 
 /**
  * Room 도메인의 조회 처리를 담당하는 애플리케이션 서비스
@@ -27,6 +34,7 @@ import saviing.game.room.domain.repository.PlacementRepository;
 public class RoomQueryService {
 
     private final PlacementRepository placementRepository;
+    private final RoomRepository roomRepository;
     private final RoomResponseMapper roomResponseMapper;
 
     /**
@@ -50,5 +58,26 @@ public class RoomQueryService {
 
         // 3. 응답 DTO 변환
         return roomResponseMapper.toRoomPlacementListResult(query.roomId(), placedItems);
+    }
+
+    /**
+     * 캐릭터 ID와 방 번호로 방을 조회
+     * 특정 캐릭터의 특정 번호 방의 roomId를 반환
+     *
+     * @param query 캐릭터별 방 조회 쿼리 (characterId, roomNumber 포함)
+     * @return 방 조회 결과 (Room 정보 포함)
+     * @throws IllegalArgumentException query가 null이거나 유효하지 않은 경우
+     * @throws RoomException 해당 조건의 방이 존재하지 않는 경우
+     */
+    public RoomResult findRoomByCharacterIdAndRoomNumber(@NonNull GetRoomByCharacterQuery query) {
+
+        RoomNumber roomNumber = RoomNumber.of(query.roomNumber().byteValue());
+
+        // 1. 도메인 조회
+        Room room = roomRepository.findByCharacterIdAndRoomNumber(query.characterId(), roomNumber)
+            .orElseThrow(() -> RoomException.notFound(query.characterId(), roomNumber));
+
+        // 2. 응답 DTO 변환
+        return RoomResult.from(room);
     }
 }

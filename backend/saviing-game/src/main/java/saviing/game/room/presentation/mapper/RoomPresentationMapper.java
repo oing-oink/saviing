@@ -7,11 +7,13 @@ import org.springframework.stereotype.Component;
 import saviing.game.room.application.dto.command.PlaceItemCommand;
 import saviing.game.room.domain.model.aggregate.Category;
 import saviing.game.room.application.dto.result.RoomPlacementListResult;
+import saviing.game.room.application.dto.result.RoomResult;
 import saviing.game.room.application.dto.command.SaveRoomPlacementsCommand;
 import saviing.game.room.presentation.dto.request.PlacementItemRequest;
 import saviing.game.room.presentation.dto.request.SaveRoomPlacementsRequest;
 import saviing.game.room.presentation.dto.response.PlacementResponse;
 import saviing.game.room.presentation.dto.response.RoomPlacementsResponse;
+import saviing.game.room.presentation.dto.response.RoomResponse;
 
 /**
  * 프레젠테이션 레이어와 애플리케이션 레이어 간의 DTO 변환을 담당하는 매퍼입니다.
@@ -133,6 +135,27 @@ public class RoomPresentationMapper {
             .xLength(placementInfo.xLength())
             .yLength(placementInfo.yLength())
             .category(placementInfo.category())
+            .build();
+    }
+
+    /**
+     * RoomResult를 RoomResponse로 변환합니다.
+     *
+     * @param result 방 조회 결과
+     * @return 변환된 RoomResponse
+     * @throws IllegalArgumentException result가 null인 경우
+     */
+    public RoomResponse toRoomResponse(RoomResult result) {
+        if (result == null) {
+            throw new IllegalArgumentException("result는 필수입니다");
+        }
+
+        return RoomResponse.builder()
+            .roomId(result.roomId())
+            .characterId(result.characterId())
+            .roomNumber(result.roomNumber())
+            .createdAt(result.createdAt())
+            .updatedAt(result.updatedAt())
             .build();
     }
 }
