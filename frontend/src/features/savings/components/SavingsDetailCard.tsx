@@ -48,13 +48,13 @@ const SavingsDetailCard = ({
   const getStatusLabel = (status?: string) => {
     switch (status) {
       case 'ACTIVE':
-        return { text: '활성', color: 'bg-green-100 text-green-800' };
+        return { text: '진행 중', color: 'bg-green-100 text-green-800' };
       case 'CLOSED':
         return { text: '해지됨', color: 'bg-red-100 text-red-800' };
       case 'SUSPENDED':
         return { text: '정지됨', color: 'bg-red-100 text-red-800' };
       default:
-        return { text: '활성', color: 'bg-green-100 text-green-800' };
+        return { text: '진행 중', color: 'bg-green-100 text-green-800' };
     }
   };
 
