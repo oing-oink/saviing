@@ -2,7 +2,6 @@ import { useGameItemDetail } from '@/features/game/shop/query/useItemsQuery';
 import { usePurchase } from '@/features/game/shop/query/usePurchaseQuery';
 import { getItemImage } from '@/features/game/shop/utils/getItemImage';
 import closeButton from '@/assets/game_button/closeButton.png';
-import Coin from '@/features/game/shared/components/Coin';
 import itemHeader from '@/assets/game_etc/itemHeader.png';
 import type { Item, PaymentMethod } from '@/features/game/shop/types/item';
 import { useState } from 'react';
@@ -28,7 +27,6 @@ const ItemDetailModal = ({
   onClose,
   onPreview,
   hideActions = false,
-  hidePrice = false,
 }: ItemDetailModalProps) => {
   const { data: item, isLoading, error } = useGameItemDetail(itemId);
   const { mutate: purchase, isPending: isPurchasing } = usePurchase();
@@ -153,8 +151,6 @@ const ItemDetailModal = ({
               </button>
             )}
 
-            {!hidePrice && <Coin coin={item.coin} fishCoin={item.fishCoin} />}
-
             {!hideActions && (
               <>
                 {/* 결제 방법 선택 */}
@@ -165,7 +161,7 @@ const ItemDetailModal = ({
                   <div className="flex justify-center gap-2">
                     <button
                       onClick={() => setSelectedPayment('COIN')}
-                      className={`rounded-lg px-4 py-2 text-sm ${
+                      className={`flex-1 rounded-lg px-4 py-2 text-xs ${
                         selectedPayment === 'COIN'
                           ? 'bg-primary text-white'
                           : 'bg-gray-200 text-gray-700'
@@ -175,7 +171,7 @@ const ItemDetailModal = ({
                     </button>
                     <button
                       onClick={() => setSelectedPayment('FISH_COIN')}
-                      className={`rounded-lg px-4 py-2 text-sm ${
+                      className={`flex-1 rounded-lg px-4 py-2 text-xs ${
                         selectedPayment === 'FISH_COIN'
                           ? 'bg-primary text-white'
                           : 'bg-gray-200 text-gray-700'
@@ -201,7 +197,7 @@ const ItemDetailModal = ({
                   </button>
                   <button
                     onClick={onClose}
-                    className="rounded-lg bg-gray-500 px-6 py-2 text-center text-white hover:bg-gray-600"
+                    className="flex-1 rounded-lg bg-gray-500 px-6 py-2 text-center text-sm text-white hover:bg-gray-600 whitespace-nowrap"
                   >
                     취소
                   </button>
