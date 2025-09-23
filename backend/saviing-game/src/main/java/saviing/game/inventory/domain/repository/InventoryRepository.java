@@ -65,6 +65,14 @@ public interface InventoryRepository {
     boolean existsByCharacterIdAndItemId(CharacterId characterId, ItemId itemId);
 
     /**
+     * 인벤토리 아이템 ID로 아이템 ID를 조회합니다.
+     *
+     * @param inventoryItemId 인벤토리 아이템 ID
+     * @return 아이템 ID (Optional)
+     */
+    Optional<Long> findItemIdByInventoryItemId(InventoryItemId inventoryItemId);
+
+    /**
      * 인벤토리 아이템을 삭제합니다.
      *
      * @param inventoryItemId 인벤토리 아이템 ID

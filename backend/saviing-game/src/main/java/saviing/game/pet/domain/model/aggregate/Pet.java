@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import saviing.game.inventory.domain.model.vo.InventoryItemId;
+import saviing.game.item.domain.model.vo.ItemId;
 import saviing.game.pet.domain.exception.PetInsufficientEnergyException;
 import saviing.game.pet.domain.model.vo.*;
 

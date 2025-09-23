@@ -79,6 +79,12 @@ public class InventoryRepositoryImpl implements InventoryRepository {
     }
 
     @Override
+    public Optional<Long> findItemIdByInventoryItemId(InventoryItemId inventoryItemId) {
+        return inventoryJpaRepository.findById(inventoryItemId.value())
+            .map(InventoryEntity::getItemId);
+    }
+
+    @Override
     @Transactional
     public void deleteById(InventoryItemId inventoryItemId) {
         inventoryJpaRepository.deleteById(inventoryItemId.value());
