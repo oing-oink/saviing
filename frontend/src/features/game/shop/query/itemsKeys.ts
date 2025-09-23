@@ -6,4 +6,11 @@ export const itemsKeys = {
     [...itemsKeys.list(), type, category] as const,
   details: () => [...itemsKeys.all, 'detail'] as const,
   detail: (itemId: number) => [...itemsKeys.details(), itemId] as const,
+  inventory: () => [...itemsKeys.all, 'inventory'] as const,
+  inventoryByTypeAndCategory: (
+    characterId: number,
+    type: string,
+    category: string,
+    isUsed?: boolean,
+  ) => [...itemsKeys.inventory(), characterId, type, category, isUsed] as const,
 };

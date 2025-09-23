@@ -1,8 +1,10 @@
+import { useMemo } from 'react';
 import type { Item, Tab } from '@/features/game/shop/types/item';
 import { TABS } from '@/features/game/shop/types/item';
 import { useSlots } from '@/features/game/shop/hooks/useSlots';
 import { useItemModal } from '@/features/game/shop/hooks/useItemModal';
 import { getItemImage } from '@/features/game/shop/utils/getItemImage';
+import { useDecoStore } from '@/features/game/deco/store/useDecoStore';
 import inventory_square from '@/assets/inventory_square.png';
 import ItemDetailModal from './ItemDetailModal';
 
@@ -12,7 +14,7 @@ interface InventoryProps {
   activeTab: Tab;
   onTabChange: (tab: Tab) => void;
   mode?: 'shop' | 'deco';
-  onItemSelect?: (item: Item) => void;
+  onItemSelect?: (item: Item, slotId?: string) => void;
   onCategoryClick?: (tab: Tab) => void;
   onPreviewItem?: (item: Item) => void;
   isLoading?: boolean;
@@ -38,6 +40,25 @@ const Inventory = ({
   const { selectedItemId, isModalOpen, handleItemClick, handleCloseModal } =
     useItemModal();
 
+  // 데코 모드에서 배치된 아이템들 추적
+  const draftItems = useDecoStore(state => state.draftItems);
+
+  // 배치된 슬롯 ID들을 Set으로 관리 (빠른 조회를 위해)
+  const placedSlotIds = useMemo(() => {
+    if (mode !== 'deco') {
+      return new Set<string>();
+    }
+
+    return new Set(
+      draftItems
+        .filter(item => !item.isPreview && item.slotId) // 프리뷰 아이템 제외 및 slotId 있는 것만
+        .map(item => item.slotId!),
+    );
+  }, [mode, draftItems]);
+
+  // 슬롯이 이미 배치되었는지 확인하는 함수
+  const isSlotPlaced = (slotId: string) => placedSlotIds.has(slotId);
+
   // API에서 이미 필터링된 데이터를 받으므로 추가 필터링 불필요
   const slots = useSlots(items);
 
@@ -46,9 +67,13 @@ const Inventory = ({
     onTabChange(tab);
   };
 
-  const handleSlotClick = (item: Item) => {
+  const handleSlotClick = (item: Item, slotId: string) => {
     if (mode === 'deco') {
-      onItemSelect?.(item);
+      // 이미 배치된 슬롯은 클릭할 수 없음
+      if (isSlotPlaced(slotId)) {
+        return;
+      }
+      onItemSelect?.(item, slotId);
       return;
     }
     handleItemClick(item);
@@ -100,16 +125,35 @@ const Inventory = ({
                   className="absolute inset-0 h-full w-full object-contain"
                 />
                 {slot.item && (
-                  <button
-                    onClick={() => handleSlotClick(slot.item!)}
-                    className="relative flex h-[70%] w-[70%] items-center justify-center hover:opacity-80"
-                  >
-                    <img
-                      src={getItemImage(slot.item.itemId)}
-                      alt={slot.item.itemName}
-                      className="h-[80%] w-[80%] object-contain"
-                    />
-                  </button>
+                  <>
+                    <button
+                      onClick={() => handleSlotClick(slot.item!, slot.id)}
+                      disabled={mode === 'deco' && isSlotPlaced(slot.id)}
+                      className={`relative flex h-[70%] w-[70%] items-center justify-center ${
+                        mode === 'deco' && isSlotPlaced(slot.id)
+                          ? 'cursor-not-allowed opacity-50'
+                          : 'hover:opacity-80'
+                      }`}
+                    >
+                      <img
+                        src={getItemImage(slot.item.itemId)}
+                        alt={slot.item.itemName}
+                        className={`h-[80%] w-[80%] object-contain ${
+                          mode === 'deco' && isSlotPlaced(slot.id)
+                            ? 'grayscale'
+                            : ''
+                        }`}
+                      />
+                    </button>
+                    {/* 배치됨 표시 */}
+                    {mode === 'deco' && isSlotPlaced(slot.id) && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="rounded bg-black/60 px-1 py-0.5 text-[8px] font-bold text-white">
+                          배치됨
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             ))}

@@ -13,6 +13,7 @@ export const PAGE_PATH = {
   ACCOUNT_CREATION: '/account-creation',
   SAVINGS_DETAIL: '/savings/detail',
   SAVINGS_DETAIL_WITH_ID: '/savings/detail/:accountId',
+  SAVINGS_SETTINGS_WITH_ID: '/savings/detail/:accountId/settings',
   ACCOUNT_DETAIL: '/account/detail',
   ACCOUNT_DETAIL_WITH_ID: '/account/detail/:accountId',
   GAME: '/game',
@@ -26,8 +27,25 @@ export const PAGE_PATH = {
 } as const;
 
 // 동적 경로 생성 헬퍼 함수
-export const createSavingsDetailPath = (accountId: string | number) =>
-  `/savings/detail/${accountId}`;
+export const createSavingsDetailPath = (
+  accountId: string | number,
+  entryPoint?: string,
+) => {
+  const basePath = `/savings/detail/${accountId}`;
+  return entryPoint
+    ? `${basePath}?from=${encodeURIComponent(entryPoint)}`
+    : basePath;
+};
+
+export const changeSavingsSettingsPath = (
+  accountId: string | number,
+  entryPoint?: string,
+) => {
+  const basePath = `/savings/detail/${accountId}/settings?step=CURRENT_INFO`;
+  return entryPoint
+    ? `${basePath}&from=${encodeURIComponent(entryPoint)}`
+    : basePath;
+};
 
 export const createAccountDetailPath = (accountId: string | number) =>
   `/account/detail/${accountId}`;
@@ -45,4 +63,14 @@ export const ACCOUNT_CREATION_STEPS_PATH = {
   SET_CONDITION: '/account-creation/condition',
   CONFIRM: '/account-creation/confirm',
   COMPLETE: '/account-creation/complete',
+} as const;
+
+// 적금 설정 변경 funnel URL
+export const SAVINGS_SETTINGS_STEPS_PATH = {
+  CURRENT_INFO: 'CURRENT_INFO',
+  SELECT_CHANGE: 'SELECT_CHANGE',
+  NEW_SETTINGS: 'NEW_SETTINGS',
+  IMPACT_REVIEW: 'IMPACT_REVIEW',
+  CONFIRM: 'CONFIRM',
+  COMPLETE: 'COMPLETE',
 } as const;

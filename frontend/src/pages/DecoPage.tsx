@@ -27,9 +27,9 @@ const DecoPage = () => {
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [isPlacementBlockedOpen, setIsPlacementBlockedOpen] = useState(false);
   const { activeTab, setActiveTab } = useTabs(TABS[3]);
-  const [gridType, setGridType] = useState<TabId | null>('floor');
+  const [placementArea, setPlacementArea] = useState<TabId | null>('BOTTOM');
 
-  const { items, isLoading, isError, error } = useDecoInventory();
+  const { items, isLoading, isError, error } = useDecoInventory(activeTab);
   const saveMutation = useDecoSaveMutation();
 
   const draftItems = useDecoStore(state => state.draftItems);
@@ -80,51 +80,38 @@ const DecoPage = () => {
     resetToLastSaved();
   };
 
-  const mapCategoryToGridType = (category: string): TabId | null => {
-    switch (category) {
-      case 'LEFT':
-      case 'LEFT_WALL':
-        return 'leftWall';
-      case 'RIGHT':
-      case 'RIGHT_WALL':
-        return 'rightWall';
-      case 'BOTTOM':
-      case 'FLOOR':
-      case 'ROOM_COLOR':
-        return 'floor';
-      default:
-        return null;
+  const getCategoryPlacementArea = (category: string): TabId | null => {
+    if (category === 'LEFT') {
+      return 'LEFT';
     }
+    if (category === 'RIGHT') {
+      return 'RIGHT';
+    }
+    if (category === 'BOTTOM' || category === 'ROOM_COLOR') {
+      return 'BOTTOM';
+    }
+    return null;
   };
 
-  // 탭에 따라 인벤토리 아이템을 필터링한다. (데코도 샵과 동일한 UX 유지)
+  // API 표준 카테고리로 인벤토리 아이템 필터링
   const filteredItems = useMemo(() => {
     switch (activeTab.id) {
-      case 'cat':
-        return items.filter(item => item.itemType === 'PET');
-      case 'leftWall':
-        return items.filter(
-          item =>
-            item.itemCategory === 'LEFT' || item.itemCategory === 'LEFT_WALL',
-        );
-      case 'rightWall':
-        return items.filter(
-          item =>
-            item.itemCategory === 'RIGHT' || item.itemCategory === 'RIGHT_WALL',
-        );
-      case 'floor':
-        return items.filter(
-          item =>
-            item.itemCategory === 'BOTTOM' ||
-            item.itemCategory === 'FLOOR' ||
-            item.itemCategory === 'ROOM_COLOR',
-        );
+      case 'CAT':
+        return items.filter(item => item.itemCategory === 'CAT');
+      case 'LEFT':
+        return items.filter(item => item.itemCategory === 'LEFT');
+      case 'RIGHT':
+        return items.filter(item => item.itemCategory === 'RIGHT');
+      case 'BOTTOM':
+        return items.filter(item => item.itemCategory === 'BOTTOM');
+      case 'ROOM_COLOR':
+        return items.filter(item => item.itemCategory === 'ROOM_COLOR');
       default:
         return items;
     }
   }, [activeTab.id, items]);
 
-  const handleItemSelect = (item: Item) => {
+  const handleItemSelect = (item: Item, slotId?: string) => {
     setIsPlacementBlockedOpen(false);
 
     if (item.itemType === 'PET') {
@@ -139,25 +126,27 @@ const DecoPage = () => {
         setIsPlacementBlockedOpen(true);
         return;
       }
-      setGridType('floor');
+      setPlacementArea('BOTTOM');
       startDragFromInventory(String(item.itemId), {
-        allowedGridType: 'floor',
+        allowedGridType: 'BOTTOM',
         xLength: item.xLength ?? 1,
         yLength: item.yLength ?? 1,
         itemType: item.itemType,
+        slotId,
       });
       return;
     }
 
-    const targetGrid = mapCategoryToGridType(item.itemCategory);
-    if (targetGrid) {
-      setGridType(targetGrid);
+    const targetArea = getCategoryPlacementArea(item.itemCategory);
+    if (targetArea) {
+      setPlacementArea(targetArea);
     }
     startDragFromInventory(String(item.itemId), {
-      allowedGridType: targetGrid,
+      allowedGridType: targetArea,
       xLength: item.xLength ?? 1,
       yLength: item.yLength ?? 1,
       itemType: item.itemType,
+      slotId,
     });
   };
 
@@ -165,10 +154,10 @@ const DecoPage = () => {
     // 탭 전환 시 진행 중인 드래그를 취소해 고스트가 남지 않도록 한다.
     cancelDrag();
     setActiveTab(tab);
-    if (tab.id === 'cat') {
-      setGridType('floor');
+    if (tab.id === 'CAT') {
+      setPlacementArea('BOTTOM');
     } else {
-      setGridType(tab.id);
+      setPlacementArea(tab.id);
     }
   };
 
@@ -210,7 +199,7 @@ const DecoPage = () => {
           <div className="relative">
             <Room
               mode="edit"
-              gridType={gridType}
+              placementArea={placementArea}
               panEnabled={!dragSession || Boolean(pendingPlacement)}
               editOverlay={ctx => (
                 <RoomCanvas

@@ -2,6 +2,28 @@ import { ChevronLeft } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { PAGE_PATH } from '@/shared/constants/path';
 
+// [채은 코드] 적금 설정 변경 관련
+// interface DetailTopBarProps {
+//   title: string;
+//   backMode?: 'history' | 'entry';
+// }
+
+// const DetailTopBar = ({ title, backMode = 'history' }: DetailTopBarProps) => {
+//   const navigate = useNavigate();
+//   const [searchParams] = useSearchParams();
+
+//   // URL 파라미터에서 from 값을 읽어옴
+//   const fromParam = searchParams.get('from');
+//   const entryPoint = fromParam ? decodeURIComponent(fromParam) : PAGE_PATH.HOME;
+
+//   const handleBack = () => {
+//     if (backMode === 'entry') {
+//       // 명시적으로 entryPoint로 이동 (히스토리 조작 없음)
+//       navigate(entryPoint);
+//     } else {
+//       navigate(-1);
+
+// [승윤 코드] 계좌 개설하기 관련
 const DetailTopBar = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();

@@ -94,3 +94,62 @@ export interface GetTransactionsParams {
   page: number;
   size: number;
 }
+
+/**
+ * 자동이체 정보 타입
+ */
+export interface AutoTransferInfo {
+  enabled: boolean;
+  cycle: string;
+  transferDay: number;
+  amount: number;
+  nextRunDate: string;
+  lastExecutedAt: string;
+  withdrawAccountId: number;
+}
+
+/**
+ * 적금 상세 정보 타입
+ */
+export interface SavingsDetailInfo {
+  maturityWithdrawalAccount: string;
+  targetAmount: number;
+  termPeriod: number;
+  termPeriodUnit: string;
+  maturityDate: string;
+  autoTransfer: AutoTransferInfo;
+}
+
+/**
+ * 적금 계좌 상세 정보 API 응답 타입
+ */
+export interface SavingsAccountDetailResponse {
+  accountId: number;
+  accountNumber: string;
+  customerId: number;
+  product: ProductInfo;
+  compoundingType: string;
+  status: string;
+  openedAt: string;
+  closedAt: string;
+  lastAccrualTs: string;
+  lastRateChangeAt: string;
+  createdAt: string;
+  updatedAt: string;
+  balance: number;
+  interestAccrued: number;
+  baseRate: number;
+  bonusRate: number;
+  savings: SavingsDetailInfo;
+}
+
+/**
+ * 자동이체 설정 변경 요청 타입
+ */
+export interface UpdateAutoTransferRequest {
+  enabled?: boolean;
+  amount?: number;
+  cycle?: 'WEEKLY' | 'MONTHLY';
+  transferDay?: number;
+  withdrawAccountId?: number;
+}

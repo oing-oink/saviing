@@ -2,6 +2,7 @@ import { createBrowserRouter, Outlet } from 'react-router-dom';
 import ProtectedRoute from '@/shared/components/common/ProtectedRoute';
 import { PAGE_PATH } from '@/shared/constants/path';
 import AccountCreationFunnel from '@/features/savings/components/AccountCreationFunnel';
+import SavingsSettingsFunnel from '@/features/savings/components/SavingsSettingsFunnel';
 import SavingsLayout from '@/features/savings/layouts/SavingsLayout';
 import SavingsDetailLayout from '@/features/savings/layouts/SavingsDetailLayout';
 
@@ -97,6 +98,15 @@ export const router = createBrowserRouter([
         path: PAGE_PATH.SAVINGS_DETAIL_WITH_ID,
         element: <SavingsDetailLayout />,
         children: [{ index: true, element: <SavingsDetailPage /> }],
+      },
+      {
+        // 적금 설정 변경 Funnel
+        path: PAGE_PATH.SAVINGS_SETTINGS_WITH_ID,
+        element: (
+          <ProtectedRoute>
+            <SavingsSettingsFunnel />
+          </ProtectedRoute>
+        ),
       },
       {
         path: PAGE_PATH.ACCOUNT_DETAIL_WITH_ID,

@@ -1,7 +1,7 @@
 import Coin from '@/features/game/shared/components/Coin';
 import closeButton from '@/assets/game_button/closeButton.png';
 import storeButton from '@/assets/game_button/storeButton.png';
-import decoButton from '@/assets/game_button/decoButton.png';
+import decoButton from '@/assets/game_button/decoButton2.png';
 import { useNavigate } from 'react-router-dom';
 import {
   PAGE_PATH,
