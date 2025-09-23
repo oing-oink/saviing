@@ -8,7 +8,7 @@ export const useShopInventory = (tab: Tab) => {
   // PET의 경우 type도 함께 사용, 다른 경우는 카테고리만 사용
   const query = useGameItems(
     category === 'CAT' ? 'PET' : 'DECORATION',
-    category
+    category,
   );
 
   return {

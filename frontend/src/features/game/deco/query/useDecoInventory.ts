@@ -16,7 +16,7 @@ export const useDecoInventory = (tab: TabInfo) => {
   const query = useInventoryItems(
     characterId,
     category === 'CAT' ? 'PET' : 'DECORATION',
-    category
+    category,
   );
 
   useEffect(() => {

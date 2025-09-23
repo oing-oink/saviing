@@ -1,4 +1,7 @@
-import type { GridCell, PlacementArea } from '@/features/game/room/hooks/useGrid';
+import type {
+  GridCell,
+  PlacementArea,
+} from '@/features/game/room/hooks/useGrid';
 
 /** 셀 ID를 해석했을 때 얻을 수 있는 그리드 정보. */
 interface ParsedCellId {

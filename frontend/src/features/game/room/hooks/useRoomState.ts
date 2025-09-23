@@ -11,9 +11,15 @@ import { getItemImage } from '@/features/game/shop/utils/getItemImage';
 const getCategoryPlacementArea = (
   category?: string | null,
 ): PlacementArea | undefined => {
-  if (category === 'LEFT') return 'LEFT';
-  if (category === 'RIGHT') return 'RIGHT';
-  if (category === 'BOTTOM' || category === 'ROOM_COLOR') return 'BOTTOM';
+  if (category === 'LEFT') {
+    return 'LEFT';
+  }
+  if (category === 'RIGHT') {
+    return 'RIGHT';
+  }
+  if (category === 'BOTTOM' || category === 'ROOM_COLOR') {
+    return 'BOTTOM';
+  }
   return undefined;
 };
 

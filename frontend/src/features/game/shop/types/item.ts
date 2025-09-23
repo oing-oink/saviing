@@ -69,7 +69,15 @@ export type Tab = (typeof TABS)[number];
 export type ItemType = 'PET' | 'ACCESSORY' | 'DECORATION' | 'CONSUMPTION';
 
 /** API 표준 아이템 카테고리 정의. */
-export type ItemCategory = 'CAT' | 'HAT' | 'LEFT' | 'RIGHT' | 'BOTTOM' | 'ROOM_COLOR' | 'TOY' | 'FOOD';
+export type ItemCategory =
+  | 'CAT'
+  | 'HAT'
+  | 'LEFT'
+  | 'RIGHT'
+  | 'BOTTOM'
+  | 'ROOM_COLOR'
+  | 'TOY'
+  | 'FOOD';
 
 /** 탭에서 API 카테고리로의 직접 매핑. */
 export const TAB_TO_CATEGORY: Record<TabId, ItemCategory> = {

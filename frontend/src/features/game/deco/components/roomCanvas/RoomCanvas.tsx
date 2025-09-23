@@ -680,27 +680,30 @@ const RoomCanvas = ({
   const canvasRef = useRef<HTMLDivElement>(null);
 
   // 터치 환경에서도 마우스와 동일한 흐름으로 고스트를 제어한다.
-  const handleTouchStartCapture = useCallback((event: TouchEvent) => {
-    const touch = event.changedTouches[0];
-    const target = event.target as HTMLElement | null;
-    if (target && target.closest('[data-room-action="true"]')) {
-      return;
-    }
-    if (!touch || !shouldCapturePointer(touch.clientX, touch.clientY)) {
-      return;
-    }
-    try {
-      event.preventDefault();
-    } catch {
-      // passive event listener에서는 preventDefault 호출 불가
-    }
-    event.stopPropagation();
-    event.stopImmediatePropagation();
-    activeTouchIdRef.current = touch.identifier;
-    projectToOverlay(touch.clientX, touch.clientY);
-    isPointerActiveRef.current = true;
-    setIsPointerActive(true);
-  }, [shouldCapturePointer, projectToOverlay, setIsPointerActive]);
+  const handleTouchStartCapture = useCallback(
+    (event: TouchEvent) => {
+      const touch = event.changedTouches[0];
+      const target = event.target as HTMLElement | null;
+      if (target && target.closest('[data-room-action="true"]')) {
+        return;
+      }
+      if (!touch || !shouldCapturePointer(touch.clientX, touch.clientY)) {
+        return;
+      }
+      try {
+        event.preventDefault();
+      } catch {
+        // passive event listener에서는 preventDefault 호출 불가
+      }
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      activeTouchIdRef.current = touch.identifier;
+      projectToOverlay(touch.clientX, touch.clientY);
+      isPointerActiveRef.current = true;
+      setIsPointerActive(true);
+    },
+    [shouldCapturePointer, projectToOverlay, setIsPointerActive],
+  );
 
   // passive: false로 터치 이벤트 등록
   useEffect(() => {
@@ -868,16 +871,16 @@ const RoomCanvas = ({
           >
             <button
               type="button"
-              onClick={(event) => {
+              onClick={event => {
                 event.stopPropagation();
                 handleCancel();
               }}
-              onTouchEnd={(event) => {
+              onTouchEnd={event => {
                 try {
-      event.preventDefault();
-    } catch {
-      // passive event listener에서는 preventDefault 호출 불가
-    }
+                  event.preventDefault();
+                } catch {
+                  // passive event listener에서는 preventDefault 호출 불가
+                }
                 event.stopPropagation();
                 handleCancel();
               }}
@@ -887,16 +890,16 @@ const RoomCanvas = ({
             </button>
             <button
               type="button"
-              onClick={(event) => {
+              onClick={event => {
                 event.stopPropagation();
                 handleConfirm();
               }}
-              onTouchEnd={(event) => {
+              onTouchEnd={event => {
                 try {
-      event.preventDefault();
-    } catch {
-      // passive event listener에서는 preventDefault 호출 불가
-    }
+                  event.preventDefault();
+                } catch {
+                  // passive event listener에서는 preventDefault 호출 불가
+                }
                 event.stopPropagation();
                 if (pendingPlacement) {
                   handleConfirm();

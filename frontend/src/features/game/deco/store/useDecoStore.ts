@@ -229,7 +229,10 @@ const buildPlacedItemFromSession = (
     return null;
   }
 
-  if (session.allowedGridType && session.allowedGridType !== parsed.placementArea) {
+  if (
+    session.allowedGridType &&
+    session.allowedGridType !== parsed.placementArea
+  ) {
     return null;
   }
 

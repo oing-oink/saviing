@@ -40,7 +40,9 @@ interface Line {
 
 const GRID_DIVISIONS = 24;
 
-const AREAS_CONFIG: Partial<Record<PlacementArea, [Point, Point, Point, Point]>> = {
+const AREAS_CONFIG: Partial<
+  Record<PlacementArea, [Point, Point, Point, Point]>
+> = {
   LEFT: [
     { x: 0.06, y: 0.325 },
     { x: 0.5, y: 0.035 },
@@ -88,7 +90,9 @@ export const useGrid = ({
   );
 
   useEffect(() => {
-    const corners = placementArea ? AREAS_CONFIG[placementArea as PlacementArea] : undefined;
+    const corners = placementArea
+      ? AREAS_CONFIG[placementArea as PlacementArea]
+      : undefined;
 
     const imageElement = roomImageRef.current;
     const containerElement = containerRef.current;

@@ -41,14 +41,14 @@ const Inventory = ({
 
   // 데코 모드에서 배치된 아이템들 추적
   const placedItems = useDecoStore(state =>
-    mode === 'deco' ? state.draftItems : []
+    mode === 'deco' ? state.draftItems : [],
   );
 
   // 배치된 슬롯 ID들을 Set으로 관리 (빠른 조회를 위해)
   const placedSlotIds = new Set(
     placedItems
       .filter(item => !item.isPreview && item.slotId) // 프리뷰 아이템 제외 및 slotId 있는 것만
-      .map(item => item.slotId)
+      .map(item => item.slotId),
   );
 
   // 슬롯이 이미 배치되었는지 확인하는 함수
@@ -143,7 +143,7 @@ const Inventory = ({
                     {/* 배치됨 표시 */}
                     {mode === 'deco' && isSlotPlaced(slot.id) && (
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="rounded bg-black/60 px-1 py-0.5 text-[8px] text-white font-bold">
+                        <div className="rounded bg-black/60 px-1 py-0.5 text-[8px] font-bold text-white">
                           배치됨
                         </div>
                       </div>

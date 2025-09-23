@@ -48,7 +48,12 @@ export const useInventoryItems = (
   isUsed?: boolean,
 ) => {
   return useQuery({
-    queryKey: itemsKeys.inventoryByTypeAndCategory(characterId, type, category, isUsed),
+    queryKey: itemsKeys.inventoryByTypeAndCategory(
+      characterId,
+      type,
+      category,
+      isUsed,
+    ),
     queryFn: () => getInventoryItems(characterId, type, category, isUsed),
     staleTime: 1000 * 60, // 1분
     gcTime: 1000 * 60 * 5, // 5분
