@@ -4,6 +4,8 @@ import type {
   Item,
   PurchaseRequest,
   PurchaseResponse,
+  InventoryResponse,
+  InventoryItem,
 } from '@/features/game/shop/types/item';
 
 /**
@@ -67,4 +69,72 @@ export const purchaseItem = async (
   }
 
   return response.body;
+};
+
+/**
+ * 인벤토리 아이템을 기존 Item 형식으로 변환한다.
+ */
+const convertInventoryItemToItem = (inventoryItem: InventoryItem): Item => {
+  return {
+    itemId: inventoryItem.itemId,
+    itemName: inventoryItem.name,
+    itemDescription: inventoryItem.description,
+    itemType: inventoryItem.type,
+    itemCategory: inventoryItem.itemCategory,
+    rarity: inventoryItem.rarity,
+    xLength: inventoryItem.xLength,
+    yLength: inventoryItem.yLength,
+    coin: 0, // 인벤토리에서는 가격 정보 없음
+    fishCoin: 0, // 인벤토리에서는 가격 정보 없음
+    imageUrl: inventoryItem.image,
+    isAvailable: !inventoryItem.isUsed, // isUsed의 반대
+    createdAt: inventoryItem.createdAt,
+    updatedAt: inventoryItem.updatedAt,
+  };
+};
+
+/**
+ * 캐릭터의 인벤토리 아이템 목록을 조회한다.
+ * @param characterId 캐릭터 ID
+ * @param type 인벤토리 타입 (PET, ACCESSORY, DECORATION, CONSUMPTION)
+ * @param category 아이템 카테고리 (CAT, LEFT, RIGHT, BOTTOM, ROOM_COLOR)
+ * @param isUsed 사용 여부 (추후 사용 예정)
+ * @returns 인벤토리 아이템 목록과 총 개수
+ */
+export const getInventoryItems = async (
+  characterId: number,
+  type: string,
+  category: string,
+  isUsed?: boolean,
+): Promise<ItemsResponse> => {
+  const params: Record<string, string | boolean> = {
+    type: type,
+    category: category,
+    sort: 'NAME',
+    order: 'ASC',
+  };
+
+  // isUsed 파라미터가 제공된 경우에만 추가 (추후 사용)
+  if (isUsed !== undefined) {
+    params.isUsed = isUsed;
+  }
+
+  const response = await http.get<InventoryResponse>(
+    `/v1/game/inventory/characters/${characterId}`,
+    {
+      params,
+    },
+  );
+
+  if (!response.body || !response.body.inventories) {
+    return { items: [], totalCount: 0 };
+  }
+
+  // 인벤토리 아이템을 기존 Item 형식으로 변환
+  const items = response.body.inventories.map(convertInventoryItemToItem);
+
+  return {
+    items,
+    totalCount: items.length,
+  };
 };

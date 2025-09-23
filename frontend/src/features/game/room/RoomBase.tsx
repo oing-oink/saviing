@@ -33,7 +33,7 @@ export type RoomRenderable =
 /** RoomBase 컴포넌트에 전달되는 속성. */
 export interface RoomBaseProps {
   mode?: RoomMode;
-  gridType: TabId | null;
+  placementArea: TabId | null;
   initialTransform?: Partial<RoomTransform>;
   onTransformChange?: (transform: RoomTransform) => void;
   children?: RoomRenderable;
@@ -54,7 +54,7 @@ const renderRoomChildren = (
 /** Room 배경 이미지와 제스처 인터랙션을 처리하는 기반 컴포넌트. */
 const RoomBase = ({
   mode = 'readonly',
-  gridType,
+  placementArea,
   onTransformChange,
   children,
   panEnabled = true,
@@ -80,7 +80,7 @@ const RoomBase = ({
     position,
     roomImageRef: imageRef,
     containerRef,
-    gridType,
+    placementArea,
   });
 
   const context = useMemo<RoomRenderContext>(

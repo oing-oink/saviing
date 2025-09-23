@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import type { RefObject } from 'react';
 import type { TabId } from '@/features/game/shop/types/item';
 
-/** Room에서 사용하는 격자의 면 구분. */
-export type GridType = 'floor' | 'leftWall' | 'rightWall';
+/** API 표준 아이템 카테고리 기반 배치 영역. */
+export type PlacementArea = 'LEFT' | 'RIGHT' | 'BOTTOM' | 'ROOM_COLOR';
 
 /** 2차원 좌표를 나타내는 구조체. */
 export interface Point {
@@ -14,7 +14,7 @@ export interface Point {
 /** 격자 셀의 정보와 꼭짓점 좌표. */
 export interface GridCell {
   id: string;
-  gridType: GridType;
+  placementArea: PlacementArea;
   center: Point;
   vertices: [Point, Point, Point, Point];
 }
@@ -28,7 +28,7 @@ interface UseGridProps {
   position: { x: number; y: number };
   roomImageRef: RefObject<HTMLImageElement | null>;
   containerRef: RefObject<HTMLDivElement | null>;
-  gridType: TabId | null;
+  placementArea: TabId | null;
 }
 
 interface Line {
@@ -40,20 +40,28 @@ interface Line {
 
 const GRID_DIVISIONS = 24;
 
-const AREAS_CONFIG: Partial<Record<GridType, [Point, Point, Point, Point]>> = {
-  leftWall: [
+const AREAS_CONFIG: Partial<
+  Record<PlacementArea, [Point, Point, Point, Point]>
+> = {
+  LEFT: [
     { x: 0.06, y: 0.325 },
     { x: 0.5, y: 0.035 },
     { x: 0.5, y: 0.39 },
     { x: 0.06, y: 0.675 },
   ],
-  rightWall: [
+  RIGHT: [
     { x: 0.505, y: 0.04 },
     { x: 0.94, y: 0.32 },
     { x: 0.94, y: 0.675 },
     { x: 0.505, y: 0.395 },
   ],
-  floor: [
+  BOTTOM: [
+    { x: 0.06, y: 0.678 },
+    { x: 0.5, y: 0.392 },
+    { x: 0.94, y: 0.678 },
+    { x: 0.5, y: 0.96 },
+  ],
+  ROOM_COLOR: [
     { x: 0.06, y: 0.678 },
     { x: 0.5, y: 0.392 },
     { x: 0.94, y: 0.678 },
@@ -73,7 +81,7 @@ export const useGrid = ({
   position,
   roomImageRef,
   containerRef,
-  gridType,
+  placementArea,
 }: UseGridProps) => {
   const [gridLines, setGridLines] = useState<Line[]>([]);
   const [gridCells, setGridCells] = useState<GridCell[]>([]);
@@ -82,7 +90,9 @@ export const useGrid = ({
   );
 
   useEffect(() => {
-    const corners = gridType ? AREAS_CONFIG[gridType as GridType] : undefined;
+    const corners = placementArea
+      ? AREAS_CONFIG[placementArea as PlacementArea]
+      : undefined;
 
     const imageElement = roomImageRef.current;
     const containerElement = containerRef.current;
@@ -144,8 +154,8 @@ export const useGrid = ({
           const br = lerp(colEndBottom, colEndTop, tRowStart);
 
           newCells.push({
-            id: `${gridType}-${i + 1}-${j + 1}`,
-            gridType: gridType as GridType,
+            id: `${placementArea}-${i + 1}-${j + 1}`,
+            placementArea: placementArea as PlacementArea,
             center: { x: 0, y: 0 },
             vertices: [tl, tr, br, bl],
           });
@@ -221,7 +231,7 @@ export const useGrid = ({
     }
 
     computeGrid();
-  }, [gridType, scale, position, roomImageRef, containerRef]);
+  }, [placementArea, scale, position, roomImageRef, containerRef]);
 
   return { gridLines, gridCells, surfacePolygon };
 };

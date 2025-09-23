@@ -1,26 +1,26 @@
 import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getRoomDetail } from '@/features/game/room/api/roomApi';
-import type { GridType } from '@/features/game/room/hooks/useGrid';
+import type { PlacementArea } from '@/features/game/room/hooks/useGrid';
 import type { PlacedItem } from '@/features/game/deco/types/decoTypes';
 import { useDecoStore } from '@/features/game/deco/store/useDecoStore';
 import { buildFootprint } from '@/features/game/deco/utils/grid';
 import { getItemImage } from '@/features/game/shop/utils/getItemImage';
 
-/** API에서 내려온 카테고리 값을 Room에서 사용하는 GridType으로 변환한다. */
-const mapCategoryToGridType = (
+/** API 카테고리를 배치 영역으로 변환한다. */
+const getCategoryPlacementArea = (
   category?: string | null,
-): GridType | undefined => {
-  switch (category) {
-    case 'LEFT':
-      return 'leftWall';
-    case 'RIGHT':
-      return 'rightWall';
-    case 'BOTTOM':
-      return 'floor';
-    default:
-      return undefined;
+): PlacementArea | undefined => {
+  if (category === 'LEFT') {
+    return 'LEFT';
   }
+  if (category === 'RIGHT') {
+    return 'RIGHT';
+  }
+  if (category === 'BOTTOM' || category === 'ROOM_COLOR') {
+    return 'BOTTOM';
+  }
+  return undefined;
 };
 
 /** 서버 응답을 Room에서 사용하는 PlacedItem 형태로 정규화한다. */
@@ -39,12 +39,12 @@ const mapPlacedItem = (item: {
     image?: string;
   };
 }): PlacedItem => {
-  const gridType =
-    (item.layer as GridType | undefined) ??
-    mapCategoryToGridType(item.itemInfo.category);
-  const cellId = gridType
-    ? `${gridType}-${item.positionX}-${item.positionY}`
-    : `floor-${item.positionX}-${item.positionY}`;
+  const placementArea =
+    (item.layer as PlacementArea | undefined) ??
+    getCategoryPlacementArea(item.itemInfo.category);
+  const cellId = placementArea
+    ? `${placementArea}-${item.positionX}-${item.positionY}`
+    : `BOTTOM-${item.positionX}-${item.positionY}`;
 
   const footprint = buildFootprint(
     cellId,
@@ -64,7 +64,7 @@ const mapPlacedItem = (item: {
     positionX: item.positionX,
     positionY: item.positionY,
     rotation: item.rotation ?? 0,
-    layer: gridType,
+    layer: placementArea,
     xLength: item.xLength ?? 1,
     yLength: item.yLength ?? 1,
     footprintCellIds: footprint,

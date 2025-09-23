@@ -8,7 +8,7 @@ interface InventoryPanelProps {
   items: Item[];
   activeTab: Tab;
   onTabChange: (tab: Tab) => void;
-  onItemSelect?: (item: Item) => void;
+  onItemSelect?: (item: Item, slotId?: string) => void;
   isLoading?: boolean;
   isError?: boolean;
   error?: Error | null;
