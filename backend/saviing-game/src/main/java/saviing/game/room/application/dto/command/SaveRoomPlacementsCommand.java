@@ -3,7 +3,6 @@ package saviing.game.room.application.dto.command;
 import java.util.List;
 
 import lombok.Builder;
-import saviing.game.room.application.dto.command.PlaceItemCommand;
 
 /**
  * 방 배치 저장 명령 DTO입니다.

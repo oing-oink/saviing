@@ -10,6 +10,7 @@ import java.util.Set;
 
 import lombok.Getter;
 import lombok.NonNull;
+import saviing.game.room.domain.event.RoomPlacementChangedEvent;
 import saviing.game.room.domain.model.vo.RoomId;
 
 /**
@@ -24,6 +25,8 @@ public class Placement {
     private final List<PlacedItem> placedItems;
     private final LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    private final List<RoomPlacementChangedEvent> domainEvents = new ArrayList<>();
 
     private static final int MAX_PET_COUNT = 2;
 
@@ -127,6 +130,9 @@ public class Placement {
         this.placedItems.clear();
         this.placedItems.addAll(newItems);
         this.updatedAt = LocalDateTime.now();
+
+        // 배치 변경 이벤트 발행
+        publishPlacementChangedEvent();
     }
 
     /**
@@ -248,5 +254,44 @@ public class Placement {
     @Override
     public int hashCode() {
         return Objects.hash(roomId);
+    }
+
+    /**
+     * 배치 변경 이벤트를 발행하는 private 메서드
+     * 현재 배치 상태를 기반으로 RoomPlacementChangedEvent를 생성하여 도메인 이벤트 목록에 추가
+     */
+    private void publishPlacementChangedEvent() {
+        RoomPlacementChangedEvent event = RoomPlacementChangedEvent.of(
+            this.roomId,
+            Collections.unmodifiableList(this.placedItems)
+        );
+        this.domainEvents.add(event);
+    }
+
+    /**
+     * 발생한 도메인 이벤트 목록을 읽기 전용으로 반환
+     * 애플리케이션 서비스에서 이벤트를 처리한 후 clearDomainEvents() 호출 필요
+     *
+     * @return 발생한 도메인 이벤트 목록 (수정 불가)
+     */
+    public List<RoomPlacementChangedEvent> getDomainEvents() {
+        return Collections.unmodifiableList(domainEvents);
+    }
+
+    /**
+     * 도메인 이벤트 목록을 초기화
+     * 애플리케이션 서비스에서 이벤트 처리 완료 후 호출하여 이벤트 중복 발행 방지
+     */
+    public void clearDomainEvents() {
+        this.domainEvents.clear();
+    }
+
+    /**
+     * 발행 대기 중인 도메인 이벤트가 있는지 확인
+     *
+     * @return 대기 중인 이벤트가 있으면 true, 그렇지 않으면 false
+     */
+    public boolean hasDomainEvents() {
+        return !domainEvents.isEmpty();
     }
 }

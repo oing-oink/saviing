@@ -8,7 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import saviing.common.event.DomainEventPublisher;
 import saviing.game.room.application.dto.command.SaveRoomPlacementsCommand;
+import saviing.game.room.domain.event.RoomPlacementChangedEvent;
 import saviing.game.room.domain.model.aggregate.PlacedItem;
 import saviing.game.room.domain.model.aggregate.Placement;
 import saviing.game.room.application.dto.command.PlaceItemCommand;
@@ -28,6 +30,7 @@ import saviing.game.room.domain.repository.PlacementRepository;
 public class RoomCommandService {
 
     private final PlacementRepository placementRepository;
+    private final DomainEventPublisher domainEventPublisher;
 
     /**
      * 방의 배치를 저장
@@ -56,6 +59,9 @@ public class RoomCommandService {
 
         // 5. 저장
         placementRepository.save(placement);
+
+        // 6. 도메인 이벤트 발행 (Inventory BC와의 동기화를 위해)
+        publishDomainEvents(placement);
     }
 
     /**
@@ -75,5 +81,21 @@ public class RoomCommandService {
                 command.category()
             ))
             .collect(Collectors.toList());
+    }
+
+    /**
+     * 애그리거트에서 발생한 도메인 이벤트들을 발행
+     * 트랜잭션 커밋 후 Inventory BC와의 동기화를 위해 비동기 이벤트 처리
+     *
+     * @param placement 도메인 이벤트가 발생한 Placement 애그리거트
+     */
+    private void publishDomainEvents(@NonNull Placement placement) {
+        List<RoomPlacementChangedEvent> events = placement.getDomainEvents();
+
+        // 도메인 이벤트들을 일괄 발행
+        domainEventPublisher.publishAll(List.copyOf(events));
+
+        // 이벤트 발행 완료 후 애그리거트의 이벤트 목록 초기화
+        placement.clearDomainEvents();
     }
 }
