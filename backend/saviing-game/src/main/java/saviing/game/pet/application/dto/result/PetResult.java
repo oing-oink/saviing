@@ -11,6 +11,8 @@ import java.time.LocalDateTime;
 @Builder
 public record PetResult(
     InventoryItemId inventoryItemId,
+    Long petId,
+    Long itemId,
     int level,
     int experience,
     int affection,

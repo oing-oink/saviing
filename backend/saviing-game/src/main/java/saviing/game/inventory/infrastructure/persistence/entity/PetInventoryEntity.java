@@ -28,7 +28,7 @@ public class PetInventoryEntity extends InventoryEntity {
     @Column(name = "category", nullable = false, length = 20)
     private PetCategoryEntity category;
 
-    @Column(name = "room_id", nullable = false)
+    @Column(name = "room_id", nullable = true)
     private Long roomId;
 
 
