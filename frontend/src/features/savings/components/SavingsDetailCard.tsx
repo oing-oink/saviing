@@ -15,6 +15,7 @@ import {
 } from '@/shared/constants/path';
 import { formatDate } from '@/shared/utils/dateFormat';
 import type { SavingsDisplayData } from '@/features/savings/types/savingsTypes';
+import { useSavingsAccountDetail } from '@/features/savings/query/useSavingsQuery';
 
 interface SavingsDetailCardProps {
   data?: SavingsDisplayData;
@@ -39,10 +40,30 @@ const SavingsDetailCard = ({
   const fromParam = searchParams.get('from');
   const entryPoint = fromParam ? decodeURIComponent(fromParam) : PAGE_PATH.HOME;
 
+  // 계좌 상태 정보 가져오기
+  const { data: accountDetail } = useSavingsAccountDetail(accountId!);
+
   // 달성률 계산
   const progressPercentage = savingsData
     ? Math.round((savingsData.balance / savingsData.targetAmount) * 100)
     : 0;
+
+  // 계좌 상태 라벨 생성
+  const getStatusLabel = (status?: string) => {
+    switch (status) {
+      case 'ACTIVE':
+        return { text: '활성', color: 'bg-green-100 text-green-800' };
+      case 'CLOSED':
+        return { text: '해지됨', color: 'bg-red-100 text-red-800' };
+      case 'SUSPENDED':
+        return { text: '정지됨', color: 'bg-red-100 text-red-800' };
+      default:
+        return { text: '활성', color: 'bg-green-100 text-green-800' };
+    }
+  };
+
+  const statusLabel = getStatusLabel(accountDetail?.status);
+  const isAccountClosed = accountDetail?.status === 'CLOSED';
 
   if (isLoading) {
     return (
@@ -85,7 +106,12 @@ const SavingsDetailCard = ({
   return (
     <Card className="gap-5 rounded-t-none rounded-b-xl px-3 pt-3 pb-6">
       <CardHeader>
-        <CardTitle className="text-lg">{savingsData.productName}</CardTitle>
+        <div className="flex items-center gap-2">
+          <CardTitle className="text-lg">{savingsData.productName}</CardTitle>
+          <Badge className={`text-xs ${statusLabel.color}`}>
+            {statusLabel.text}
+          </Badge>
+        </div>
         <p className="text-sm text-gray-600">
           계좌번호: {savingsData.accountNumber}
         </p>
@@ -123,42 +149,37 @@ const SavingsDetailCard = ({
           <div className={`${isSticky ? 'hidden' : 'block'}`}>
             <div className="flex justify-center gap-3 pt-3">
               <Button
-                className="text-black-900 flex-1 bg-secondary"
+                disabled={isAccountClosed}
+                className={`text-black-900 flex-1 ${
+                  isAccountClosed
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-secondary'
+                }`}
                 onClick={() => {
-                  if (accountId) {
+                  if (accountId && !isAccountClosed) {
                     navigate(changeSavingsSettingsPath(accountId, entryPoint));
-                  } else {
-                    // accountId가 없어서 설정 변경 페이지로 이동할 수 없음
                   }
                 }}
               >
                 설정 변경
               </Button>
               <Button
-                className="flex-1"
-                onClick={() => navigate(PAGE_PATH.HOME)}
+                disabled={isAccountClosed}
+                className={`flex-1 ${
+                  isAccountClosed
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed hover:bg-gray-300'
+                    : 'bg-primary text-white hover:bg-primary/90'
+                }`}
+                onClick={() => {
+                  if (!isAccountClosed) {
+                    navigate(PAGE_PATH.HOME);
+                  }
+                }}
               >
                 입금
               </Button>
             </div>
 
-            {/* 해지 버튼 */}
-            <div className="mt-4 flex justify-center">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-gray-500 hover:text-gray-700"
-                onClick={() => {
-                  if (accountId) {
-                    navigate(
-                      createSavingsTerminationPath(accountId, entryPoint),
-                    );
-                  }
-                }}
-              >
-                적금 해지
-              </Button>
-            </div>
           </div>
         </div>
       </CardContent>

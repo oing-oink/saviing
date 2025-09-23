@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { createSavingsDetailPath } from '@/shared/constants/path';
 import type { SavingsAccountData } from '@/features/savings/types/savingsTypes';
+import { Badge } from '@/shared/components/ui/badge';
 
 interface SavingsAccountWalletCardProps {
   account: SavingsAccountData;
@@ -21,6 +22,8 @@ const SavingsAccountWalletCard = ({
   const interestRate = ((account.baseRate + account.bonusRate) / 100).toFixed(
     1,
   );
+
+  const isAccountClosed = account.status === 'CLOSED';
 
   // 저축 상세 페이지로 이동
   const handleSavingsManagement = () => {
@@ -38,9 +41,16 @@ const SavingsAccountWalletCard = ({
             <p className="text-2xl font-bold text-primary">
               {current.toLocaleString()}원
             </p>
-            <p className="text-md text-gray-500">
-              {account.product.productName}
-            </p>
+            <div className="text-right">
+              <p className="text-md text-gray-500">
+                {account.product.productName}
+              </p>
+              {isAccountClosed && (
+                <Badge className="mt-1 text-xs bg-red-100 text-red-800">
+                  해지됨
+                </Badge>
+              )}
+            </div>
           </div>
           <div className="flex items-center gap-1 text-gray-400">
             <p className="text-sm">{account.accountNumber}</p>

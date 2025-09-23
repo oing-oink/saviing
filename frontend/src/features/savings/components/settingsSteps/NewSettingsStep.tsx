@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useSavingsSettingsStore } from '@/features/savings/store/useSavingsSettingsStore';
 import { useSavingsSettingsChange } from '@/features/savings/hooks/useSavingsSettingsChange';
 import {
@@ -7,12 +7,19 @@ import {
   useSavingsAccountDetail,
 } from '@/features/savings/query/useSavingsQuery';
 import { Button } from '@/shared/components/ui/button';
+import { createSavingsTerminationPath, PAGE_PATH } from '@/shared/constants/path';
 
 const NewSettingsStep = () => {
   const { accountId } = useParams<{ accountId: string }>();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { selectedChangeTypes, newSettings, updateNewSettings } =
     useSavingsSettingsStore();
   const { goToNextStep, goToPreviousStep } = useSavingsSettingsChange();
+
+  // URL 파라미터에서 from 값을 읽어옴
+  const fromParam = searchParams.get('from');
+  const entryPoint = fromParam ? decodeURIComponent(fromParam) : PAGE_PATH.HOME;
 
   // 계좌 목록 조회 (자동이체 계좌 선택용)
   const { data: accounts } = useAccountsList();

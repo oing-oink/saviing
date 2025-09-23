@@ -1,16 +1,78 @@
 import { useSavingsTermination } from '@/features/savings/hooks/useSavingsTermination';
+import { useSavingsAccountDetail, useTerminateSavingsAccount } from '@/features/savings/query/useSavingsQuery';
 import { Button } from '@/shared/components/ui/button';
+import { useParams } from 'react-router-dom';
+import { formatDate } from '@/shared/utils/dateFormat';
 
 const ConfirmStep = () => {
   const { goToNextStep, goToPrevStep } = useSavingsTermination();
+  const { accountId } = useParams<{ accountId: string }>();
 
-  const handleNext = () => {
-    goToNextStep();
+  console.log('ConfirmStep - accountId:', accountId);
+
+  const { data: accountData, isLoading, isError, error } = useSavingsAccountDetail(accountId!);
+  const terminateMutation = useTerminateSavingsAccount();
+
+  console.log('ConfirmStep - API response:', {
+    accountData,
+    isLoading,
+    isError,
+    error,
+  });
+
+  const handleNext = async () => {
+    if (!accountId) {
+      return;
+    }
+
+    try {
+      console.log('ConfirmStep - Starting termination for accountId:', accountId);
+      const result = await terminateMutation.mutateAsync(accountId);
+      console.log('ConfirmStep - Termination success:', result);
+
+      goToNextStep();
+    } catch (error) {
+      console.error('ConfirmStep - Termination failed:', error);
+    }
   };
 
   const handleBack = () => {
     goToPrevStep();
   };
+
+  if (!accountId) {
+    return (
+      <div className="flex flex-1 items-center justify-center">
+        <div className="text-red-500">계좌 ID가 없습니다.</div>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-1 items-center justify-center">
+        <div className="text-gray-500">로딩 중...</div>
+      </div>
+    );
+  }
+
+  if (isError || !accountData) {
+    return (
+      <div className="flex flex-1 items-center justify-center">
+        <div className="text-red-500">
+          데이터를 불러올 수 없습니다.
+          {error && <div className="text-sm mt-1">{String(error)}</div>}
+        </div>
+      </div>
+    );
+  }
+
+  const account = accountData;
+  const achievementRate = account?.savings?.targetAmount > 0 ?
+    Math.round((account.balance / account.savings.targetAmount) * 100) : 0;
+  const terminationDate = formatDate(new Date());
+  const estimatedInterest = Math.round((account?.balance || 0) * 0.012);
+  const finalAmount = (account?.balance || 0) + estimatedInterest;
 
   return (
     <>
@@ -27,29 +89,29 @@ const ConfirmStep = () => {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-600">상품명</span>
-                <span className="font-medium text-gray-900">자유 적금</span>
+                <span className="font-medium text-gray-900">{account?.product?.productName || '-'}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">계좌번호</span>
                 <span className="font-medium text-gray-900">
-                  123-456-789012
+                  {account?.accountNumber || '-'}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">잔액</span>
-                <span className="font-medium text-gray-900">1,250,000원</span>
+                <span className="font-medium text-gray-900">{(account?.balance || 0).toLocaleString()}원</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">목표 금액</span>
-                <span className="font-medium text-gray-900">2,000,000원</span>
+                <span className="font-medium text-gray-900">{(account?.savings?.targetAmount || 0).toLocaleString()}원</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">달성률</span>
-                <span className="font-medium text-primary">62.5%</span>
+                <span className="font-medium text-primary">{achievementRate}%</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">가입일</span>
-                <span className="font-medium text-gray-900">2024.01.15</span>
+                <span className="font-medium text-gray-900">{account?.createdAt ? formatDate(new Date(account.createdAt)) : '-'}</span>
               </div>
             </div>
           </div>
@@ -60,7 +122,7 @@ const ConfirmStep = () => {
               <div className="flex justify-between">
                 <span className="text-gray-600">해지일</span>
                 <span className="font-medium text-gray-900">
-                  2024.09.23 (오늘)
+                  {terminationDate}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -75,7 +137,7 @@ const ConfirmStep = () => {
               </div>
               <div className="mt-2 flex justify-between border-t border-gray-200 pt-2">
                 <span className="font-semibold text-gray-900">최종 지급액</span>
-                <span className="font-bold text-primary">1,255,320원</span>
+                <span className="font-bold text-primary">{finalAmount.toLocaleString()}원</span>
               </div>
             </div>
           </div>
@@ -103,9 +165,10 @@ const ConfirmStep = () => {
           </Button>
           <Button
             onClick={handleNext}
-            className="h-12 flex-1 rounded-lg bg-red-600 text-white hover:bg-red-700"
+            disabled={terminateMutation.isPending}
+            className="h-12 flex-1 rounded-lg bg-red-600 text-white hover:bg-red-700 disabled:bg-gray-300 disabled:text-gray-500"
           >
-            해지하기
+            {terminateMutation.isPending ? '해지 처리 중...' : '해지하기'}
           </Button>
         </div>
       </div>

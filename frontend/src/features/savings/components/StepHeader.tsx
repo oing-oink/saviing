@@ -45,8 +45,14 @@ const StepHeader = () => {
     if (isSavingsTermination) {
       // 해지 플로우일 때
       if (currentStepFromUrl === 'WARNING') {
-        // 첫 번째 단계에서는 적금 상세 페이지로 돌아가기
-        if (accountId) {
+        // 첫 번째 단계에서는 어디서 왔는지 확인
+        const fromParam = searchParams.get('from');
+
+        if (fromParam && accountId) {
+          // from 파라미터가 있으면 해당 페이지로 돌아가기
+          navigate(decodeURIComponent(fromParam));
+        } else if (accountId) {
+          // 기본값: 적금 상세 페이지로 돌아가기
           navigate(
             PAGE_PATH.SAVINGS_DETAIL_WITH_ID.replace(':accountId', accountId),
           );
