@@ -6,6 +6,9 @@ import type {
   PurchaseResponse,
   InventoryResponse,
   InventoryItem,
+  GachaInfoResponse,
+  GachaDrawRequest,
+  GachaDrawResponse,
 } from '@/features/game/shop/types/item';
 
 /**
@@ -137,4 +140,40 @@ export const getInventoryItems = async (
     items,
     totalCount: items.length,
   };
+};
+
+/**
+ * 가챠 정보를 조회한다.
+ * @returns 가챠 풀 정보, 확률, 아이템 목록
+ */
+export const getGachaInfo = async (): Promise<GachaInfoResponse> => {
+  const response = await http.get<GachaInfoResponse>(
+    '/v1/game/shop/gacha/info',
+  );
+
+  if (!response.body) {
+    throw new Error('가챠 정보를 찾을 수 없습니다.');
+  }
+
+  return response.body;
+};
+
+/**
+ * 가챠를 뽑는다.
+ * @param drawData 가챠 뽑기 요청 데이터
+ * @returns 뽑힌 아이템과 잔액 정보
+ */
+export const drawGacha = async (
+  drawData: GachaDrawRequest,
+): Promise<GachaDrawResponse> => {
+  const response = await http.post<GachaDrawResponse>(
+    '/v1/game/shop/gacha/draw',
+    drawData,
+  );
+
+  if (!response.body) {
+    throw new Error('가챠 뽑기 중 오류가 발생했습니다.');
+  }
+
+  return response.body;
 };
