@@ -128,6 +128,7 @@ const DecoPage = () => {
       }
       setPlacementArea('BOTTOM');
       startDragFromInventory(String(item.itemId), {
+        inventoryItemId: item.inventoryItemId,
         allowedGridType: 'BOTTOM',
         xLength: item.xLength ?? 1,
         yLength: item.yLength ?? 1,
@@ -142,6 +143,7 @@ const DecoPage = () => {
       setPlacementArea(targetArea);
     }
     startDragFromInventory(String(item.itemId), {
+      inventoryItemId: item.inventoryItemId,
       allowedGridType: targetArea,
       xLength: item.xLength ?? 1,
       yLength: item.yLength ?? 1,

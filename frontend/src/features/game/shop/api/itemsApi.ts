@@ -94,6 +94,7 @@ const convertInventoryItemToItem = (inventoryItem: InventoryItem): Item => {
     isAvailable: !inventoryItem.isUsed, // isUsed의 반대
     createdAt: inventoryItem.createdAt,
     updatedAt: inventoryItem.updatedAt,
+    inventoryItemId: inventoryItem.inventoryItemId, // 인벤토리 ID 보존
   };
 };
 

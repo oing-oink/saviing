@@ -19,6 +19,12 @@ import { getItemImage } from '@/features/game/shop/utils/getItemImage';
  */
 interface StartDragOptions {
   /**
+   * 인벤토리 아이템 ID.
+   * 서버 저장 시 인벤토리 소모를 추적하기 위해 사용됩니다.
+   */
+  inventoryItemId?: number;
+
+  /**
    * 아이템을 배치할 수 있는 레이어 타입 제한.
    * null이면 모든 레이어에 배치 가능, 특정 값이면 해당 레이어만 허용됩니다.
    */
@@ -251,7 +257,7 @@ const buildPlacedItemFromSession = (
 
   return {
     id,
-    inventoryItemId: session.originalItem?.inventoryItemId,
+    inventoryItemId: session.inventoryItemId ?? session.originalItem?.inventoryItemId,
     itemId: Number(session.itemId),
     cellId,
     positionX: parsed.col,
@@ -370,6 +376,7 @@ export const decoStore = createStore<DecoStore>(set => ({
     set(() => ({
       pendingPlacement: null,
       dragSession: createDragSession(itemId, {
+        inventoryItemId: options.inventoryItemId,
         allowedGridType: options.allowedGridType ?? null,
         xLength: options.xLength ?? 1,
         yLength: options.yLength ?? 1,
