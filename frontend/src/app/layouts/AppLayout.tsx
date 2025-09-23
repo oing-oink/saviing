@@ -24,9 +24,7 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
             <GameBackground />
           </div>
         )}
-        <div className="relative flex h-full flex-1 flex-col">
-          {children}
-        </div>
+        <div className="relative flex h-full flex-1 flex-col">{children}</div>
       </div>
     </div>
   );
