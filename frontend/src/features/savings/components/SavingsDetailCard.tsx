@@ -8,7 +8,7 @@ import { Progress } from '@/shared/components/ui/progress';
 import { Button } from '@/shared/components/ui/button';
 import { Badge } from '@/shared/components/ui/badge';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { PAGE_PATH, changeSavingsSettingsPath } from '@/shared/constants/path';
+import { PAGE_PATH, changeSavingsSettingsPath, createSavingsTerminationPath } from '@/shared/constants/path';
 import { formatDate } from '@/shared/utils/dateFormat';
 import type { SavingsDisplayData } from '@/features/savings/types/savingsTypes';
 
@@ -135,6 +135,22 @@ const SavingsDetailCard = ({
                 onClick={() => navigate(PAGE_PATH.HOME)}
               >
                 입금
+              </Button>
+            </div>
+
+            {/* 해지 버튼 */}
+            <div className="mt-4 flex justify-center">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-gray-500 hover:text-gray-700"
+                onClick={() => {
+                  if (accountId) {
+                    navigate(createSavingsTerminationPath(accountId, entryPoint));
+                  }
+                }}
+              >
+                적금 해지
               </Button>
             </div>
           </div>

@@ -13,6 +13,7 @@ export const PAGE_PATH = {
   SAVINGS_DETAIL: '/savings/detail',
   SAVINGS_DETAIL_WITH_ID: '/savings/detail/:accountId',
   SAVINGS_SETTINGS_WITH_ID: '/savings/detail/:accountId/settings',
+  SAVINGS_TERMINATION_WITH_ID: '/savings/detail/:accountId/termination',
   ACCOUNT_DETAIL: '/account/detail',
   ACCOUNT_DETAIL_WITH_ID: '/account/detail/:accountId',
   GAME: '/game',
@@ -45,6 +46,16 @@ export const changeSavingsSettingsPath = (
     : basePath;
 };
 
+export const createSavingsTerminationPath = (
+  accountId: string | number,
+  entryPoint?: string,
+) => {
+  const basePath = `/savings/detail/${accountId}/termination?step=WARNING`;
+  return entryPoint
+    ? `${basePath}&from=${encodeURIComponent(entryPoint)}`
+    : basePath;
+};
+
 export const createAccountDetailPath = (accountId: string | number) =>
   `/account/detail/${accountId}`;
 
@@ -69,6 +80,15 @@ export const SAVINGS_SETTINGS_STEPS_PATH = {
   SELECT_CHANGE: 'SELECT_CHANGE',
   NEW_SETTINGS: 'NEW_SETTINGS',
   IMPACT_REVIEW: 'IMPACT_REVIEW',
+  CONFIRM: 'CONFIRM',
+  COMPLETE: 'COMPLETE',
+} as const;
+
+// 적금 해지 funnel URL
+export const SAVINGS_TERMINATION_STEPS_PATH = {
+  WARNING: 'WARNING',
+  AUTH: 'AUTH',
+  REASON: 'REASON',
   CONFIRM: 'CONFIRM',
   COMPLETE: 'COMPLETE',
 } as const;
