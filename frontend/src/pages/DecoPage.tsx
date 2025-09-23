@@ -111,7 +111,7 @@ const DecoPage = () => {
     }
   }, [activeTab.id, items]);
 
-  const handleItemSelect = (item: Item) => {
+  const handleItemSelect = (item: Item, slotId?: string) => {
     setIsPlacementBlockedOpen(false);
 
     if (item.itemType === 'PET') {
@@ -132,6 +132,7 @@ const DecoPage = () => {
         xLength: item.xLength ?? 1,
         yLength: item.yLength ?? 1,
         itemType: item.itemType,
+        slotId,
       });
       return;
     }
@@ -145,6 +146,7 @@ const DecoPage = () => {
       xLength: item.xLength ?? 1,
       yLength: item.yLength ?? 1,
       itemType: item.itemType,
+      slotId,
     });
   };
 
