@@ -9,18 +9,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import saviing.game.inventory.application.service.InventoryCommandService;
+import saviing.game.room.application.dto.command.CreateRoomCommand;
 import saviing.game.room.application.dto.command.SaveRoomPlacementsCommand;
+import saviing.game.room.application.dto.result.RoomCreatedResult;
 import saviing.game.room.domain.model.aggregate.PlacedItem;
 import saviing.game.room.domain.model.aggregate.Placement;
+import saviing.game.room.domain.model.aggregate.Room;
 import saviing.game.room.application.dto.command.PlaceItemCommand;
 import saviing.game.room.domain.model.vo.ItemSize;
 import saviing.game.room.domain.model.vo.Position;
 import saviing.game.room.domain.model.vo.RoomId;
+import saviing.game.room.domain.model.vo.RoomNumber;
 import saviing.game.room.domain.repository.PlacementRepository;
+import saviing.game.room.domain.repository.RoomRepository;
 
 /**
  * Room 도메인의 명령 처리를 담당하는 애플리케이션 서비스
- * 배치 저장 등의 비즈니스 유스케이스를 구현하며,
+ * 방 생성, 배치 저장 등의 비즈니스 유스케이스를 구현하며,
  * DTO와 도메인 객체 간의 변환 및 트랜잭션 경계를 관리
  */
 @Service
@@ -29,6 +34,7 @@ import saviing.game.room.domain.repository.PlacementRepository;
 public class RoomCommandService {
 
     private final PlacementRepository placementRepository;
+    private final RoomRepository roomRepository;
     private final InventoryCommandService inventoryCommandService;
 
     /**
@@ -87,6 +93,33 @@ public class RoomCommandService {
     }
 
     /**
+     * 새로운 방을 생성
+     * 캐릭터와 방 번호를 기반으로 새로운 방을 생성하며,
+     * 중복 방 생성을 방지하기 위한 검증을 수행한다.
+     *
+     * @param command 방 생성 명령 (characterId, roomNumber 포함)
+     * @return 생성된 방의 정보를 담은 결과 객체
+     * @throws IllegalArgumentException command가 null이거나 유효하지 않은 경우
+     * @throws IllegalStateException 동일한 캐릭터와 방 번호로 방이 이미 존재하는 경우
+     */
+    public RoomCreatedResult createRoom(@NonNull CreateRoomCommand command) {
+        // 1. 명령 검증
+        command.validate();
+
+        // 2. 중복 방 생성 검증
+        validateDuplicateRoom(command.characterId(), command.roomNumber());
+
+        // 3. Room 도메인 객체 생성
+        Room room = Room.create(command.characterId(), command.roomNumber());
+
+        // 4. 방 저장
+        Room savedRoom = roomRepository.save(room);
+
+        // 5. 결과 변환 및 반환
+        return RoomCreatedResult.from(savedRoom);
+    }
+
+    /**
      * PlaceItemCommand 목록에서 인벤토리 아이템 ID 목록을 추출
      * Inventory BC와의 동기화를 위해 사용되는 Helper 메서드
      *
@@ -99,5 +132,24 @@ public class RoomCommandService {
             .map(PlaceItemCommand::inventoryItemId)
             .collect(Collectors.toList());
     }
+
+    /**
+     * 중복 방 생성 여부를 검증
+     * 동일한 캐릭터와 방 번호 조합으로 방이 이미 존재하는지 확인한다.
+     *
+     * @param characterId 캐릭터 식별자
+     * @param roomNumber 방 번호
+     * @throws IllegalStateException 중복되는 방이 이미 존재하는 경우
+     */
+    private void validateDuplicateRoom(Long characterId, RoomNumber roomNumber) {
+        roomRepository.findByCharacterIdAndRoomNumber(characterId, roomNumber)
+            .ifPresent(existingRoom -> {
+                throw new IllegalStateException(
+                    String.format("캐릭터 %d의 %d번 방이 이미 존재합니다",
+                        characterId, roomNumber.value())
+                );
+            });
+    }
+
 
 }
