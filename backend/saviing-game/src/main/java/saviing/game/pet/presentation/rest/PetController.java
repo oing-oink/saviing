@@ -27,12 +27,11 @@ public class PetController implements PetApi {
     @Override
     @GetMapping("/pets/{petId}")
     public ApiResult<PetInfoResponse> getPetInfo(
-        @PathVariable Long petId,
-        @RequestParam Long characterId
+        @PathVariable Long petId
     ) {
-        log.info("펫 정보 조회 요청: petId={}, characterId={}", petId, characterId);
+        log.info("펫 정보 조회 요청: petId={}", petId);
 
-        GetPetInfoQuery query = GetPetInfoQuery.of(petId, characterId);
+        GetPetInfoQuery query = GetPetInfoQuery.of(petId);
         PetResult result = petQueryService.getPetInfo(query);
         PetInfoResponse response = petResponseMapper.toResponse(result);
 
