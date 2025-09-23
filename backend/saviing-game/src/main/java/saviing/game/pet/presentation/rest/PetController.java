@@ -1,13 +1,20 @@
 package saviing.game.pet.presentation.rest;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import saviing.common.response.ApiResult;
+import saviing.game.character.domain.model.vo.CharacterId;
+import saviing.game.inventory.domain.model.vo.InventoryItemId;
+import saviing.game.pet.application.dto.command.InteractWithPetCommand;
 import saviing.game.pet.application.dto.query.GetPetInfoQuery;
 import saviing.game.pet.application.dto.result.PetResult;
+import saviing.game.pet.application.service.PetCommandService;
 import saviing.game.pet.application.service.PetQueryService;
+import saviing.game.pet.presentation.dto.request.PetInteractionRequest;
 import saviing.game.pet.presentation.dto.response.PetInfoResponse;
+import saviing.game.pet.presentation.dto.response.PetInteractionResponse;
 import saviing.game.pet.presentation.interfaces.PetApi;
 import saviing.game.pet.presentation.mapper.PetResponseMapper;
 
@@ -22,6 +29,7 @@ import saviing.game.pet.presentation.mapper.PetResponseMapper;
 public class PetController implements PetApi {
 
     private final PetQueryService petQueryService;
+    private final PetCommandService petCommandService;
     private final PetResponseMapper petResponseMapper;
 
     @Override
@@ -36,6 +44,33 @@ public class PetController implements PetApi {
         PetInfoResponse response = petResponseMapper.toResponse(result);
 
         log.info("펫 정보 조회 완료: petId={}, petName={}", petId, response.name());
+        return ApiResult.ok(response);
+    }
+
+    @Override
+    @PostMapping("/pets/{petId}/interaction")
+    public ApiResult<PetInteractionResponse> interactWithPet(
+        @PathVariable Long petId,
+        @Valid @RequestBody PetInteractionRequest request
+    ) {
+        log.info("펫 상호작용 요청: petId={}, interactionType={}", petId, request.type());
+
+        // TODO: 실제로는 Authentication에서 characterId를 가져와야 함
+        CharacterId characterId = CharacterId.of(1L); // 임시값
+
+        InventoryItemId inventoryItemId = InventoryItemId.of(petId);
+        InteractWithPetCommand command = InteractWithPetCommand.of(
+            characterId,
+            inventoryItemId,
+            request.type()
+        );
+
+        PetResult petResult = petCommandService.interactWithPet(command);
+
+        // TODO: 실제 소모품 정보 조회 로직 구현 필요
+        PetInteractionResponse response = petResponseMapper.toInteractionResponse(petResult, java.util.List.of());
+
+        log.info("펫 상호작용 완료: petId={}, interactionType={}", petId, request.type());
         return ApiResult.ok(response);
     }
 }

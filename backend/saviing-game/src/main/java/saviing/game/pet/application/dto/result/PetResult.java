@@ -13,11 +13,14 @@ public record PetResult(
     InventoryItemId inventoryItemId,
     Long petId,
     Long itemId,
+    String petName,
     int level,
     int experience,
+    int requiredExp,
     int affection,
+    int maxAffection,
     int energy,
-    String petName,
+    int maxEnergy,
     LocalDateTime createdAt,
     LocalDateTime updatedAt
 ) {

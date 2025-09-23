@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import saviing.game.inventory.domain.model.vo.InventoryItemId;
 import saviing.game.item.domain.model.vo.ItemId;
 import saviing.game.pet.domain.exception.PetInsufficientEnergyException;
+import saviing.game.pet.domain.model.enums.InteractionType;
 import saviing.game.pet.domain.model.vo.*;
 
 import java.time.LocalDateTime;
@@ -156,6 +157,53 @@ public class Pet {
 
         consumeEnergy(energyCost);
         increaseAffection(affectionGain);
+    }
+
+    /**
+     * 특정 타입의 상호작용을 수행합니다.
+     * 상호작용 타입에 따라 에너지, 애정도, 경험치 변화를 처리합니다.
+     */
+    public void interactWithType(InteractionType interactionType, Experience requiredExpForNextLevel) {
+        // 에너지 소모 상호작용의 경우 에너지 확인
+        if (interactionType.consumesEnergy()) {
+            Energy requiredEnergy = Energy.of(Math.abs(interactionType.getEnergyChange()));
+            if (!hasEnoughEnergyFor(requiredEnergy)) {
+                throw new PetInsufficientEnergyException(this.energy.value(), requiredEnergy.value());
+            }
+            consumeEnergy(requiredEnergy);
+        }
+
+        // 에너지 회복 상호작용의 경우
+        if (interactionType.recoversEnergy()) {
+            Energy recoveryAmount = Energy.of(interactionType.getEnergyChange());
+            recoverEnergy(recoveryAmount);
+        }
+
+        // 애정도 증가
+        Affection affectionGain = Affection.of(interactionType.getAffectionGain());
+        increaseAffection(affectionGain);
+
+        // 경험치 증가 (0이 아닌 경우만)
+        if (interactionType.getExperienceGain() > 0) {
+            Experience expGain = Experience.of(interactionType.getExperienceGain());
+            gainExperience(expGain, requiredExpForNextLevel);
+        }
+    }
+
+    /**
+     * 먹이주기 상호작용을 수행합니다.
+     * 에너지를 회복하고 애정도를 증가시킵니다.
+     */
+    public void feed(Experience requiredExpForNextLevel) {
+        interactWithType(InteractionType.FEED, requiredExpForNextLevel);
+    }
+
+    /**
+     * 놀아주기 상호작용을 수행합니다.
+     * 에너지를 소모하고 애정도와 경험치를 증가시킵니다.
+     */
+    public void play(Experience requiredExpForNextLevel) {
+        interactWithType(InteractionType.PLAY, requiredExpForNextLevel);
     }
 
     /**
