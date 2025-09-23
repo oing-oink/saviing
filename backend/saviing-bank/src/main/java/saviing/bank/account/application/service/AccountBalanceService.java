@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import saviing.bank.account.application.event.SavingsDepositEventPublisher;
 import saviing.bank.account.application.port.in.command.DepositAccountCommand;
 import saviing.bank.account.application.port.in.command.WithdrawAccountCommand;
 import saviing.bank.account.application.port.in.result.BalanceUpdateResult;
@@ -35,6 +36,7 @@ public class AccountBalanceService {
 
     private final LoadAccountPort loadAccountPort;
     private final SaveAccountPort saveAccountPort;
+    private final SavingsDepositEventPublisher savingsDepositEventPublisher;
 
     /**
      * 계좌 출금을 처리합니다.
@@ -80,10 +82,13 @@ public class AccountBalanceService {
         account.deposit(command.amount());
 
         // 저장
-        saveAccountPort.save(account);
+        Account savedAccount = saveAccountPort.save(account);
+
+        // 게임 적금 적립 이벤트 발행 (실패해도 본 거래에는 영향 없음)
+        savingsDepositEventPublisher.publish(savedAccount, command.amount());
 
         // 결과 변환
-        return BalanceUpdateResult.from(account, previousBalance, command.amount());
+        return BalanceUpdateResult.from(savedAccount, previousBalance, command.amount());
     }
 
 
