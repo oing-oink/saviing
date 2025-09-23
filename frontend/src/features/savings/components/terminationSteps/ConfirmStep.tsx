@@ -83,7 +83,7 @@ const ConfirmStep = () => {
     account?.savings?.targetAmount > 0
       ? Math.round((account.balance / account.savings.targetAmount) * 100)
       : 0;
-  const terminationDate = formatDate(new Date());
+  const terminationDate = formatDate(new Date().toISOString());
   const estimatedInterest = Math.round((account?.balance || 0) * 0.012);
   const finalAmount = (account?.balance || 0) + estimatedInterest;
 
@@ -133,9 +133,7 @@ const ConfirmStep = () => {
               <div className="flex justify-between">
                 <span className="text-gray-600">가입일</span>
                 <span className="font-medium text-gray-900">
-                  {account?.createdAt
-                    ? formatDate(new Date(account.createdAt))
-                    : '-'}
+                  {account?.createdAt ? formatDate(account.createdAt) : '-'}
                 </span>
               </div>
             </div>

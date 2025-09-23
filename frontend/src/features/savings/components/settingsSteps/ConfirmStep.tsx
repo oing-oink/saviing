@@ -88,9 +88,10 @@ const ConfirmStep = () => {
       const serverResponse = (
         error as { axiosError?: { response?: { data?: unknown } } }
       )?.axiosError?.response?.data;
-      const errorCode = serverResponse?.code;
+      const errorCode = (serverResponse as { code?: string })?.code;
       const serverMessage =
-        serverResponse?.message || (error as Error)?.message;
+        (serverResponse as { message?: string })?.message ||
+        (error as Error)?.message;
 
       let userMessage = serverMessage || '설정 변경 중 오류가 발생했습니다.';
 
