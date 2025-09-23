@@ -23,7 +23,10 @@ public enum PetErrorCode implements ErrorCode {
     PET_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 존재하는 펫입니다"),
 
     // 펫 이름 관련
-    PET_INVALID_NAME(HttpStatus.BAD_REQUEST, "올바르지 않은 펫 이름입니다")
+    PET_INVALID_NAME(HttpStatus.BAD_REQUEST, "올바르지 않은 펫 이름입니다"),
+
+    // 펫 접근 권한 관련
+    PET_ACCESS_FORBIDDEN(HttpStatus.FORBIDDEN, "해당 펫에 대한 접근 권한이 없습니다")
 
     ;
 
