@@ -2,8 +2,7 @@ import { ChevronLeft } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { PAGE_PATH } from '@/shared/constants/path';
 
-
-// [채은 코드] 적금 설정 변경 관련 
+// [채은 코드] 적금 설정 변경 관련
 // interface DetailTopBarProps {
 //   title: string;
 //   backMode?: 'history' | 'entry';
@@ -23,7 +22,6 @@ import { PAGE_PATH } from '@/shared/constants/path';
 //       navigate(entryPoint);
 //     } else {
 //       navigate(-1);
-
 
 // [승윤 코드] 계좌 개설하기 관련
 const DetailTopBar = () => {

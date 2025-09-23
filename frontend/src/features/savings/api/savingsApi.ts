@@ -249,7 +249,6 @@ export const updateSavingsAutoTransfer = async (
   return response.body!;
 };
 
-
 /**
  * 유니크한 멱등성 키를 생성하는 유틸리티 함수
  *
