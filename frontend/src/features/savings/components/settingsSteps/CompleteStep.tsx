@@ -6,6 +6,7 @@ import { useAccountsList } from '@/features/savings/query/useSavingsQuery';
 import { savingsKeys } from '@/features/savings/query/savingsKeys';
 import { Button } from '@/shared/components/ui/button';
 import { PAGE_PATH } from '@/shared/constants/path';
+import { useCustomerStore } from '@/features/auth/store/useCustomerStore';
 
 const CompleteStep = () => {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ const CompleteStep = () => {
   const { accountId } = useParams<{ accountId: string }>();
   const { newSettings, reset } = useSavingsSettingsStore();
   const { cancelAndGoBack } = useSavingsSettingsChange();
+  const customerId = useCustomerStore(state => state.customerId);
 
   // 계좌 목록 조회 (계좌명 표시용)
   const { data: accounts } = useAccountsList();
@@ -34,7 +36,7 @@ const CompleteStep = () => {
 
       // 계좌 목록도 새로고침
       queryClient.invalidateQueries({
-        queryKey: savingsKeys.accountsList(),
+        queryKey: savingsKeys.accountsList(customerId ?? undefined),
       });
     }
 

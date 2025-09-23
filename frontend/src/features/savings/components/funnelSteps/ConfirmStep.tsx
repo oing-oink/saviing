@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getAllAccounts } from '@/features/savings/api/savingsApi';
 import { Button } from '@/shared/components/ui/button';
 import { ACCOUNT_TYPES } from '@/features/savings/constants/accountTypes';
+import { useCustomerStore } from '@/features/auth/store/useCustomerStore';
 
 const ConfirmStep = () => {
   const { form } = useAccountCreationStore();
@@ -16,12 +17,19 @@ const ConfirmStep = () => {
     createCheckingError,
     createSavingsError,
   } = useAccountCreation();
+  const customerId = useCustomerStore(state => state.customerId);
 
   // 계좌 목록 가져와서 상품 정보 추출
   const { data: accounts } = useQuery({
-    queryKey: ['allAccounts'],
-    queryFn: getAllAccounts,
+    queryKey: ['allAccounts', customerId],
+    queryFn: () => {
+      if (customerId == null) {
+        throw new Error('로그인 정보가 없습니다.');
+      }
+      return getAllAccounts(customerId);
+    },
     staleTime: 1000 * 60 * 5,
+    enabled: customerId != null,
   });
 
   // 현재 선택된 계좌 타입에 맞는 상품 정보 찾기

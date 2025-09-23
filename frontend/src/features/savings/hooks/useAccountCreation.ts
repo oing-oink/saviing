@@ -12,11 +12,7 @@ import type {
 import { useAccountCreationStore } from '@/features/savings/store/useAccountCreationStore';
 import { ACCOUNT_TYPES } from '@/features/savings/constants/accountTypes';
 import { PAGE_PATH } from '@/shared/constants/path';
-
-/**
- * 하드코딩된 고객 ID (추후 인증 시스템에서 가져올 예정)
- */
-const CUSTOMER_ID = 1;
+import { useCustomerStore } from '@/features/auth/store/useCustomerStore';
 
 /**
  * 계좌 생성 관련 로직을 처리하는 커스텀 훅
@@ -29,6 +25,7 @@ const CUSTOMER_ID = 1;
 export const useAccountCreation = () => {
   const navigate = useNavigate();
   const { form } = useAccountCreationStore();
+  const customerId = useCustomerStore(state => state.customerId);
 
   // 기존 계좌 확인 (Query: 데이터 읽어오기)
   const {
@@ -36,10 +33,16 @@ export const useAccountCreation = () => {
     isLoading: isCheckingAccounts,
     error: checkAccountsError,
   } = useQuery({
-    queryKey: ['existingAccounts', CUSTOMER_ID],
-    queryFn: getAllAccounts, // checkExistingAccounts 대신 getAllAccounts 사용
+    queryKey: ['existingAccounts', customerId],
+    queryFn: () => {
+      if (customerId == null) {
+        throw new Error('로그인 정보가 없습니다.');
+      }
+      return getAllAccounts(customerId);
+    }, // checkExistingAccounts 대신 getAllAccounts 사용
     staleTime: 1000 * 60 * 5, // 5분간 캐시 유지
     gcTime: 1000 * 60 * 10, // 10분간 메모리 유지
+    enabled: customerId != null,
   });
 
   // 입출금 계좌 생성 (Mutation: 데이터 변경)
@@ -119,8 +122,13 @@ export const useAccountCreation = () => {
 
     if (isCheckingAccount) {
       // 입출금 계좌 생성 요청
+      if (customerId == null) {
+        console.error('로그인 정보가 없어 계좌를 생성할 수 없습니다.');
+        return;
+      }
+
       const request: CreateCheckingAccountRequest = {
-        customerId: CUSTOMER_ID,
+        customerId,
         productId: 1, // 입출금통장 상품 ID
       };
       createCheckingMutation.mutate(request);
@@ -136,9 +144,14 @@ export const useAccountCreation = () => {
         return;
       }
 
+      if (customerId == null) {
+        console.error('로그인 정보가 없어 계좌를 생성할 수 없습니다.');
+        return;
+      }
+
       // 적금 계좌 생성 요청
       const request: CreateSavingsAccountRequest = {
-        customerId: CUSTOMER_ID,
+        customerId,
         productId: 2, // 자유적금 상품 ID
         targetAmount: form.depositAmount * form.period, // 월납입금액 * 기간
         termPeriod: {

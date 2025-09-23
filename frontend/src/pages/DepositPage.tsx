@@ -25,7 +25,8 @@ import { PAGE_PATH } from '@/shared/constants/path';
 
 const DepositPage = () => {
   const { accountId } = useParams<{ accountId: string }>();
-  const { customer } = useCustomerStore();
+  const customer = useCustomerStore(state => state.customer);
+  const customerId = useCustomerStore(state => state.customerId);
 
   // 실제 API에서 적금 계좌 정보 가져오기
   const { data: savingsAccountData, isLoading: isSavingsLoading } =
@@ -119,7 +120,9 @@ const DepositPage = () => {
       };
 
       // 계좌 관련 쿼리들 무효화하여 최신 데이터로 업데이트
-      queryClient.invalidateQueries({ queryKey: savingsKeys.accountsList() });
+      queryClient.invalidateQueries({
+        queryKey: savingsKeys.accountsList(customerId ?? undefined),
+      });
       if (accountId) {
         queryClient.invalidateQueries({
           queryKey: savingsKeys.detail(accountId),
