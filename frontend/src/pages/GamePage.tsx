@@ -2,7 +2,6 @@ import GameHeader from '@/features/game/shared/components/GameHeader';
 import ElevatorButton from '@/features/game/shared/components/ElevatorButton';
 import PetStatusCard from '@/features/game/pet/components/PetStatusCard';
 import CatSprite from '@/features/game/pet/components/CatSprite';
-import { useGlobalGameBackground } from '@/features/game/shared/components/GlobalGameBackground';
 import {
   Popover,
   PopoverContent,
@@ -13,6 +12,7 @@ import Room from '@/features/game/room/Room';
 import { useEffect, useState } from 'react';
 import { usePetStore } from '@/features/game/pet/store/usePetStore';
 import { useEnterTransitionStore } from '@/features/game/shared/store/useEnterTransitionStore';
+import GameBackgroundLayout from '@/features/game/shared/layouts/GameBackgroundLayout';
 
 const GamePage = () => {
   // TODO: API 연결 후 동적으로 관리
@@ -25,10 +25,8 @@ const GamePage = () => {
   const finishTransitionToGame = useEnterTransitionStore(
     state => state.finishTransitionToGame,
   );
-  const { showGameBackground } = useGlobalGameBackground();
 
   useEffect(() => {
-    showGameBackground();
     setBehavior({ currentAnimation: 'idle' });
     if (isTransitioningToGame) {
       finishTransitionToGame();
@@ -49,8 +47,7 @@ const GamePage = () => {
   };
 
   return (
-    <div className="game safeArea relative flex h-dvh touch-none flex-col overflow-hidden font-galmuri">
-
+    <GameBackgroundLayout className="game relative touch-none overflow-hidden font-galmuri">
       <div className="relative flex h-full flex-col">
         <div className="relative z-10">
           <GameHeader />
@@ -100,7 +97,7 @@ const GamePage = () => {
           <ElevatorButton />
         </div>
       </div>
-    </div>
+    </GameBackgroundLayout>
   );
 };
 

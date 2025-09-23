@@ -1,30 +1,23 @@
 import { useEffect, useRef, useState } from 'react';
-import { useGlobalGameBackground } from '@/features/game/shared/components/GlobalGameBackground';
 import GameHeader from '@/features/game/shared/components/GameHeader';
 import Room from '@/features/game/room/Room';
 import CatSprite from '@/features/game/pet/components/CatSprite';
 import { useEnterTransitionStore } from '@/features/game/shared/store/useEnterTransitionStore';
 import { useNavigate } from 'react-router-dom';
 import { PAGE_PATH } from '@/shared/constants/path';
+import GameBackgroundLayout from '@/features/game/shared/layouts/GameBackgroundLayout';
 
 const GameEnterPage = () => {
   const navigate = useNavigate();
   const origin = useEnterTransitionStore(state => state.origin);
   const startTransitionToGame = useEnterTransitionStore(state => state.startTransitionToGame);
   const reset = useEnterTransitionStore(state => state.reset);
-  const { showGameBackground } = useGlobalGameBackground();
   const anim = 'sleep';
-  const [_bgScale, setBgScale] = useState(1);
   const [atCenter, setAtCenter] = useState(false);
   const [roomRise, setRoomRise] = useState(false);
-  const containerRef = useRef<HTMLDivElement | null>(null);
   const hasNavigatedRef = useRef(false);
 
   useEffect(() => {
-    showGameBackground();
-    // 배경 확장 효과
-    const t = setTimeout(() => setBgScale(1.05), 50);
-    const t2 = setTimeout(() => setBgScale(1), 500);
     // 시작 위치에서 중앙으로 이동
     const enter = requestAnimationFrame(() => setAtCenter(true));
     // 룸이 바닥에서 올라오도록 트리거
@@ -36,8 +29,6 @@ const GameEnterPage = () => {
       navigate(PAGE_PATH.GAME);
     }, 1600);
     return () => {
-      clearTimeout(t);
-      clearTimeout(t2);
       clearTimeout(toGame);
       clearTimeout(rise);
       cancelAnimationFrame(enter);
@@ -45,7 +36,7 @@ const GameEnterPage = () => {
         reset();
       }
     };
-  }, [navigate]);
+  }, [navigate, reset, startTransitionToGame]);
 
   // 시작 위치 (Home의 CatSprite 위치) -> 화면 중앙 목표로 낙하
   const startX = origin?.x ?? 0;
@@ -53,11 +44,7 @@ const GameEnterPage = () => {
   const scale = origin?.scale ?? 4;
 
   return (
-    <div
-      ref={containerRef}
-      className="game safeArea relative flex h-dvh touch-none flex-col overflow-hidden font-galmuri"
-    >
-
+    <GameBackgroundLayout className="game relative touch-none overflow-hidden font-galmuri">
       <div className="relative flex h-full flex-col">
         {/* GameHeader 자리 확보 (투명) */}
         <div className="pointer-events-none relative z-10 opacity-0">
@@ -93,7 +80,7 @@ const GameEnterPage = () => {
           </div>
         </div>
       </div>
-    </div>
+    </GameBackgroundLayout>
   );
 };
 

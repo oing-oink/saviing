@@ -9,7 +9,10 @@ import groom2 from '@/assets/game_bg/groom2.png';
  */
 const GameBackground = () => {
   return (
-    <div className="w-full h-full" style={{ backgroundColor: 'oklch(0.9321 0.0493 202.63)' }}>
+    <div
+      className="relative h-full w-full"
+      style={{ backgroundColor: 'oklch(0.9321 0.0493 202.63)' }}
+    >
       <Cloud src={groom1} top={10} left={0} height={5} duration={30} />
       <Cloud src={groom2} top={30} left={20} height={8} duration={65} />
       <Cloud src={groom1} top={60} left={50} height={8} duration={40} />

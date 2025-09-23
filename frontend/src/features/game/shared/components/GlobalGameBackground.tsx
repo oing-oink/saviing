@@ -6,7 +6,6 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import GameBackground from './GameBackground';
 
 interface GlobalGameBackgroundContextType {
   isGameBackground: boolean;
@@ -45,16 +44,7 @@ export const GlobalGameBackgroundProvider = ({ children }: GlobalGameBackgroundP
 
   return (
     <GlobalGameBackgroundContext.Provider value={contextValue}>
-      <div className="relative">
-        {isGameBackground && (
-          <div className="fixed inset-0 -z-10">
-            <GameBackground />
-          </div>
-        )}
-        <div className="relative">
-          {children}
-        </div>
-      </div>
+      {children}
     </GlobalGameBackgroundContext.Provider>
   );
 };

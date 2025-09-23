@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import Room from '@/features/game/room/Room';
 import { SaveModal } from '@/features/game/room/components/SaveModal';
 import Coin from '@/features/game/shared/components/Coin';
-import GameBackground from '@/features/game/shared/components/GameBackground';
 import { useTabs } from '@/features/game/shop/hooks/useTabs';
 import {
   TABS,
@@ -21,6 +20,7 @@ import { RoomCanvas } from '@/features/game/deco/components/roomCanvas';
 import { useDecoInventory } from '@/features/game/deco/query/useDecoInventory';
 import { useDecoSaveMutation } from '@/features/game/deco/query/useDecoSaveMutation';
 import { useDecoStore } from '@/features/game/deco/store/useDecoStore';
+import GameBackgroundLayout from '@/features/game/shared/layouts/GameBackgroundLayout';
 
 const DecoPage = () => {
   const navigate = useNavigate();
@@ -177,9 +177,7 @@ const DecoPage = () => {
   };
 
   return (
-    <div className="game relative flex h-screen flex-col overflow-hidden font-galmuri">
-      <GameBackground />
-
+    <GameBackgroundLayout className="game relative overflow-hidden font-galmuri">
       <div className="relative z-10 flex h-full flex-col">
         {/* Header */}
         <div className="z-10 flex h-20 w-full items-center justify-between px-3">
@@ -255,7 +253,7 @@ const DecoPage = () => {
           onClose={() => setIsPlacementBlockedOpen(false)}
         />
       </div>
-    </div>
+    </GameBackgroundLayout>
   );
 };
 
