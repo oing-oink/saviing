@@ -71,6 +71,13 @@ interface StartDragOptions {
    * 배치 규칙이나 UI 필터링에 사용됩니다.
    */
   itemType?: PlacedItem['itemType'];
+
+  /**
+   * 인벤토리에서 드래그 시작한 슬롯의 고유 ID.
+   * 예: "slot-0", "slot-1" 등
+   * 개별 슬롯 추적을 통해 중복 아이템의 개별 관리를 가능하게 합니다.
+   */
+  slotId?: string;
 }
 
 /**
@@ -260,6 +267,7 @@ const buildPlacedItemFromSession = (
     itemType:
       session.itemType ?? session.originalItem?.itemType ?? 'DECORATION',
     isPreview: session.isPreview ?? session.originalItem?.isPreview ?? false,
+    slotId: session.slotId ?? session.originalItem?.slotId,
   };
 };
 
@@ -369,6 +377,7 @@ export const decoStore = createStore<DecoStore>(set => ({
         imageUrl: getItemImage(Number(itemId)),
         itemType: options.itemType ?? 'DECORATION',
         isPreview: options.isPreview ?? false,
+        slotId: options.slotId,
       }),
     })),
 

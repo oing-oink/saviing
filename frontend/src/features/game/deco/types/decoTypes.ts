@@ -130,6 +130,13 @@ export interface PlacedItem {
    * true인 경우 실제 저장되지 않는 임시 배치 상태를 의미합니다.
    */
   isPreview?: boolean;
+
+  /**
+   * 이 아이템이 인벤토리의 어떤 슬롯에서 왔는지를 나타내는 ID.
+   * 예: "slot-0", "slot-1" 등
+   * 개별 슬롯 추적을 통해 중복 아이템의 개별 관리를 가능하게 합니다.
+   */
+  slotId?: string;
 }
 
 /**
@@ -144,6 +151,13 @@ export interface DragSession {
    * 인벤토리나 배치된 아이템에서 가져온 아이템 식별자입니다.
    */
   itemId: string;
+
+  /**
+   * 인벤토리에서 드래그 시작한 슬롯의 고유 ID.
+   * 예: "slot-0", "slot-1" 등
+   * 개별 슬롯 추적을 통해 중복 아이템의 개별 관리를 가능하게 합니다.
+   */
+  slotId?: string;
 
   /**
    * 재배치의 경우, 원본 배치 아이템의 ID.
