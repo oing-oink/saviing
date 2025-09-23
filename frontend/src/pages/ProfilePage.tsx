@@ -9,6 +9,8 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useCustomerStore } from '@/features/auth/store/useCustomerStore';
 import { PAGE_PATH } from '@/shared/constants/path';
+import { useGlobalGameBackground } from '@/features/game/shared/components/GlobalGameBackground';
+import { useEffect } from 'react';
 
 interface ProfileMenuItem {
   icon: React.ComponentType<{ size?: number; className?: string }>;
@@ -20,6 +22,11 @@ interface ProfileMenuItem {
 const ProfilePage = () => {
   const navigate = useNavigate();
   const { customer, clearAuth } = useCustomerStore();
+  const { hideGameBackground } = useGlobalGameBackground();
+
+  useEffect(() => {
+    hideGameBackground();
+  }, [hideGameBackground]);
 
   // 사용자 정보 (스토어에서 가져오거나 기본값 사용)
   const userInfo = {
