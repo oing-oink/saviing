@@ -13,16 +13,27 @@ import saviing.game.inventory.application.service.InventoryCommandService;
 import saviing.game.item.application.dto.query.GetItemQuery;
 import saviing.game.item.application.dto.result.ItemResult;
 import saviing.game.item.application.service.ItemQueryService;
+import saviing.game.item.domain.repository.ItemRepository;
 import saviing.game.item.domain.model.vo.ItemId;
+import saviing.game.item.domain.model.vo.Price;
 import saviing.game.shop.application.dto.command.PurchaseItemCommand;
 import saviing.game.character.application.dto.query.GetCharacterQuery;
 import saviing.game.character.application.dto.result.CharacterResult;
 import saviing.game.shop.application.dto.result.PurchaseResult;
 import saviing.game.shop.domain.exception.PurchaseException;
 import saviing.game.shop.domain.exception.ShopException;
+import saviing.game.shop.domain.exception.ShopErrorCode;
 import saviing.game.shop.domain.model.aggregate.PurchaseRecord;
 import saviing.game.shop.domain.model.vo.PaymentMethod;
 import saviing.game.shop.domain.repository.PurchaseRecordRepository;
+import saviing.game.shop.application.dto.command.DrawGachaCommand;
+import saviing.game.shop.application.dto.result.GachaDrawResult;
+import saviing.game.item.domain.model.enums.Rarity;
+import saviing.game.shop.domain.model.gacha.GachaPool;
+import saviing.game.item.domain.model.aggregate.Item;
+
+import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * 상점 애플리케이션 서비스입니다.
@@ -31,13 +42,16 @@ import saviing.game.shop.domain.repository.PurchaseRecordRepository;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ShopService {
+public class ShopCommandService {
 
     private final PurchaseRecordRepository purchaseRecordRepository;
     private final ItemQueryService itemQueryService;
     private final CharacterQueryService characterQueryService;
     private final CharacterCommandService characterCommandService;
     private final InventoryCommandService inventoryCommandService;
+    private final ItemRepository itemRepository;
+
+    private static final GachaPool GACHA_POOL = GachaPool.DEFAULT;
 
     /**
      * 아이템 구매를 동기식으로 처리합니다.
@@ -153,7 +167,7 @@ public class ShopService {
         } catch (PurchaseException e) {
             throw e;
         } catch (Exception e) {
-            throw PurchaseException.itemValidationFailed(command.itemId(), e);
+            throw new ShopException(ShopErrorCode.PURCHASE_ITEM_VALIDATION_FAILED, "아이템 검증 중 오류가 발생했습니다", e);
         }
     }
 
@@ -245,5 +259,153 @@ public class ShopService {
                 command.characterId(), command.itemId(), e.getMessage());
             throw PurchaseException.itemGrantFailed(command.characterId(), command.itemId(), e);
         }
+    }
+
+    /**
+     * 가챠 뽑기를 실행합니다.
+     *
+     * @param command 가챠 뽑기 명령
+     * @return 가챠 뽑기 결과
+     */
+    @Transactional
+    public GachaDrawResult drawGacha(DrawGachaCommand command) {
+        log.info("가챠 뽑기 시작: characterId={}, gachaPoolId={}, paymentMethod={}",
+            command.characterId(), command.gachaPoolId(), command.paymentMethod());
+
+        try {
+            // 1. 명령 유효성 검증
+            command.validate();
+
+            // 2. 가챠풀 검증
+            validateGachaPoolId(command.gachaPoolId());
+
+            // 3. 희귀도 결정
+            Rarity drawnRarity = GACHA_POOL.drawRarity();
+            log.debug("뽑기 희귀도 결정: {}", drawnRarity);
+
+            // 4. 해당 희귀도의 아이템 중 랜덤 선택
+            ItemResult selectedItem = selectRandomItem(drawnRarity);
+
+            // 5. 기존 구매 프로세스 재활용하여 아이템 지급
+            PurchaseItemCommand purchaseCommand = PurchaseItemCommand.builder()
+                .characterId(command.characterId())
+                .itemId(selectedItem.itemId())
+                .paymentMethod(command.paymentMethod())
+                .build();
+
+            // 가챠풀 가격으로 구매 처리 (실제 아이템 가격 무시)
+            processGachaPurchase(purchaseCommand, GACHA_POOL.price(), selectedItem);
+
+            // 6. 구매 완료 후 캐릭터 정보 조회
+            CharacterResult characterResult = characterQueryService.getCharacter(
+                GetCharacterQuery.builder().characterId(CharacterId.of(command.characterId())).build()
+            );
+
+            GachaDrawResult result = GachaDrawResult.builder()
+                .gachaPoolId(GACHA_POOL.id())
+                .gachaPoolName(GACHA_POOL.poolName())
+                .drawnItem(selectedItem)
+                .character(characterResult)
+                .paymentCurrency(command.paymentMethod().getCurrency())
+                .build();
+
+            log.info("가챠 뽑기 완료: characterId={}, drawnItem={}, rarity={}",
+                command.characterId(), selectedItem.itemName(), drawnRarity);
+
+            return result;
+
+        } catch (PurchaseException e) {
+            log.error("가챠 뽑기 실패: characterId={}, gachaPoolId={}, error={}",
+                command.characterId(), command.gachaPoolId(), e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error("예상치 못한 가챠 뽑기 실패: characterId={}, gachaPoolId={}, error={}",
+                command.characterId(), command.gachaPoolId(), e.getMessage());
+            throw PurchaseException.processingFailed("가챠 뽑기 처리 중 오류가 발생했습니다: " + e.getMessage(), e);
+        }
+    }
+
+    private void validateGachaPoolId(Long gachaPoolId) {
+        if (gachaPoolId == null || gachaPoolId.longValue() != GACHA_POOL.id()) {
+            throw PurchaseException.processingFailed("존재하지 않는 가챠풀입니다: " + gachaPoolId, null);
+        }
+    }
+
+    private ItemResult selectRandomItem(Rarity rarity) {
+        try {
+            // 해당 희귀도의 사용 가능한 아이템들을 모두 조회
+            List<Item> availableItems = itemRepository.findItemsWithConditions(
+                null,                    // itemType: 모든 타입
+                null,                    // category: 모든 카테고리
+                rarity,                  // rarity: 특정 희귀도만
+                null,                    // keyword: 검색어 없음
+                true,                    // available: 사용 가능한 것만
+                null,                    // sortField: 정렬 없음
+                null,                    // sortDirection: 정렬 없음
+                null                     // coinType: 모든 코인 타입
+            );
+
+            if (availableItems.isEmpty()) {
+                throw PurchaseException.processingFailed("해당 희귀도의 사용 가능한 아이템이 없습니다: " + rarity, null);
+            }
+
+            // 랜덤으로 하나 선택
+            int randomIndex = ThreadLocalRandom.current().nextInt(availableItems.size());
+            Item selectedItem = availableItems.get(randomIndex);
+
+            // ItemResult로 변환
+            ItemResult item = itemQueryService.getItem(GetItemQuery.builder().itemId(selectedItem.getItemId().value()).build());
+            return item;
+
+        } catch (PurchaseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw PurchaseException.processingFailed("아이템 선택 중 오류가 발생했습니다: " + e.getMessage(), e);
+        }
+    }
+
+    private void processGachaPurchase(PurchaseItemCommand purchaseCommand, Price drawPrice, ItemResult selectedItem) {
+        try {
+            Integer paidAmount = processGachaFundsDebit(purchaseCommand, drawPrice);
+            processItemGrant(purchaseCommand, selectedItem);
+            savePurchaseRecord(purchaseCommand, selectedItem, paidAmount);
+        } catch (PurchaseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw PurchaseException.processingFailed("가챠 구매 처리 실패: " + e.getMessage(), e);
+        }
+    }
+
+    private Integer processGachaFundsDebit(PurchaseItemCommand command, Price drawPrice) {
+        PaymentMethod paymentMethod = command.paymentMethod();
+        Integer coinAmount = null;
+        Integer fishCoinAmount = null;
+
+        if (paymentMethod.isCoin() && drawPrice.coin() != null && drawPrice.coin() > 0) {
+            coinAmount = drawPrice.coin();
+        } else if (paymentMethod.isFishCoin() && drawPrice.fishCoin() != null && drawPrice.fishCoin() > 0) {
+            fishCoinAmount = drawPrice.fishCoin();
+        }
+
+        if (coinAmount == null && fishCoinAmount == null) {
+            throw PurchaseException.paymentMethodNotSupported(null, paymentMethod);
+        }
+
+        if (!characterQueryService.hasSufficientFunds(command.characterId(), coinAmount, fishCoinAmount)) {
+            throw PurchaseException.insufficientFunds(command.characterId(), paymentMethod);
+        }
+
+        DebitCoinsCommand debitCommand;
+        Integer paidAmount;
+        if (coinAmount != null) {
+            debitCommand = DebitCoinsCommand.coin(CharacterId.of(command.characterId()), coinAmount);
+            paidAmount = coinAmount;
+        } else {
+            debitCommand = DebitCoinsCommand.fishCoin(CharacterId.of(command.characterId()), fishCoinAmount);
+            paidAmount = fishCoinAmount;
+        }
+
+        characterCommandService.debitCoins(debitCommand);
+        return paidAmount;
     }
 }
