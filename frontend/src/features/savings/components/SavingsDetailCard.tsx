@@ -8,7 +8,11 @@ import { Progress } from '@/shared/components/ui/progress';
 import { Button } from '@/shared/components/ui/button';
 import { Badge } from '@/shared/components/ui/badge';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { PAGE_PATH, changeSavingsSettingsPath, createSavingsTerminationPath } from '@/shared/constants/path';
+import {
+  PAGE_PATH,
+  changeSavingsSettingsPath,
+  createSavingsTerminationPath,
+} from '@/shared/constants/path';
 import { formatDate } from '@/shared/utils/dateFormat';
 import type { SavingsDisplayData } from '@/features/savings/types/savingsTypes';
 
@@ -146,7 +150,9 @@ const SavingsDetailCard = ({
                 className="text-gray-500 hover:text-gray-700"
                 onClick={() => {
                   if (accountId) {
-                    navigate(createSavingsTerminationPath(accountId, entryPoint));
+                    navigate(
+                      createSavingsTerminationPath(accountId, entryPoint),
+                    );
                   }
                 }}
               >

@@ -28,7 +28,9 @@ const AuthStep = () => {
   ];
 
   const handleNext = () => {
-    if (!selectedAuth) {return;}
+    if (!selectedAuth) {
+      return;
+    }
     goToNextStep();
   };
 

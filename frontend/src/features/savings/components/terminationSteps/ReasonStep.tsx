@@ -16,7 +16,9 @@ const ReasonStep = () => {
   ];
 
   const handleNext = () => {
-    if (!selectedReason) {return;}
+    if (!selectedReason) {
+      return;
+    }
     goToNextStep();
   };
 
@@ -34,7 +36,7 @@ const ReasonStep = () => {
         </p>
 
         <div className="space-y-3">
-          {reasons.map((reason) => {
+          {reasons.map(reason => {
             const isSelected = selectedReason === reason.id;
             return (
               <div
@@ -49,7 +51,9 @@ const ReasonStep = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className="flex-1">
-                      <span className="font-medium text-gray-900">{reason.label}</span>
+                      <span className="font-medium text-gray-900">
+                        {reason.label}
+                      </span>
                     </div>
                   </div>
                   <div
@@ -86,7 +90,7 @@ const ReasonStep = () => {
             </label>
             <textarea
               value={customReason}
-              onChange={(e) => setCustomReason(e.target.value)}
+              onChange={e => setCustomReason(e.target.value)}
               placeholder="해지 사유를 자세히 입력해 주세요."
               className="w-full rounded-lg border border-gray-300 p-3 text-sm focus:border-primary focus:outline-none"
               rows={4}

@@ -1,7 +1,12 @@
 import { useSearchParams, useNavigate, useParams } from 'react-router-dom';
-import { PAGE_PATH, SAVINGS_TERMINATION_STEPS_PATH } from '@/shared/constants/path';
+import { PAGE_PATH } from '@/shared/constants/path';
 
-type SavingsTerminationStep = 'WARNING' | 'AUTH' | 'REASON' | 'CONFIRM' | 'COMPLETE';
+type SavingsTerminationStep =
+  | 'WARNING'
+  | 'AUTH'
+  | 'REASON'
+  | 'CONFIRM'
+  | 'COMPLETE';
 
 export const useSavingsTermination = () => {
   const [searchParams] = useSearchParams();
@@ -11,14 +16,22 @@ export const useSavingsTermination = () => {
   const currentStepParam = searchParams.get('step') || 'WARNING';
   const fromParam = searchParams.get('from');
 
-  const steps: SavingsTerminationStep[] = ['WARNING', 'AUTH', 'REASON', 'CONFIRM', 'COMPLETE'];
+  const steps: SavingsTerminationStep[] = [
+    'WARNING',
+    'AUTH',
+    'REASON',
+    'CONFIRM',
+    'COMPLETE',
+  ];
 
   const currentStepIndex = steps.findIndex(step => step === currentStepParam);
   const currentStep = currentStepIndex >= 0 ? currentStepIndex + 1 : 1;
   const totalSteps = steps.length;
 
   const goToNextStep = () => {
-    if (!accountId) return;
+    if (!accountId) {
+      return;
+    }
 
     const nextStepIndex = currentStepIndex + 1;
     if (nextStepIndex < steps.length) {
@@ -35,7 +48,9 @@ export const useSavingsTermination = () => {
   };
 
   const goToPrevStep = () => {
-    if (!accountId) return;
+    if (!accountId) {
+      return;
+    }
 
     const prevStepIndex = currentStepIndex - 1;
     if (prevStepIndex >= 0) {
@@ -50,7 +65,9 @@ export const useSavingsTermination = () => {
       );
     } else {
       // 첫 번째 스텝에서 뒤로가기 시 상세 페이지로 돌아감
-      navigate(`${PAGE_PATH.SAVINGS_DETAIL_WITH_ID.replace(':accountId', accountId)}`);
+      navigate(
+        `${PAGE_PATH.SAVINGS_DETAIL_WITH_ID.replace(':accountId', accountId)}`,
+      );
     }
   };
 

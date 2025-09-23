@@ -1,5 +1,10 @@
 import { ChevronLeft } from 'lucide-react';
-import { useNavigate, useSearchParams, useLocation, useParams } from 'react-router-dom';
+import {
+  useNavigate,
+  useSearchParams,
+  useLocation,
+  useParams,
+} from 'react-router-dom';
 import { useStepProgress } from '@/features/savings/hooks/useStepProgress';
 import { useSavingsSettingsChange } from '@/features/savings/hooks/useSavingsSettingsChange';
 import { useSavingsTermination } from '@/features/savings/hooks/useSavingsTermination';
@@ -33,7 +38,8 @@ const StepHeader = () => {
     }
   };
 
-  const { currentStepFromUrl, goToPreviousStep, cancelAndGoBack } = getProgressData();
+  const { currentStepFromUrl, goToPreviousStep, cancelAndGoBack } =
+    getProgressData();
 
   const handleBackClick = () => {
     if (isSavingsTermination) {
@@ -41,7 +47,9 @@ const StepHeader = () => {
       if (currentStepFromUrl === 'WARNING') {
         // 첫 번째 단계에서는 적금 상세 페이지로 돌아가기
         if (accountId) {
-          navigate(PAGE_PATH.SAVINGS_DETAIL_WITH_ID.replace(':accountId', accountId));
+          navigate(
+            PAGE_PATH.SAVINGS_DETAIL_WITH_ID.replace(':accountId', accountId),
+          );
         } else {
           navigate(PAGE_PATH.SAVINGS);
         }

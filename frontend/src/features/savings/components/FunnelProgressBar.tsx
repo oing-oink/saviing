@@ -18,8 +18,8 @@ const FunnelProgressBar = () => {
   const { currentStep, totalSteps } = isSavingsTermination
     ? savingsTerminationProgress
     : isSavingsSettings
-    ? savingsSettingsProgress
-    : accountCreationProgress;
+      ? savingsSettingsProgress
+      : accountCreationProgress;
 
   const percent = (currentStep / totalSteps) * 100;
 

@@ -18,7 +18,7 @@ const WarningStep = () => {
         </p>
 
         <div className="space-y-4">
-          <div className="rounded-lg bg-red-50 border border-red-200 p-4">
+          <div className="rounded-lg border border-red-200 bg-red-50 p-4">
             <h3 className="mb-2 font-semibold text-red-800">⚠️ 중요 안내</h3>
             <ul className="space-y-2 text-sm text-red-700">
               <li>• 만기 전 해지 시 약정 이율이 적용되지 않습니다.</li>
@@ -27,7 +27,7 @@ const WarningStep = () => {
             </ul>
           </div>
 
-          <div className="rounded-lg bg-blue-50 border border-blue-200 p-4">
+          <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
             <h3 className="mb-2 font-semibold text-blue-800">💡 대안 제안</h3>
             <ul className="space-y-2 text-sm text-blue-700">
               <li>• 적금 조건 변경을 먼저 고려해 보세요.</li>
