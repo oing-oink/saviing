@@ -177,7 +177,7 @@ const DepositPage = () => {
   };
 
   return (
-    <main className="saving flex min-h-dvh justify-center bg-background px-6 py-12 pb-32">
+    <div className="saving flex w-full justify-center bg-background px-6 py-12 pb-32">
       <div className="flex w-full max-w-md flex-col gap-6">
         <header className="space-y-2">
           <span className="text-xs font-semibold tracking-wide text-primary uppercase">
@@ -284,7 +284,7 @@ const DepositPage = () => {
         onConfirm={handlePinSubmit}
         onClose={handleCloseDialog}
       />
-    </main>
+    </div>
   );
 };
 

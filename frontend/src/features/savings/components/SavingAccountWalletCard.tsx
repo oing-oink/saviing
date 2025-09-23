@@ -1,10 +1,9 @@
 import { Progress } from '@/shared/components/ui/progress';
-import { PAGE_PATH } from '@/shared/constants/path';
 import { Copy } from 'lucide-react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
-import { createSavingsDetailPath } from '@/shared/constants/path';
+import { createDepositPath, createSavingsDetailPath } from '@/shared/constants/path';
 import type { SavingsAccountData } from '@/features/savings/types/savingsTypes';
 
 interface SavingsAccountWalletCardProps {
@@ -28,6 +27,13 @@ const SavingsAccountWalletCard = ({
       // navigate(createSavingsDetailPath(account.accountId, PAGE_PATH.WALLET)); // [채은 코드]
       navigate(`${createSavingsDetailPath(account.accountId)}?from=wallet`); // [승윤 코드]
     }
+  };
+
+  const handleDeposit = () => {
+    if (!account?.accountId) {
+      return;
+    }
+    navigate(createDepositPath(account.accountId));
   };
 
   return (
@@ -76,7 +82,7 @@ const SavingsAccountWalletCard = ({
         </button>
         <button
           className="font-lg flex-1 border-l border-gray-200 py-1 text-center font-bold text-primary"
-          onClick={() => navigate(PAGE_PATH.DEPOSIT)}
+          onClick={handleDeposit}
         >
           입금
         </button>
