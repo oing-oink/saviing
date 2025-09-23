@@ -1,6 +1,7 @@
 import { Badge } from '@/shared/components/ui/badge';
 import { Card } from '@/shared/components/ui/card';
 import { Button } from '@/shared/components/ui/button';
+import { useState } from 'react';
 import StatusProgress from './StatusProgress';
 import { usePetStore } from '@/features/game/pet/store/usePetStore';
 import { usePetStatusCard } from '@/features/game/pet/hooks/usePetStatusCard';
@@ -8,6 +9,7 @@ import { usePetInteraction } from '@/features/game/pet/query/usePetInteraction';
 import feed from '@/assets/game_pet/feed.png';
 import play from '@/assets/game_pet/play.png';
 import { Loader2 } from 'lucide-react';
+import PetRenameCard from './PetRenameCard';
 
 interface PetStatusCardProps {
   petId: number;
@@ -22,6 +24,7 @@ const PetStatusCard = ({ petId }: PetStatusCardProps) => {
   const { inventory } = usePetStore();
   const { petData, isLoading, error, levelClass } = usePetStatusCard(petId);
   const petInteraction = usePetInteraction(petId);
+  const [isRenaming, setIsRenaming] = useState(false);
 
   const handleFeedClick = () => {
     if (inventory.feed > 0 && !petInteraction.isPending) {
@@ -58,11 +61,25 @@ const PetStatusCard = ({ petId }: PetStatusCardProps) => {
     );
   }
 
+  if (isRenaming) {
+    return <PetRenameCard petId={petId} onClose={() => setIsRenaming(false)} />;
+  }
+
   return (
-    <Card className="mx-5 min-h-60 rounded-t-2xl p-4">
+    <Card className="mx-5 h-60 overflow-y-auto rounded-t-2xl p-4">
       <div className="flex items-center gap-3">
         <Badge className={`${levelClass}`}>Lv{petData.level}</Badge>
-        <div>{petData.name}</div>
+        <div className="flex items-center gap-2">
+          <span>{petData.name}</span>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 px-2 py-1 text-xs"
+            onClick={() => setIsRenaming(true)}
+          >
+            이름 변경
+          </Button>
+        </div>
       </div>
       <div className="space-y-3">
         <div className="flex gap-3">

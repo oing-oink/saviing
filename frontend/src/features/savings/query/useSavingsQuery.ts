@@ -99,7 +99,6 @@ export const useSavingsDisplayData = (accountId: string) => {
 /**
  * 적금 계좌의 거래 내역을 무한 스크롤로 조회하는 React Query 훅
  *
- * 올리브영 방식을 참고하여 useInfiniteQuery를 활용한 무한 스크롤을 구현합니다.
  * 페이지당 20개의 거래 내역을 가져오며, 최신 날짜순으로 정렬됩니다.
  *
  * @param accountId - 조회할 적금 계좌의 ID

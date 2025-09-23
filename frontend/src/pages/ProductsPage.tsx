@@ -1,9 +1,16 @@
 import { Loader2 } from 'lucide-react';
 import ProductCard from '@/features/savings/product/components/ProductCard';
 import { useProductsQuery } from '@/features/savings/product/query/useProductsQuery';
+import { useGlobalGameBackground } from '@/features/game/shared/components/GlobalGameBackground';
+import { useEffect } from 'react';
 
 const ProductsPage = () => {
   const { data: products, isLoading, error } = useProductsQuery();
+  const { hideGameBackground } = useGlobalGameBackground();
+
+  useEffect(() => {
+    hideGameBackground();
+  }, [hideGameBackground]);
 
   // 로딩 상태
   if (isLoading) {

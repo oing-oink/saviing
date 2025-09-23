@@ -2,6 +2,7 @@ export const PAGE_PATH = {
   HOME: '/',
   WALLET: '/wallet',
   PRODUCTS: '/products',
+  PROFILE: '/profile',
   LOGIN: '/login',
   ONBOARDING: '/onboarding',
   AUTH_CALLBACK: '/auth/callback',
@@ -20,6 +21,7 @@ export const PAGE_PATH = {
   GACHA: '/gacha',
   GACHA_ROLLING: '/gacha/rolling',
   DECO: '/deco',
+  GAME_ENTER: '/game/enter',
   COLORTEST: '/colortest',
   NOT_FOUND: '*',
 } as const;

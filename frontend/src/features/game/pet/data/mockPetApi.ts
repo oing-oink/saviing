@@ -11,7 +11,7 @@ import type {
  * 실제 API 응답과 동일한 구조의 데이터를 제공합니다.
  */
 export const mockPetData: PetData = {
-  petId: 1,
+  petId: 9,
   itemId: 1,
   name: '완두',
   level: 5,
@@ -103,5 +103,24 @@ export const mockPetInteraction = async (
       pet: updatedPet,
       consumption,
     },
+  };
+};
+
+/**
+ * 펫 이름 변경 모의 API
+ */
+export const mockRenamePetName = async (
+  _petId: number,
+  name: string,
+): Promise<ApiSuccessResponse<PetData>> => {
+  await new Promise(resolve => setTimeout(resolve, 300));
+
+  // mock 상태 업데이트
+  Object.assign(mockPetData, { name });
+
+  return {
+    success: true,
+    status: 200,
+    body: { ...mockPetData },
   };
 };
