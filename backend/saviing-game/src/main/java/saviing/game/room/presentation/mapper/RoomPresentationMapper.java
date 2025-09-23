@@ -62,6 +62,7 @@ public class RoomPresentationMapper {
 
         return new PlaceItemCommand(
             request.inventoryItemId(),
+            request.itemId(),
             request.positionX(),
             request.positionY(),
             request.xLength(),
@@ -126,6 +127,7 @@ public class RoomPresentationMapper {
         return PlacementResponse.builder()
             .placementId(placementInfo.placementId())
             .inventoryItemId(placementInfo.inventoryItemId())
+            .itemId(placementInfo.itemId())
             .positionX(placementInfo.positionX())
             .positionY(placementInfo.positionY())
             .xLength(placementInfo.xLength())

@@ -43,6 +43,7 @@ class PlacementAggregateTests {
         Placement placement = Placement.create(new RoomId(1L));
         PlacedItem item = PlacedItem.create(
             1L,
+            100L,
             new Position(10, 20),
             new ItemSize(5, 3),
             Category.LEFT
@@ -62,8 +63,8 @@ class PlacementAggregateTests {
     void 중복_아이템_배치_실패() {
         // given
         Placement placement = Placement.create(new RoomId(1L));
-        PlacedItem item1 = PlacedItem.create(1L, new Position(10, 20), new ItemSize(5, 3), Category.LEFT);
-        PlacedItem item2 = PlacedItem.create(1L, new Position(30, 40), new ItemSize(3, 2), Category.RIGHT);
+        PlacedItem item1 = PlacedItem.create(1L, 100L, new Position(10, 20), new ItemSize(5, 3), Category.LEFT);
+        PlacedItem item2 = PlacedItem.create(1L, 101L, new Position(30, 40), new ItemSize(3, 2), Category.RIGHT);
 
         placement.addItem(item1);
 
@@ -78,8 +79,8 @@ class PlacementAggregateTests {
     void 겹치는_위치_배치_실패() {
         // given
         Placement placement = Placement.create(new RoomId(1L));
-        PlacedItem item1 = PlacedItem.create(1L, new Position(10, 10), new ItemSize(5, 5), Category.LEFT);
-        PlacedItem item2 = PlacedItem.create(2L, new Position(12, 12), new ItemSize(5, 5), Category.LEFT);
+        PlacedItem item1 = PlacedItem.create(1L, 100L, new Position(10, 10), new ItemSize(5, 5), Category.LEFT);
+        PlacedItem item2 = PlacedItem.create(2L, 101L, new Position(12, 12), new ItemSize(5, 5), Category.LEFT);
 
         placement.addItem(item1);
 
@@ -94,8 +95,8 @@ class PlacementAggregateTests {
     void 다른_카테고리_같은_위치_배치_성공() {
         // given
         Placement placement = Placement.create(new RoomId(1L));
-        PlacedItem leftItem = PlacedItem.create(1L, new Position(10, 10), new ItemSize(5, 5), Category.LEFT);
-        PlacedItem rightItem = PlacedItem.create(2L, new Position(10, 10), new ItemSize(5, 5), Category.RIGHT);
+        PlacedItem leftItem = PlacedItem.create(1L, 100L, new Position(10, 10), new ItemSize(5, 5), Category.LEFT);
+        PlacedItem rightItem = PlacedItem.create(2L, 101L, new Position(10, 10), new ItemSize(5, 5), Category.RIGHT);
 
         // when
         placement.addItem(leftItem);
@@ -112,9 +113,9 @@ class PlacementAggregateTests {
     void 펫_개수_제한_검증() {
         // given
         Placement placement = Placement.create(new RoomId(1L));
-        PlacedItem pet1 = PlacedItem.create(1L, new Position(10, 10), new ItemSize(3, 3), Category.PET);
-        PlacedItem pet2 = PlacedItem.create(2L, new Position(20, 20), new ItemSize(3, 3), Category.PET);
-        PlacedItem pet3 = PlacedItem.create(3L, new Position(30, 30), new ItemSize(3, 3), Category.PET);
+        PlacedItem pet1 = PlacedItem.create(1L, 100L, new Position(10, 10), new ItemSize(3, 3), Category.PET);
+        PlacedItem pet2 = PlacedItem.create(2L, 101L, new Position(20, 20), new ItemSize(3, 3), Category.PET);
+        PlacedItem pet3 = PlacedItem.create(3L, 102L, new Position(30, 30), new ItemSize(3, 3), Category.PET);
 
         placement.addItem(pet1);
         placement.addItem(pet2);
@@ -130,7 +131,7 @@ class PlacementAggregateTests {
     void 아이템_제거() {
         // given
         Placement placement = Placement.create(new RoomId(1L));
-        PlacedItem item = PlacedItem.create(1L, new Position(10, 20), new ItemSize(5, 3), Category.LEFT);
+        PlacedItem item = PlacedItem.create(1L, 100L, new Position(10, 20), new ItemSize(5, 3), Category.LEFT);
         placement.addItem(item);
 
         // when
@@ -160,12 +161,12 @@ class PlacementAggregateTests {
     void 모든_아이템_교체() {
         // given
         Placement placement = Placement.create(new RoomId(1L));
-        PlacedItem oldItem = PlacedItem.create(1L, new Position(10, 10), new ItemSize(3, 3), Category.LEFT);
+        PlacedItem oldItem = PlacedItem.create(1L, 100L, new Position(10, 10), new ItemSize(3, 3), Category.LEFT);
         placement.addItem(oldItem);
 
         List<PlacedItem> newItems = List.of(
-            PlacedItem.create(2L, new Position(20, 20), new ItemSize(4, 4), Category.RIGHT),
-            PlacedItem.create(3L, new Position(30, 30), new ItemSize(2, 2), Category.BOTTOM)
+            PlacedItem.create(2L, 101L, new Position(20, 20), new ItemSize(4, 4), Category.RIGHT),
+            PlacedItem.create(3L, 102L, new Position(30, 30), new ItemSize(2, 2), Category.BOTTOM)
         );
 
         // when
@@ -185,8 +186,8 @@ class PlacementAggregateTests {
         Placement placement = Placement.create(new RoomId(1L));
 
         List<PlacedItem> invalidItems = List.of(
-            PlacedItem.create(1L, new Position(10, 10), new ItemSize(5, 5), Category.LEFT),
-            PlacedItem.create(2L, new Position(12, 12), new ItemSize(5, 5), Category.LEFT) // 겹침
+            PlacedItem.create(1L, 100L, new Position(10, 10), new ItemSize(5, 5), Category.LEFT),
+            PlacedItem.create(2L, 101L, new Position(12, 12), new ItemSize(5, 5), Category.LEFT) // 겹침
         );
 
         // when & then
@@ -200,7 +201,7 @@ class PlacementAggregateTests {
     void 빈_목록으로_교체() {
         // given
         Placement placement = Placement.create(new RoomId(1L));
-        PlacedItem item = PlacedItem.create(1L, new Position(10, 10), new ItemSize(3, 3), Category.LEFT);
+        PlacedItem item = PlacedItem.create(1L, 100L, new Position(10, 10), new ItemSize(3, 3), Category.LEFT);
         placement.addItem(item);
 
         // when

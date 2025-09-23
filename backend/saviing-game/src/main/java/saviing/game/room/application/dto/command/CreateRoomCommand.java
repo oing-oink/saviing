@@ -51,6 +51,5 @@ public record CreateRoomCommand(
         if (roomNumber == null) {
             throw new IllegalArgumentException("방 번호는 필수입니다");
         }
-        // RoomNumber VO가 이미 생성되어 있으므로 별도 검증 불필요
     }
 }

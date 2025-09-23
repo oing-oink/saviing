@@ -21,10 +21,15 @@ import saviing.game.character.domain.exception.DuplicateActiveCharacterException
 import saviing.game.character.domain.model.aggregate.Character;
 import saviing.game.character.domain.model.vo.CharacterId;
 import saviing.game.character.domain.repository.CharacterRepository;
+import saviing.game.room.application.service.RoomCommandService;
+import saviing.game.room.application.dto.command.CreateRoomCommand;
+import saviing.game.room.application.dto.result.RoomCreatedResult;
+import saviing.game.room.domain.model.vo.RoomNumber;
 
 /**
  * 캐릭터 Command 처리 서비스
- * 상태 변경을 담당하는 Command 처리를 담당합니다.
+ * 캐릭터 생성, 계좌 연결, 코인 관리 등의 상태 변경을 담당하는 Command 처리를 담당합니다.
+ * 캐릭터 생성 시 기본 방도 함께 생성하여 강한 일관성을 보장합니다.
  */
 @Slf4j
 @RequiredArgsConstructor
@@ -33,30 +38,45 @@ import saviing.game.character.domain.repository.CharacterRepository;
 public class CharacterCommandService {
 
     private final CharacterRepository characterRepository;
+    private final RoomCommandService roomCommandService;
     private final DomainEventPublisher domainEventPublisher;
 
     /**
      * 새로운 캐릭터를 생성합니다.
+     * 캐릭터 생성과 동시에 기본 방(1번 방)도 함께 생성하여
+     * 데이터 일관성을 보장하고 사용자가 즉시 게임을 시작할 수 있도록 합니다.
      *
      * @param command 캐릭터 생성 Command
      * @return 생성된 캐릭터 결과
+     * @throws DuplicateActiveCharacterException 이미 활성 캐릭터가 존재하는 경우
+     * @throws RuntimeException 방 생성에 실패한 경우 (트랜잭션 롤백됨)
      */
     @Transactional
     public CharacterCreatedResult createCharacter(CreateCharacterCommand command) {
         log.info("Creating character for customer: {}", command.customerId().value());
 
+        // 1. 기존 활성 캐릭터 중복 확인
         if (characterRepository.findActiveCharacterByCustomerId(command.customerId()).isPresent()) {
             throw new DuplicateActiveCharacterException(command.customerId());
         }
 
+        // 2. 캐릭터 생성 및 저장
         Character character = Character.create(command.customerId());
         Character savedCharacter = characterRepository.save(character);
+
+        // 3. 기본 방(1번 방) 생성
+        Long roomId = createDefaultRoom(savedCharacter.getCharacterId().value());
+
+        // 4. 도메인 이벤트 발행
         publishDomainEvents(savedCharacter);
 
-        log.info("Character created with ID: {}", savedCharacter.getCharacterId().value());
+        log.info("Character created with ID: {} and default room created with ID: {}",
+            savedCharacter.getCharacterId().value(), roomId);
+
         return CharacterCreatedResult.builder()
             .characterId(savedCharacter.getCharacterId().value())
             .customerId(savedCharacter.getCustomerId().value())
+            .roomId(roomId)
             .createdAt(savedCharacter.getCharacterLifecycle().createdAt())
             .build();
     }
@@ -242,6 +262,30 @@ public class CharacterCommandService {
     private Character findCharacterById(CharacterId characterId) {
         return characterRepository.findById(characterId)
                 .orElseThrow(() -> new CharacterNotFoundException(characterId.value()));
+    }
+
+    /**
+     * 캐릭터의 기본 방(1번 방)을 생성합니다.
+     * 캐릭터 생성 시 즉시 사용할 수 있는 기본 방을 제공하기 위해 호출됩니다.
+     * 동일한 트랜잭션 내에서 실행되어 캐릭터와 방의 일관성을 보장합니다.
+     *
+     * @param characterId 방을 생성할 캐릭터의 식별자
+     * @return 생성된 방의 식별자
+     * @throws RuntimeException 방 생성에 실패한 경우
+     */
+    private Long createDefaultRoom(Long characterId) {
+        try {
+            CreateRoomCommand roomCommand = CreateRoomCommand.of(
+                characterId,
+                RoomNumber.DEFAULT.value()
+            );
+            RoomCreatedResult roomResult = roomCommandService.createRoom(roomCommand);
+            return roomResult.roomId();
+        } catch (Exception e) {
+            log.error("Failed to create default room for character: {}, error: {}",
+                characterId, e.getMessage(), e);
+            throw new RuntimeException("기본 방 생성에 실패했습니다: " + e.getMessage(), e);
+        }
     }
 
     /**

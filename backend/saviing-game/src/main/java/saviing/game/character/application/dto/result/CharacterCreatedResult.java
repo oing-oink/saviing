@@ -9,12 +9,14 @@ import java.time.LocalDateTime;
  *
  * @param characterId 생성된 캐릭터 ID
  * @param customerId 고객 ID
+ * @param roomId 생성된 기본 방 ID (1번 방)
  * @param createdAt 캐릭터 생성 일시
  */
 @Builder
 public record CharacterCreatedResult(
     Long characterId,
     Long customerId,
+    Long roomId,
     LocalDateTime createdAt
 ) {
 }

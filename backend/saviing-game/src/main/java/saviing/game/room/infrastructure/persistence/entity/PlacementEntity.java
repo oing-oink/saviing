@@ -44,6 +44,9 @@ public class PlacementEntity {
     @Column(name = "inventory_item_id", nullable = false, unique = true)
     private Long inventoryItemId;
 
+    @Column(name = "item_id", nullable = false)
+    private Long itemId;
+
     @Column(name = "position_x", nullable = false)
     private Integer positionX;
 
@@ -72,6 +75,7 @@ public class PlacementEntity {
      * @param placementId 배치 식별자
      * @param roomId 방 식별자
      * @param inventoryItemId 인벤토리 아이템 식별자
+     * @param itemId 아이템 식별자
      * @param positionX X 좌표
      * @param positionY Y 좌표
      * @param xLength X축 길이
@@ -85,6 +89,7 @@ public class PlacementEntity {
         Long placementId,
         Long roomId,
         Long inventoryItemId,
+        Long itemId,
         Integer positionX,
         Integer positionY,
         Integer xLength,
@@ -96,6 +101,7 @@ public class PlacementEntity {
         this.placementId = placementId;
         this.roomId = roomId;
         this.inventoryItemId = inventoryItemId;
+        this.itemId = itemId;
         this.positionX = positionX;
         this.positionY = positionY;
         this.xLength = xLength;

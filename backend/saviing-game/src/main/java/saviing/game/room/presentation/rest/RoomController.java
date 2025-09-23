@@ -16,6 +16,7 @@ import saviing.game.room.application.service.RoomCommandService;
 import saviing.game.room.application.service.RoomQueryService;
 import saviing.game.room.presentation.dto.request.SaveRoomPlacementsRequest;
 import saviing.game.room.presentation.dto.response.RoomPlacementsResponse;
+import saviing.game.room.presentation.interfaces.RoomApi;
 import saviing.game.room.presentation.mapper.RoomPresentationMapper;
 
 /**
@@ -25,7 +26,7 @@ import saviing.game.room.presentation.mapper.RoomPresentationMapper;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/v1/game/rooms")
-public class RoomController {
+public class RoomController implements RoomApi {
 
     private final RoomQueryService roomQueryService;
     private final RoomCommandService roomCommandService;

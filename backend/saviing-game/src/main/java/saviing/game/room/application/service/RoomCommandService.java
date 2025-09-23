@@ -85,6 +85,7 @@ public class RoomCommandService {
         return commands.stream()
             .map(command -> PlacedItem.create(
                 command.inventoryItemId(),
+                command.itemId(),
                 new Position(command.positionX(), command.positionY()),
                 new ItemSize(command.xLength(), command.yLength()),
                 command.category()

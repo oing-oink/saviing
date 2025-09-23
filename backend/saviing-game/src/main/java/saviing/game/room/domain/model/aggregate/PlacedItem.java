@@ -16,6 +16,7 @@ import saviing.game.room.domain.model.vo.Position;
 public class PlacedItem {
 
     private final Long inventoryItemId;
+    private final Long itemId;
     private final Position position;
     private final ItemSize size;
     private final Category category;
@@ -25,14 +26,16 @@ public class PlacedItem {
      * PlacedItem 생성자 (내부용)
      *
      * @param inventoryItemId 인벤토리 아이템 식별자
+     * @param itemId 아이템 식별자
      * @param position 배치 위치
      * @param size 아이템 크기
      * @param category 배치 카테고리
      * @param createdAt 생성 시각
      */
-    private PlacedItem(Long inventoryItemId, Position position, ItemSize size,
+    private PlacedItem(Long inventoryItemId, Long itemId, Position position, ItemSize size,
             Category category, LocalDateTime createdAt) {
         this.inventoryItemId = inventoryItemId;
+        this.itemId = itemId;
         this.position = position;
         this.size = size;
         this.category = category;
@@ -43,6 +46,7 @@ public class PlacedItem {
      * 새로운 배치 아이템을 생성하는 정적 팩토리 메서드
      *
      * @param inventoryItemId 인벤토리 아이템 식별자
+     * @param itemId 아이템 식별자
      * @param position 배치 위치
      * @param size 아이템 크기
      * @param category 배치 카테고리
@@ -51,6 +55,7 @@ public class PlacedItem {
      */
     public static PlacedItem create(
         @NonNull Long inventoryItemId,
+        @NonNull Long itemId,
         @NonNull Position position,
         @NonNull ItemSize size,
         @NonNull Category category
@@ -59,15 +64,19 @@ public class PlacedItem {
         if (inventoryItemId <= 0) {
             throw new IllegalArgumentException("InventoryItemId must be positive");
         }
+        if (itemId <= 0) {
+            throw new IllegalArgumentException("ItemId must be positive");
+        }
 
         LocalDateTime now = LocalDateTime.now();
-        return new PlacedItem(inventoryItemId, position, size, category, now);
+        return new PlacedItem(inventoryItemId, itemId, position, size, category, now);
     }
 
     /**
      * 기존 배치 아이템을 복원하는 정적 팩토리 메서드 (영속성 계층용)
      *
      * @param inventoryItemId 인벤토리 아이템 식별자
+     * @param itemId 아이템 식별자
      * @param position 배치 위치
      * @param size 아이템 크기
      * @param category 배치 카테고리
@@ -77,12 +86,13 @@ public class PlacedItem {
      */
     public static PlacedItem restore(
         @NonNull Long inventoryItemId,
+        @NonNull Long itemId,
         @NonNull Position position,
         @NonNull ItemSize size,
         @NonNull Category category,
         @NonNull LocalDateTime createdAt
     ) {
-        return new PlacedItem(inventoryItemId, position, size, category, createdAt);
+        return new PlacedItem(inventoryItemId, itemId, position, size, category, createdAt);
     }
 
     /**

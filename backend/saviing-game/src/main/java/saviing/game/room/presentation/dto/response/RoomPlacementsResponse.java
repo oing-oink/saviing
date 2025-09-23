@@ -3,16 +3,20 @@ package saviing.game.room.presentation.dto.response;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 /**
  * 방 배치 목록 응답 DTO입니다.
  */
 @Builder
+@Schema(description = "방 배치 목록 응답")
 public record RoomPlacementsResponse(
+    @Schema(description = "방 식별자", example = "1")
     @JsonProperty("roomId")
     Long roomId,
 
+    @Schema(description = "배치된 아이템 목록")
     @JsonProperty("placements")
     List<PlacementResponse> placements
 ) {

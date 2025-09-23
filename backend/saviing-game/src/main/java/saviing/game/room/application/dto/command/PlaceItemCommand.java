@@ -10,6 +10,7 @@ import saviing.game.room.domain.model.aggregate.Category;
  */
 public record PlaceItemCommand(
     Long inventoryItemId,
+    Long itemId,
     int positionX,
     int positionY,
     int xLength,
@@ -23,6 +24,9 @@ public record PlaceItemCommand(
 
         if (inventoryItemId <= 0) {
             throw new IllegalArgumentException("InventoryItemId must be positive");
+        }
+        if (itemId <= 0) {
+            throw new IllegalArgumentException("ItemId must be positive");
         }
         if (positionX < 0 || positionY < 0) {
             throw new IllegalArgumentException("Position coordinates must be non-negative");

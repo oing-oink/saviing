@@ -85,6 +85,7 @@ public class PlacementEntityMapper {
     private static PlacedItem toPlacedItem(@NonNull PlacementEntity entity) {
         return PlacedItem.restore(
             entity.getInventoryItemId(),
+            entity.getItemId(),
             new Position(entity.getPositionX(), entity.getPositionY()),
             new ItemSize(entity.getXLength(), entity.getYLength()),
             entity.getCategory(),
@@ -106,6 +107,7 @@ public class PlacementEntityMapper {
             .placementId(null)  // DB에서 자동 생성되도록 null로 설정
             .roomId(placement.getRoomId().value())
             .inventoryItemId(placedItem.getInventoryItemId())
+            .itemId(placedItem.getItemId())
             .positionX(placedItem.getPosition().x())
             .positionY(placedItem.getPosition().y())
             .xLength(placedItem.getSize().xLength())
