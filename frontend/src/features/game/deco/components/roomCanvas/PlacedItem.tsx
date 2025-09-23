@@ -75,7 +75,11 @@ const PlacedItem = ({
    * @param event - React 마우스 이벤트 객체
    */
   const handleMouseDown = (event: MouseEvent<SVGPolygonElement>) => {
-    event.preventDefault();
+    try {
+      event.preventDefault();
+    } catch {
+      // passive event listener에서는 preventDefault 호출 불가
+    }
     event.stopPropagation();
     onPick({ id, clientX: event.clientX, clientY: event.clientY });
   };
@@ -88,7 +92,11 @@ const PlacedItem = ({
    * @param event - React 터치 이벤트 객체
    */
   const handleTouchStart = (event: TouchEvent<SVGPolygonElement>) => {
-    event.preventDefault();
+    try {
+      event.preventDefault();
+    } catch {
+      // passive event listener에서는 preventDefault 호출 불가
+    }
     event.stopPropagation();
     const touch = event.changedTouches[0];
     onPick({ id, clientX: touch.clientX, clientY: touch.clientY });
