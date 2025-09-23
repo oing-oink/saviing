@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useSavingsSettingsStore } from '@/features/savings/store/useSavingsSettingsStore';
 import { useSavingsSettingsChange } from '@/features/savings/hooks/useSavingsSettingsChange';
 import {
@@ -7,18 +7,12 @@ import {
   useSavingsAccountDetail,
 } from '@/features/savings/query/useSavingsQuery';
 import { Button } from '@/shared/components/ui/button';
-import { createSavingsTerminationPath, PAGE_PATH } from '@/shared/constants/path';
 
 const CurrentInfoStep = () => {
   const { accountId } = useParams<{ accountId: string }>();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const { setCurrentInfo } = useSavingsSettingsStore();
   const { goToNextStep } = useSavingsSettingsChange();
-
-  // URL 파라미터에서 from 값을 읽어옴
-  const fromParam = searchParams.get('from');
-  const entryPoint = fromParam ? decodeURIComponent(fromParam) : PAGE_PATH.HOME;
 
   // 계좌 목록 조회 (자동이체 연결 계좌 정보 표시용)
   const { data: accounts } = useAccountsList();
@@ -220,7 +214,7 @@ const CurrentInfoStep = () => {
         {/* 적금 해지 버튼 */}
         <Button
           variant="ghost"
-          className="mb-3 h-12 w-full rounded-lg text-red-500 hover:text-red-700 bg-gray-100 hover:bg-gray-200"
+          className="mb-3 h-12 w-full rounded-lg bg-gray-100 text-red-500 hover:bg-gray-200 hover:text-red-700"
           onClick={() => {
             if (accountId) {
               // 현재 설정 변경 페이지 URL을 from 파라미터로 전달

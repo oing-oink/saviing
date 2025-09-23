@@ -8,11 +8,7 @@ import { Progress } from '@/shared/components/ui/progress';
 import { Button } from '@/shared/components/ui/button';
 import { Badge } from '@/shared/components/ui/badge';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import {
-  PAGE_PATH,
-  changeSavingsSettingsPath,
-  createSavingsTerminationPath,
-} from '@/shared/constants/path';
+import { PAGE_PATH, changeSavingsSettingsPath } from '@/shared/constants/path';
 import { formatDate } from '@/shared/utils/dateFormat';
 import type { SavingsDisplayData } from '@/features/savings/types/savingsTypes';
 import { useSavingsAccountDetail } from '@/features/savings/query/useSavingsQuery';
@@ -152,7 +148,7 @@ const SavingsDetailCard = ({
                 disabled={isAccountClosed}
                 className={`text-black-900 flex-1 ${
                   isAccountClosed
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    ? 'cursor-not-allowed bg-gray-300 text-gray-500'
                     : 'bg-secondary'
                 }`}
                 onClick={() => {
@@ -167,7 +163,7 @@ const SavingsDetailCard = ({
                 disabled={isAccountClosed}
                 className={`flex-1 ${
                   isAccountClosed
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed hover:bg-gray-300'
+                    ? 'cursor-not-allowed bg-gray-300 text-gray-500 hover:bg-gray-300'
                     : 'bg-primary text-white hover:bg-primary/90'
                 }`}
                 onClick={() => {
@@ -179,7 +175,6 @@ const SavingsDetailCard = ({
                 입금
               </Button>
             </div>
-
           </div>
         </div>
       </CardContent>

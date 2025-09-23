@@ -13,7 +13,12 @@ const CompleteStep = () => {
 
   console.log('CompleteStep - accountId:', accountId);
 
-  const { data: accountData, isLoading, isError, error } = useSavingsAccountDetail(accountId!);
+  const {
+    data: accountData,
+    isLoading,
+    isError,
+    error,
+  } = useSavingsAccountDetail(accountId!);
 
   console.log('CompleteStep - API response:', {
     accountData,
@@ -23,7 +28,10 @@ const CompleteStep = () => {
   });
 
   console.log('CompleteStep - Account status:', accountData?.status);
-  console.log('CompleteStep - Account full data:', JSON.stringify(accountData, null, 2));
+  console.log(
+    'CompleteStep - Account full data:',
+    JSON.stringify(accountData, null, 2),
+  );
 
   useEffect(() => {
     if (accountData && accountId) {

@@ -46,7 +46,7 @@ const SavingsAccountWalletCard = ({
                 {account.product.productName}
               </p>
               {isAccountClosed && (
-                <Badge className="mt-1 text-xs bg-red-100 text-red-800">
+                <Badge className="mt-1 bg-red-100 text-xs text-red-800">
                   해지됨
                 </Badge>
               )}

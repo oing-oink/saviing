@@ -1,5 +1,8 @@
 import { useSavingsTermination } from '@/features/savings/hooks/useSavingsTermination';
-import { useSavingsAccountDetail, useTerminateSavingsAccount } from '@/features/savings/query/useSavingsQuery';
+import {
+  useSavingsAccountDetail,
+  useTerminateSavingsAccount,
+} from '@/features/savings/query/useSavingsQuery';
 import { Button } from '@/shared/components/ui/button';
 import { useParams } from 'react-router-dom';
 import { formatDate } from '@/shared/utils/dateFormat';
@@ -10,7 +13,12 @@ const ConfirmStep = () => {
 
   console.log('ConfirmStep - accountId:', accountId);
 
-  const { data: accountData, isLoading, isError, error } = useSavingsAccountDetail(accountId!);
+  const {
+    data: accountData,
+    isLoading,
+    isError,
+    error,
+  } = useSavingsAccountDetail(accountId!);
   const terminateMutation = useTerminateSavingsAccount();
 
   console.log('ConfirmStep - API response:', {
@@ -26,7 +34,10 @@ const ConfirmStep = () => {
     }
 
     try {
-      console.log('ConfirmStep - Starting termination for accountId:', accountId);
+      console.log(
+        'ConfirmStep - Starting termination for accountId:',
+        accountId,
+      );
       const result = await terminateMutation.mutateAsync(accountId);
       console.log('ConfirmStep - Termination success:', result);
 
@@ -61,15 +72,17 @@ const ConfirmStep = () => {
       <div className="flex flex-1 items-center justify-center">
         <div className="text-red-500">
           데이터를 불러올 수 없습니다.
-          {error && <div className="text-sm mt-1">{String(error)}</div>}
+          {error && <div className="mt-1 text-sm">{String(error)}</div>}
         </div>
       </div>
     );
   }
 
   const account = accountData;
-  const achievementRate = account?.savings?.targetAmount > 0 ?
-    Math.round((account.balance / account.savings.targetAmount) * 100) : 0;
+  const achievementRate =
+    account?.savings?.targetAmount > 0
+      ? Math.round((account.balance / account.savings.targetAmount) * 100)
+      : 0;
   const terminationDate = formatDate(new Date());
   const estimatedInterest = Math.round((account?.balance || 0) * 0.012);
   const finalAmount = (account?.balance || 0) + estimatedInterest;
@@ -89,7 +102,9 @@ const ConfirmStep = () => {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-600">상품명</span>
-                <span className="font-medium text-gray-900">{account?.product?.productName || '-'}</span>
+                <span className="font-medium text-gray-900">
+                  {account?.product?.productName || '-'}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">계좌번호</span>
@@ -99,19 +114,29 @@ const ConfirmStep = () => {
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">잔액</span>
-                <span className="font-medium text-gray-900">{(account?.balance || 0).toLocaleString()}원</span>
+                <span className="font-medium text-gray-900">
+                  {(account?.balance || 0).toLocaleString()}원
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">목표 금액</span>
-                <span className="font-medium text-gray-900">{(account?.savings?.targetAmount || 0).toLocaleString()}원</span>
+                <span className="font-medium text-gray-900">
+                  {(account?.savings?.targetAmount || 0).toLocaleString()}원
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">달성률</span>
-                <span className="font-medium text-primary">{achievementRate}%</span>
+                <span className="font-medium text-primary">
+                  {achievementRate}%
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">가입일</span>
-                <span className="font-medium text-gray-900">{account?.createdAt ? formatDate(new Date(account.createdAt)) : '-'}</span>
+                <span className="font-medium text-gray-900">
+                  {account?.createdAt
+                    ? formatDate(new Date(account.createdAt))
+                    : '-'}
+                </span>
               </div>
             </div>
           </div>
@@ -137,7 +162,9 @@ const ConfirmStep = () => {
               </div>
               <div className="mt-2 flex justify-between border-t border-gray-200 pt-2">
                 <span className="font-semibold text-gray-900">최종 지급액</span>
-                <span className="font-bold text-primary">{finalAmount.toLocaleString()}원</span>
+                <span className="font-bold text-primary">
+                  {finalAmount.toLocaleString()}원
+                </span>
               </div>
             </div>
           </div>

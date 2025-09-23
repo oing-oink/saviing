@@ -253,7 +253,7 @@ export const useTerminateSavingsAccount = () => {
         data,
       );
     },
-    onError: (error) => {
+    onError: error => {
       console.error('적금 계좌 해지 실패:', error);
     },
   });

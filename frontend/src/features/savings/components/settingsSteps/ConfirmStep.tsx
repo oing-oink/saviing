@@ -86,7 +86,7 @@ const ConfirmStep = () => {
     } catch (error: unknown) {
       // ApiError에서 실제 서버 응답 메시지 추출
       const serverResponse = (
-        error as { axiosError?: { response?: { data?: any } } }
+        error as { axiosError?: { response?: { data?: unknown } } }
       )?.axiosError?.response?.data;
       const errorCode = serverResponse?.code;
       const serverMessage =
