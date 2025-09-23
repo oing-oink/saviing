@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import type { Item, Tab } from '@/features/game/shop/types/item';
 import { TABS } from '@/features/game/shop/types/item';
 import { useSlots } from '@/features/game/shop/hooks/useSlots';
@@ -40,16 +41,18 @@ const Inventory = ({
     useItemModal();
 
   // 데코 모드에서 배치된 아이템들 추적
-  const placedItems = useDecoStore(state =>
-    mode === 'deco' ? state.draftItems : [],
-  );
+  const draftItems = useDecoStore(state => state.draftItems);
 
   // 배치된 슬롯 ID들을 Set으로 관리 (빠른 조회를 위해)
-  const placedSlotIds = new Set(
-    placedItems
-      .filter(item => !item.isPreview && item.slotId) // 프리뷰 아이템 제외 및 slotId 있는 것만
-      .map(item => item.slotId),
-  );
+  const placedSlotIds = useMemo(() => {
+    if (mode !== 'deco') return new Set<string>();
+
+    return new Set(
+      draftItems
+        .filter(item => !item.isPreview && item.slotId) // 프리뷰 아이템 제외 및 slotId 있는 것만
+        .map(item => item.slotId!),
+    );
+  }, [mode, draftItems]);
 
   // 슬롯이 이미 배치되었는지 확인하는 함수
   const isSlotPlaced = (slotId: string) => placedSlotIds.has(slotId);
