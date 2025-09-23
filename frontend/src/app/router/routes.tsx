@@ -9,6 +9,7 @@ import SavingsDetailLayout from '@/features/savings/layouts/SavingsDetailLayout'
 import HomePage from '@/pages/HomePage';
 import WalletPage from '@/pages/WalletPage';
 import ProductsPage from '@/pages/ProductsPage';
+import ProfilePage from '@/pages/ProfilePage';
 import LoginPage from '@/pages/LoginPage';
 import OnboardingPage from '@/pages/OnboardingPage';
 import AuthCallbackPage from '@/pages/AuthCallbackPage';
@@ -31,6 +32,7 @@ const savingsLayoutRoutes = [
   { path: '', element: <HomePage /> }, // '/' 경로
   { path: 'wallet', element: <WalletPage /> }, // '/wallet' 경로
   { path: 'products', element: <ProductsPage /> }, // '/products' 경로
+  { path: 'profile', element: <ProfilePage /> }, // '/profile' 경로
 ];
 
 // 레이아웃 없는 보호된 라우트들
