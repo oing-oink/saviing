@@ -64,6 +64,7 @@ const RoomCanvas = ({
   const dragSession = useDecoStore(state => state.dragSession);
   const draftItems = useDecoStore(state => state.draftItems);
   const pendingPlacement = useDecoStore(state => state.pendingPlacement);
+
   const commitPlacement = useDecoStore(state => state.commitPlacement);
   const cancelPendingPlacement = useDecoStore(
     state => state.cancelPendingPlacement,
@@ -595,7 +596,11 @@ const RoomCanvas = ({
     if (!shouldCapturePointer(event.clientX, event.clientY)) {
       return;
     }
-    event.preventDefault();
+    try {
+      event.preventDefault();
+    } catch {
+      // passive event listener에서는 preventDefault 호출 불가
+    }
     event.stopPropagation();
     event.nativeEvent.stopImmediatePropagation();
     isPointerActiveRef.current = true;
@@ -612,7 +617,11 @@ const RoomCanvas = ({
     if (!shouldCapturePointer(event.clientX, event.clientY)) {
       return;
     }
-    event.preventDefault();
+    try {
+      event.preventDefault();
+    } catch {
+      // passive event listener에서는 preventDefault 호출 불가
+    }
     event.stopPropagation();
     event.nativeEvent.stopImmediatePropagation();
     isPointerActiveRef.current = true;
@@ -625,7 +634,11 @@ const RoomCanvas = ({
     if (!dragSession || !isPointerActiveRef.current) {
       return;
     }
-    event.preventDefault();
+    try {
+      event.preventDefault();
+    } catch {
+      // passive event listener에서는 preventDefault 호출 불가
+    }
     event.stopPropagation();
     event.nativeEvent.stopImmediatePropagation();
     projectToOverlay(event.clientX, event.clientY);
@@ -649,7 +662,11 @@ const RoomCanvas = ({
     if (!dragSession || !isPointerActiveRef.current) {
       return;
     }
-    event.preventDefault();
+    try {
+      event.preventDefault();
+    } catch {
+      // passive event listener에서는 preventDefault 호출 불가
+    }
     finalizePlacement();
   };
 
@@ -663,7 +680,7 @@ const RoomCanvas = ({
   const canvasRef = useRef<HTMLDivElement>(null);
 
   // 터치 환경에서도 마우스와 동일한 흐름으로 고스트를 제어한다.
-  const handleTouchStartCapture = (event: TouchEvent) => {
+  const handleTouchStartCapture = useCallback((event: TouchEvent) => {
     const touch = event.changedTouches[0];
     const target = event.target as HTMLElement | null;
     if (target && target.closest('[data-room-action="true"]')) {
@@ -672,14 +689,18 @@ const RoomCanvas = ({
     if (!touch || !shouldCapturePointer(touch.clientX, touch.clientY)) {
       return;
     }
-    event.preventDefault();
+    try {
+      event.preventDefault();
+    } catch {
+      // passive event listener에서는 preventDefault 호출 불가
+    }
     event.stopPropagation();
     event.stopImmediatePropagation();
     activeTouchIdRef.current = touch.identifier;
     projectToOverlay(touch.clientX, touch.clientY);
     isPointerActiveRef.current = true;
     setIsPointerActive(true);
-  };
+  }, [shouldCapturePointer, projectToOverlay, setIsPointerActive]);
 
   // passive: false로 터치 이벤트 등록
   useEffect(() => {
@@ -698,7 +719,7 @@ const RoomCanvas = ({
         capture: true,
       });
     };
-  }, []);
+  }, [handleTouchStartCapture]);
 
   const handleTouchStart = (event: ReactTouchEvent<HTMLDivElement>) => {
     const touch = event.changedTouches[0];
@@ -709,7 +730,11 @@ const RoomCanvas = ({
     if (!touch || !shouldCapturePointer(touch.clientX, touch.clientY)) {
       return;
     }
-    event.preventDefault();
+    try {
+      event.preventDefault();
+    } catch {
+      // passive event listener에서는 preventDefault 호출 불가
+    }
     event.stopPropagation();
     event.nativeEvent.stopImmediatePropagation();
     activeTouchIdRef.current = touch.identifier;
@@ -742,7 +767,11 @@ const RoomCanvas = ({
     if (!touch) {
       return;
     }
-    event.preventDefault();
+    try {
+      event.preventDefault();
+    } catch {
+      // passive event listener에서는 preventDefault 호출 불가
+    }
     event.stopPropagation();
     event.nativeEvent.stopImmediatePropagation();
     projectToOverlay(touch.clientX, touch.clientY);
@@ -756,7 +785,11 @@ const RoomCanvas = ({
     if (!touch) {
       return;
     }
-    event.preventDefault();
+    try {
+      event.preventDefault();
+    } catch {
+      // passive event listener에서는 preventDefault 호출 불가
+    }
     event.stopPropagation();
     event.nativeEvent.stopImmediatePropagation();
     finalizePlacement();
@@ -835,14 +868,40 @@ const RoomCanvas = ({
           >
             <button
               type="button"
-              onClick={handleCancel}
+              onClick={(event) => {
+                event.stopPropagation();
+                handleCancel();
+              }}
+              onTouchEnd={(event) => {
+                try {
+      event.preventDefault();
+    } catch {
+      // passive event listener에서는 preventDefault 호출 불가
+    }
+                event.stopPropagation();
+                handleCancel();
+              }}
               className="rounded-md bg-gray-200 px-2.5 py-1 whitespace-nowrap text-gray-700 transition hover:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-50"
             >
               취소
             </button>
             <button
               type="button"
-              onClick={handleConfirm}
+              onClick={(event) => {
+                event.stopPropagation();
+                handleConfirm();
+              }}
+              onTouchEnd={(event) => {
+                try {
+      event.preventDefault();
+    } catch {
+      // passive event listener에서는 preventDefault 호출 불가
+    }
+                event.stopPropagation();
+                if (pendingPlacement) {
+                  handleConfirm();
+                }
+              }}
               disabled={!pendingPlacement}
               className="rounded-md bg-primary px-2.5 py-1 whitespace-nowrap text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
             >
