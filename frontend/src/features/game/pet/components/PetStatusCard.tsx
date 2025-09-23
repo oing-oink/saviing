@@ -66,7 +66,7 @@ const PetStatusCard = ({ petId }: PetStatusCardProps) => {
   }
 
   return (
-    <Card className="mx-5 h-60 rounded-t-2xl p-4 overflow-y-auto">
+    <Card className="mx-5 h-60 overflow-y-auto rounded-t-2xl p-4">
       <div className="flex items-center gap-3">
         <Badge className={`${levelClass}`}>Lv{petData.level}</Badge>
         <div className="flex items-center gap-2">

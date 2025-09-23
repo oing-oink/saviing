@@ -26,6 +26,5 @@ export const petKeys = {
   /**
    * 펫 이름 변경 뮤테이션 키
    */
-  rename: (petId: number) =>
-    [...petKeys.detail(petId), 'rename'] as const,
+  rename: (petId: number) => [...petKeys.detail(petId), 'rename'] as const,
 };

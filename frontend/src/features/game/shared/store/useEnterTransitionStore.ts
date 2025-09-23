@@ -27,4 +27,3 @@ export const useEnterTransitionStore = create<EnterTransitionState>(set => ({
     }),
   reset: () => set({ origin: undefined, isTransitioningToGame: false }),
 }));
-

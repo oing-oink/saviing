@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Badge } from '@/shared/components/ui/badge';
 import { Card } from '@/shared/components/ui/card';
 import { Button } from '@/shared/components/ui/button';
-import StatusProgress from './StatusProgress';
 import { usePetStatusCard } from '@/features/game/pet/hooks/usePetStatusCard';
 import { usePetRename } from '@/features/game/pet/query/usePetRename';
 
@@ -14,13 +12,15 @@ interface PetRenameCardProps {
 
 const PetRenameCard = ({ petId, onClose }: PetRenameCardProps) => {
   const navigate = useNavigate();
-  const { petData, isLoading, error, levelClass } = usePetStatusCard(petId);
+  const { petData, isLoading, error } = usePetStatusCard(petId);
   const renameMutation = usePetRename(petId);
 
   const [newName, setNewName] = useState('');
 
   const handleSave = async () => {
-    if (!newName.trim()) return;
+    if (!newName.trim()) {
+      return;
+    }
     await renameMutation.mutateAsync(newName.trim());
     if (onClose) {
       onClose();
@@ -46,8 +46,7 @@ const PetRenameCard = ({ petId, onClose }: PetRenameCardProps) => {
   }
 
   return (
-    <Card className="mx-5 h-60 rounded-t-2xl p-4 gap-2 overflow-y-auto">
-
+    <Card className="mx-5 h-60 gap-2 overflow-y-auto rounded-t-2xl p-4">
       <div className="mt-1 space-y-2">
         <div className="space-y-1">
           <label className="text-xs text-muted-foreground">현재 이름</label>
@@ -89,4 +88,3 @@ const PetRenameCard = ({ petId, onClose }: PetRenameCardProps) => {
 };
 
 export default PetRenameCard;
-

@@ -10,7 +10,9 @@ import GameBackgroundLayout from '@/features/game/shared/layouts/GameBackgroundL
 const GameEnterPage = () => {
   const navigate = useNavigate();
   const origin = useEnterTransitionStore(state => state.origin);
-  const startTransitionToGame = useEnterTransitionStore(state => state.startTransitionToGame);
+  const startTransitionToGame = useEnterTransitionStore(
+    state => state.startTransitionToGame,
+  );
   const reset = useEnterTransitionStore(state => state.reset);
   const anim = 'sleep';
   const [atCenter, setAtCenter] = useState(false);

@@ -13,12 +13,15 @@ interface GlobalGameBackgroundContextType {
   hideGameBackground: () => void;
 }
 
-const GlobalGameBackgroundContext = createContext<GlobalGameBackgroundContextType | null>(null);
+const GlobalGameBackgroundContext =
+  createContext<GlobalGameBackgroundContextType | null>(null);
 
 export const useGlobalGameBackground = () => {
   const context = useContext(GlobalGameBackgroundContext);
   if (!context) {
-    throw new Error('useGlobalGameBackground must be used within a GlobalGameBackgroundProvider');
+    throw new Error(
+      'useGlobalGameBackground must be used within a GlobalGameBackgroundProvider',
+    );
   }
   return context;
 };
@@ -27,7 +30,9 @@ interface GlobalGameBackgroundProviderProps {
   children: ReactNode;
 }
 
-export const GlobalGameBackgroundProvider = ({ children }: GlobalGameBackgroundProviderProps) => {
+export const GlobalGameBackgroundProvider = ({
+  children,
+}: GlobalGameBackgroundProviderProps) => {
   const [isGameBackground, setIsGameBackground] = useState(false);
 
   const showGameBackground = useCallback(() => setIsGameBackground(true), []);

@@ -28,7 +28,7 @@ const PetCard = ({ petId }: PetCardProps) => {
 
   if (isLoading) {
     return (
-      <Card className="game relative flex w-full flex-col items-center gap-4 overflow-hidden rounded-2xl py-4 font-galmuri shadow bg-transparent">
+      <Card className="game relative flex w-full flex-col items-center gap-4 overflow-hidden rounded-2xl bg-transparent py-4 font-galmuri shadow">
         <div className="relative z-10 flex h-full items-center justify-center">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           <span className="ml-2 text-sm text-muted-foreground">
@@ -41,7 +41,7 @@ const PetCard = ({ petId }: PetCardProps) => {
 
   if (error || !petData) {
     return (
-      <Card className="game relative flex w-full flex-col items-center gap-4 overflow-hidden rounded-2xl py-4 shadow bg-transparent">
+      <Card className="game relative flex w-full flex-col items-center gap-4 overflow-hidden rounded-2xl bg-transparent py-4 shadow">
         <div className="relative z-10 text-red-500">
           데이터를 불러올 수 없습니다
         </div>
@@ -50,13 +50,15 @@ const PetCard = ({ petId }: PetCardProps) => {
   }
 
   return (
-    <Card className="game relative flex w-full flex-col items-center gap-4 overflow-hidden rounded-2xl py-4 font-galmuri shadow bg-transparent">
-
+    <Card className="game relative flex w-full flex-col items-center gap-4 overflow-hidden rounded-2xl bg-transparent py-4 font-galmuri shadow">
       {/* 레벨 배지 */}
       <Badge className={`relative z-10 ${levelClass}`}>Lv{petData.level}</Badge>
 
       {/* 캐릭터 */}
-      <div ref={spriteRef} className="relative z-10 flex h-28 items-center justify-center">
+      <div
+        ref={spriteRef}
+        className="relative z-10 flex h-28 items-center justify-center"
+      >
         <CatSprite
           petId={petData.petId}
           currentAnimation="sleep"

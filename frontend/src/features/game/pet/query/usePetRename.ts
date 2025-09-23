@@ -14,4 +14,3 @@ export const usePetRename = (petId: number) => {
     },
   });
 };
-

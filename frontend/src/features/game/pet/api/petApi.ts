@@ -85,9 +85,8 @@ export const renamePetName = async (
     return mockResponse.body!;
   }
 
-  const response = await http.patch<PetData>(
-    `/v1/game/pets/${petId}/name`,
-    { name },
-  );
+  const response = await http.patch<PetData>(`/v1/game/pets/${petId}/name`, {
+    name,
+  });
   return response.body!;
 };
