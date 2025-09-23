@@ -45,7 +45,9 @@ const Inventory = ({
 
   // 배치된 슬롯 ID들을 Set으로 관리 (빠른 조회를 위해)
   const placedSlotIds = useMemo(() => {
-    if (mode !== 'deco') return new Set<string>();
+    if (mode !== 'deco') {
+      return new Set<string>();
+    }
 
     return new Set(
       draftItems
