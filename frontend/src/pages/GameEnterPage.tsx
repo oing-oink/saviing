@@ -61,7 +61,7 @@ const GameEnterPage = () => {
                 roomRise ? 'top-1/2' : 'top-[120%]'
               }`}
             >
-              <Room mode="readonly" gridType={null} />
+              <Room mode="readonly" placementArea={null} />
             </div>
 
             {/* 시작 위치에서 중앙으로 이동하는 스프라이트 (동일 기준 좌표) */}
