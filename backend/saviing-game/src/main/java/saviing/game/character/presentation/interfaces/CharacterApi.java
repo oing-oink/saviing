@@ -15,11 +15,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import saviing.common.response.ApiResult;
 import saviing.common.response.ErrorResult;
 import saviing.game.character.presentation.dto.request.ConnectAccountRequest;
 import saviing.game.character.presentation.dto.request.CreateCharacterRequest;
 import saviing.game.character.presentation.dto.response.CharacterResponse;
+import saviing.game.character.presentation.dto.response.GameEntryResponse;
 
 @Tag(name = "Character", description = "게임 캐릭터 관리 API")
 public interface CharacterApi {
@@ -257,5 +259,47 @@ public interface CharacterApi {
     ApiResult<Void> cancelAccountConnection(
         @Parameter(description = "캐릭터 ID", required = true, example = "1")
         @PathVariable Long characterId
+    );
+
+    @Operation(
+        summary = "메인 엔트리 게임 정보 조회",
+        description = "메인 페이지에서 표시할 게임 정보를 조회합니다. 활성 캐릭터와 1층에 배치된 첫 번째 펫 정보를 반환합니다."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "메인 엔트리 게임 정보 조회 성공"),
+        @ApiResponse(
+            responseCode = "400",
+            description = "잘못된 요청 - customerId 헤더가 누락되거나 잘못된 형식",
+            content = @Content(schema = @Schema(implementation = ErrorResult.class))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "활성 캐릭터를 찾을 수 없음 (CHARACTER_NOT_FOUND)",
+            content = @Content(
+                schema = @Schema(implementation = ErrorResult.class),
+                examples = @ExampleObject(
+                    name = "CHARACTER_NOT_FOUND",
+                    summary = "활성 캐릭터를 찾을 수 없는 경우",
+                    value = """
+                        {
+                          "success": false,
+                          "status": 404,
+                          "code": "CHARACTER_NOT_FOUND",
+                          "message": "활성 캐릭터를 찾을 수 없습니다",
+                          "timestamp": "2025-01-15T10:30:00"
+                        }
+                        """
+                )
+            )
+        ),
+        @ApiResponse(
+            responseCode = "500",
+            description = "서버 내부 오류",
+            content = @Content(schema = @Schema(implementation = ErrorResult.class))
+        )
+    })
+    ApiResult<GameEntryResponse> getGameEntry(
+        @Parameter(description = "고객 ID", required = true, example = "1")
+        @RequestHeader("customerId") Long customerId
     );
 }

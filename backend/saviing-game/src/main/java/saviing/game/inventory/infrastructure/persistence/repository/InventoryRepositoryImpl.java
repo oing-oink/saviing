@@ -1,5 +1,6 @@
 package saviing.game.inventory.infrastructure.persistence.repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -17,6 +18,7 @@ import saviing.game.inventory.infrastructure.persistence.entity.AccessoryInvento
 import saviing.game.inventory.infrastructure.persistence.entity.ConsumptionInventoryEntity;
 import saviing.game.inventory.infrastructure.persistence.entity.DecorationInventoryEntity;
 import saviing.game.inventory.infrastructure.persistence.entity.InventoryEntity;
+import saviing.game.inventory.infrastructure.persistence.entity.PetInventoryEntity;
 import saviing.game.inventory.infrastructure.persistence.mapper.InventoryEntityMapper;
 import saviing.game.item.domain.model.enums.Accessory;
 import saviing.game.item.domain.model.enums.Consumption;
@@ -107,6 +109,16 @@ public class InventoryRepositoryImpl implements InventoryRepository {
             .stream()
             .map(entity -> (PetInventory) inventoryEntityMapper.toDomain(entity))
             .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<PetInventory> findPetsByCharacterIdAndRoomId(CharacterId characterId, Long roomId) {
+        List<PetInventoryEntity> entities = petInventoryJpaRepository.findByCharacterIdAndRoomId(characterId.value(), roomId);
+        List<PetInventory> pets = new ArrayList<>();
+        for (PetInventoryEntity entity : entities) {
+            pets.add((PetInventory) inventoryEntityMapper.toDomain(entity));
+        }
+        return pets;
     }
 
     // === 액세서리 특화 메서드 ===

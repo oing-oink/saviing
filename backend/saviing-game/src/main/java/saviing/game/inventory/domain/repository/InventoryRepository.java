@@ -98,6 +98,15 @@ public interface InventoryRepository {
      */
     List<PetInventory> findUsedPetsByCharacterId(CharacterId characterId);
 
+    /**
+     * 캐릭터의 특정 방에 있는 펫 인벤토리를 조회합니다.
+     *
+     * @param characterId 캐릭터 ID
+     * @param roomId 방 ID
+     * @return 해당 방의 펫 인벤토리 목록
+     */
+    List<PetInventory> findPetsByCharacterIdAndRoomId(CharacterId characterId, Long roomId);
+
     // === 액세서리 특화 메서드 ===
 
     /**

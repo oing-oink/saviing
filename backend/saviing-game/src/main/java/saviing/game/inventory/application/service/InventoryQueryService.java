@@ -5,6 +5,7 @@ import saviing.game.inventory.application.dto.query.GetDecorationsByCharacterQue
 import saviing.game.inventory.application.dto.query.GetInventoriesByCharacterQuery;
 import saviing.game.inventory.application.dto.query.GetInventoryQuery;
 import saviing.game.inventory.application.dto.query.GetPetsByCharacterQuery;
+import saviing.game.inventory.application.dto.query.GetPetsByCharacterAndRoomQuery;
 import saviing.game.inventory.application.dto.result.AccessoryInventoryResult;
 import saviing.game.inventory.application.dto.result.DecorationInventoryResult;
 import saviing.game.inventory.application.dto.result.InventoryListResult;
@@ -230,6 +231,19 @@ public class InventoryQueryService {
         List<DecorationInventory> decorations = inventoryRepository.findPlacedDecorationsByCharacterId(query.characterId());
         return decorations.stream()
                 .map(resultMapper::toDecorationResult)
+                .toList();
+    }
+
+    /**
+     * 캐릭터의 특정 방에 있는 펫 목록을 조회합니다.
+     *
+     * @param query 캐릭터와 방별 펫 조회 Query
+     * @return 해당 방의 펫 인벤토리 목록
+     */
+    public List<PetInventoryResult> getPetsByCharacterAndRoom(GetPetsByCharacterAndRoomQuery query) {
+        List<PetInventory> pets = inventoryRepository.findPetsByCharacterIdAndRoomId(query.characterId(), query.roomId());
+        return pets.stream()
+                .map(resultMapper::toPetResult)
                 .toList();
     }
 }
