@@ -43,4 +43,22 @@ public enum PaymentMethod {
             case FISH_COIN -> "FISH_COIN";
         };
     }
+
+    /**
+     * 문자열을 결제 수단으로 변환합니다.
+     *
+     * @param value 결제 수단 문자열
+     * @return 결제 수단
+     */
+    public static PaymentMethod from(String value) {
+        if (value == null) {
+            throw new IllegalArgumentException("결제 수단은 필수입니다");
+        }
+
+        try {
+            return PaymentMethod.valueOf(value.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("지원하지 않는 결제 수단입니다: " + value, e);
+        }
+    }
 }

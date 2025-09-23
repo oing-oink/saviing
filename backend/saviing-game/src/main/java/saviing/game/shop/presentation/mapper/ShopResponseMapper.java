@@ -7,6 +7,7 @@ import saviing.game.item.presentation.mapper.ItemResponseMapper;
 import saviing.game.shop.application.dto.result.PurchaseResult;
 import saviing.game.shop.presentation.dto.response.CurrencyInfo;
 import saviing.game.shop.presentation.dto.response.PurchaseResponse;
+import saviing.game.shop.application.dto.result.GachaDrawResult;
 
 /**
  * Shop 응답 DTO를 생성하는 매퍼입니다.
@@ -46,6 +47,19 @@ public class ShopResponseMapper {
         return CurrencyInfo.builder()
             .coinType(coinType)
             .balance(balance)
+            .build();
+    }
+
+    /**
+     * GachaDrawResult를 구매 응답 형태로 변환합니다.
+     *
+     * @param result 가챠 뽑기 결과
+     * @return PurchaseResponse
+     */
+    public PurchaseResponse toGachaDrawResponse(GachaDrawResult result) {
+        return PurchaseResponse.builder()
+            .item(itemResponseMapper.toResponse(result.drawnItem()))
+            .currencies(createCurrencyInfo(result.character(), result.paymentCurrency()))
             .build();
     }
 }
