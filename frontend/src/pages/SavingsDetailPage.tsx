@@ -38,6 +38,7 @@ const SavingsDetailPage = () => {
           data={savingsData}
           isVisible={isSticky}
           scrollDirection={scrollDirection}
+          accountId={accountId}
         />
       )}
 

@@ -1,8 +1,21 @@
+import { useLocation } from 'react-router-dom';
 import { Progress } from '@/shared/components/ui/progress';
 import { useStepProgress } from '@/features/savings/hooks/useStepProgress';
+import { useSavingsSettingsChange } from '@/features/savings/hooks/useSavingsSettingsChange';
 
 const FunnelProgressBar = () => {
-  const { currentStep, totalSteps } = useStepProgress();
+  const location = useLocation();
+
+  // 현재 경로에 따라 적절한 훅 선택
+  const isSavingsSettings = location.pathname.includes('/settings');
+
+  const accountCreationProgress = useStepProgress();
+  const savingsSettingsProgress = useSavingsSettingsChange();
+
+  const { currentStep, totalSteps } = isSavingsSettings
+    ? savingsSettingsProgress
+    : accountCreationProgress;
+
   const percent = (currentStep / totalSteps) * 100;
 
   return (
