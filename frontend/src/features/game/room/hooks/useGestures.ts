@@ -90,6 +90,8 @@ export const useGestures = ({
       isPanningRef.current = false;
       return;
     }
+
+    // 네이티브 이벤트 리스너에서 이미 체크했으므로 여기서는 제스처 로직만 처리
     e.preventDefault();
     isPanningRef.current = true;
     panStartRef.current = {
@@ -128,6 +130,7 @@ export const useGestures = ({
   // 2-3. 핀치로 확대축소 + 터치로 드래그
   // 터치 시작
   const handleTouchStart = (e: React.TouchEvent<HTMLElement>) => {
+    // 네이티브 이벤트 리스너에서 이미 체크했으므로 여기서는 제스처 로직만 처리
     if (e.touches.length === 2) {
       e.preventDefault();
       isPanningRef.current = false;
@@ -152,7 +155,7 @@ export const useGestures = ({
   // 터치 이동
   const handleTouchMove = (e: React.TouchEvent<HTMLElement>) => {
     if (e.touches.length === 2) {
-      // 핀치 줌
+      // 핀치 줌 - 항상 preventDefault 호출
       e.preventDefault();
       const newDistance = getDistance(e.touches);
       const newScale =
@@ -170,7 +173,7 @@ export const useGestures = ({
         return newPosition;
       });
     } else if (e.touches.length === 1 && isPanningRef.current && panEnabled) {
-      // 드래그(패닝)
+      // 드래그(패닝) - 패닝이 시작된 경우에만 preventDefault 호출
       e.preventDefault();
       const touch = e.touches[0];
       const newPos = {
@@ -185,13 +188,48 @@ export const useGestures = ({
         return bounded;
       });
     }
+    // 패닝이 시작되지 않은 경우(인터랙션 요소에서 시작된 터치)는 preventDefault 호출하지 않음
   };
   // 터치 종료
   const handleTouchEnd = () => {
     isPanningRef.current = false;
   };
 
-  // 3. [보조 함수] 핀치 거리 계산
+  // 3. [보조 함수] 인터랙션 가능한 요소인지 체크
+  const isInteractiveElement = (element: Element | null): boolean => {
+    if (!element) {
+      return false;
+    }
+
+    // 인터랙션 가능한 태그들
+    const interactiveTags = ['BUTTON', 'INPUT', 'TEXTAREA', 'SELECT', 'A'];
+    if (interactiveTags.includes(element.tagName)) {
+      return true;
+    }
+
+    // data-interactive="true" 속성을 가진 요소
+    if (element.getAttribute('data-interactive') === 'true') {
+      return true;
+    }
+
+    // 부모 요소들도 재귀적으로 체크 (최대 5단계까지)
+    let parent = element.parentElement;
+    let depth = 0;
+    while (parent && depth < 5) {
+      if (
+        interactiveTags.includes(parent.tagName) ||
+        parent.getAttribute('data-interactive') === 'true'
+      ) {
+        return true;
+      }
+      parent = parent.parentElement;
+      depth++;
+    }
+
+    return false;
+  };
+
+  // 4. [보조 함수] 핀치 거리 계산
   const getDistance = (touches: React.TouchList) => {
     const touchesArray = Array.from(touches);
     const [touch1, touch2] = touchesArray;
@@ -216,6 +254,11 @@ export const useGestures = ({
       if (!panEnabled) {
         return;
       }
+      // 네이티브 이벤트에서 인터랙션 요소 체크
+      const mouseEvent = e as MouseEvent;
+      if (isInteractiveElement(mouseEvent.target as Element)) {
+        return;
+      }
       handleMouseDown(e as unknown as React.MouseEvent<HTMLElement>);
     };
     const onMouseMove = (e: Event) => {
@@ -225,8 +268,21 @@ export const useGestures = ({
       handleMouseMove(e as unknown as React.MouseEvent<HTMLElement>);
     };
     const onMouseUpOrLeave = () => handleMouseUpOrLeave();
-    const onTouchStart = (e: Event) =>
+    const onTouchStart = (e: Event) => {
+      // 네이티브 터치 이벤트에서 인터랙션 요소 체크
+      const touchEvent = e as TouchEvent;
+      if (touchEvent.touches.length > 0) {
+        const touchTarget = document.elementFromPoint(
+          touchEvent.touches[0].clientX,
+          touchEvent.touches[0].clientY,
+        );
+        if (isInteractiveElement(touchTarget)) {
+          // 인터랙션 요소면 제스처 로직 완전히 제외
+          return;
+        }
+      }
       handleTouchStart(e as unknown as React.TouchEvent<HTMLElement>);
+    };
     const onTouchMove = (e: Event) =>
       handleTouchMove(e as unknown as React.TouchEvent<HTMLElement>);
     const onTouchEnd = () => handleTouchEnd();

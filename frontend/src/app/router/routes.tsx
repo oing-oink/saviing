@@ -10,6 +10,7 @@ import SavingsDetailLayout from '@/features/savings/layouts/SavingsDetailLayout'
 import HomePage from '@/pages/HomePage';
 import WalletPage from '@/pages/WalletPage';
 import ProductsPage from '@/pages/ProductsPage';
+import ProfilePage from '@/pages/ProfilePage';
 import LoginPage from '@/pages/LoginPage';
 import OnboardingPage from '@/pages/OnboardingPage';
 import AuthCallbackPage from '@/pages/AuthCallbackPage';
@@ -26,12 +27,14 @@ import DecoPage from '@/pages/DecoPage';
 import ColorTestPage from '@/pages/ColorTestPage';
 import NotFoundPage from '@/pages/NotFoundPage';
 import GachaInfoPage from '@/pages/GachaInfoPage';
+import GameEnterPage from '@/pages/GameEnterPage';
 
 // SavingsLayout을 사용하는 보호된 라우트들
 const savingsLayoutRoutes = [
   { path: '', element: <HomePage /> }, // '/' 경로
   { path: 'wallet', element: <WalletPage /> }, // '/wallet' 경로
   { path: 'products', element: <ProductsPage /> }, // '/products' 경로
+  { path: 'profile', element: <ProfilePage /> }, // '/profile' 경로
 ];
 
 // 레이아웃 없는 보호된 라우트들
@@ -41,6 +44,7 @@ const protectedRoutesWithoutLayout = [
   { path: PAGE_PATH.DEPOSIT_WITH_ACCOUNT, element: <DepositPage /> },
   { path: PAGE_PATH.DEPOSIT_RESULT, element: <DepositResultPage /> },
   { path: PAGE_PATH.GAME, element: <GamePage /> },
+  { path: PAGE_PATH.GAME_ENTER, element: <GameEnterPage /> },
   { path: PAGE_PATH.SHOP, element: <ShopPage /> },
   { path: PAGE_PATH.GACHA, element: <GachaPage /> },
   { path: PAGE_PATH.GACHA_ROLLING, element: <GachaRollingPage /> },

@@ -4,15 +4,18 @@ import ErrorBoundaryProvider from './providers/ErrorBoundaryProvider';
 import { router } from './router/routes';
 import AppLayout from './layouts/AppLayout';
 import { Toaster } from 'react-hot-toast';
+import { GlobalGameBackgroundProvider } from '@/features/game/shared/components/GlobalGameBackground';
 
 const App = () => {
   return (
     <ErrorBoundaryProvider>
       <QueryProvider>
-        <AppLayout>
-          <RouterProvider router={router} />
-          <Toaster position="bottom-center" reverseOrder={false} />
-        </AppLayout>
+        <GlobalGameBackgroundProvider>
+          <AppLayout>
+            <RouterProvider router={router} />
+            <Toaster position="bottom-center" reverseOrder={false} />
+          </AppLayout>
+        </GlobalGameBackgroundProvider>
       </QueryProvider>
     </ErrorBoundaryProvider>
   );
