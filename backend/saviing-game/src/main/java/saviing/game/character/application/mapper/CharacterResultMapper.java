@@ -2,7 +2,11 @@ package saviing.game.character.application.mapper;
 
 import org.springframework.stereotype.Component;
 import saviing.game.character.application.dto.result.CharacterResult;
+import saviing.game.character.application.dto.result.CharacterStatisticsResult;
 import saviing.game.character.domain.model.aggregate.Character;
+import saviing.game.character.domain.model.vo.CharacterId;
+
+import java.util.Map;
 
 /**
  * Character 도메인 객체를 CharacterResult로 변환하는 Mapper
@@ -39,6 +43,28 @@ public class CharacterResultMapper {
             .deactivatedAt(character.getCharacterLifecycle().deactivatedAt())
             .createdAt(character.getCharacterLifecycle().createdAt())
             .updatedAt(character.getCharacterLifecycle().updatedAt())
+            .build();
+    }
+
+    /**
+     * 캐릭터 통계 정보를 CharacterStatisticsResult로 변환합니다.
+     *
+     * @param characterId 캐릭터 ID
+     * @param topPetLevelSum 상위 펫들의 레벨 합계
+     * @param inventoryRarityStatistics ItemType별로 그룹화된 인벤토리 희귀도 통계
+     * @return CharacterStatisticsResult
+     */
+    public CharacterStatisticsResult toStatisticsResult(
+        CharacterId characterId,
+        Integer topPetLevelSum,
+        Map<String, Map<String, Integer>> inventoryRarityStatistics
+    ) {
+        return CharacterStatisticsResult.builder()
+            .characterId(characterId != null ? characterId.value() : null)
+            .topPetLevelSum(topPetLevelSum != null ? topPetLevelSum : 0)
+            .inventoryRarityStatistics(
+                inventoryRarityStatistics != null ? inventoryRarityStatistics : Map.of()
+            )
             .build();
     }
 }

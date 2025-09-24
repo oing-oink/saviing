@@ -11,12 +11,13 @@ import saviing.game.character.application.dto.query.GetGameEntryQuery;
 import saviing.game.character.application.dto.result.CharacterListResult;
 import saviing.game.character.application.dto.result.CharacterResult;
 import saviing.game.character.application.dto.result.GameEntryResult;
+import saviing.game.character.application.dto.query.GetCharacterStatisticsQuery;
+import saviing.game.character.application.dto.result.CharacterStatisticsResult;
 import saviing.game.character.application.mapper.CharacterResultMapper;
 import saviing.game.character.domain.exception.CharacterNotFoundException;
 import saviing.game.character.domain.model.aggregate.Character;
 import saviing.game.character.domain.model.vo.CharacterId;
 import saviing.game.character.domain.repository.CharacterRepository;
-import saviing.game.inventory.application.dto.query.GetPetsByCharacterQuery;
 import saviing.game.inventory.application.dto.query.GetPetsByCharacterAndRoomQuery;
 import saviing.game.inventory.application.dto.result.PetInventoryResult;
 import saviing.game.inventory.application.service.InventoryQueryService;
@@ -28,7 +29,10 @@ import saviing.game.room.application.dto.result.RoomResult;
 import saviing.game.room.application.service.RoomQueryService;
 
 import java.util.Comparator;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 캐릭터 Query 처리 서비스
@@ -155,6 +159,72 @@ public class CharacterQueryService {
     public boolean hasSufficientFunds(Long characterId, Integer coinAmount, Integer fishCoinAmount) {
         Character character = findCharacterById(CharacterId.of(characterId));
         return character.hasSufficientFunds(coinAmount, fishCoinAmount);
+    }
+
+    /**
+     * 캐릭터의 통계 정보를 조회합니다.
+     * 상위 펫 레벨 합계와 카테고리별 희귀도 통계를 조회합니다.
+     *
+     * @param query 캐릭터 통계 조회 Query
+     * @return 캐릭터 통계 조회 결과
+     * @throws CharacterNotFoundException 캐릭터를 찾을 수 없는 경우
+     */
+    public CharacterStatisticsResult getCharacterStatistics(GetCharacterStatisticsQuery query) {
+        log.info("캐릭터 통계 조회 시작: characterId={}", query.characterId().value());
+
+        // 캐릭터 존재 여부 확인
+        findCharacterById(query.characterId());
+
+        // 1. 상위 펫 레벨 합계 조회 (상위 10개)
+        Integer topPetLevelSum = characterRepository.findTopPetLevelSumByCharacterId(
+            query.characterId(), 10
+        );
+
+        // 2. 카테고리별 희귀도 합계 조회 (카테고리당 상위 5개)
+        Map<String, Integer> flatRarityMap = characterRepository.findTopRaritySumByCharacterIdAndCategory(
+            query.characterId(), 5
+        );
+
+        // 3. Flat Map을 Two-depth 구조로 변환
+        Map<String, Map<String, Integer>> groupedRarityMap = groupByItemType(flatRarityMap);
+
+        // 4. Result 매핑
+        CharacterStatisticsResult result = resultMapper.toStatisticsResult(
+            query.characterId(),
+            topPetLevelSum,
+            groupedRarityMap
+        );
+
+        log.info("캐릭터 통계 조회 완료: characterId={}, petLevelSum={}, rarityCategories={}",
+            query.characterId().value(), topPetLevelSum, groupedRarityMap.keySet());
+
+        return result;
+    }
+
+    /**
+     * Flat한 카테고리별 희귀도 맵을 ItemType별로 그룹화합니다.
+     * PET 타입과 DECORATION 타입으로 분류하여 two-depth 구조를 만듭니다.
+     *
+     * @param flatRarityMap 카테고리명을 키로 하는 희귀도 합계 맵
+     * @return ItemType별로 그룹화된 희귀도 통계 맵
+     */
+    private Map<String, Map<String, Integer>> groupByItemType(Map<String, Integer> flatRarityMap) {
+        Map<String, Map<String, Integer>> result = new HashMap<>();
+        result.put("PET", new HashMap<>());
+        result.put("DECORATION", new HashMap<>());
+
+        for (Map.Entry<String, Integer> entry : flatRarityMap.entrySet()) {
+            String category = entry.getKey();
+            Integer value = entry.getValue();
+
+            if ("CAT".equals(category)) {
+                result.get("PET").put(category, value);
+            } else if (Arrays.asList("LEFT", "RIGHT", "BOTTOM", "ROOM_COLOR").contains(category)) {
+                result.get("DECORATION").put(category, value);
+            }
+        }
+
+        return result;
     }
 
     /**
