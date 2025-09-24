@@ -3,6 +3,7 @@ import ProtectedRoute from '@/shared/components/common/ProtectedRoute';
 import { PAGE_PATH } from '@/shared/constants/path';
 import AccountCreationFunnel from '@/features/savings/components/AccountCreationFunnel';
 import SavingsSettingsFunnel from '@/features/savings/components/SavingsSettingsFunnel';
+import SavingsTerminationFunnel from '@/features/savings/components/SavingsTerminationFunnel';
 import SavingsLayout from '@/features/savings/layouts/SavingsLayout';
 import SavingsDetailLayout from '@/features/savings/layouts/SavingsDetailLayout';
 
@@ -95,6 +96,15 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <SavingsSettingsFunnel />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        // 적금 해지 Funnel
+        path: PAGE_PATH.SAVINGS_TERMINATION_WITH_ID,
+        element: (
+          <ProtectedRoute>
+            <SavingsTerminationFunnel />
           </ProtectedRoute>
         ),
       },

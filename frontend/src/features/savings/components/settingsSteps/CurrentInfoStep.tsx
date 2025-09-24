@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useSavingsSettingsStore } from '@/features/savings/store/useSavingsSettingsStore';
 import { useSavingsSettingsChange } from '@/features/savings/hooks/useSavingsSettingsChange';
 import {
@@ -10,6 +10,7 @@ import { Button } from '@/shared/components/ui/button';
 
 const CurrentInfoStep = () => {
   const { accountId } = useParams<{ accountId: string }>();
+  const navigate = useNavigate();
   const { setCurrentInfo } = useSavingsSettingsStore();
   const { goToNextStep } = useSavingsSettingsChange();
 
@@ -134,7 +135,7 @@ const CurrentInfoStep = () => {
   return (
     <>
       {/* 메인 컨텐츠 */}
-      <div className="flex flex-1 flex-col px-6 py-8">
+      <div className="flex flex-1 flex-col px-6 py-8 pb-24">
         <h1 className="mb-2 text-xl font-bold text-gray-900">현재 적금 정보</h1>
         <p className="mb-6 text-gray-600">현재 설정된 적금 정보를 확인하세요</p>
 
@@ -210,6 +211,24 @@ const CurrentInfoStep = () => {
 
       {/* 하단 고정 버튼 */}
       <div className="fixed right-0 bottom-0 left-0 z-10 bg-white p-4 shadow-lg">
+        {/* 적금 해지 버튼 */}
+        <Button
+          variant="ghost"
+          className="mb-3 h-12 w-full rounded-lg bg-gray-100 text-red-500 hover:bg-gray-200 hover:text-red-700"
+          onClick={() => {
+            if (accountId) {
+              // 현재 설정 변경 페이지 URL을 from 파라미터로 전달
+              const currentUrl = `/savings/detail/${accountId}/settings?step=CURRENT_INFO`;
+              const fromParam = encodeURIComponent(currentUrl);
+              navigate(
+                `/savings/detail/${accountId}/termination?step=WARNING&from=${fromParam}`,
+              );
+            }
+          }}
+        >
+          적금 해지하기
+        </Button>
+
         <Button
           onClick={handleNext}
           className="h-12 w-full rounded-lg bg-primary text-white hover:bg-primary/90"

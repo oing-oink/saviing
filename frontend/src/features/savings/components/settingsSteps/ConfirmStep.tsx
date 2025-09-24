@@ -86,11 +86,12 @@ const ConfirmStep = () => {
     } catch (error: unknown) {
       // ApiError에서 실제 서버 응답 메시지 추출
       const serverResponse = (
-        error as { axiosError?: { response?: { data?: any } } }
+        error as { axiosError?: { response?: { data?: unknown } } }
       )?.axiosError?.response?.data;
-      const errorCode = serverResponse?.code;
+      const errorCode = (serverResponse as { code?: string })?.code;
       const serverMessage =
-        serverResponse?.message || (error as Error)?.message;
+        (serverResponse as { message?: string })?.message ||
+        (error as Error)?.message;
 
       let userMessage = serverMessage || '설정 변경 중 오류가 발생했습니다.';
 
@@ -118,7 +119,7 @@ const ConfirmStep = () => {
   return (
     <>
       {/* 메인 컨텐츠 */}
-      <div className="flex flex-1 flex-col px-6 py-8">
+      <div className="flex flex-1 flex-col px-6 py-8 pb-24">
         <h1 className="mb-2 text-xl font-bold text-gray-900">최종 확인</h1>
         <p className="mb-6 text-gray-600">
           아래 내용을 확인하고 설정 변경을 완료해주세요
