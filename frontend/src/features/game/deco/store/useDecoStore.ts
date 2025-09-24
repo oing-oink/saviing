@@ -263,6 +263,12 @@ const buildPlacedItemFromSession = (
   }
 
   const id = session.originPlacedId ?? `draft-${session.itemId}-${Date.now()}`;
+  const slotId = session.slotId ?? session.originalItem?.slotId;
+  const normalizedSlotId = slotId
+    ? slotId.includes('::')
+      ? slotId
+      : `${placementArea}::${slotId}`
+    : undefined;
 
   return {
     id,
@@ -286,7 +292,7 @@ const buildPlacedItemFromSession = (
     itemType:
       session.itemType ?? session.originalItem?.itemType ?? 'DECORATION',
     isPreview: session.isPreview ?? session.originalItem?.isPreview ?? false,
-    slotId: session.slotId ?? session.originalItem?.slotId,
+    slotId: normalizedSlotId,
   };
 };
 
@@ -445,6 +451,11 @@ export const decoStore = createStore<DecoStore>(set => ({
       if (!inferredPlacementArea) {
         return state;
       }
+      const normalizedSlotId = target.slotId
+        ? target.slotId.includes('::')
+          ? target.slotId
+          : `${inferredPlacementArea}::${target.slotId}`
+        : undefined;
       const resolvedFootprint =
         target.footprintCellIds && target.footprintCellIds.length > 0
           ? target.footprintCellIds
@@ -469,6 +480,7 @@ export const decoStore = createStore<DecoStore>(set => ({
           imageUrl: target.imageUrl ?? getItemImage(target.itemId),
           itemType: target.itemType ?? 'DECORATION',
           isPreview: target.isPreview ?? false,
+          slotId: normalizedSlotId ?? target.slotId,
         }),
         pendingPlacement: null,
       };

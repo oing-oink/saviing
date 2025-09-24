@@ -5,6 +5,7 @@ import { useSlots } from '@/features/game/shop/hooks/useSlots';
 import { useItemModal } from '@/features/game/shop/hooks/useItemModal';
 import { getItemImage } from '@/features/game/shop/utils/getItemImage';
 import { useDecoStore } from '@/features/game/deco/store/useDecoStore';
+import { normalizePlacementArea } from '@/features/game/deco/utils/grid';
 import inventory_square from '@/assets/inventory_square.png';
 import { Badge } from '@/shared/components/ui/badge';
 import { ScrollArea } from '@/shared/components/ui/scroll-area';
@@ -76,7 +77,15 @@ const Inventory = ({
     return new Set(
       draftItems
         .filter(item => !item.isPreview && item.slotId) // 프리뷰 아이템 제외 및 slotId 있는 것만
-        .map(item => item.slotId!),
+        .map(item => {
+          const slotId = item.slotId!;
+          if (slotId.includes('::')) {
+            return slotId;
+          }
+          const layer = normalizePlacementArea(item.layer);
+          const prefix = item.itemType === 'PET' ? 'CAT' : layer ?? 'GLOBAL';
+          return `${prefix}::${slotId}`;
+        }),
     );
   }, [mode, draftItems]);
 
@@ -94,7 +103,7 @@ const Inventory = ({
   }, [mode, draftItems]);
 
   // 슬롯이 이미 배치되었는지 확인하는 함수 (slotId 기반)
-  const isSlotPlaced = (slotId: string) => placedSlotIds.has(slotId);
+  const isSlotPlaced = (slotKey: string) => placedSlotIds.has(slotKey);
 
   // 아이템이 이미 배치되었는지 확인하는 함수 (inventoryItemId 기반 또는 isAvailable 속성)
   const isItemDisabled = (item: Item): boolean => {
@@ -126,13 +135,22 @@ const Inventory = ({
     onTabChange(tab);
   };
 
+  const buildSlotKey = (slotId: string) => {
+    if (mode !== 'deco') {
+      return slotId;
+    }
+    const prefix = activeTab.id === 'CAT' ? 'CAT' : activeTab.id;
+    return `${prefix}::${slotId}`;
+  };
+
   const handleSlotClick = (item: Item, slotId: string) => {
     if (mode === 'deco') {
+      const slotKey = buildSlotKey(slotId);
       // 이미 배치된 슬롯은 클릭할 수 없음
-      if (isSlotPlaced(slotId) || isItemDisabled(item)) {
+      if (isSlotPlaced(slotKey) || isItemDisabled(item)) {
         return;
       }
-      onItemSelect?.(item, slotId);
+      onItemSelect?.(item, slotKey);
       return;
     }
     handleItemClick(item);
@@ -194,7 +212,8 @@ const Inventory = ({
                           onClick={() => handleSlotClick(item, slot.id)}
                           disabled={
                             mode === 'deco' &&
-                            (isSlotPlaced(slot.id) || isItemDisabled(item))
+                            (isSlotPlaced(buildSlotKey(slot.id)) ||
+                              isItemDisabled(item))
                           }
                           className={`relative flex h-[70%] w-[70%] items-center justify-center ${
                             mode === 'deco' &&
