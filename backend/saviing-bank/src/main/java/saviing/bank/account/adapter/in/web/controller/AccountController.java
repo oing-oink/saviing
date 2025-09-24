@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,16 +20,20 @@ import saviing.bank.account.adapter.in.web.AccountApi;
 import saviing.bank.account.adapter.in.web.dto.request.CreateAccountRequest;
 import saviing.bank.account.adapter.in.web.dto.request.UpdateAccountStatusRequest;
 import saviing.bank.account.adapter.in.web.dto.request.UpdateSavingsAccountRequest;
+import saviing.bank.account.adapter.in.web.dto.request.UpdateInterestRateRequest;
 import saviing.bank.account.adapter.in.web.dto.response.CreateAccountResponse;
 import saviing.bank.account.adapter.in.web.dto.response.GetAccountResponse;
+import saviing.bank.account.adapter.in.web.dto.response.UpdateInterestRateResponse;
 import saviing.bank.account.application.port.in.CreateAccountUseCase;
 import saviing.bank.account.application.port.in.CloseSavingsAccountUseCase;
 import saviing.bank.account.application.port.in.GetAccountsByCustomerIdUseCase;
 import saviing.bank.account.application.port.in.GetAccountUseCase;
 import saviing.bank.account.application.port.in.UpdateSavingsAccountUseCase;
 import saviing.bank.account.application.port.in.UpdateAutoTransferScheduleUseCase;
+import saviing.bank.account.application.port.in.UpdateAccountInterestRateUseCase;
 import saviing.bank.account.application.port.in.result.CreateAccountResult;
 import saviing.bank.account.application.port.in.result.GetAccountResult;
+import saviing.bank.account.application.port.in.result.UpdateInterestRateResult;
 import saviing.bank.account.application.port.in.command.CloseSavingsAccountCommand;
 import saviing.bank.account.application.port.in.command.UpdateAutoTransferScheduleCommand;
 import saviing.bank.account.exception.InvalidAccountStateException;
@@ -48,6 +53,7 @@ public class AccountController implements AccountApi {
     private final UpdateSavingsAccountUseCase updateSavingsAccountUseCase;
     private final CloseSavingsAccountUseCase closeSavingsAccountUseCase;
     private final UpdateAutoTransferScheduleUseCase updateAutoTransferScheduleUseCase;
+    private final UpdateAccountInterestRateUseCase updateAccountInterestRateUseCase;
     
     @PostMapping
     public ApiResult<CreateAccountResponse> createAccount(@Valid @RequestBody CreateAccountRequest request) {
@@ -123,6 +129,31 @@ public class AccountController implements AccountApi {
             CloseSavingsAccountCommand.of(accountId)
         );
         GetAccountResponse response = GetAccountResponse.from(result);
+
+        return ApiResult.of(HttpStatus.OK, response);
+    }
+
+    /**
+     * 계좌의 보너스 금리를 업데이트합니다.
+     *
+     * 게임 진행도에 따른 이자율 혜택 증가 정책을 구현하기 위해 사용되며,
+     * 현재 보너스 금리보다 높은 경우에만 업데이트됩니다.
+     * 낮거나 같은 금리가 요청되면 기존 금리를 유지합니다.
+     *
+     * @param accountId 금리를 변경할 계좌 ID
+     * @param request 이자율 업데이트 요청 (새로운 보너스 금리)
+     * @return 업데이트된 계좌의 현재 보너스 금리
+     */
+    @PutMapping("/id/{accountId}/interest-rate")
+    public ApiResult<UpdateInterestRateResponse> updateAccountInterestRate(
+        @PathVariable Long accountId,
+        @Valid @RequestBody UpdateInterestRateRequest request
+    ) {
+        UpdateInterestRateResult result = updateAccountInterestRateUseCase.updateAccountInterestRate(
+            accountId,
+            request.getBonusRateAsDouble()
+        );
+        UpdateInterestRateResponse response = UpdateInterestRateResponse.from(result);
 
         return ApiResult.of(HttpStatus.OK, response);
     }
