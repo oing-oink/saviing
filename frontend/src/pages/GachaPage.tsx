@@ -4,9 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import catPaw from '@/assets/catPaw.png';
 import gachaMachine from '@/assets/gachaMachine.png';
 import coin from '@/assets/coin.png';
+import infoButton from '@/assets/game_button/infoButton.png';
+import { useGachaInfo } from '@/features/game/shop/query/useGachaInfo';
 
 const GachaPage = () => {
   const navigate = useNavigate();
+  const { data: gachaInfo } = useGachaInfo();
+
   return (
     <div className="game flex min-h-screen flex-col bg-store-bg font-galmuri">
       {/* 상단 영역 */}
@@ -19,7 +23,13 @@ const GachaPage = () => {
           />
         </button>
         <div className="pt-5 text-3xl text-red-400">GACHA</div>
-        <div className="w-9"></div>
+        <button onClick={() => navigate(PAGE_PATH.GACHA_INFO)}>
+          <img
+            className="w-9 pt-5 focus:ring-1 focus:ring-primary focus:outline-none active:scale-95 active:brightness-90"
+            src={infoButton}
+            alt=""
+          />
+        </button>
       </div>
 
       <div className="flex justify-center pt-10">
@@ -41,7 +51,12 @@ const GachaPage = () => {
           navigate(PAGE_PATH.GACHA_ROLLING);
         }}
       >
-        <img src={coin} alt="" className="w-[70%]" />
+        <div className="relative w-[70%]">
+          <img src={coin} alt="" className="w-full" />
+          <div className="absolute inset-0 ml-8 flex items-center justify-center text-lg font-bold text-black">
+            {gachaInfo?.gachaInfo.drawPrice.coin ?? 500}
+          </div>
+        </div>
       </button>
       <div className="mt-auto flex justify-center pb-6">
         <img src={catPaw} alt="" className="w-[85%]" />

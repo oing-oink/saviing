@@ -26,6 +26,7 @@ import GachaRollingPage from '@/pages/GachaRollingPage';
 import DecoPage from '@/pages/DecoPage';
 import ColorTestPage from '@/pages/ColorTestPage';
 import NotFoundPage from '@/pages/NotFoundPage';
+import GachaInfoPage from '@/pages/GachaInfoPage';
 import GameEnterPage from '@/pages/GameEnterPage';
 
 // SavingsLayout을 사용하는 보호된 라우트들
@@ -45,6 +46,7 @@ const protectedRoutesWithoutLayout = [
   { path: PAGE_PATH.SHOP, element: <ShopPage /> },
   { path: PAGE_PATH.GACHA, element: <GachaPage /> },
   { path: PAGE_PATH.GACHA_ROLLING, element: <GachaRollingPage /> },
+  { path: PAGE_PATH.GACHA_INFO, element: <GachaInfoPage /> },
   { path: PAGE_PATH.DECO, element: <DecoPage /> },
   // Account Creation Funnel
   { path: PAGE_PATH.ACCOUNT_CREATION, element: <AccountCreationFunnel /> },

@@ -1,17 +1,39 @@
-import type { Item } from '@/features/game/shop/types/item';
+import type {
+  Item,
+  GachaDrawCurrencies,
+} from '@/features/game/shop/types/item';
+import { getItemImage } from '@/features/game/shop/utils/getItemImage';
 import closeButton from '@/assets/game_button/closeButton.png';
 import { useNavigate } from 'react-router-dom';
 import { PAGE_PATH } from '@/shared/constants/path';
 
 /** 가챠 결과 모달에 필요한 속성. */
-interface ItemDetailModalProps {
+interface GachaResultProps {
   item: Item;
+  currencies: GachaDrawCurrencies;
   onClose: () => void;
 }
 
+/** 등급별 색상 매핑 */
+const RARITY_COLORS = {
+  LEGENDARY: 'text-yellow-400',
+  EPIC: 'text-purple-400',
+  RARE: 'text-blue-400',
+  COMMON: 'text-gray-400',
+} as const;
+
+/** 등급별 한글 이름 매핑 */
+const RARITY_NAMES = {
+  LEGENDARY: '전설',
+  EPIC: '영웅',
+  RARE: '희귀',
+  COMMON: '일반',
+} as const;
+
 /** 가챠에서 획득한 아이템 정보를 보여주는 전체 화면 모달. */
-const GachaResult = ({ item }: ItemDetailModalProps) => {
+const GachaResult = ({ item, onClose }: GachaResultProps) => {
   const navigate = useNavigate();
+  const rarity = item.rarity as keyof typeof RARITY_COLORS;
 
   return (
     <div className="game fixed inset-0 z-50 flex items-center justify-center bg-white/50">
@@ -32,23 +54,40 @@ const GachaResult = ({ item }: ItemDetailModalProps) => {
           </div>
           <div className="mx-auto mb-4 flex h-48 w-48 items-center rounded-full bg-white">
             <img
-              src={item.imageUrl}
+              src={getItemImage(item.itemId)}
               alt={item.itemName}
               className="mx-auto h-32 w-32 object-contain"
             />
           </div>
           <div className="flex flex-col items-center pt-2">
+            {/* 등급 표시 - 모달 안쪽으로 이동 */}
+            <div className="mb-2">
+              <span
+                className={`inline-block rounded-xl px-4 py-1 text-sm font-bold ${RARITY_COLORS[rarity]} bg-white shadow-sm`}
+              >
+                {RARITY_NAMES[rarity]} 등급
+              </span>
+            </div>
+
             <h2 className="text-xl font-semibold text-gray-800">
               {item.itemName}
             </h2>
-            <p className="px-10 pt-3 text-center text-sm leading-relaxed whitespace-pre-line text-gray-600">
+            <p className="px-10 pt-3 pb-2 text-center text-sm leading-relaxed whitespace-pre-line text-gray-600">
               {item.itemDescription}
             </p>
-            <button onClick={() => navigate(PAGE_PATH.GACHA)}>
-              <div className="mt-5 mb-2 rounded-2xl border-3 border-level-06 bg-store-bg p-2 px-10 text-xl text-red-300">
-                BACK
-              </div>
-            </button>
+
+            <div className="flex gap-2">
+              <button onClick={() => navigate(PAGE_PATH.GACHA)}>
+                <div className="mt-2 mb-2 rounded-2xl border-3 border-level-06 bg-store-bg p-2 px-6 text-lg text-red-300">
+                  한 번 더
+                </div>
+              </button>
+              <button onClick={onClose}>
+                <div className="mt-2 mb-2 rounded-2xl border-3 border-gray-300 bg-gray-100 p-2 px-6 text-lg text-gray-600">
+                  닫기
+                </div>
+              </button>
+            </div>
           </div>
         </div>
       </div>

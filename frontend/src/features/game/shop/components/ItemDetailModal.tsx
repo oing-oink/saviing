@@ -14,6 +14,10 @@ interface ItemDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   onPreview?: (item: Item) => void;
+  /** 구매/미리보기 기능을 숨길지 여부 (기본값: false) */
+  hideActions?: boolean;
+  /** 가격 정보를 숨길지 여부 (기본값: false) */
+  hidePrice?: boolean;
 }
 
 /** 아이템 상세 정보 조회 및 구매/미리보기를 제공하는 모달 컴포넌트. */
@@ -22,6 +26,8 @@ const ItemDetailModal = ({
   isOpen,
   onClose,
   onPreview,
+  hideActions = false,
+  hidePrice = false,
 }: ItemDetailModalProps) => {
   const { data: item, isLoading, error } = useGameItemDetail(itemId);
   const { mutate: purchase, isPending: isPurchasing } = usePurchase();
@@ -128,64 +134,83 @@ const ItemDetailModal = ({
             <p className="px-10 pt-3 text-center text-sm leading-relaxed whitespace-pre-line text-gray-600">
               {item.itemDescription}
             </p>
-            <button
-              type="button"
-              onClick={handlePreview}
-              className="mt-5 mb-2 rounded-3xl border-2 border-primary bg-store-bg px-10 py-2 text-lg font-semibold text-primary hover:bg-primary/10"
-            >
-              방에 미리 배치하기
-            </button>
-            <Coin coin={item.coin} fishCoin={item.fishCoin} />
 
-            {/* 결제 방법 선택 */}
-            <div className="mt-4 mb-4">
-              <div className="mb-2 text-center text-sm text-gray-600">
-                결제 방법 선택
-              </div>
-              <div className="flex justify-center gap-2">
-                <button
-                  onClick={() => setSelectedPayment('COIN')}
-                  className={`rounded-lg px-4 py-2 text-sm ${
-                    selectedPayment === 'COIN'
-                      ? 'bg-primary text-white'
-                      : 'bg-gray-200 text-gray-700'
-                  }`}
-                >
-                  코인으로 결제 ({item.coin})
-                </button>
-                <button
-                  onClick={() => setSelectedPayment('FISH_COIN')}
-                  className={`rounded-lg px-4 py-2 text-sm ${
-                    selectedPayment === 'FISH_COIN'
-                      ? 'bg-primary text-white'
-                      : 'bg-gray-200 text-gray-700'
-                  }`}
-                >
-                  피시코인으로 결제 ({item.fishCoin})
-                </button>
-              </div>
-            </div>
+            {!hideActions && (
+              <button
+                type="button"
+                onClick={handlePreview}
+                className="mt-5 mb-2 rounded-3xl border-2 border-primary bg-store-bg px-10 py-2 text-lg font-semibold text-primary hover:bg-primary/10"
+              >
+                방에 미리 배치하기
+              </button>
+            )}
 
-            {/* 구매 버튼 */}
-            <div className="flex justify-center gap-2">
-              <button
-                onClick={handlePurchase}
-                disabled={isPurchasing}
-                className={`rounded-lg px-6 py-2 text-center font-semibold ${
-                  isPurchasing
-                    ? 'cursor-not-allowed bg-gray-300 text-gray-500'
-                    : 'bg-green-500 text-white hover:bg-green-600'
-                }`}
-              >
-                {isPurchasing ? '구매 중...' : '구매하기'}
-              </button>
-              <button
-                onClick={onClose}
-                className="rounded-lg bg-gray-500 px-6 py-2 text-center text-white hover:bg-gray-600"
-              >
-                취소
-              </button>
-            </div>
+            {!hidePrice && <Coin coin={item.coin} fishCoin={item.fishCoin} />}
+
+            {!hideActions && (
+              <>
+                {/* 결제 방법 선택 */}
+                <div className="mt-4 mb-4">
+                  <div className="mb-2 text-center text-sm text-gray-600">
+                    결제 방법 선택
+                  </div>
+                  <div className="flex justify-center gap-2">
+                    <button
+                      onClick={() => setSelectedPayment('COIN')}
+                      className={`rounded-lg px-4 py-2 text-sm ${
+                        selectedPayment === 'COIN'
+                          ? 'bg-primary text-white'
+                          : 'bg-gray-200 text-gray-700'
+                      }`}
+                    >
+                      코인으로 결제 ({item.coin})
+                    </button>
+                    <button
+                      onClick={() => setSelectedPayment('FISH_COIN')}
+                      className={`rounded-lg px-4 py-2 text-sm ${
+                        selectedPayment === 'FISH_COIN'
+                          ? 'bg-primary text-white'
+                          : 'bg-gray-200 text-gray-700'
+                      }`}
+                    >
+                      피시코인으로 결제 ({item.fishCoin})
+                    </button>
+                  </div>
+                </div>
+
+                {/* 구매 버튼 */}
+                <div className="flex justify-center gap-2">
+                  <button
+                    onClick={handlePurchase}
+                    disabled={isPurchasing}
+                    className={`rounded-lg px-6 py-2 text-center font-semibold ${
+                      isPurchasing
+                        ? 'cursor-not-allowed bg-gray-300 text-gray-500'
+                        : 'bg-green-500 text-white hover:bg-green-600'
+                    }`}
+                  >
+                    {isPurchasing ? '구매 중...' : '구매하기'}
+                  </button>
+                  <button
+                    onClick={onClose}
+                    className="rounded-lg bg-gray-500 px-6 py-2 text-center text-white hover:bg-gray-600"
+                  >
+                    취소
+                  </button>
+                </div>
+              </>
+            )}
+
+            {hideActions && (
+              <div className="mt-4 flex justify-center">
+                <button
+                  onClick={onClose}
+                  className="rounded-lg bg-primary px-8 py-2 text-center text-white hover:bg-primary/80"
+                >
+                  닫기
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
