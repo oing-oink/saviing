@@ -42,6 +42,22 @@ spring:
       additional-paths:
         - src/main/resources
 
+  # Redis Configuration
+  data:
+    redis:
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6380}
+      password: ${REDIS_PASSWORD:super_strong_pw}
+      timeout: 3s
+
+app:
+  streams:
+    key: stream:bank.savings.deposited.v1
+    group: game-coin-service
+    consumerName: ${HOSTNAME:local}-${random.uuid}
+    blockMillis: 2000
+    maxReadCount: 100
+
 # OAuth2 설정
 oauth2:
   google:
