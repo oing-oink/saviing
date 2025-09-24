@@ -38,7 +38,10 @@ public record CharacterResponse(
     
     @Schema(description = "보유 방 개수", example = "3")
     Integer roomCount,
-    
+
+    @Schema(description = "기본 방 ID (1번 방)", example = "1")
+    Long roomId,
+
     @Schema(description = "캐릭터 활성 상태", example = "true")
     Boolean isActive,
     

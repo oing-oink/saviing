@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import saviing.game.inventory.domain.event.ItemPurchasedEvent;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -228,5 +229,51 @@ public class InventoryCommandService {
         return VoidResult.of();
     }
 
+    /**
+     * 특정 방에 배치된 모든 데코레이션 인벤토리의 사용 상태를 해제합니다.
+     * Room BC에서 방 배치 초기화 시 호출됩니다.
+     *
+     * @param roomId 방 식별자
+     * @throws IllegalArgumentException roomId가 null이거나 0 이하인 경우
+     */
+    @Transactional
+    public void resetRoomUsage(Long roomId) {
+        if (roomId == null || roomId <= 0) {
+            throw new IllegalArgumentException("roomId는 필수이며 양수여야 합니다");
+        }
+
+        log.info("Resetting room usage for roomId: {}", roomId);
+
+        inventoryRepository.updateRoomUsageToFalse(roomId);
+
+        log.debug("Room usage reset completed for roomId: {}", roomId);
+    }
+
+    /**
+     * 지정된 인벤토리 아이템들을 사용 중 상태로 표시하고 특정 방에 배치합니다.
+     * Room BC에서 방 배치 완료 시 호출됩니다.
+     *
+     * @param inventoryItemIds 사용 중으로 표시할 인벤토리 아이템 ID 목록
+     * @param roomId 배치할 방의 식별자
+     * @throws IllegalArgumentException inventoryItemIds가 null이거나 비어있는 경우
+     * @throws IllegalArgumentException roomId가 null이거나 0 이하인 경우
+     * @throws InventoryItemNotFoundException 존재하지 않는 인벤토리 아이템이 포함된 경우
+     */
+    @Transactional
+    public void markAsUsed(List<Long> inventoryItemIds, Long roomId) {
+        if (inventoryItemIds == null || inventoryItemIds.isEmpty()) {
+            log.debug("No inventory items to mark as used");
+            return;
+        }
+        if (roomId == null || roomId <= 0) {
+            throw new IllegalArgumentException("roomId는 필수이며 양수여야 합니다");
+        }
+
+        log.info("Marking {} inventory items as used in room {}", inventoryItemIds.size(), roomId);
+
+        inventoryRepository.updateUsageToTrue(inventoryItemIds, roomId);
+
+        log.debug("Successfully marked {} items as used in room {}", inventoryItemIds.size(), roomId);
+    }
 
 }
