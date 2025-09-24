@@ -301,47 +301,65 @@ const RoomCanvas = ({
         } => Boolean(sprite),
       );
 
-    const sortSprites = (items: typeof sprites) =>
-      items.sort((a, b) => {
-        const draftA = draftMap.get(a.id);
-        const draftB = draftMap.get(b.id);
-        const rowA = draftA?.positionY ?? 0;
-        const rowB = draftB?.positionY ?? 0;
-        if (rowA !== rowB) {
-          return rowB - rowA;
-        }
-        const colA = draftA?.positionX ?? 0;
-        const colB = draftB?.positionX ?? 0;
-        return colB - colA;
-      });
-
-    const leftSprites: typeof sprites = [];
-    const rightSprites: typeof sprites = [];
-    const floorSprites: typeof sprites = [];
-    const otherSprites: typeof sprites = [];
-
-    sprites.forEach(sprite => {
-      const draft = draftMap.get(sprite.id);
-      switch (draft?.layer) {
-        case 'leftWall':
-          leftSprites.push(sprite);
-          break;
-        case 'rightWall':
-          rightSprites.push(sprite);
-          break;
-        case 'floor':
-          floorSprites.push(sprite);
-          break;
-        default:
-          otherSprites.push(sprite);
+    const normalizeLayer = (layer: string | undefined | null) => {
+      if (!layer) {
+        return null;
       }
+      const key = layer.toLowerCase();
+      if (key === 'left') {
+        return 'leftWall';
+      }
+      if (key === 'right') {
+        return 'rightWall';
+      }
+      if (key === 'bottom') {
+        return 'floor';
+      }
+      return layer;
+    };
+
+    const getLayerPriority = (layer: string | null) => {
+      switch (layer) {
+        case 'leftWall':
+          return 0;
+        case 'rightWall':
+          return 1;
+        case 'floor':
+          return 2;
+        default:
+          return 3;
+      }
+    };
+
+    sprites.sort((a, b) => {
+      const draftA = draftMap.get(a.id);
+      const draftB = draftMap.get(b.id);
+      const layerA = normalizeLayer(draftA?.layer);
+      const layerB = normalizeLayer(draftB?.layer);
+      const layerPriorityA = getLayerPriority(layerA);
+      const layerPriorityB = getLayerPriority(layerB);
+      if (layerPriorityA !== layerPriorityB) {
+        return layerPriorityA - layerPriorityB;
+      }
+
+      const depthA = a.y + a.height;
+      const depthB = b.y + b.height;
+      if (depthA !== depthB) {
+        return depthA - depthB;
+      }
+
+      const rowA = draftA?.positionY ?? 0;
+      const rowB = draftB?.positionY ?? 0;
+      if (rowA !== rowB) {
+        return rowB - rowA;
+      }
+
+      const colA = draftA?.positionX ?? 0;
+      const colB = draftB?.positionX ?? 0;
+      return colB - colA;
     });
 
-    sortSprites(leftSprites);
-    sortSprites(rightSprites);
-    sortSprites(floorSprites);
-
-    return [...leftSprites, ...rightSprites, ...floorSprites, ...otherSprites];
+    return sprites;
   }, [computeSprite, draftItems, draftMap]);
 
   const lastStagedCellRef = useRef<string | null>(null);
