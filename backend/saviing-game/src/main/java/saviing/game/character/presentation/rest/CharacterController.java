@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -97,7 +98,8 @@ public class CharacterController implements CharacterApi {
 
     @Override
     @GetMapping("/entry")
-    public ApiResult<GameEntryResponse> getGameEntry(@RequestHeader("customerId") Long customerId) {
+    public ApiResult<GameEntryResponse> getGameEntry(Authentication authentication) {
+        Long customerId = Long.valueOf(authentication.getName());
         log.info("메인 엔트리 게임 정보 조회: customerId={}", customerId);
 
         GameEntryResult result = characterQueryService.getGameEntry(

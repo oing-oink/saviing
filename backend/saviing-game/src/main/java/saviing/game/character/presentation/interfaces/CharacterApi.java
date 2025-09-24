@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.security.core.Authentication;
 import saviing.common.response.ApiResult;
 import saviing.common.response.ErrorResult;
 import saviing.game.character.presentation.dto.request.ConnectAccountRequest;
@@ -263,13 +264,13 @@ public interface CharacterApi {
 
     @Operation(
         summary = "메인 엔트리 게임 정보 조회",
-        description = "메인 페이지에서 표시할 게임 정보를 조회합니다. 활성 캐릭터와 1층에 배치된 첫 번째 펫 정보를 반환합니다."
+        description = "메인 페이지에서 표시할 게임 정보를 조회합니다. 활성 캐릭터와 1층에 배치된 첫 번째 펫 정보를 반환합니다. JWT 토큰에서 customerId를 자동 추출합니다."
     )
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "메인 엔트리 게임 정보 조회 성공"),
         @ApiResponse(
-            responseCode = "400",
-            description = "잘못된 요청 - customerId 헤더가 누락되거나 잘못된 형식",
+            responseCode = "401",
+            description = "인증 실패 - JWT 토큰이 누락되거나 유효하지 않음",
             content = @Content(schema = @Schema(implementation = ErrorResult.class))
         ),
         @ApiResponse(
@@ -299,7 +300,6 @@ public interface CharacterApi {
         )
     })
     ApiResult<GameEntryResponse> getGameEntry(
-        @Parameter(description = "고객 ID", required = true, example = "1")
-        @RequestHeader("customerId") Long customerId
+        @Parameter(hidden = true) Authentication authentication
     );
 }
