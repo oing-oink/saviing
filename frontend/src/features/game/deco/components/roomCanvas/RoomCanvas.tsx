@@ -632,10 +632,8 @@ const RoomCanvas = ({
     if (!shouldCapturePointer(event.clientX, event.clientY)) {
       return;
     }
-    try {
+    if (event.cancelable) {
       event.preventDefault();
-    } catch {
-      // passive event listener에서는 preventDefault 호출 불가
     }
     event.stopPropagation();
     event.nativeEvent.stopImmediatePropagation();
@@ -653,10 +651,8 @@ const RoomCanvas = ({
     if (!shouldCapturePointer(event.clientX, event.clientY)) {
       return;
     }
-    try {
+    if (event.cancelable) {
       event.preventDefault();
-    } catch {
-      // passive event listener에서는 preventDefault 호출 불가
     }
     event.stopPropagation();
     event.nativeEvent.stopImmediatePropagation();
@@ -670,10 +666,8 @@ const RoomCanvas = ({
     if (!dragSession || !isPointerActiveRef.current) {
       return;
     }
-    try {
+    if (event.cancelable) {
       event.preventDefault();
-    } catch {
-      // passive event listener에서는 preventDefault 호출 불가
     }
     event.stopPropagation();
     event.nativeEvent.stopImmediatePropagation();
@@ -682,8 +676,10 @@ const RoomCanvas = ({
 
   // 드래그가 끝나면 후보 상태로만 stagePlacement를 호출하고
   // 실패 시 cancelDrag로 상태를 롤백한다.
-  const finalizePlacement = () => {
+  const finalizePlacement = useCallback(() => {
     if (!dragSession) {
+      isPointerActiveRef.current = false;
+      setIsPointerActive(false);
       return;
     }
     const staged = stagePlacement();
@@ -692,17 +688,14 @@ const RoomCanvas = ({
     }
     isPointerActiveRef.current = false;
     setIsPointerActive(false);
-  };
+  }, [dragSession, stagePlacement, cancelDrag]);
 
   const handleMouseUp = (event: ReactMouseEvent<HTMLDivElement>) => {
     if (!dragSession || !isPointerActiveRef.current) {
       return;
     }
-    try {
-      event.preventDefault();
-    } catch {
-      // passive event listener에서는 preventDefault 호출 불가
-    }
+    event.stopPropagation();
+    event.nativeEvent.stopImmediatePropagation();
     finalizePlacement();
   };
 
@@ -711,6 +704,25 @@ const RoomCanvas = ({
     isPointerActiveRef.current = false;
     setIsPointerActive(false);
   };
+
+  useEffect(() => {
+    const handleGlobalPointerEnd = () => {
+      if (!isPointerActiveRef.current) {
+        return;
+      }
+      finalizePlacement();
+    };
+
+    window.addEventListener('mouseup', handleGlobalPointerEnd);
+    window.addEventListener('touchend', handleGlobalPointerEnd);
+    window.addEventListener('touchcancel', handleGlobalPointerEnd);
+
+    return () => {
+      window.removeEventListener('mouseup', handleGlobalPointerEnd);
+      window.removeEventListener('touchend', handleGlobalPointerEnd);
+      window.removeEventListener('touchcancel', handleGlobalPointerEnd);
+    };
+  }, [finalizePlacement]);
 
   const activeTouchIdRef = useRef<number | null>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -769,11 +781,6 @@ const RoomCanvas = ({
     if (!touch || !shouldCapturePointer(touch.clientX, touch.clientY)) {
       return;
     }
-    try {
-      event.preventDefault();
-    } catch {
-      // passive event listener에서는 preventDefault 호출 불가
-    }
     event.stopPropagation();
     event.nativeEvent.stopImmediatePropagation();
     activeTouchIdRef.current = touch.identifier;
@@ -806,11 +813,6 @@ const RoomCanvas = ({
     if (!touch) {
       return;
     }
-    try {
-      event.preventDefault();
-    } catch {
-      // passive event listener에서는 preventDefault 호출 불가
-    }
     event.stopPropagation();
     event.nativeEvent.stopImmediatePropagation();
     projectToOverlay(touch.clientX, touch.clientY);
@@ -823,11 +825,6 @@ const RoomCanvas = ({
     const touch = findActiveTouch(event.changedTouches);
     if (!touch) {
       return;
-    }
-    try {
-      event.preventDefault();
-    } catch {
-      // passive event listener에서는 preventDefault 호출 불가
     }
     event.stopPropagation();
     event.nativeEvent.stopImmediatePropagation();

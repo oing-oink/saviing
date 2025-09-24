@@ -61,13 +61,13 @@ interface PlacedItemProps {
  * @param props - 폴리곤 렌더링과 상호작용 처리에 필요한 속성들
  * @returns 상호작용 가능한 SVG 폴리곤 요소들 또는 null (visible이 false인 경우)
  */
-const PlacedItem = ({
+function PlacedItem({
   id,
   polygons,
   onPick,
   visible = true,
   variant = 'highlight',
-}: PlacedItemProps) => {
+}: PlacedItemProps) {
   /**
    * 마우스 클릭 이벤트 처리기.
    * 이벤트 전파를 막고 onPick 콜백을 호출하여 아이템 선택을 처리합니다.
@@ -75,10 +75,8 @@ const PlacedItem = ({
    * @param event - React 마우스 이벤트 객체
    */
   const handleMouseDown = (event: MouseEvent<SVGPolygonElement>) => {
-    try {
+    if (event.cancelable) {
       event.preventDefault();
-    } catch {
-      // passive event listener에서는 preventDefault 호출 불가
     }
     event.stopPropagation();
     onPick({ id, clientX: event.clientX, clientY: event.clientY });
@@ -92,11 +90,7 @@ const PlacedItem = ({
    * @param event - React 터치 이벤트 객체
    */
   const handleTouchStart = (event: TouchEvent<SVGPolygonElement>) => {
-    try {
-      event.preventDefault();
-    } catch {
-      // passive event listener에서는 preventDefault 호출 불가
-    }
+    // React 18에서는 기본으로 passive 리스너가 사용되므로 preventDefault 호출을 건너뛴다.
     event.stopPropagation();
     const touch = event.changedTouches[0];
     onPick({ id, clientX: touch.clientX, clientY: touch.clientY });
@@ -129,6 +123,6 @@ const PlacedItem = ({
       ))}
     </g>
   );
-};
+}
 
 export default PlacedItem;
