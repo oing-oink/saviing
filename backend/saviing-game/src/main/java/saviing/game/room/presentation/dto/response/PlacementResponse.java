@@ -10,10 +10,6 @@ import lombok.Builder;
 @Builder
 @Schema(description = "배치 아이템 응답")
 public record PlacementResponse(
-    @Schema(description = "배치 식별자", example = "1")
-    @JsonProperty("placementId")
-    Long placementId,
-
     @Schema(description = "인벤토리 아이템 식별자", example = "101")
     @JsonProperty("inventoryItemId")
     Long inventoryItemId,
@@ -45,7 +41,6 @@ public record PlacementResponse(
     /**
      * PlacementResponse 생성자입니다.
      *
-     * @param placementId 배치 식별자
      * @param inventoryItemId 인벤토리 아이템 식별자
      * @param itemId 아이템 식별자
      * @param positionX X 좌표
@@ -56,9 +51,6 @@ public record PlacementResponse(
      * @throws IllegalArgumentException 필수 값이 null인 경우
      */
     public PlacementResponse {
-        if (placementId == null) {
-            throw new IllegalArgumentException("placementId는 필수입니다");
-        }
         if (inventoryItemId == null) {
             throw new IllegalArgumentException("inventoryItemId는 필수입니다");
         }

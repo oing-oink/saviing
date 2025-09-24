@@ -33,7 +33,6 @@ public record RoomPlacementListResult(
      */
     @Builder
     public record PlacementInfo(
-        Long placementId,
         Long inventoryItemId,
         Long itemId,
         Integer positionX,
@@ -45,7 +44,6 @@ public record RoomPlacementListResult(
         /**
          * PlacementInfo 생성자입니다.
          *
-         * @param placementId 배치 식별자
          * @param inventoryItemId 인벤토리 아이템 식별자
          * @param itemId 아이템 식별자
          * @param positionX X 좌표
@@ -56,9 +54,6 @@ public record RoomPlacementListResult(
          * @throws IllegalArgumentException 필수 값이 null인 경우
          */
         public PlacementInfo {
-            if (placementId == null) {
-                throw new IllegalArgumentException("placementId는 필수입니다");
-            }
             if (inventoryItemId == null) {
                 throw new IllegalArgumentException("inventoryItemId는 필수입니다");
             }
