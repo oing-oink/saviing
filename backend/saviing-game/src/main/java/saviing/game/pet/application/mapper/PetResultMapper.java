@@ -37,6 +37,7 @@ public class PetResultMapper {
             .itemId(itemId)
             .level(pet.getLevel().value())
             .experience(pet.getExperience().value())
+            .requiredExp(pet.calculateRequiredExpForNextLevel())
             .affection(pet.getAffection().value())
             .energy(pet.getEnergy().value())
             .petName(pet.getPetName().value())

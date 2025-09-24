@@ -28,6 +28,9 @@ public class DecorationInventoryEntity extends InventoryEntity {
     @Column(name = "category", nullable = false, length = 20)
     private DecorationCategoryEntity category;
 
+    @Column(name = "room_id")
+    private Long roomId;
+
     @Builder
     public DecorationInventoryEntity(
         Long inventoryItemId,
@@ -36,10 +39,12 @@ public class DecorationInventoryEntity extends InventoryEntity {
         Boolean isUsed,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
-        DecorationCategoryEntity category
+        DecorationCategoryEntity category,
+        Long roomId
     ) {
         super(inventoryItemId, characterId, itemId, InventoryTypeEntity.DECORATION, isUsed, createdAt, updatedAt);
         this.category = category;
+        this.roomId = roomId;
     }
 
     /**
@@ -49,6 +54,15 @@ public class DecorationInventoryEntity extends InventoryEntity {
      */
     public void updateDecorationInfo(DecorationCategoryEntity category) {
         this.category = category;
+    }
+
+    /**
+     * 방 배치 정보를 업데이트합니다.
+     *
+     * @param roomId 방 식별자 (null이면 미배치 상태)
+     */
+    public void updateRoomPlacement(Long roomId) {
+        this.roomId = roomId;
     }
 
     /**

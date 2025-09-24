@@ -58,6 +58,7 @@ public class CharacterResponseMapper {
         return CharacterResponse.builder()
             .characterId(result.characterId())
             .customerId(result.customerId())
+            .roomId(result.roomId())
             .createdAt(result.createdAt())
             .build();
     }

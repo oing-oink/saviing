@@ -98,6 +98,15 @@ public interface InventoryRepository {
      */
     List<PetInventory> findUsedPetsByCharacterId(CharacterId characterId);
 
+    /**
+     * 캐릭터의 특정 방에 있는 펫 인벤토리를 조회합니다.
+     *
+     * @param characterId 캐릭터 ID
+     * @param roomId 방 ID
+     * @return 해당 방의 펫 인벤토리 목록
+     */
+    List<PetInventory> findPetsByCharacterIdAndRoomId(CharacterId characterId, Long roomId);
+
     // === 액세서리 특화 메서드 ===
 
     /**
@@ -164,5 +173,29 @@ public interface InventoryRepository {
      * @return 소모품 인벤토리 (Optional)
      */
     Optional<ConsumptionInventory> findConsumptionByCharacterIdAndItemId(CharacterId characterId, ItemId itemId);
+
+    // === Room 동기화를 위한 벌크 업데이트 메서드 ===
+
+    /**
+     * 특정 방에 배치된 모든 데코레이션 인벤토리의 사용 상태를 false로 업데이트합니다.
+     * Room BC에서 방 배치 초기화 시 호출됩니다.
+     *
+     * @param roomId 방 식별자
+     * @return 업데이트된 레코드 수
+     * @throws IllegalArgumentException roomId가 null이거나 0 이하인 경우
+     */
+    int updateRoomUsageToFalse(Long roomId);
+
+    /**
+     * 지정된 인벤토리 아이템들의 사용 상태를 true로 업데이트하고 roomId를 설정합니다.
+     * Room BC에서 방 배치 완료 시 호출됩니다.
+     *
+     * @param inventoryItemIds 사용 중으로 표시할 인벤토리 아이템 ID 목록
+     * @param roomId 배치할 방의 식별자
+     * @return 업데이트된 레코드 수
+     * @throws IllegalArgumentException inventoryItemIds가 null이거나 비어있는 경우
+     * @throws IllegalArgumentException roomId가 null이거나 0 이하인 경우
+     */
+    int updateUsageToTrue(List<Long> inventoryItemIds, Long roomId);
 
 }

@@ -12,6 +12,7 @@ import saviing.game.character.application.dto.command.IncreaseRoomCountCommand;
 import saviing.game.character.application.dto.query.GetActiveCharacterQuery;
 import saviing.game.character.application.dto.query.GetAllCharactersByCustomerQuery;
 import saviing.game.character.application.dto.query.GetCharacterQuery;
+import saviing.game.character.application.dto.query.GetGameEntryQuery;
 import saviing.game.character.domain.model.vo.CharacterId;
 import saviing.game.character.domain.model.vo.CustomerId;
 import saviing.game.character.presentation.dto.request.AddCoinsRequest;
@@ -168,6 +169,18 @@ public class CharacterRequestMapper {
      */
     public GetAllCharactersByCustomerQuery toAllCharactersByCustomerQuery(Long customerId) {
         return GetAllCharactersByCustomerQuery.builder()
+            .customerId(CustomerId.of(customerId))
+            .build();
+    }
+
+    /**
+     * 고객 ID를 GetGameEntryQuery로 변환합니다.
+     *
+     * @param customerId 고객 ID
+     * @return GetGameEntryQuery
+     */
+    public GetGameEntryQuery toGameEntryQuery(Long customerId) {
+        return GetGameEntryQuery.builder()
             .customerId(CustomerId.of(customerId))
             .build();
     }

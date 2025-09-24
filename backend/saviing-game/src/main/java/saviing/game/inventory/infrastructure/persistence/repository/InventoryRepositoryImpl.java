@@ -1,5 +1,6 @@
 package saviing.game.inventory.infrastructure.persistence.repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -17,6 +18,7 @@ import saviing.game.inventory.infrastructure.persistence.entity.AccessoryInvento
 import saviing.game.inventory.infrastructure.persistence.entity.ConsumptionInventoryEntity;
 import saviing.game.inventory.infrastructure.persistence.entity.DecorationInventoryEntity;
 import saviing.game.inventory.infrastructure.persistence.entity.InventoryEntity;
+import saviing.game.inventory.infrastructure.persistence.entity.PetInventoryEntity;
 import saviing.game.inventory.infrastructure.persistence.mapper.InventoryEntityMapper;
 import saviing.game.item.domain.model.enums.Accessory;
 import saviing.game.item.domain.model.enums.Consumption;
@@ -107,6 +109,16 @@ public class InventoryRepositoryImpl implements InventoryRepository {
             .stream()
             .map(entity -> (PetInventory) inventoryEntityMapper.toDomain(entity))
             .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<PetInventory> findPetsByCharacterIdAndRoomId(CharacterId characterId, Long roomId) {
+        List<PetInventoryEntity> entities = petInventoryJpaRepository.findByCharacterIdAndRoomId(characterId.value(), roomId);
+        List<PetInventory> pets = new ArrayList<>();
+        for (PetInventoryEntity entity : entities) {
+            pets.add((PetInventory) inventoryEntityMapper.toDomain(entity));
+        }
+        return pets;
     }
 
     // === 액세서리 특화 메서드 ===
@@ -204,5 +216,48 @@ public class InventoryRepositoryImpl implements InventoryRepository {
             case TOY -> ConsumptionInventoryEntity.ConsumptionCategoryEntity.TOY;
             case FOOD -> ConsumptionInventoryEntity.ConsumptionCategoryEntity.FOOD;
         };
+    }
+
+    // === Room 동기화를 위한 벌크 업데이트 메서드 ===
+
+    /**
+     * 특정 방에 배치된 모든 데코레이션 인벤토리의 사용 상태를 false로 업데이트합니다.
+     * Room BC에서 방 배치 초기화 시 호출됩니다.
+     *
+     * @param roomId 방 식별자
+     * @return 업데이트된 레코드 수
+     * @throws IllegalArgumentException roomId가 null이거나 0 이하인 경우
+     */
+    @Override
+    @Transactional
+    public int updateRoomUsageToFalse(Long roomId) {
+        if (roomId == null || roomId <= 0) {
+            throw new IllegalArgumentException("roomId는 필수이며 양수여야 합니다");
+        }
+
+        return decorationInventoryJpaRepository.updateUsageToFalseByRoomId(roomId);
+    }
+
+    /**
+     * 지정된 인벤토리 아이템들의 사용 상태를 true로 업데이트하고 roomId를 설정합니다.
+     * Room BC에서 방 배치 완료 시 호출됩니다.
+     *
+     * @param inventoryItemIds 사용 중으로 표시할 인벤토리 아이템 ID 목록
+     * @param roomId 배치할 방의 식별자
+     * @return 업데이트된 레코드 수
+     * @throws IllegalArgumentException inventoryItemIds가 null이거나 비어있는 경우
+     * @throws IllegalArgumentException roomId가 null이거나 0 이하인 경우
+     */
+    @Override
+    @Transactional
+    public int updateUsageToTrue(List<Long> inventoryItemIds, Long roomId) {
+        if (inventoryItemIds == null || inventoryItemIds.isEmpty()) {
+            throw new IllegalArgumentException("inventoryItemIds는 필수이며 비어있을 수 없습니다");
+        }
+        if (roomId == null || roomId <= 0) {
+            throw new IllegalArgumentException("roomId는 필수이며 양수여야 합니다");
+        }
+
+        return decorationInventoryJpaRepository.updateUsageToTrueByInventoryItemIds(inventoryItemIds, roomId);
     }
 }
