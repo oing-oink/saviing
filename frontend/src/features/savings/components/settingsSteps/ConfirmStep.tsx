@@ -119,7 +119,7 @@ const ConfirmStep = () => {
   return (
     <>
       {/* 메인 컨텐츠 */}
-      <div className="flex flex-1 flex-col px-6 py-8">
+      <div className="flex flex-1 flex-col px-6 py-8 pb-24">
         <h1 className="mb-2 text-xl font-bold text-gray-900">최종 확인</h1>
         <p className="mb-6 text-gray-600">
           아래 내용을 확인하고 설정 변경을 완료해주세요

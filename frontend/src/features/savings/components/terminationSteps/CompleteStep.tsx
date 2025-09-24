@@ -2,65 +2,12 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/shared/components/ui/button';
 import { PAGE_PATH } from '@/shared/constants/path';
 import { useSavingsAccountDetail } from '@/features/savings/query/useSavingsQuery';
-import { useQueryClient } from '@tanstack/react-query';
-import { savingsKeys } from '@/features/savings/query/savingsKeys';
-import { useEffect } from 'react';
 
 const CompleteStep = () => {
   const navigate = useNavigate();
   const { accountId } = useParams<{ accountId: string }>();
-  const queryClient = useQueryClient();
 
-  console.log('CompleteStep - accountId:', accountId);
-
-  const {
-    data: accountData,
-    isLoading,
-    isError,
-    error,
-  } = useSavingsAccountDetail(accountId!);
-
-  console.log('CompleteStep - API response:', {
-    accountData,
-    isLoading,
-    isError,
-    error,
-  });
-
-  console.log('CompleteStep - Account status:', accountData?.status);
-  console.log(
-    'CompleteStep - Account full data:',
-    JSON.stringify(accountData, null, 2),
-  );
-
-  useEffect(() => {
-    if (accountData && accountId) {
-      console.log('CompleteStep - Invalidating accounts list cache');
-
-      // 계좌 목록 캐시 무효화 (/v1/accounts API 캐시)
-      queryClient.invalidateQueries({
-        queryKey: savingsKeys.accountsList(),
-      });
-
-      // 추가로 모든 계좌 관련 캐시도 무효화
-      queryClient.invalidateQueries({
-        queryKey: savingsKeys.accounts(),
-      });
-
-      // 모든 적금 관련 캐시 강제 무효화
-      queryClient.invalidateQueries({
-        queryKey: ['savings'],
-      });
-
-      // 해당 계좌 상세 캐시도 무효화
-      queryClient.invalidateQueries({
-        queryKey: savingsKeys.savingsAccountDetail(accountId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: savingsKeys.detail(accountId),
-      });
-    }
-  }, [accountData, accountId, queryClient]);
+  useSavingsAccountDetail(accountId!);
 
   const handleGoHome = () => {
     navigate(PAGE_PATH.HOME);

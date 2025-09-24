@@ -252,6 +252,23 @@ export const useTerminateSavingsAccount = () => {
         savingsKeys.savingsAccountDetail(accountId),
         data,
       );
+
+      // 적금 해지 성공 시 모든 관련 캐시 무효화
+      queryClient.invalidateQueries({
+        queryKey: savingsKeys.accountsList(),
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: savingsKeys.accounts(),
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ['savings'],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: savingsKeys.detail(accountId),
+      });
     },
     onError: error => {
       console.error('적금 계좌 해지 실패:', error);

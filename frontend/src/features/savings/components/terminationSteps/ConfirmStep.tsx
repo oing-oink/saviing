@@ -11,8 +11,6 @@ const ConfirmStep = () => {
   const { goToNextStep, goToPrevStep } = useSavingsTermination();
   const { accountId } = useParams<{ accountId: string }>();
 
-  console.log('ConfirmStep - accountId:', accountId);
-
   const {
     data: accountData,
     isLoading,
@@ -21,29 +19,15 @@ const ConfirmStep = () => {
   } = useSavingsAccountDetail(accountId!);
   const terminateMutation = useTerminateSavingsAccount();
 
-  console.log('ConfirmStep - API response:', {
-    accountData,
-    isLoading,
-    isError,
-    error,
-  });
-
   const handleNext = async () => {
     if (!accountId) {
       return;
     }
 
     try {
-      console.log(
-        'ConfirmStep - Starting termination for accountId:',
-        accountId,
-      );
-      const result = await terminateMutation.mutateAsync(accountId);
-      console.log('ConfirmStep - Termination success:', result);
-
       goToNextStep();
     } catch (error) {
-      console.error('ConfirmStep - Termination failed:', error);
+      console.error('적금 해지 실패:', error);
     }
   };
 
