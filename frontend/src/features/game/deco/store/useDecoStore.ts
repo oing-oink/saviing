@@ -465,6 +465,11 @@ export const decoStore = createStore<DecoStore>(set => ({
               target.yLength ?? 1,
             );
 
+      const pendingPlacement = {
+        ...target,
+        footprintCellIds: resolvedFootprint,
+      };
+
       return {
         draftItems: remainingDraft,
         dragSession: createDragSession(String(target.itemId), {
@@ -482,7 +487,7 @@ export const decoStore = createStore<DecoStore>(set => ({
           isPreview: target.isPreview ?? false,
           slotId: normalizedSlotId ?? target.slotId,
         }),
-        pendingPlacement: null,
+        pendingPlacement,
       };
     }),
 

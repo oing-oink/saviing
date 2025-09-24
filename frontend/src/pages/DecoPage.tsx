@@ -350,7 +350,7 @@ const DecoPage = () => {
             <Room
               mode="edit"
               placementArea={placementArea}
-              panEnabled={!dragSession || Boolean(pendingPlacement)}
+              panEnabled={!dragSession}
               editOverlay={ctx => (
                 <RoomCanvas
                   context={ctx}

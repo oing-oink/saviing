@@ -116,6 +116,7 @@ function PlacedItem({
           fill={fill}
           stroke={stroke}
           strokeWidth={1}
+          data-interactive="true"
           onMouseDown={handleMouseDown}
           onTouchStart={handleTouchStart}
           pointerEvents="auto"

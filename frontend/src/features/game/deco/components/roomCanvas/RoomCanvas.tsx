@@ -464,18 +464,19 @@ const RoomCanvas = ({
 
   const isPointerActiveRef = useRef(false);
   const [isPointerActive, setIsPointerActive] = useState(false);
+  const hasPointerMovedRef = useRef(false);
 
   const actionAnchor = useMemo(() => {
     if (!showActions) {
       return null;
     }
-    if (isPointerActive) {
-      return ghost.isValid && ghostSprite ? ghostSprite : null;
+    if (ghost.isValid && ghostSprite) {
+      return ghostSprite;
     }
     if (pendingSprite) {
       return pendingSprite;
     }
-    if (ghost.isValid && ghostSprite) {
+    if (isPointerActive && ghostSprite) {
       return ghostSprite;
     }
     return null;
@@ -535,7 +536,7 @@ const RoomCanvas = ({
   const showActionButtons = Boolean(
     showActions &&
       actionAnchor &&
-      (isPointerActive ? ghost.isValid : pendingPlacement || ghost.isValid),
+      (ghost.isValid || pendingPlacement),
   );
 
   const containerWidth = containerRef.current?.clientWidth ?? 0;
@@ -639,6 +640,7 @@ const RoomCanvas = ({
     event.nativeEvent.stopImmediatePropagation();
     isPointerActiveRef.current = true;
     setIsPointerActive(true);
+    hasPointerMovedRef.current = false;
     projectToOverlay(event.clientX, event.clientY);
   };
 
@@ -658,6 +660,7 @@ const RoomCanvas = ({
     event.nativeEvent.stopImmediatePropagation();
     isPointerActiveRef.current = true;
     setIsPointerActive(true);
+    hasPointerMovedRef.current = false;
     projectToOverlay(event.clientX, event.clientY);
   };
 
@@ -671,24 +674,27 @@ const RoomCanvas = ({
     }
     event.stopPropagation();
     event.nativeEvent.stopImmediatePropagation();
+    hasPointerMovedRef.current = true;
     projectToOverlay(event.clientX, event.clientY);
   };
 
   // 드래그가 끝나면 후보 상태로만 stagePlacement를 호출하고
   // 실패 시 cancelDrag로 상태를 롤백한다.
-  const finalizePlacement = useCallback(() => {
-    if (!dragSession) {
-      isPointerActiveRef.current = false;
-      setIsPointerActive(false);
-      return;
-    }
-    const staged = stagePlacement();
-    if (!staged) {
-      cancelDrag();
-    }
+const finalizePlacement = useCallback(() => {
+  if (!dragSession) {
     isPointerActiveRef.current = false;
     setIsPointerActive(false);
-  }, [dragSession, stagePlacement, cancelDrag]);
+    hasPointerMovedRef.current = false;
+    return;
+  }
+  const staged = stagePlacement();
+  if (!staged) {
+    cancelDrag();
+  }
+  isPointerActiveRef.current = false;
+  setIsPointerActive(false);
+  hasPointerMovedRef.current = false;
+}, [dragSession, stagePlacement, cancelDrag]);
 
   const handleMouseUp = (event: ReactMouseEvent<HTMLDivElement>) => {
     if (!dragSession || !isPointerActiveRef.current) {
@@ -696,13 +702,20 @@ const RoomCanvas = ({
     }
     event.stopPropagation();
     event.nativeEvent.stopImmediatePropagation();
-    finalizePlacement();
+    if (hasPointerMovedRef.current) {
+      finalizePlacement();
+    } else {
+      isPointerActiveRef.current = false;
+      setIsPointerActive(false);
+      hasPointerMovedRef.current = false;
+    }
   };
 
   // 포인터가 캔버스를 벗어나면 드래그 상태만 해제한다.
   const handleMouseLeave = () => {
     isPointerActiveRef.current = false;
     setIsPointerActive(false);
+    hasPointerMovedRef.current = false;
   };
 
   useEffect(() => {
@@ -710,7 +723,13 @@ const RoomCanvas = ({
       if (!isPointerActiveRef.current) {
         return;
       }
-      finalizePlacement();
+      if (hasPointerMovedRef.current) {
+        finalizePlacement();
+      } else {
+        isPointerActiveRef.current = false;
+        setIsPointerActive(false);
+        hasPointerMovedRef.current = false;
+      }
     };
 
     window.addEventListener('mouseup', handleGlobalPointerEnd);
@@ -749,6 +768,7 @@ const RoomCanvas = ({
       projectToOverlay(touch.clientX, touch.clientY);
       isPointerActiveRef.current = true;
       setIsPointerActive(true);
+      hasPointerMovedRef.current = false;
     },
     [shouldCapturePointer, projectToOverlay, setIsPointerActive],
   );
@@ -787,6 +807,7 @@ const RoomCanvas = ({
     projectToOverlay(touch.clientX, touch.clientY);
     isPointerActiveRef.current = true;
     setIsPointerActive(true);
+    hasPointerMovedRef.current = false;
   };
 
   // 멀티 터치 중 현재 드래그에 해당하는 터치를 조회한다.
@@ -815,6 +836,7 @@ const RoomCanvas = ({
     }
     event.stopPropagation();
     event.nativeEvent.stopImmediatePropagation();
+    hasPointerMovedRef.current = true;
     projectToOverlay(touch.clientX, touch.clientY);
   };
 
@@ -828,7 +850,13 @@ const RoomCanvas = ({
     }
     event.stopPropagation();
     event.nativeEvent.stopImmediatePropagation();
-    finalizePlacement();
+    if (hasPointerMovedRef.current) {
+      finalizePlacement();
+    } else {
+      isPointerActiveRef.current = false;
+      setIsPointerActive(false);
+      hasPointerMovedRef.current = false;
+    }
     activeTouchIdRef.current = null;
     setIsPointerActive(false);
   };
@@ -837,6 +865,7 @@ const RoomCanvas = ({
     activeTouchIdRef.current = null;
     isPointerActiveRef.current = false;
     setIsPointerActive(false);
+    hasPointerMovedRef.current = false;
   };
 
   const handlePickPlaced = ({
@@ -1003,6 +1032,25 @@ const RoomCanvas = ({
             style={{ pointerEvents: 'none' }}
           />
         ))}
+        {pendingSprite ? (
+          <image
+            key={`${pendingSprite.id}-pending-image`}
+            href={pendingSprite.imageUrl}
+            xlinkHref={pendingSprite.imageUrl}
+            x={pendingSprite.x}
+            y={pendingSprite.y}
+            width={pendingSprite.width}
+            height={pendingSprite.height}
+            preserveAspectRatio="xMidYMax meet"
+            transform={
+              pendingSprite.rotation
+                ? `rotate(${pendingSprite.rotation}, ${pendingSprite.centerX}, ${pendingSprite.centerY})`
+                : undefined
+            }
+            opacity={0.85}
+            style={{ pointerEvents: 'none' }}
+          />
+        ) : null}
         {/* 드래그 중 고스트 스프라이트 (유효할 때만 표시) */}
         {ghostSprite && ghost.isValid ? (
           <image
