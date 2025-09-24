@@ -6,7 +6,31 @@ import { useItemModal } from '@/features/game/shop/hooks/useItemModal';
 import { getItemImage } from '@/features/game/shop/utils/getItemImage';
 import { useDecoStore } from '@/features/game/deco/store/useDecoStore';
 import inventory_square from '@/assets/inventory_square.png';
+import { Badge } from '@/shared/components/ui/badge';
+import { ScrollArea } from '@/shared/components/ui/scroll-area';
 import ItemDetailModal from './ItemDetailModal';
+
+const RARITY_KEYS = ['LEGENDARY', 'EPIC', 'RARE', 'COMMON'] as const;
+type RarityKey = (typeof RARITY_KEYS)[number];
+
+const RARITY_LABELS: Record<RarityKey, string> = {
+  LEGENDARY: 'LEGENDARY',
+  EPIC: 'EPIC',
+  RARE: 'RARE',
+  COMMON: 'COMMON',
+};
+
+const RARITY_BADGE_CLASSES: Record<RarityKey, string> = {
+  LEGENDARY: 'bg-yellow-300 text-gray-900 shadow-sm',
+  EPIC: 'bg-purple-500 text-white shadow-sm',
+  RARE: 'bg-blue-500 text-white shadow-sm',
+  COMMON: 'bg-slate-500 text-white/90 shadow-sm',
+};
+
+const normalizeRarity = (rarity?: string): RarityKey => {
+  const upper = rarity?.toUpperCase() as RarityKey | undefined;
+  return upper && RARITY_KEYS.includes(upper) ? upper : 'COMMON';
+};
 
 /** 상점/데코 인벤토리 영역을 구성하기 위한 속성. */
 interface InventoryProps {
@@ -99,67 +123,81 @@ const Inventory = ({
       </div>
 
       {/* 인벤토리 슬롯 */}
-      <div className="h-[40vh] overflow-y-auto bg-secondary px-2 pt-1 pb-1">
-        {isLoading ? (
-          <div className="flex h-full items-center justify-center text-xs text-gray-600">
-            로딩 중...
-          </div>
-        ) : isError ? (
-          <div className="flex h-full items-center justify-center text-xs text-red-500">
-            {error?.message ?? '인벤토리를 불러오지 못했습니다.'}
-          </div>
-        ) : items.length === 0 ? (
-          <div className="flex h-full items-center justify-center text-xs text-gray-600">
-            {emptyMessage}
-          </div>
-        ) : (
-          <div className="grid grid-cols-3 gap-1">
-            {slots.map(slot => (
-              <div
-                key={slot.id}
-                className="relative -mb-6 flex aspect-square items-center justify-center"
-              >
-                <img
-                  src={inventory_square}
-                  alt="slot"
-                  className="absolute inset-0 h-full w-full object-contain"
-                />
-                {slot.item && (
-                  <>
-                    <button
-                      onClick={() => handleSlotClick(slot.item!, slot.id)}
-                      disabled={mode === 'deco' && isSlotPlaced(slot.id)}
-                      className={`relative flex h-[70%] w-[70%] items-center justify-center ${
-                        mode === 'deco' && isSlotPlaced(slot.id)
-                          ? 'cursor-not-allowed opacity-50'
-                          : 'hover:opacity-80'
-                      }`}
-                    >
-                      <img
-                        src={getItemImage(slot.item.itemId)}
-                        alt={slot.item.itemName}
-                        className={`h-[80%] w-[80%] object-contain ${
-                          mode === 'deco' && isSlotPlaced(slot.id)
-                            ? 'grayscale'
-                            : ''
-                        }`}
-                      />
-                    </button>
-                    {/* 배치됨 표시 */}
-                    {mode === 'deco' && isSlotPlaced(slot.id) && (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="rounded bg-black/60 px-1 py-0.5 text-[8px] font-bold text-white">
-                          배치됨
-                        </div>
-                      </div>
+      <ScrollArea className="h-[40vh] rounded-b bg-secondary">
+        <div className="px-2 pt-1 pb-2">
+          {isLoading ? (
+            <div className="flex h-full items-center justify-center text-xs text-gray-600">
+              로딩 중...
+            </div>
+          ) : isError ? (
+            <div className="flex h-full items-center justify-center text-xs text-red-500">
+              {error?.message ?? '인벤토리를 불러오지 못했습니다.'}
+            </div>
+          ) : items.length === 0 ? (
+            <div className="flex h-full items-center justify-center text-xs text-gray-600">
+              {emptyMessage}
+            </div>
+          ) : (
+            <div className="grid grid-cols-3 gap-1 pb-1">
+              {slots.map(slot => {
+                const item = slot.item;
+                const rarityKey = item ? normalizeRarity(item.rarity) : null;
+
+                return (
+                  <div
+                    key={slot.id}
+                    className="relative -mb-6 flex aspect-square items-center justify-center"
+                  >
+                    <img
+                      src={inventory_square}
+                      alt="slot"
+                      className="absolute inset-0 h-full w-full object-contain"
+                    />
+                    {item && (
+                      <>
+                        <button
+                          onClick={() => handleSlotClick(item, slot.id)}
+                          disabled={mode === 'deco' && isSlotPlaced(slot.id)}
+                          className={`relative flex h-[70%] w-[70%] items-center justify-center ${
+                            mode === 'deco' && isSlotPlaced(slot.id)
+                              ? 'cursor-not-allowed opacity-50'
+                              : 'hover:opacity-80'
+                          }`}
+                        >
+                          {rarityKey && (
+                            <Badge
+                              className={`pointer-events-none absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] font-semibold tracking-wide uppercase ${RARITY_BADGE_CLASSES[rarityKey]}`}
+                            >
+                              {RARITY_LABELS[rarityKey]}
+                            </Badge>
+                          )}
+                          <img
+                            src={getItemImage(item.itemId)}
+                            alt={item.itemName}
+                            className={`h-[80%] w-[80%] object-contain ${
+                              mode === 'deco' && isSlotPlaced(slot.id)
+                                ? 'grayscale'
+                                : ''
+                            }`}
+                          />
+                        </button>
+                        {/* 배치됨 표시 */}
+                        {mode === 'deco' && isSlotPlaced(slot.id) && (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="rounded bg-black/60 px-1 py-0.5 text-[8px] font-bold text-white">
+                              배치됨
+                            </div>
+                          </div>
+                        )}
+                      </>
                     )}
-                  </>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </ScrollArea>
 
       {mode === 'shop' ? (
         <ItemDetailModal

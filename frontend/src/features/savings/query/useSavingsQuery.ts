@@ -19,6 +19,7 @@ import type {
   UpdateAutoTransferRequest,
 } from '@/features/savings/types/savingsTypes';
 import { useMemo } from 'react';
+import { useCustomerStore } from '@/features/auth/store/useCustomerStore';
 
 /**
  * 고객의 모든 계좌 목록을 조회하는 React Query 훅
@@ -26,11 +27,17 @@ import { useMemo } from 'react';
  * @returns 계좌 목록 쿼리 결과
  */
 export const useAccountsList = () => {
+  const customerId = useCustomerStore(state => state.customerId);
+
   return useQuery({
-    queryKey: savingsKeys.accountsList(),
+    queryKey: savingsKeys.accountsList(customerId ?? undefined),
     queryFn: () => {
-      return getAllAccounts();
+      if (customerId == null) {
+        throw new Error('로그인 정보가 없습니다.');
+      }
+      return getAllAccounts(customerId);
     },
+    enabled: customerId != null,
   });
 };
 
@@ -167,7 +174,7 @@ export const useSavingsTransactionsDisplay = (accountId: string) => {
         amount: transaction.amount,
         postedAt: transaction.postedAt,
         description: transaction.description,
-        balance: transaction.balance || 0,
+        balanceAfter: transaction.balanceAfter ?? 0,
       }),
     );
   }, [query.data]);

@@ -22,11 +22,6 @@ import type {
 // } from '@/features/savings/data/mockSavingsApi';
 
 /**
- * 하드코딩된 고객 ID (추후 인증 시스템에서 가져올 예정)
- */
-const CUSTOMER_ID = 1;
-
-/**
  * 개발 환경에서 mock 데이터 사용 여부를 결정하는 플래그
  *
  * development 모드에서는 true, production에서는 false로 설정됩니다.
@@ -41,15 +36,18 @@ const USE_MOCK_UPDATE = false;
  * 고객의 모든 계좌 목록을 조회하는 API 함수
  *
  * 적금 계좌와 입출금 계좌를 모두 포함한 계좌 목록을 반환합니다.
- * customerId는 현재 하드코딩되어 있습니다.
+ * customerId는 인증 스토어에서 전달받은 값을 사용합니다.
  *
+ * @param customerId - 조회할 고객 ID
  * @returns 고객의 모든 계좌 정보가 담긴 SavingsAccountData 배열
  * @throws API 호출 실패 시 네트워크 오류 또는 HTTP 오류 발생
  */
-export const getAllAccounts = async (): Promise<SavingsAccountData[]> => {
+export const getAllAccounts = async (
+  customerId: number,
+): Promise<SavingsAccountData[]> => {
   // Mock 우회하고 직접 실제 API 호출
   const response = await http.get<SavingsAccountData[]>(
-    `/v1/accounts?customerId=${CUSTOMER_ID}`,
+    `/v1/accounts?customerId=${customerId}`,
   );
 
   const accounts = response.body!;
@@ -297,16 +295,18 @@ export const transferToSavings = async (
  *
  * 입출금 계좌 존재 여부를 확인하여 적금 개설 가능 여부를 판단합니다.
  *
+ * @param customerId - 조회할 고객 ID
  * @returns 기존 계좌 현황 정보가 담긴 ExistingAccountsResponse 객체
  * @throws API 호출 실패 시 네트워크 오류 또는 HTTP 오류 발생
  */
-export const checkExistingAccounts =
-  async (): Promise<ExistingAccountsResponse> => {
-    const response = await http.get<ExistingAccountsResponse>(
-      `/v1/accounts?customerId=${CUSTOMER_ID}`,
-    );
-    return response.body!;
-  };
+export const checkExistingAccounts = async (
+  customerId: number,
+): Promise<ExistingAccountsResponse> => {
+  const response = await http.get<ExistingAccountsResponse>(
+    `/v1/accounts?customerId=${customerId}`,
+  );
+  return response.body!;
+};
 
 /**
  * 입출금 통장을 개설하는 API 함수

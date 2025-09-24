@@ -1,10 +1,12 @@
 import { Progress } from '@/shared/components/ui/progress';
-import { PAGE_PATH } from '@/shared/constants/path';
 import { Copy } from 'lucide-react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
-import { createSavingsDetailPath } from '@/shared/constants/path';
+import {
+  createDepositPath,
+  createSavingsDetailPath,
+} from '@/shared/constants/path';
 import type { SavingsAccountData } from '@/features/savings/types/savingsTypes';
 import { Badge } from '@/shared/components/ui/badge';
 
@@ -111,8 +113,8 @@ const SavingsAccountWalletCard = ({
               : 'text-primary'
           }`}
           onClick={() => {
-            if (!isAccountClosed) {
-              navigate(PAGE_PATH.DEPOSIT);
+            if (!isAccountClosed && account?.accountId) {
+              navigate(createDepositPath(account.accountId));
             }
           }}
         >

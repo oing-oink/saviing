@@ -10,10 +10,12 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/shared/components/ui/accordion';
+import { useCustomerStore } from '@/features/auth/store/useCustomerStore';
 
 const SetConditionStep = () => {
   const { setForm, form } = useAccountCreationStore();
   const { goToNextStep } = useStepProgress();
+  const customerId = useCustomerStore(state => state.customerId);
 
   // 내 계좌 목록 가져오기
   const {
@@ -21,9 +23,15 @@ const SetConditionStep = () => {
     isLoading: isLoadingAccounts,
     error: accountsError,
   } = useQuery({
-    queryKey: ['allAccounts'],
-    queryFn: getAllAccounts,
+    queryKey: ['allAccounts', customerId],
+    queryFn: () => {
+      if (customerId == null) {
+        throw new Error('로그인 정보가 없습니다.');
+      }
+      return getAllAccounts(customerId);
+    },
     staleTime: 1000 * 60 * 5, // 5분간 캐시 유지
+    enabled: customerId != null,
   });
 
   // 입출금 계좌만 필터링 (productId가 1이고 상태가 ACTIVE인 것)

@@ -24,8 +24,9 @@ export const getGameItems = async (
   const params: Record<string, string | boolean> = {
     type: type,
     category: category,
-    sort: 'NAME',
+    sort: 'PRICE',
     order: 'ASC',
+    coinType: 'COIN',
   };
 
   const response = await http.get<ItemsResponse>('/v1/game/items', {

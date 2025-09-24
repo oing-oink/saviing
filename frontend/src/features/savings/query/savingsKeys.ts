@@ -18,7 +18,8 @@ export const savingsKeys = {
   /**
    * 고객의 모든 계좌 목록 조회 쿼리 키
    */
-  accountsList: () => [...savingsKeys.accounts(), 'list'] as const,
+  accountsList: (customerId?: number) =>
+    [...savingsKeys.accounts(), 'list', customerId] as const,
 
   /**
    * 특정 적금 계좌 상세 조회 쿼리 키

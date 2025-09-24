@@ -2,11 +2,32 @@ import { Check } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { PAGE_PATH } from '@/shared/constants/path';
+import { useQueryClient } from '@tanstack/react-query';
+import { savingsKeys } from '@/features/savings/query/savingsKeys';
+import { useCustomerStore } from '@/features/auth/store/useCustomerStore';
 
 const CompleteStep = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const customerId = useCustomerStore(state => state.customerId);
 
   const handleGoHome = () => {
+    if (customerId != null) {
+      queryClient.invalidateQueries({
+        queryKey: savingsKeys.accountsList(customerId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['existingAccounts', customerId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['allAccounts', customerId],
+      });
+    } else {
+      queryClient.invalidateQueries({
+        queryKey: savingsKeys.accountsList(undefined),
+      });
+    }
+
     navigate(PAGE_PATH.HOME);
   };
 

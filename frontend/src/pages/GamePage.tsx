@@ -16,7 +16,7 @@ import GameBackgroundLayout from '@/features/game/shared/layouts/GameBackgroundL
 
 const GamePage = () => {
   // TODO: API 연결 후 동적으로 관리
-  const currentPetId = 9;
+  const currentPetId = 1009;
   const behavior = usePetStore(state => state.behavior);
   const setBehavior = usePetStore(state => state.setBehavior);
   const isTransitioningToGame = useEnterTransitionStore(
