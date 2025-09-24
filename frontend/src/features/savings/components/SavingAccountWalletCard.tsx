@@ -3,7 +3,10 @@ import { Copy } from 'lucide-react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
-import { createDepositPath, createSavingsDetailPath } from '@/shared/constants/path';
+import {
+  createDepositPath,
+  createSavingsDetailPath,
+} from '@/shared/constants/path';
 import type { SavingsAccountData } from '@/features/savings/types/savingsTypes';
 
 interface SavingsAccountWalletCardProps {
