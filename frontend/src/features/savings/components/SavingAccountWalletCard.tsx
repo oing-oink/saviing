@@ -36,13 +36,6 @@ const SavingsAccountWalletCard = ({
     }
   };
 
-  const handleDeposit = () => {
-    if (!account?.accountId) {
-      return;
-    }
-    navigate(createDepositPath(account.accountId));
-  };
-
   return (
     <div
       className={`w-full max-w-md rounded-2xl p-6 font-pretendard shadow ${
@@ -120,8 +113,8 @@ const SavingsAccountWalletCard = ({
               : 'text-primary'
           }`}
           onClick={() => {
-            if (!isAccountClosed) {
-              navigate(PAGE_PATH.DEPOSIT);
+            if (!isAccountClosed && account?.accountId) {
+              navigate(createDepositPath(account.accountId));
             }
           }}
         >

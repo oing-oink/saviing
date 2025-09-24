@@ -143,56 +143,56 @@ const Inventory = ({
                 const item = slot.item;
                 const rarityKey = item ? normalizeRarity(item.rarity) : null;
 
-              return (
-                <div
-                  key={slot.id}
-                  className="relative -mb-6 flex aspect-square items-center justify-center"
-                >
-                  <img
-                    src={inventory_square}
-                    alt="slot"
-                    className="absolute inset-0 h-full w-full object-contain"
-                  />
-                  {item && (
-                    <>
-                      <button
-                        onClick={() => handleSlotClick(item, slot.id)}
-                        disabled={mode === 'deco' && isSlotPlaced(slot.id)}
-                        className={`relative flex h-[70%] w-[70%] items-center justify-center ${
-                          mode === 'deco' && isSlotPlaced(slot.id)
-                            ? 'cursor-not-allowed opacity-50'
-                            : 'hover:opacity-80'
-                        }`}
-                      >
-                        {rarityKey && (
-                          <Badge
-                            className={`pointer-events-none absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] font-semibold uppercase tracking-wide ${RARITY_BADGE_CLASSES[rarityKey]}`}
-                          >
-                            {RARITY_LABELS[rarityKey]}
-                          </Badge>
-                        )}
-                        <img
-                          src={getItemImage(item.itemId)}
-                          alt={item.itemName}
-                          className={`h-[80%] w-[80%] object-contain ${
+                return (
+                  <div
+                    key={slot.id}
+                    className="relative -mb-6 flex aspect-square items-center justify-center"
+                  >
+                    <img
+                      src={inventory_square}
+                      alt="slot"
+                      className="absolute inset-0 h-full w-full object-contain"
+                    />
+                    {item && (
+                      <>
+                        <button
+                          onClick={() => handleSlotClick(item, slot.id)}
+                          disabled={mode === 'deco' && isSlotPlaced(slot.id)}
+                          className={`relative flex h-[70%] w-[70%] items-center justify-center ${
                             mode === 'deco' && isSlotPlaced(slot.id)
-                              ? 'grayscale'
-                              : ''
+                              ? 'cursor-not-allowed opacity-50'
+                              : 'hover:opacity-80'
                           }`}
-                        />
-                      </button>
-                      {/* 배치됨 표시 */}
-                      {mode === 'deco' && isSlotPlaced(slot.id) && (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="rounded bg-black/60 px-1 py-0.5 text-[8px] font-bold text-white">
-                            배치됨
+                        >
+                          {rarityKey && (
+                            <Badge
+                              className={`pointer-events-none absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] font-semibold tracking-wide uppercase ${RARITY_BADGE_CLASSES[rarityKey]}`}
+                            >
+                              {RARITY_LABELS[rarityKey]}
+                            </Badge>
+                          )}
+                          <img
+                            src={getItemImage(item.itemId)}
+                            alt={item.itemName}
+                            className={`h-[80%] w-[80%] object-contain ${
+                              mode === 'deco' && isSlotPlaced(slot.id)
+                                ? 'grayscale'
+                                : ''
+                            }`}
+                          />
+                        </button>
+                        {/* 배치됨 표시 */}
+                        {mode === 'deco' && isSlotPlaced(slot.id) && (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="rounded bg-black/60 px-1 py-0.5 text-[8px] font-bold text-white">
+                              배치됨
+                            </div>
                           </div>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
-              );
+                        )}
+                      </>
+                    )}
+                  </div>
+                );
               })}
             </div>
           )}
