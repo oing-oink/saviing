@@ -85,8 +85,8 @@ public class PetCommandService {
         // TODO: 소모품 아이템 ID를 어떻게 결정할지 확인 필요 - 일단 임시로 처리
         // 실제 구현 시에는 캐릭터가 가진 해당 카테고리의 소모품 중 하나를 선택해야 함
 
-        // 상호작용 실행 (임시로 Experience는 고정값 사용)
-        Experience requiredExp = Experience.of(100); // 임시값 - 실제로는 레벨 테이블에서 가져와야 함
+        // 상호작용 실행 (다음 레벨에 필요한 총 경험치 계산)
+        Experience requiredExp = Experience.of(pet.calculateRequiredExpForNextLevel());
         pet.interactWithType(command.interactionType(), requiredExp);
 
         // 저장
