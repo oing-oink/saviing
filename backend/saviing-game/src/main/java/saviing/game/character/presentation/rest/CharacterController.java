@@ -14,12 +14,14 @@ import saviing.common.response.ApiResult;
 import saviing.game.character.application.dto.result.CharacterCreatedResult;
 import saviing.game.character.application.dto.result.CharacterResult;
 import saviing.game.character.application.dto.result.GameEntryResult;
+import saviing.game.character.application.dto.result.CharacterStatisticsResult;
 import saviing.game.character.application.service.CharacterCommandService;
 import saviing.game.character.application.service.CharacterQueryService;
 import saviing.game.character.presentation.dto.request.ConnectAccountRequest;
 import saviing.game.character.presentation.dto.request.CreateCharacterRequest;
 import saviing.game.character.presentation.dto.response.CharacterResponse;
 import saviing.game.character.presentation.dto.response.GameEntryResponse;
+import saviing.game.character.presentation.dto.response.CharacterStatisticsResponse;
 import saviing.game.character.presentation.mapper.CharacterRequestMapper;
 import saviing.game.character.presentation.mapper.CharacterResponseMapper;
 import saviing.game.character.presentation.mapper.GameEntryResponseMapper;
@@ -106,6 +108,22 @@ public class CharacterController implements CharacterApi {
             requestMapper.toGameEntryQuery(customerId)
         );
         GameEntryResponse response = gameEntryResponseMapper.toResponse(result);
+
+        return ApiResult.ok(response);
+    }
+
+    @Override
+    @GetMapping("/{characterId}/statistics")
+    public ApiResult<CharacterStatisticsResponse> getCharacterStatistics(@PathVariable Long characterId) {
+        log.info("캐릭터 통계 조회 시작: characterId={}", characterId);
+
+        CharacterStatisticsResult result = characterQueryService.getCharacterStatistics(
+            requestMapper.toStatisticsQuery(characterId)
+        );
+        CharacterStatisticsResponse response = responseMapper.toStatisticsResponse(result);
+
+        log.info("캐릭터 통계 조회 완료: characterId={}, petLevelSum={}, rarityCategories={}",
+            characterId, result.topPetLevelSum(), result.inventoryRarityStatistics().keySet());
 
         return ApiResult.ok(response);
     }

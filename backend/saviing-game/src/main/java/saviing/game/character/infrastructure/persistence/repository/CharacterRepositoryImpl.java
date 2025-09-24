@@ -95,8 +95,9 @@ public class CharacterRepositoryImpl implements CharacterRepository {
             FROM (
                 SELECT p.level, ROW_NUMBER() OVER (ORDER BY p.level DESC) as rn
                 FROM pet_inventory pi
+                JOIN inventory i ON pi.inventory_item_id = i.inventory_item_id
                 JOIN pet p ON pi.inventory_item_id = p.inventory_item_id
-                WHERE pi.character_id = :characterId
+                WHERE i.character_id = :characterId
             ) p
             WHERE p.rn <= :limit
         """;
@@ -123,16 +124,16 @@ public class CharacterRepositoryImpl implements CharacterRepository {
                 COALESCE(SUM(grouped.rarity_value), 0) as total_rarity_sum
             FROM (
                 SELECT
-                    i.item_category,
-                    CASE i.rarity
+                    items.item_category,
+                    CASE items.rarity
                         WHEN 'COMMON' THEN 1
                         WHEN 'RARE' THEN 2
                         WHEN 'EPIC' THEN 3
                         WHEN 'LEGENDARY' THEN 4
                         ELSE 0
                     END as rarity_value,
-                    ROW_NUMBER() OVER (PARTITION BY i.item_category ORDER BY
-                        CASE i.rarity
+                    ROW_NUMBER() OVER (PARTITION BY items.item_category ORDER BY
+                        CASE items.rarity
                             WHEN 'LEGENDARY' THEN 4
                             WHEN 'EPIC' THEN 3
                             WHEN 'RARE' THEN 2
@@ -140,8 +141,9 @@ public class CharacterRepositoryImpl implements CharacterRepository {
                             ELSE 0
                         END DESC) as rn
                 FROM pet_inventory pi
-                JOIN items i ON pi.item_id = i.item_id
-                WHERE pi.character_id = :characterId
+                JOIN inventory inv ON pi.inventory_item_id = inv.inventory_item_id
+                JOIN items ON inv.item_id = items.item_id
+                WHERE inv.character_id = :characterId
             ) grouped
             WHERE grouped.rn <= :limit
             GROUP BY grouped.item_category
@@ -166,16 +168,16 @@ public class CharacterRepositoryImpl implements CharacterRepository {
                 COALESCE(SUM(grouped.rarity_value), 0) as total_rarity_sum
             FROM (
                 SELECT
-                    i.item_category,
-                    CASE i.rarity
+                    items.item_category,
+                    CASE items.rarity
                         WHEN 'COMMON' THEN 1
                         WHEN 'RARE' THEN 2
                         WHEN 'EPIC' THEN 3
                         WHEN 'LEGENDARY' THEN 4
                         ELSE 0
                     END as rarity_value,
-                    ROW_NUMBER() OVER (PARTITION BY i.item_category ORDER BY
-                        CASE i.rarity
+                    ROW_NUMBER() OVER (PARTITION BY items.item_category ORDER BY
+                        CASE items.rarity
                             WHEN 'LEGENDARY' THEN 4
                             WHEN 'EPIC' THEN 3
                             WHEN 'RARE' THEN 2
@@ -183,8 +185,9 @@ public class CharacterRepositoryImpl implements CharacterRepository {
                             ELSE 0
                         END DESC) as rn
                 FROM decoration_inventory di
-                JOIN items i ON di.item_id = i.item_id
-                WHERE di.character_id = :characterId
+                JOIN inventory inv ON di.inventory_item_id = inv.inventory_item_id
+                JOIN items ON inv.item_id = items.item_id
+                WHERE inv.character_id = :characterId
             ) grouped
             WHERE grouped.rn <= :limit
             GROUP BY grouped.item_category

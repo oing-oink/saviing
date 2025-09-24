@@ -13,6 +13,7 @@ import saviing.game.character.application.dto.query.GetActiveCharacterQuery;
 import saviing.game.character.application.dto.query.GetAllCharactersByCustomerQuery;
 import saviing.game.character.application.dto.query.GetCharacterQuery;
 import saviing.game.character.application.dto.query.GetGameEntryQuery;
+import saviing.game.character.application.dto.query.GetCharacterStatisticsQuery;
 import saviing.game.character.domain.model.vo.CharacterId;
 import saviing.game.character.domain.model.vo.CustomerId;
 import saviing.game.character.presentation.dto.request.AddCoinsRequest;
@@ -182,6 +183,18 @@ public class CharacterRequestMapper {
     public GetGameEntryQuery toGameEntryQuery(Long customerId) {
         return GetGameEntryQuery.builder()
             .customerId(CustomerId.of(customerId))
+            .build();
+    }
+
+    /**
+     * 캐릭터 ID를 GetCharacterStatisticsQuery로 변환합니다.
+     *
+     * @param characterId 캐릭터 ID
+     * @return GetCharacterStatisticsQuery
+     */
+    public GetCharacterStatisticsQuery toStatisticsQuery(Long characterId) {
+        return GetCharacterStatisticsQuery.builder()
+            .characterId(CharacterId.of(characterId))
             .build();
     }
 }
