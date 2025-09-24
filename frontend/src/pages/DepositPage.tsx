@@ -8,6 +8,10 @@ import DepositAmountPanel from '@/features/savings/components/deposit/DepositAmo
 import DepositPinDrawer from '@/features/savings/components/dialogs/DepositPinDrawer';
 import { useSavingsTransferForm } from '@/features/savings/hooks/useSavingsTransferForm';
 import { transferToSavings } from '@/features/savings/api/savingsApi';
+import type {
+  TransferRequest,
+  TransferResponse,
+} from '@/features/savings/types/deposit';
 import {
   useSavingsAccount,
   useAccountsList,
@@ -22,6 +26,8 @@ import {
 } from '@/shared/components/ui/accordion';
 import { Button } from '@/shared/components/ui/button';
 import { PAGE_PATH } from '@/shared/constants/path';
+
+type TransferVariables = Omit<TransferRequest, 'idempotencyKey'>;
 
 const DepositPage = () => {
   const { accountId } = useParams<{ accountId: string }>();
@@ -95,19 +101,19 @@ const DepositPage = () => {
   const [memo, setMemo] = useState('');
   const queryClient = useQueryClient();
 
-  const transferMutation = useMutation({
+  const transferMutation = useMutation<
+    TransferResponse,
+    unknown,
+    TransferVariables
+  >({
     mutationFn: ({
       sourceAccountId,
       targetAccountId,
       amount,
       memo,
-    }: {
-      sourceAccountId: number;
-      targetAccountId: number;
-      amount: number;
-      memo?: string;
-    }) => transferToSavings(sourceAccountId, targetAccountId, amount, memo),
-    onSuccess: data => {
+    }: TransferVariables) =>
+      transferToSavings(sourceAccountId, targetAccountId, amount, memo),
+    onSuccess: (data, variables) => {
       const transferSummary = {
         amount,
         fromAccountName: selectedAccount
@@ -123,12 +129,19 @@ const DepositPage = () => {
       queryClient.invalidateQueries({
         queryKey: savingsKeys.accountsList(customerId ?? undefined),
       });
-      if (accountId) {
+      const targetAccountKey =
+        variables.targetAccountId != null
+          ? String(variables.targetAccountId)
+          : savingAccountData?.accountId != null
+            ? String(savingAccountData.accountId)
+            : undefined;
+
+      if (targetAccountKey) {
         queryClient.invalidateQueries({
-          queryKey: savingsKeys.detail(accountId),
+          queryKey: savingsKeys.detail(targetAccountKey),
         });
         queryClient.invalidateQueries({
-          queryKey: savingsKeys.transactionsList(accountId),
+          queryKey: savingsKeys.transactionsList(targetAccountKey),
         });
       }
 
