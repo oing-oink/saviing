@@ -25,6 +25,15 @@ import saviing.game.room.application.service.RoomCommandService;
 import saviing.game.room.application.dto.command.CreateRoomCommand;
 import saviing.game.room.application.dto.result.RoomCreatedResult;
 import saviing.game.room.domain.model.vo.RoomNumber;
+import saviing.game.inventory.application.service.InventoryCommandService;
+import saviing.game.inventory.application.dto.command.AddInventoryItemCommand;
+import saviing.game.item.domain.repository.ItemRepository;
+import saviing.game.item.domain.model.aggregate.Item;
+import saviing.game.item.domain.model.enums.ItemType;
+import saviing.game.item.domain.model.enums.Rarity;
+
+import java.util.List;
+import java.util.Random;
 
 /**
  * 캐릭터 Command 처리 서비스
@@ -40,6 +49,8 @@ public class CharacterCommandService {
     private final CharacterRepository characterRepository;
     private final RoomCommandService roomCommandService;
     private final DomainEventPublisher domainEventPublisher;
+    private final InventoryCommandService inventoryCommandService;
+    private final ItemRepository itemRepository;
 
     /**
      * 새로운 캐릭터를 생성합니다.
@@ -67,7 +78,11 @@ public class CharacterCommandService {
         // 3. 기본 방(1번 방) 생성
         Long roomId = createDefaultRoom(savedCharacter.getCharacterId().value());
 
-        // 4. 도메인 이벤트 발행
+        // 4. 스타터 펫 추가 (COMMON 등급 PET 아이템 중 랜덤 선택)
+        log.info("Adding starter pet for characterId: {}", savedCharacter.getCharacterId().value());
+        addStarterPet(savedCharacter.getCharacterId());
+
+        // 5. 도메인 이벤트 발행
         publishDomainEvents(savedCharacter);
 
         log.info("Character created with ID: {} and default room created with ID: {}",
@@ -77,7 +92,13 @@ public class CharacterCommandService {
             .characterId(savedCharacter.getCharacterId().value())
             .customerId(savedCharacter.getCustomerId().value())
             .roomId(roomId)
+            .coin(savedCharacter.getGameStatus().coin())
+            .fishCoin(savedCharacter.getGameStatus().fishCoin())
+            .roomCount(savedCharacter.getGameStatus().roomCount())
+            .isActive(savedCharacter.isActive())
+            .connectionStatus(savedCharacter.getAccountConnection().connectionStatus())
             .createdAt(savedCharacter.getCharacterLifecycle().createdAt())
+            .updatedAt(savedCharacter.getCharacterLifecycle().updatedAt())
             .build();
     }
 
@@ -285,6 +306,51 @@ public class CharacterCommandService {
             log.error("Failed to create default room for character: {}, error: {}",
                 characterId, e.getMessage(), e);
             throw new RuntimeException("기본 방 생성에 실패했습니다: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 캐릭터에게 스타터 펫을 추가합니다.
+     * COMMON 등급의 PET 아이템 중에서 랜덤으로 하나를 선택하여 인벤토리에 추가합니다.
+     *
+     * @param characterId 캐릭터 식별자
+     */
+    private void addStarterPet(CharacterId characterId) {
+        try {
+            // COMMON 등급 PET 아이템들 조회
+            List<Item> commonPets = itemRepository.findItemsWithConditions(
+                ItemType.PET,     // 타입: PET
+                null,             // 카테고리: 제한 없음 (모든 펫)
+                Rarity.COMMON,    // 희귀도: COMMON
+                null,             // 키워드: 제한 없음
+                true,             // 판매 가능한 아이템만
+                "CREATED_AT",     // 생성일 기준 정렬
+                "ASC",            // 오름차순
+                null              // 코인 타입: 해당 없음
+            );
+
+            if (!commonPets.isEmpty()) {
+                // 랜덤으로 하나 선택
+                Random random = new Random();
+                Item randomPet = commonPets.get(random.nextInt(commonPets.size()));
+
+                // 인벤토리에 추가
+                AddInventoryItemCommand petCommand = AddInventoryItemCommand.of(
+                    characterId,
+                    randomPet.getItemId()
+                );
+                inventoryCommandService.addInventoryItem(petCommand);
+
+                log.info("Starter pet added to character: characterId={}, petItemId={}, petName={}",
+                    characterId.value(), randomPet.getItemId().value(), randomPet.getItemName().value());
+            } else {
+                log.warn("No COMMON PET items found for starter pet assignment. Character: {}",
+                    characterId.value());
+            }
+        } catch (Exception e) {
+            // 스타터 펫 추가 실패 시 캐릭터 생성은 성공하되 로그만 남김
+            log.error("Failed to add starter pet to character: {}, error: {}",
+                characterId.value(), e.getMessage(), e);
         }
     }
 

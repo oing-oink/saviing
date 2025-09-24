@@ -59,7 +59,13 @@ public class CharacterResponseMapper {
             .characterId(result.characterId())
             .customerId(result.customerId())
             .roomId(result.roomId())
+            .coin(result.coin())
+            .fishCoin(result.fishCoin())
+            .roomCount(result.roomCount())
+            .isActive(result.isActive())
+            .connectionStatus(result.connectionStatus())
             .createdAt(result.createdAt())
+            .updatedAt(result.updatedAt())
             .build();
     }
 
