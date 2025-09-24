@@ -59,7 +59,7 @@ export const mockTransactionsData: TransactionData[] = [
     description: '월급 입금',
     createdAt: '2024-01-15T14:30:00Z',
     updatedAt: '2024-01-15T14:30:00Z',
-    balance: 2100000,
+    balanceAfter: 2100000,
   },
   {
     transactionId: 2,
@@ -74,7 +74,7 @@ export const mockTransactionsData: TransactionData[] = [
     description: '생활비 출금',
     createdAt: '2024-01-14T10:15:00Z',
     updatedAt: '2024-01-14T10:15:00Z',
-    balance: 2150000,
+    balanceAfter: 2150000,
   },
   {
     transactionId: 3,
@@ -89,7 +89,7 @@ export const mockTransactionsData: TransactionData[] = [
     description: '적금 입금',
     createdAt: '2024-01-13T16:45:00Z',
     updatedAt: '2024-01-13T16:45:00Z',
-    balance: 2170000,
+    balanceAfter: 2170000,
   },
   {
     transactionId: 4,
@@ -104,7 +104,7 @@ export const mockTransactionsData: TransactionData[] = [
     description: '카페 결제',
     createdAt: '2024-01-12T12:20:00Z',
     updatedAt: '2024-01-12T12:20:00Z',
-    balance: 2200000,
+    balanceAfter: 2200000,
   },
   {
     transactionId: 5,
@@ -119,7 +119,7 @@ export const mockTransactionsData: TransactionData[] = [
     description: '용돈 입금',
     createdAt: '2024-01-11T09:00:00Z',
     updatedAt: '2024-01-11T09:00:00Z',
-    balance: 2350000,
+    balanceAfter: 2350000,
   },
 ];
 
@@ -187,7 +187,7 @@ export const mockGetSavingsTransactions = async (
         postedAt: new Date(
           Date.now() - i * 24 * 60 * 60 * 1000 - index * 60 * 60 * 1000,
         ).toISOString(),
-        balance: transaction.balance + i * 50000, // 각 그룹마다 잔액 증가
+        balanceAfter: transaction.balanceAfter + i * 50000, // 각 그룹마다 잔액 증가
       });
     });
   }
