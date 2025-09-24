@@ -10,6 +10,7 @@ import {
   getAllAccounts,
   getSavingsAccountDetail,
   updateSavingsAutoTransfer,
+  terminateSavingsAccount,
 } from '@/features/savings/api/savingsApi';
 import { savingsKeys } from '@/features/savings/query/savingsKeys';
 import type {
@@ -225,6 +226,51 @@ export const useUpdateSavingsAutoTransfer = () => {
     },
     onError: () => {
       // 에러 처리
+    },
+  });
+};
+
+/**
+ * 적금 계좌를 해지하는 React Query 훅
+ *
+ * 적금 계좌의 상태를 변경하여 해지 처리를 수행하고
+ * 성공 시 관련 쿼리 캐시를 무효화하여 최신 데이터를 반영합니다.
+ *
+ * @returns 적금 계좌 해지 mutation 객체
+ */
+export const useTerminateSavingsAccount = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (accountId: string) => {
+      return terminateSavingsAccount(accountId);
+    },
+    onSuccess: (data, accountId) => {
+      // 즉시 새 데이터로 업데이트
+      queryClient.setQueryData(
+        savingsKeys.savingsAccountDetail(accountId),
+        data,
+      );
+
+      // 적금 해지 성공 시 모든 관련 캐시 무효화
+      queryClient.invalidateQueries({
+        queryKey: savingsKeys.accountsList(),
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: savingsKeys.accounts(),
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ['savings'],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: savingsKeys.detail(accountId),
+      });
+    },
+    onError: error => {
+      console.error('적금 계좌 해지 실패:', error);
     },
   });
 };

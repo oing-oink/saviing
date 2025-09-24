@@ -108,7 +108,7 @@ const CompleteStep = () => {
   return (
     <>
       {/* 메인 컨텐츠 */}
-      <div className="flex flex-1 flex-col items-center justify-center px-6 py-8 text-center">
+      <div className="flex flex-1 flex-col items-center justify-center px-6 py-8 pb-24 text-center">
         {/* 성공 아이콘 */}
         <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
           <svg

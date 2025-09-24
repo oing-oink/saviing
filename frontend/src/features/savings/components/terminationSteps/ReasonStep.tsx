@@ -1,75 +1,60 @@
-import {
-  useSavingsSettingsStore,
-  type ChangeType,
-} from '@/features/savings/store/useSavingsSettingsStore';
-import { useSavingsSettingsChange } from '@/features/savings/hooks/useSavingsSettingsChange';
+import { useState } from 'react';
+import { useSavingsTermination } from '@/features/savings/hooks/useSavingsTermination';
 import { Button } from '@/shared/components/ui/button';
 
-const SelectChangeStep = () => {
-  const { selectedChangeTypes, toggleChangeType } = useSavingsSettingsStore();
-  const { goToNextStep, goToPreviousStep } = useSavingsSettingsChange();
+const ReasonStep = () => {
+  const [selectedReason, setSelectedReason] = useState<string>('');
+  const [customReason, setCustomReason] = useState<string>('');
+  const { goToNextStep, goToPrevStep } = useSavingsTermination();
 
-  const changeOptions = [
-    {
-      type: 'AMOUNT' as ChangeType,
-      title: '월 납입금액 변경',
-      description: '매월 납입하는 금액을 조정합니다',
-    },
-    {
-      type: 'TRANSFER_DATE' as ChangeType,
-      title: '자동이체 날짜 및 주기 변경',
-      description: '자동이체 날짜와 납입 주기를 변경합니다',
-    },
-    {
-      type: 'AUTO_ACCOUNT' as ChangeType,
-      title: '연결 계좌 변경',
-      description: '자동이체가 연결된 입출금 계좌를 변경합니다',
-    },
+  const reasons = [
+    { id: 'goal_acheived', label: '목표 달성' },
+    { id: 'urgent_money', label: '긴급한 자금 필요' },
+    { id: 'other_financial_product', label: '다른 금융상품 이용' },
+    { id: 'dissatisfied', label: '서비스 불만족' },
+    { id: 'other', label: '기타' },
   ];
 
   const handleNext = () => {
-    if (selectedChangeTypes.length === 0) {
+    if (!selectedReason) {
       return;
     }
     goToNextStep();
   };
 
   const handleBack = () => {
-    goToPreviousStep();
+    goToPrevStep();
   };
 
   return (
     <>
       {/* 메인 컨텐츠 */}
       <div className="flex flex-1 flex-col px-6 py-8 pb-24">
-        <h1 className="mb-2 text-xl font-bold text-gray-900">
-          변경할 설정 선택
-        </h1>
+        <h1 className="mb-2 text-xl font-bold text-gray-900">해지 사유 선택</h1>
         <p className="mb-6 text-gray-600">
-          변경하고 싶은 설정을 선택해주세요 (복수 선택 가능)
+          적금 해지 사유를 선택해 주세요. 더 나은 서비스 제공을 위해 활용됩니다.
         </p>
 
         <div className="space-y-3">
-          {changeOptions.map(option => {
-            const isSelected = selectedChangeTypes.includes(option.type);
+          {reasons.map(reason => {
+            const isSelected = selectedReason === reason.id;
             return (
               <div
-                key={option.type}
-                onClick={() => toggleChangeType(option.type)}
+                key={reason.id}
+                onClick={() => setSelectedReason(reason.id)}
                 className={`cursor-pointer rounded-lg border p-4 transition-all ${
                   isSelected
                     ? 'border-primary bg-primary/10'
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
               >
-                <div className="flex items-start space-x-3">
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900">
-                      {option.title}
-                    </h3>
-                    <p className="mt-1 text-sm text-gray-600">
-                      {option.description}
-                    </p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="flex-1">
+                      <span className="font-medium text-gray-900">
+                        {reason.label}
+                      </span>
+                    </div>
                   </div>
                   <div
                     className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${
@@ -97,6 +82,21 @@ const SelectChangeStep = () => {
             );
           })}
         </div>
+
+        {selectedReason === 'other' && (
+          <div className="mt-6">
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+              상세 사유 (선택)
+            </label>
+            <textarea
+              value={customReason}
+              onChange={e => setCustomReason(e.target.value)}
+              placeholder="해지 사유를 자세히 입력해 주세요."
+              className="w-full rounded-lg border border-gray-300 p-3 text-sm focus:border-primary focus:outline-none"
+              rows={4}
+            />
+          </div>
+        )}
       </div>
 
       {/* 하단 고정 버튼 */}
@@ -111,7 +111,7 @@ const SelectChangeStep = () => {
           </Button>
           <Button
             onClick={handleNext}
-            disabled={selectedChangeTypes.length === 0}
+            disabled={!selectedReason}
             className="h-12 flex-1 rounded-lg bg-primary text-white hover:bg-primary/90 disabled:bg-gray-300 disabled:text-gray-500"
           >
             다음
@@ -122,4 +122,4 @@ const SelectChangeStep = () => {
   );
 };
 
-export default SelectChangeStep;
+export default ReasonStep;

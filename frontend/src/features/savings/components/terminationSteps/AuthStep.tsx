@@ -1,75 +1,76 @@
-import {
-  useSavingsSettingsStore,
-  type ChangeType,
-} from '@/features/savings/store/useSavingsSettingsStore';
-import { useSavingsSettingsChange } from '@/features/savings/hooks/useSavingsSettingsChange';
+import { useState } from 'react';
+import { useSavingsTermination } from '@/features/savings/hooks/useSavingsTermination';
 import { Button } from '@/shared/components/ui/button';
 
-const SelectChangeStep = () => {
-  const { selectedChangeTypes, toggleChangeType } = useSavingsSettingsStore();
-  const { goToNextStep, goToPreviousStep } = useSavingsSettingsChange();
+const AuthStep = () => {
+  const [selectedAuth, setSelectedAuth] = useState<string>('');
+  const { goToNextStep, goToPrevStep } = useSavingsTermination();
 
-  const changeOptions = [
+  const authOptions = [
     {
-      type: 'AMOUNT' as ChangeType,
-      title: '월 납입금액 변경',
-      description: '매월 납입하는 금액을 조정합니다',
+      id: 'phone',
+      title: '휴대폰 인증',
+      description: 'SMS 인증번호 전송',
+      icon: ' ',
     },
     {
-      type: 'TRANSFER_DATE' as ChangeType,
-      title: '자동이체 날짜 및 주기 변경',
-      description: '자동이체 날짜와 납입 주기를 변경합니다',
+      id: 'certificate',
+      title: '공인인증서',
+      description: '공인인증서로 인증',
+      icon: ' ',
     },
     {
-      type: 'AUTO_ACCOUNT' as ChangeType,
-      title: '연결 계좌 변경',
-      description: '자동이체가 연결된 입출금 계좌를 변경합니다',
+      id: 'biometric',
+      title: '생체 인증',
+      description: '지문/Face ID 인증',
+      icon: ' ',
     },
   ];
 
   const handleNext = () => {
-    if (selectedChangeTypes.length === 0) {
+    if (!selectedAuth) {
       return;
     }
     goToNextStep();
   };
 
   const handleBack = () => {
-    goToPreviousStep();
+    goToPrevStep();
   };
 
   return (
     <>
       {/* 메인 컨텐츠 */}
       <div className="flex flex-1 flex-col px-6 py-8 pb-24">
-        <h1 className="mb-2 text-xl font-bold text-gray-900">
-          변경할 설정 선택
-        </h1>
+        <h1 className="mb-2 text-xl font-bold text-gray-900">본인 인증</h1>
         <p className="mb-6 text-gray-600">
-          변경하고 싶은 설정을 선택해주세요 (복수 선택 가능)
+          적금 해지를 위해 본인 인증을 진행해 주세요.
         </p>
 
         <div className="space-y-3">
-          {changeOptions.map(option => {
-            const isSelected = selectedChangeTypes.includes(option.type);
+          {authOptions.map(option => {
+            const isSelected = selectedAuth === option.id;
             return (
               <div
-                key={option.type}
-                onClick={() => toggleChangeType(option.type)}
+                key={option.id}
+                onClick={() => setSelectedAuth(option.id)}
                 className={`cursor-pointer rounded-lg border p-4 transition-all ${
                   isSelected
                     ? 'border-primary bg-primary/10'
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
               >
-                <div className="flex items-start space-x-3">
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900">
-                      {option.title}
-                    </h3>
-                    <p className="mt-1 text-sm text-gray-600">
-                      {option.description}
-                    </p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="text-2xl">{option.icon}</div>
+                    <div>
+                      <div className="font-medium text-gray-900">
+                        {option.title}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {option.description}
+                      </div>
+                    </div>
                   </div>
                   <div
                     className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${
@@ -111,7 +112,7 @@ const SelectChangeStep = () => {
           </Button>
           <Button
             onClick={handleNext}
-            disabled={selectedChangeTypes.length === 0}
+            disabled={!selectedAuth}
             className="h-12 flex-1 rounded-lg bg-primary text-white hover:bg-primary/90 disabled:bg-gray-300 disabled:text-gray-500"
           >
             다음
@@ -122,4 +123,4 @@ const SelectChangeStep = () => {
   );
 };
 
-export default SelectChangeStep;
+export default AuthStep;

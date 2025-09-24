@@ -343,3 +343,31 @@ export const createSavingsAccount = async (
   );
   return response.body!;
 };
+
+/**
+ * 적금 계좌를 해지하는 API 함수
+ *
+ * 적금 계좌의 상태를 변경하여 해지 처리를 수행합니다.
+ * 해지 후 계좌 상태가 변경되고 잔액이 지정된 계좌로 이체됩니다.
+ *
+ * @param accountId - 해지할 적금 계좌의 고유 식별자
+ * @returns 해지 처리 결과가 담긴 SavingsAccountDetailResponse 객체
+ * @throws API 호출 실패 시 네트워크 오류 또는 HTTP 오류 발생
+ */
+export const terminateSavingsAccount = async (
+  accountId: string,
+): Promise<SavingsAccountDetailResponse> => {
+  const response = await http.patch<SavingsAccountDetailResponse>(
+    `/v1/accounts/id/${accountId}/status`,
+    {
+      status: 'CLOSED',
+    },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    },
+  );
+
+  return response.body!;
+};
