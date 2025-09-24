@@ -1,22 +1,44 @@
 import { useMutation } from '@tanstack/react-query';
-import { saveDecoRoom } from '@/features/game/deco/api/decoApi';
+// import { saveDecoRoom } from '@/features/game/deco/api/decoApi';
+import { saveRoomPlacements } from '@/features/game/room/api/roomApi';
+import type { SaveRoomPlacementsRequest } from '@/features/game/room/api/roomApi';
 import { decoStore } from '@/features/game/deco/store/useDecoStore';
-import type { PlacementArea } from '@/features/game/room/hooks/useGrid';
+// import type { PlacementArea } from '@/features/game/room/hooks/useGrid';
 
-/** 현재 드래프트 상태를 API 저장 포맷으로 변환한다. */
-const toRequestPayload = () => {
+/** 현재 드래프트 상태를 기존 API 저장 포맷으로 변환한다. */
+// const toRequestPayload = () => {
+//   const { draftItems } = decoStore.getState();
+//   return {
+//     placedItems: draftItems.map(item => ({
+//       inventoryItemId: item.inventoryItemId,
+//       itemId: item.itemId,
+//       positionX: item.positionX,
+//       positionY: item.positionY,
+//       xLength: item.xLength,
+//       yLength: item.yLength,
+//       rotation: item.rotation,
+//       layer: item.layer as PlacementArea | string | undefined,
+//     })),
+//   };
+// };
+
+/** 현재 드래프트 상태를 새 방 배치 API 포맷으로 변환한다. */
+const toRoomPlacementsPayload = (roomId: number): SaveRoomPlacementsRequest => {
   const { draftItems } = decoStore.getState();
   return {
-    placedItems: draftItems.map(item => ({
-      inventoryItemId: item.inventoryItemId,
-      itemId: item.itemId,
-      positionX: item.positionX,
-      positionY: item.positionY,
-      xLength: item.xLength,
-      yLength: item.yLength,
-      rotation: item.rotation,
-      layer: item.layer as PlacementArea | string | undefined,
-    })),
+    characterId: 1, // 하드코딩된 characterId
+    placedItems: draftItems
+      .filter(item => item.inventoryItemId !== undefined)
+      .map(item => ({
+        roomId: roomId, // roomId 추가
+        inventoryItemId: item.inventoryItemId!,
+        itemId: item.itemId,
+        positionX: item.positionX,
+        positionY: item.positionY,
+        xLength: item.xLength || 1,
+        yLength: item.yLength || 1,
+        category: item.layer || 'BOTTOM',
+      })),
   };
 };
 
@@ -24,8 +46,9 @@ const toRequestPayload = () => {
 export const useDecoSaveMutation = () => {
   return useMutation({
     mutationFn: async () => {
-      const payload = toRequestPayload();
-      return saveDecoRoom(payload);
+      const roomId = 1; // 하드코딩된 roomId
+      const payload = toRoomPlacementsPayload(roomId); // roomId를 전달
+      return saveRoomPlacements(roomId, payload);
     },
     onSuccess: () => {
       decoStore.getState().markDraftAsSaved();

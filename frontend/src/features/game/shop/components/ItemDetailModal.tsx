@@ -197,7 +197,7 @@ const ItemDetailModal = ({
                   </button>
                   <button
                     onClick={onClose}
-                    className="flex-1 rounded-lg bg-gray-500 px-6 py-2 text-center text-sm text-white hover:bg-gray-600 whitespace-nowrap"
+                    className="flex-1 rounded-lg bg-gray-500 px-6 py-2 text-center text-sm whitespace-nowrap text-white hover:bg-gray-600"
                   >
                     취소
                   </button>

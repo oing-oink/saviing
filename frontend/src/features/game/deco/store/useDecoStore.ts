@@ -257,7 +257,8 @@ const buildPlacedItemFromSession = (
 
   return {
     id,
-    inventoryItemId: session.inventoryItemId ?? session.originalItem?.inventoryItemId,
+    inventoryItemId:
+      session.inventoryItemId ?? session.originalItem?.inventoryItemId,
     itemId: Number(session.itemId),
     cellId,
     positionX: parsed.col,

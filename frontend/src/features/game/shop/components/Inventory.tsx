@@ -67,7 +67,7 @@ const Inventory = ({
   // 데코 모드에서 배치된 아이템들 추적
   const draftItems = useDecoStore(state => state.draftItems);
 
-  // 배치된 슬롯 ID들을 Set으로 관리 (빠른 조회를 위해)
+  // 배치된 slotId들을 Set으로 관리 (빠른 조회를 위해)
   const placedSlotIds = useMemo(() => {
     if (mode !== 'deco') {
       return new Set<string>();
@@ -80,8 +80,43 @@ const Inventory = ({
     );
   }, [mode, draftItems]);
 
-  // 슬롯이 이미 배치되었는지 확인하는 함수
+  // 배치된 inventoryItemId들을 Set으로 관리 (빠른 조회를 위해)
+  const placedInventoryItemIds = useMemo(() => {
+    if (mode !== 'deco') {
+      return new Set<number>();
+    }
+
+    return new Set(
+      draftItems
+        .filter(item => !item.isPreview && item.inventoryItemId) // 프리뷰 아이템 제외 및 inventoryItemId 있는 것만
+        .map(item => item.inventoryItemId!),
+    );
+  }, [mode, draftItems]);
+
+  // 슬롯이 이미 배치되었는지 확인하는 함수 (slotId 기반)
   const isSlotPlaced = (slotId: string) => placedSlotIds.has(slotId);
+
+  // 아이템이 이미 배치되었는지 확인하는 함수 (inventoryItemId 기반 또는 isAvailable 속성)
+  const isItemDisabled = (item: Item): boolean => {
+    if (mode !== 'deco') {
+      return false;
+    }
+
+    // isAvailable이 false면 비활성화
+    if (item.isAvailable === false) {
+      return true;
+    }
+
+    // inventoryItemId가 배치된 목록에 있으면 비활성화
+    if (
+      item.inventoryItemId &&
+      placedInventoryItemIds.has(item.inventoryItemId)
+    ) {
+      return true;
+    }
+
+    return false;
+  };
 
   // API에서 이미 필터링된 데이터를 받으므로 추가 필터링 불필요
   const slots = useSlots(items);
@@ -94,7 +129,7 @@ const Inventory = ({
   const handleSlotClick = (item: Item, slotId: string) => {
     if (mode === 'deco') {
       // 이미 배치된 슬롯은 클릭할 수 없음
-      if (isSlotPlaced(slotId)) {
+      if (isSlotPlaced(slotId) || isItemDisabled(item)) {
         return;
       }
       onItemSelect?.(item, slotId);
@@ -157,9 +192,13 @@ const Inventory = ({
                       <>
                         <button
                           onClick={() => handleSlotClick(item, slot.id)}
-                          disabled={mode === 'deco' && isSlotPlaced(slot.id)}
+                          disabled={
+                            mode === 'deco' &&
+                            (isSlotPlaced(slot.id) || isItemDisabled(item))
+                          }
                           className={`relative flex h-[70%] w-[70%] items-center justify-center ${
-                            mode === 'deco' && isSlotPlaced(slot.id)
+                            mode === 'deco' &&
+                            (isSlotPlaced(slot.id) || isItemDisabled(item))
                               ? 'cursor-not-allowed opacity-50'
                               : 'hover:opacity-80'
                           }`}
@@ -175,20 +214,22 @@ const Inventory = ({
                             src={getItemImage(item.itemId)}
                             alt={item.itemName}
                             className={`h-[80%] w-[80%] object-contain ${
-                              mode === 'deco' && isSlotPlaced(slot.id)
+                              mode === 'deco' &&
+                              (isSlotPlaced(slot.id) || isItemDisabled(item))
                                 ? 'grayscale'
                                 : ''
                             }`}
                           />
                         </button>
                         {/* 배치됨 표시 */}
-                        {mode === 'deco' && isSlotPlaced(slot.id) && (
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="rounded bg-black/60 px-1 py-0.5 text-[8px] font-bold text-white">
-                              배치됨
+                        {mode === 'deco' &&
+                          (isSlotPlaced(slot.id) || isItemDisabled(item)) && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="rounded bg-black/60 px-1 py-0.5 text-[8px] font-bold text-white">
+                                배치됨
+                              </div>
                             </div>
-                          </div>
-                        )}
+                          )}
                       </>
                     )}
                   </div>
