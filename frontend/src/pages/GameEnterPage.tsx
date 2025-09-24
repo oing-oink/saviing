@@ -75,7 +75,7 @@ const GameEnterPage = () => {
                 }}
               >
                 <div style={{ transform: `scale(${scale})` }}>
-                  <CatSprite petId={9} currentAnimation={anim} />
+                  <CatSprite petId={1009} currentAnimation={anim} />
                 </div>
               </div>
             </div>
