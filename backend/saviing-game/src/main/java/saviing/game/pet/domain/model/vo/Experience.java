@@ -1,5 +1,8 @@
 package saviing.game.pet.domain.model.vo;
 
+import saviing.game.pet.domain.exception.PetInvalidValueException;
+import saviing.game.pet.domain.exception.PetInvalidAmountException;
+
 /**
  * 펫 경험치 Value Object
  */
@@ -8,9 +11,7 @@ public record Experience(int value) {
 
     public Experience {
         if (value < MIN_EXPERIENCE) {
-            throw new IllegalArgumentException(
-                String.format("펫 경험치는 %d 이상이어야 합니다. 입력값: %d", MIN_EXPERIENCE, value)
-            );
+            throw PetInvalidValueException.invalidExperience(value);
         }
     }
 
@@ -24,7 +25,7 @@ public record Experience(int value) {
 
     public Experience add(Experience amount) {
         if (amount.value < 0) {
-            throw new IllegalArgumentException("경험치 증가량은 음수일 수 없습니다");
+            throw PetInvalidAmountException.invalidExperienceAmount(amount.value);
         }
         return new Experience(value + amount.value);
     }

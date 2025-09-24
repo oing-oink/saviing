@@ -1,5 +1,7 @@
 package saviing.game.pet.domain.model.enums;
 
+import saviing.game.pet.domain.exception.PetInvalidValueException;
+
 /**
  * 펫 레벨 시스템 설정을 관리하는 enum
  * 레벨별 필요 경험치와 관련 상수들을 중앙에서 관리합니다.
@@ -33,9 +35,7 @@ public enum PetLevelSystem {
      */
     public int getRequiredExpForLevel(int level) {
         if (level < MIN_LEVEL || level > MAX_LEVEL) {
-            throw new IllegalArgumentException(
-                String.format("레벨은 %d와 %d 사이여야 합니다. 입력값: %d", MIN_LEVEL, MAX_LEVEL, level)
-            );
+            throw PetInvalidValueException.invalidLevel(level);
         }
 
         if (level == MAX_LEVEL) {

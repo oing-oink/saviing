@@ -2,6 +2,8 @@ package saviing.game.pet.domain.model.vo;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import saviing.game.pet.domain.exception.PetInvalidValueException;
+import saviing.game.pet.domain.exception.PetInvalidAmountException;
 
 /**
  * 펫 애정도 Value Object
@@ -16,9 +18,7 @@ public record Affection(int value) {
 
     public Affection {
         if (value < MIN_AFFECTION || value > MAX_AFFECTION) {
-            throw new IllegalArgumentException(
-                String.format("펫 애정도는 %d와 %d 사이여야 합니다. 입력값: %d", MIN_AFFECTION, MAX_AFFECTION, value)
-            );
+            throw PetInvalidValueException.invalidAffection(value);
         }
     }
 
@@ -40,7 +40,7 @@ public record Affection(int value) {
 
     public Affection increase(Affection amount) {
         if (amount.value < 0) {
-            throw new IllegalArgumentException("애정도 증가량은 음수일 수 없습니다");
+            throw PetInvalidAmountException.invalidAffectionAmount(amount.value, "증가");
         }
         int newValue = Math.min(MAX_AFFECTION, value + amount.value);
         return new Affection(newValue);
@@ -48,7 +48,7 @@ public record Affection(int value) {
 
     public Affection decrease(Affection amount) {
         if (amount.value < 0) {
-            throw new IllegalArgumentException("애정도 감소량은 음수일 수 없습니다");
+            throw PetInvalidAmountException.invalidAffectionAmount(amount.value, "감소");
         }
         int newValue = Math.max(MIN_AFFECTION, value - amount.value);
         return new Affection(newValue);
