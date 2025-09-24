@@ -173,7 +173,7 @@ export const useSavingsTransactionsDisplay = (accountId: string) => {
         amount: transaction.amount,
         postedAt: transaction.postedAt,
         description: transaction.description,
-        balance: transaction.balance || 0,
+        balanceAfter: transaction.balanceAfter ?? 0,
       }),
     );
   }, [query.data]);

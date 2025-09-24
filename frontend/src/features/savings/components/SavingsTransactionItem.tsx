@@ -8,7 +8,8 @@ interface SavingsTransactionItemProps {
 const SavingsTransactionItem = ({
   transaction,
 }: SavingsTransactionItemProps) => {
-  const { direction, amount, postedAt, description, balance } = transaction;
+  const { direction, amount, postedAt, description, balanceAfter } =
+    transaction;
 
   // 입금/출금 구분
   // TODO: 이름 수정
@@ -44,7 +45,7 @@ const SavingsTransactionItem = ({
               {(amount || 0).toLocaleString()}원
             </p>
             <p className="mt-1 text-xs text-gray-400">
-              잔액: {(balance || 0).toLocaleString()}원
+              잔액: {(balanceAfter || 0).toLocaleString()}원
             </p>
           </div>
         </div>
