@@ -15,6 +15,7 @@ public record PetResult(
     Long itemId,
     int level,
     int experience,
+    int requiredExp,
     int affection,
     int energy,
     String petName,

@@ -19,6 +19,20 @@ import java.util.Objects;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Pet {
+
+    // 레벨별 필요 경험치 배열 (인덱스 0 = 레벨 1)
+    private static final int[] REQUIRED_EXP_FOR_LEVEL = {
+        0,      // 레벨 1: 0
+        100,    // 레벨 2: 100
+        300,    // 레벨 3: 300
+        600,    // 레벨 4: 600
+        1000,   // 레벨 5: 1000
+        1500,   // 레벨 6: 1500
+        2100,   // 레벨 7: 2100
+        2800,   // 레벨 8: 2800
+        3600,   // 레벨 9: 3600
+        4500    // 레벨 10: 4500
+    };
     private InventoryItemId inventoryItemId;  // PK: pet의 inventory_item_id
     private PetLevel level;
     private Experience experience;
@@ -186,5 +200,18 @@ public class Pet {
      */
     public PetId getPetId() {
         return PetId.of(inventoryItemId.value());
+    }
+
+    /**
+     * 다음 레벨 달성에 필요한 경험치를 계산합니다.
+     *
+     * @return 다음 레벨 달성에 필요한 총 경험치
+     */
+    public int calculateRequiredExpForNextLevel() {
+        int currentLevel = this.level.value();
+        if (currentLevel < 1 || currentLevel >= 10) {
+            return 0; // 최대 레벨이면 더 이상 필요한 경험치 없음
+        }
+        return REQUIRED_EXP_FOR_LEVEL[currentLevel]; // 다음 레벨의 필요 경험치
     }
 }

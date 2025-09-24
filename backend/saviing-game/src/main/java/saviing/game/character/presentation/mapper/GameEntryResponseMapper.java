@@ -31,7 +31,7 @@ public class GameEntryResponseMapper {
                 .name(result.pet().petName())
                 .level(result.pet().level())
                 .exp(result.pet().experience())
-                .requiredExp(calculateRequiredExp(result.pet().level()))
+                .requiredExp(result.pet().requiredExp())
                 .affection(result.pet().affection())
                 .maxAffection(calculateMaxAffection())
                 .energy(result.pet().energy())
@@ -46,13 +46,6 @@ public class GameEntryResponseMapper {
             .build();
     }
 
-    /**
-     * 레벨에 따른 필요 경험치를 계산합니다.
-     * TODO: 실제 펫 레벨링 공식 적용 필요
-     */
-    private Integer calculateRequiredExp(int level) {
-        return level * 100;
-    }
 
     /**
      * 최대 애정도를 계산합니다.
