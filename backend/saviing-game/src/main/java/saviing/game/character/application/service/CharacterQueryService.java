@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import saviing.game.character.application.client.BankApiClient;
 import saviing.game.character.application.dto.query.GetActiveCharacterQuery;
 import saviing.game.character.application.dto.query.GetAllCharactersByCustomerQuery;
 import saviing.game.character.application.dto.query.GetCharacterQuery;
@@ -14,6 +15,7 @@ import saviing.game.character.application.dto.result.GameEntryResult;
 import saviing.game.character.application.dto.query.GetCharacterStatisticsQuery;
 import saviing.game.character.application.dto.result.CharacterStatisticsResult;
 import saviing.game.character.application.mapper.CharacterResultMapper;
+import saviing.game.character.application.util.InterestRateCalculator;
 import saviing.game.character.domain.exception.CharacterNotFoundException;
 import saviing.game.character.domain.model.aggregate.Character;
 import saviing.game.character.domain.model.vo.CharacterId;
@@ -29,10 +31,12 @@ import saviing.game.room.application.dto.result.RoomResult;
 import saviing.game.room.application.service.RoomQueryService;
 
 import java.util.Comparator;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * 캐릭터 Query 처리 서비스
@@ -49,6 +53,7 @@ public class CharacterQueryService {
     private final InventoryQueryService inventoryQueryService;
     private final PetQueryService petQueryService;
     private final RoomQueryService roomQueryService;
+    private final BankApiClient bankApiClient;
 
     /**
      * 캐릭터 상세 정보를 조회합니다.
@@ -163,42 +168,54 @@ public class CharacterQueryService {
 
     /**
      * 캐릭터의 통계 정보를 조회합니다.
-     * 상위 펫 레벨 합계와 카테고리별 희귀도 통계를 조회합니다.
+     * 상위 펫 레벨 합계와 카테고리별 희귀도 통계를 조회하고,
+     * 게임 진행도를 기반으로 이자율을 계산하여 은행 API로 이자율을 설정합니다.
      *
      * @param query 캐릭터 통계 조회 Query
-     * @return 캐릭터 통계 조회 결과
+     * @return 캐릭터 통계 조회 결과 (계산된 이자율 포함)
      * @throws CharacterNotFoundException 캐릭터를 찾을 수 없는 경우
      */
     public CharacterStatisticsResult getCharacterStatistics(GetCharacterStatisticsQuery query) {
         log.info("캐릭터 통계 조회 시작: characterId={}", query.characterId().value());
 
-        // 캐릭터 존재 여부 확인
-        findCharacterById(query.characterId());
+        // 1. 캐릭터 존재 여부 확인 및 계좌 연결 정보 조회
+        Character character = findCharacterById(query.characterId());
 
-        // 1. 상위 펫 레벨 합계 조회 (상위 10개)
+        // 2. 상위 펫 레벨 합계 조회 (상위 10개)
         Integer topPetLevelSum = characterRepository.findTopPetLevelSumByCharacterId(
             query.characterId(), 10
         );
 
-        // 2. 카테고리별 희귀도 합계 조회 (카테고리당 상위 5개)
+        // 3. 카테고리별 희귀도 합계 조회 (카테고리당 상위 5개)
         Map<String, Integer> flatRarityMap = characterRepository.findTopRaritySumByCharacterIdAndCategory(
             query.characterId(), 5
         );
 
-        // 3. Flat Map을 Two-depth 구조로 변환
+        // 4. Flat Map을 Two-depth 구조로 변환
         Map<String, Map<String, Integer>> groupedRarityMap = groupByItemType(flatRarityMap);
 
-        // 4. Result 매핑
-        CharacterStatisticsResult result = resultMapper.toStatisticsResult(
+        // 5. 기본 Result 생성 (이자율 없이)
+        CharacterStatisticsResult baseResult = resultMapper.toStatisticsResult(
             query.characterId(),
             topPetLevelSum,
             groupedRarityMap
         );
 
-        log.info("캐릭터 통계 조회 완료: characterId={}, petLevelSum={}, rarityCategories={}",
-            query.characterId().value(), topPetLevelSum, groupedRarityMap.keySet());
+        // 6. 게임 진행도 기반 이자율 계산 및 은행 API 호출
+        BigDecimal calculatedInterestRate = calculateAndUpdateInterestRate(character, baseResult);
 
-        return result;
+        // 7. 최종 Result 생성 (이자율 포함)
+        CharacterStatisticsResult finalResult = CharacterStatisticsResult.of(
+            query.characterId().value(),
+            topPetLevelSum,
+            groupedRarityMap,
+            calculatedInterestRate
+        );
+
+        log.info("캐릭터 통계 조회 완료: characterId={}, petLevelSum={}, rarityCategories={}, interestRate={}%",
+            query.characterId().value(), topPetLevelSum, groupedRarityMap.keySet(), calculatedInterestRate);
+
+        return finalResult;
     }
 
     /**
@@ -225,6 +242,81 @@ public class CharacterQueryService {
         }
 
         return result;
+    }
+
+    /**
+     * 게임 진행도를 기반으로 이자율을 계산하고 은행 API를 호출하여 계좌 보너스 이자율을 업데이트합니다.
+     *
+     * 기본 이자율(1.5%)을 차감한 보너스 이자율만 Bank API로 전송하며,
+     * 응답받은 실제 보너스 이자율에 기본 이자율을 더하여 총 이자율을 계산합니다.
+     * 계산된 이자율이 기본 이자율 이하인 경우 Bank API를 호출하지 않습니다.
+     *
+     * @param character 캐릭터 도메인 객체 (계좌 연결 정보 포함)
+     * @param statisticsResult 캐릭터 통계 결과 (이자율 계산용)
+     * @return 실제 설정된 총 이자율 (기본 이자율 + 보너스 이자율, Bank API 호출 결과 또는 계산된 값)
+     */
+    private BigDecimal calculateAndUpdateInterestRate(Character character, CharacterStatisticsResult statisticsResult) {
+        try {
+            // 1. 게임 진행도 기반 이자율 계산
+            BigDecimal calculatedRate = InterestRateCalculator.calculateInterestRate(statisticsResult);
+
+            // 2. 캐릭터 ID 안전 조회
+            Long characterId = (character != null && character.getCharacterId() != null)
+                ? character.getCharacterId().value()
+                : statisticsResult.characterId();
+
+            log.debug("캐릭터 {}의 계산된 이자율: {}%", characterId, calculatedRate);
+
+            // 3. 계좌 연결 여부 확인
+            Long accountId = (character != null && character.getAccountConnection() != null)
+                ? character.getAccountConnection().accountId()
+                : null;
+
+            if (accountId == null) {
+                log.info("계좌가 연결되지 않은 캐릭터: characterId={}. 계산된 이자율만 반환", characterId);
+                return calculatedRate;
+            }
+
+            // 4. 기본 이자율(1.5%)을 차감하여 보너스 이자율 계산
+            BigDecimal baseInterestRate = BigDecimal.valueOf(1.5);
+            BigDecimal bonusRate = calculatedRate.subtract(baseInterestRate);
+
+            // 5. 보너스 이자율이 0보다 클 때만 Bank API 호출
+            if (bonusRate.compareTo(BigDecimal.ZERO) <= 0) {
+                log.info("계산된 이자율이 기본 이자율 이하: characterId={}, calculatedRate={}%. Bank API 호출하지 않음",
+                    characterId, calculatedRate);
+                return calculatedRate;
+            }
+
+            log.debug("캐릭터 {}의 보너스 이자율: {}% (기본 이자율 {}% 차감)",
+                characterId, bonusRate, baseInterestRate);
+
+            // 6. Bank API 호출하여 보너스 이자율 업데이트
+            Optional<BigDecimal> updatedBonusRate = bankApiClient.updateAccountInterestRate(accountId, bonusRate);
+
+            if (updatedBonusRate.isPresent()) {
+                // 7. 실제 설정된 총 이자율 계산 (기본 이자율 + 보너스 이자율)
+                BigDecimal totalRate = baseInterestRate.add(updatedBonusRate.get());
+                log.info("은행 API 이자율 업데이트 성공: characterId={}, accountId={}, bonusRate={}%, totalRate={}%",
+                    characterId, accountId, updatedBonusRate.get(), totalRate);
+                return totalRate;
+            } else {
+                log.warn("은행 API 이자율 업데이트 실패: characterId={}, accountId={}. 계산된 이자율 반환",
+                    characterId, accountId);
+                return calculatedRate; // 계산된 이자율 반환
+            }
+
+        } catch (Exception e) {
+            Long characterId = (character != null && character.getCharacterId() != null)
+                ? character.getCharacterId().value()
+                : statisticsResult.characterId();
+
+            log.error("이자율 계산/업데이트 중 오류 발생: characterId={}, error={}",
+                characterId, e.getMessage(), e);
+
+            // 오류 발생 시 기본 이자율 반환
+            return BigDecimal.valueOf(1.5);
+        }
     }
 
     /**

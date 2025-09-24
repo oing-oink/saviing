@@ -52,7 +52,7 @@ public class CharacterResultMapper {
      * @param characterId 캐릭터 ID
      * @param topPetLevelSum 상위 펫들의 레벨 합계
      * @param inventoryRarityStatistics ItemType별로 그룹화된 인벤토리 희귀도 통계
-     * @return CharacterStatisticsResult
+     * @return CharacterStatisticsResult (이자율은 null, 서비스 레이어에서 계산 후 설정)
      */
     public CharacterStatisticsResult toStatisticsResult(
         CharacterId characterId,
@@ -65,6 +65,7 @@ public class CharacterResultMapper {
             .inventoryRarityStatistics(
                 inventoryRarityStatistics != null ? inventoryRarityStatistics : Map.of()
             )
+            .calculatedInterestRate(null) // 초기값 null, 서비스에서 계산 후 설정
             .build();
     }
 }

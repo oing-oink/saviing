@@ -93,10 +93,11 @@ public class CharacterResponseMapper {
 
     /**
      * CharacterStatisticsResult를 CharacterStatisticsResponse로 변환합니다.
-     * Application Result의 two-depth Map 구조를 Presentation Response의 구조화된 DTO로 변환합니다.
+     * Application Result의 two-depth Map 구조를 Presentation Response의 구조화된 DTO로 변환하고,
+     * 게임 진행도 기반 계산된 이자율도 포함합니다.
      *
-     * @param result CharacterStatisticsResult
-     * @return CharacterStatisticsResponse DTO
+     * @param result CharacterStatisticsResult (계산된 이자율 포함)
+     * @return CharacterStatisticsResponse DTO (이자율 포함)
      */
     public CharacterStatisticsResponse toStatisticsResponse(CharacterStatisticsResult result) {
         if (result == null) {
@@ -110,6 +111,7 @@ public class CharacterResponseMapper {
             .characterId(result.characterId())
             .topPetLevelSum(result.topPetLevelSum())
             .inventoryRarityStatistics(inventoryStats)
+            .calculatedInterestRate(result.calculatedInterestRate())
             .build();
     }
 

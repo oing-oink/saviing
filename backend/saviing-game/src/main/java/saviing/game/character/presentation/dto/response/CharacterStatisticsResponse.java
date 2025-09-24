@@ -3,11 +3,12 @@ package saviing.game.character.presentation.dto.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 /**
  * 캐릭터 통계 정보 API 응답 DTO
- * 캐릭터의 펫 레벨 통계와 인벤토리 희귀도 통계를 포함합니다.
+ * 캐릭터의 펫 레벨 통계와 인벤토리 희귀도 통계, 그리고 계산된 이자율을 포함합니다.
  */
 @Builder
 @Schema(description = "캐릭터 통계 정보 응답")
@@ -19,7 +20,10 @@ public record CharacterStatisticsResponse(
     Integer topPetLevelSum,
 
     @Schema(description = "인벤토리 희귀도 통계 (ItemType별 카테고리 그룹)")
-    InventoryRarityStatisticsResponse inventoryRarityStatistics
+    InventoryRarityStatisticsResponse inventoryRarityStatistics,
+
+    @Schema(description = "게임 진행도 기반 계산된 보너스 이자율 (백분율)", example = "3.25", nullable = true)
+    BigDecimal calculatedInterestRate
 ) {
 
     /**
@@ -42,6 +46,33 @@ public record CharacterStatisticsResponse(
                 inventoryRarityStatistics != null ? inventoryRarityStatistics :
                     InventoryRarityStatisticsResponse.empty()
             )
+            .calculatedInterestRate(null) // 기본값 null
+            .build();
+    }
+
+    /**
+     * 캐릭터 통계 정보와 계산된 이자율을 기반으로 CharacterStatisticsResponse를 생성합니다.
+     *
+     * @param characterId 캐릭터 ID
+     * @param topPetLevelSum 상위 펫들의 레벨 합계
+     * @param inventoryRarityStatistics 인벤토리 희귀도 통계
+     * @param calculatedInterestRate 게임 진행도 기반 계산된 보너스 이자율 (백분율)
+     * @return CharacterStatisticsResponse 인스턴스
+     */
+    public static CharacterStatisticsResponse of(
+        Long characterId,
+        Integer topPetLevelSum,
+        InventoryRarityStatisticsResponse inventoryRarityStatistics,
+        BigDecimal calculatedInterestRate
+    ) {
+        return CharacterStatisticsResponse.builder()
+            .characterId(characterId)
+            .topPetLevelSum(topPetLevelSum != null ? topPetLevelSum : 0)
+            .inventoryRarityStatistics(
+                inventoryRarityStatistics != null ? inventoryRarityStatistics :
+                    InventoryRarityStatisticsResponse.empty()
+            )
+            .calculatedInterestRate(calculatedInterestRate)
             .build();
     }
 
