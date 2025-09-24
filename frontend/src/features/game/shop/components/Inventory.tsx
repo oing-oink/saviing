@@ -83,7 +83,7 @@ const Inventory = ({
             return slotId;
           }
           const layer = normalizePlacementArea(item.layer);
-          const prefix = item.itemType === 'PET' ? 'CAT' : layer ?? 'GLOBAL';
+          const prefix = item.itemType === 'PET' ? 'CAT' : (layer ?? 'GLOBAL');
           return `${prefix}::${slotId}`;
         }),
     );

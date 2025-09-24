@@ -61,13 +61,13 @@ interface PlacedItemProps {
  * @param props - 폴리곤 렌더링과 상호작용 처리에 필요한 속성들
  * @returns 상호작용 가능한 SVG 폴리곤 요소들 또는 null (visible이 false인 경우)
  */
-function PlacedItem({
+const PlacedItem = ({
   id,
   polygons,
   onPick,
   visible = true,
   variant = 'highlight',
-}: PlacedItemProps) {
+}: PlacedItemProps) => {
   /**
    * 마우스 클릭 이벤트 처리기.
    * 이벤트 전파를 막고 onPick 콜백을 호출하여 아이템 선택을 처리합니다.
@@ -124,6 +124,6 @@ function PlacedItem({
       ))}
     </g>
   );
-}
+};
 
 export default PlacedItem;

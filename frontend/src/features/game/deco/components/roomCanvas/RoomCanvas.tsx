@@ -534,9 +534,7 @@ const RoomCanvas = ({
   ]);
 
   const showActionButtons = Boolean(
-    showActions &&
-      actionAnchor &&
-      (ghost.isValid || pendingPlacement),
+    showActions && actionAnchor && (ghost.isValid || pendingPlacement),
   );
 
   const containerWidth = containerRef.current?.clientWidth ?? 0;
@@ -680,21 +678,21 @@ const RoomCanvas = ({
 
   // 드래그가 끝나면 후보 상태로만 stagePlacement를 호출하고
   // 실패 시 cancelDrag로 상태를 롤백한다.
-const finalizePlacement = useCallback(() => {
-  if (!dragSession) {
+  const finalizePlacement = useCallback(() => {
+    if (!dragSession) {
+      isPointerActiveRef.current = false;
+      setIsPointerActive(false);
+      hasPointerMovedRef.current = false;
+      return;
+    }
+    const staged = stagePlacement();
+    if (!staged) {
+      cancelDrag();
+    }
     isPointerActiveRef.current = false;
     setIsPointerActive(false);
     hasPointerMovedRef.current = false;
-    return;
-  }
-  const staged = stagePlacement();
-  if (!staged) {
-    cancelDrag();
-  }
-  isPointerActiveRef.current = false;
-  setIsPointerActive(false);
-  hasPointerMovedRef.current = false;
-}, [dragSession, stagePlacement, cancelDrag]);
+  }, [dragSession, stagePlacement, cancelDrag]);
 
   const handleMouseUp = (event: ReactMouseEvent<HTMLDivElement>) => {
     if (!dragSession || !isPointerActiveRef.current) {

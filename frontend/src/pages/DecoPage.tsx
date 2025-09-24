@@ -41,7 +41,6 @@ const DecoPage = () => {
   const draftItems = useDecoStore(state => state.draftItems);
   const placedItems = useDecoStore(state => state.placedItems);
   const dragSession = useDecoStore(state => state.dragSession);
-  const pendingPlacement = useDecoStore(state => state.pendingPlacement);
   const startDragFromInventory = useDecoStore(
     state => state.startDragFromInventory,
   );
