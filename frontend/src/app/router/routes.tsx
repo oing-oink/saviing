@@ -123,10 +123,9 @@ export const router = createBrowserRouter([
       },
 
       // 레이아웃이 없는 보호된 라우트들
-      ...protectedRoutesWithoutLayout.map(({ path, element, children }) => ({
+      ...protectedRoutesWithoutLayout.map(({ path, element }) => ({
         path,
         element: <ProtectedRoute>{element}</ProtectedRoute>,
-        children,
       })),
 
       // Fallback
