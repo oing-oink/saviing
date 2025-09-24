@@ -60,7 +60,7 @@ const PetCard = ({ petId }: PetCardProps) => {
         className="relative z-10 flex h-28 items-center justify-center"
       >
         <CatSprite
-          petId={petData.petId}
+          petId={petData.itemId}
           currentAnimation="sleep"
           className="scale-400"
         />
