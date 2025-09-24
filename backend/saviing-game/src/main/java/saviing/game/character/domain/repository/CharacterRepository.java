@@ -5,6 +5,7 @@ import saviing.game.character.domain.model.vo.CharacterId;
 import saviing.game.character.domain.model.vo.CustomerId;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -55,9 +56,27 @@ public interface CharacterRepository {
     
     /**
      * 고객 ID로 캐릭터 존재 여부를 확인합니다.
-     * 
+     *
      * @param customerId 고객 ID
      * @return 캐릭터 존재 여부
      */
     boolean existsByCustomerId(CustomerId customerId);
+
+    /**
+     * 캐릭터의 상위 펫 레벨 합계를 조회합니다.
+     *
+     * @param characterId 캐릭터 ID
+     * @param limit 조회할 펫 개수
+     * @return 펫 레벨 합계
+     */
+    Integer findTopPetLevelSumByCharacterId(CharacterId characterId, int limit);
+
+    /**
+     * 캐릭터의 카테고리별 희귀도 합계를 조회합니다.
+     *
+     * @param characterId 캐릭터 ID
+     * @param limit 카테고리당 조회할 아이템 개수
+     * @return 카테고리별 희귀도 합계 Map
+     */
+    Map<String, Integer> findTopRaritySumByCharacterIdAndCategory(CharacterId characterId, int limit);
 }
