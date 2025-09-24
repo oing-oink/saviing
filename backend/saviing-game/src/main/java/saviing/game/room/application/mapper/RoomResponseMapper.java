@@ -48,6 +48,7 @@ public class RoomResponseMapper {
     private RoomPlacementListResult.PlacementInfo toPlacementInfo(@NonNull PlacedItem placedItem) {
         return RoomPlacementListResult.PlacementInfo.builder()
             .inventoryItemId(placedItem.getInventoryItemId())
+            .itemId(placedItem.getItemId())
             .positionX(placedItem.getPosition().x())
             .positionY(placedItem.getPosition().y())
             .xLength(placedItem.getSize().xLength())
