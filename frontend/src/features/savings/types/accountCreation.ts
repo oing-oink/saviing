@@ -5,7 +5,7 @@
 /**
  * 기간 단위 타입
  */
-export type PeriodUnit = 'WEEKS';
+export type PeriodUnit = 'WEEKS' | 'MONTHS';
 
 /**
  * 기간 정보
@@ -15,6 +15,27 @@ export interface TermPeriod {
   value: number;
   /** 기간 단위 */
   unit: PeriodUnit;
+}
+
+/**
+ * 자동이체 주기 타입
+ */
+export type AutoTransferCycle = 'WEEKLY' | 'MONTHLY';
+
+/**
+ * 자동이체 설정
+ */
+export interface AutoTransfer {
+  /** 자동이체 활성화 여부 */
+  enabled: boolean;
+  /** 자동이체 주기 */
+  cycle: AutoTransferCycle;
+  /** 이체일 */
+  transferDay: number;
+  /** 이체 금액 */
+  amount: number;
+  /** 출금 계좌 ID */
+  withdrawAccountId: number;
 }
 
 /**
@@ -41,6 +62,8 @@ export interface CreateSavingsAccountRequest {
   termPeriod: TermPeriod;
   /** 만기 시 출금할 계좌번호 */
   maturityWithdrawalAccount: string;
+  /** 자동이체 설정 (자유적금에서만 사용) */
+  autoTransfer: AutoTransfer;
 }
 
 /**

@@ -39,6 +39,10 @@ interface SavingsFormData extends BaseFormData {
   transferDate: string;
   /** 자동이체 계좌 */
   autoAccount: string;
+  /** 자동이체 주기 */
+  transferCycle: 'WEEKLY' | 'MONTHLY';
+  /** 출금 계좌 ID */
+  withdrawAccountId: number;
 }
 
 /**
@@ -80,6 +84,10 @@ interface InitialFormData {
   transferDate?: string;
   /** 자동이체 계좌 (적금 선택 시에만 필수) */
   autoAccount?: string;
+  /** 자동이체 주기 (적금 선택 시에만 필수) */
+  transferCycle?: 'WEEKLY' | 'MONTHLY';
+  /** 출금 계좌 ID (적금 선택 시에만 필수) */
+  withdrawAccountId?: number;
 }
 
 /**
