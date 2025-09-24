@@ -47,7 +47,6 @@ public class RoomResponseMapper {
      */
     private RoomPlacementListResult.PlacementInfo toPlacementInfo(@NonNull PlacedItem placedItem) {
         return RoomPlacementListResult.PlacementInfo.builder()
-            .placementId(null) // PlacedItem에는 개별 ID가 없으므로 null
             .inventoryItemId(placedItem.getInventoryItemId())
             .positionX(placedItem.getPosition().x())
             .positionY(placedItem.getPosition().y())

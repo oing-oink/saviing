@@ -127,7 +127,6 @@ public class RoomPresentationMapper {
         }
 
         return PlacementResponse.builder()
-            .placementId(placementInfo.placementId())
             .inventoryItemId(placementInfo.inventoryItemId())
             .itemId(placementInfo.itemId())
             .positionX(placementInfo.positionX())
