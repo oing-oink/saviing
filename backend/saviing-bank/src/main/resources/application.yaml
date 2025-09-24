@@ -46,7 +46,7 @@ spring:
   data:
     redis:
       host: ${REDIS_HOST:127.0.0.1}
-      port: ${REDIS_PORT:6380}         # compose에서 6380→6379로 포워딩했으니 6380
+      port: ${REDIS_PORT:6380}
       password: ${REDIS_PASSWORD:super_strong_pw}
       timeout: 3s
 
@@ -54,11 +54,9 @@ app:
   streams:
     key: stream:bank.savings.deposited.v1
     group: game-coin-service
-    consumerName: ${HOSTNAME:local}-${random.uuid}  # 인스턴스 식별자
+    consumerName: ${HOSTNAME:local}-${random.uuid}
     blockMillis: 2000
     maxReadCount: 100
-    # XADD 시 근사치 트림
-    maxlenApprox: 1000000
 
 # OAuth2 설정
 oauth2:

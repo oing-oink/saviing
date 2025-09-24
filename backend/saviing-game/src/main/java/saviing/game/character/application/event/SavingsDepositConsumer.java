@@ -128,7 +128,7 @@ public class SavingsDepositConsumer {
             }
 
             Long customerId = Long.parseLong(customerIdStr);
-            Integer amount = Integer.parseInt(amountStr);
+            Integer amount = Integer.parseInt(amountStr) / 100;
 
             Character character = characterRepository
                 .findActiveCharacterByCustomerId(CustomerId.of(customerId))

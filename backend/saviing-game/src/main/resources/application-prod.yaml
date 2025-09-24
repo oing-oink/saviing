@@ -14,6 +14,22 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+  # Redis Configuration
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
+      timeout: 10s
+
+app:
+  streams:
+    key: stream:bank.savings.deposited.v1
+    group: game-coin-service
+    consumerName: coin-${HOSTNAME}-${random.uuid}
+    blockMillis: 2000
+    maxReadCount: 100
+
 
   jpa:
     hibernate:
