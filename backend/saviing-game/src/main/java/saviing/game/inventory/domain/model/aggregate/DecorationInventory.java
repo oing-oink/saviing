@@ -15,12 +15,13 @@ import java.time.LocalDateTime;
 
 /**
  * 데코레이션 인벤토리 Aggregate.
- * 데코레이션 아이템의 사용 여부만 관리합니다.
+ * 데코레이션 아이템의 사용 여부와 배치된 방 정보를 관리합니다.
  */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class DecorationInventory extends Inventory {
     private Decoration category;
+    private Long roomId;
 
     /**
      * DecorationInventory 생성자(Builder 패턴 사용).
@@ -30,6 +31,7 @@ public class DecorationInventory extends Inventory {
         InventoryItemId inventoryItemId,
         CharacterId characterId,
         ItemId itemId,
+        Long roomId,
         boolean isUsed,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
@@ -37,6 +39,7 @@ public class DecorationInventory extends Inventory {
     ) {
         super(inventoryItemId, characterId, itemId, InventoryType.DECORATION, isUsed, createdAt, updatedAt);
         this.category = category;
+        this.roomId = roomId;
 
         validateDecorationSpecificInvariants();
     }
@@ -69,23 +72,46 @@ public class DecorationInventory extends Inventory {
     }
 
     /**
-     * 데코레이션을 사용 상태로 표시합니다.
+     * 데코레이션을 특정 방에 배치합니다.
+     *
+     * @param roomId 배치할 방의 식별자
+     * @throws IllegalStateException 이미 배치된 데코레이션인 경우
+     * @throws IllegalArgumentException roomId가 null이거나 0 이하인 경우
      */
-    public void placeInRoom() {
+    public void placeInRoom(Long roomId) {
+        if (roomId == null || roomId <= 0) {
+            throw new IllegalArgumentException("roomId는 필수이며 양수여야 합니다");
+        }
         if (this.isUsed) {
             throw new IllegalStateException("이미 배치된 데코레이션입니다");
         }
+
+        this.roomId = roomId;
         use();
     }
 
     /**
-     * 데코레이션을 미사용 상태로 되돌립니다.
+     * 데코레이션을 방에서 제거합니다.
+     *
+     * @throws IllegalStateException 배치되지 않은 데코레이션인 경우
      */
     public void removeFromRoom() {
         if (!this.isUsed) {
             throw new IllegalStateException("배치되지 않은 데코레이션입니다");
         }
+
+        this.roomId = null;
         unuse();
+    }
+
+    /**
+     * 특정 방에 배치되어 있는지 확인합니다.
+     *
+     * @param roomId 확인할 방의 식별자
+     * @return 해당 방에 배치되어 있으면 true, 그렇지 않으면 false
+     */
+    public boolean isPlacedInRoom(Long roomId) {
+        return this.isUsed && roomId != null && roomId.equals(this.roomId);
     }
 
     /**
