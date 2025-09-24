@@ -58,9 +58,19 @@ public class RoomCommandService {
         // 3. Inventory 상태 초기화 (해당 방에 배치된 모든 데코레이션을 미사용 상태로)
         inventoryCommandService.resetRoomUsage(command.roomId());
 
-        // 4. 새 배치 아이템들을 사용중 상태로 마킹
-        List<Long> inventoryItemIds = extractInventoryItemIds(command.placedItems());
-        inventoryCommandService.markAsUsed(inventoryItemIds, command.roomId());
+        // 4. 새 배치 아이템들을 카테고리별로 분리하여 사용중 상태로 마킹
+        List<Long> decorationInventoryItemIds = extractDecorationInventoryItemIds(command.placedItems());
+        List<Long> petInventoryItemIds = extractPetInventoryItemIds(command.placedItems());
+
+        // DECORATION 카테고리: isUsed = true로 설정
+        if (!decorationInventoryItemIds.isEmpty()) {
+            inventoryCommandService.markAsUsed(decorationInventoryItemIds, command.roomId());
+        }
+
+        // PET 카테고리: roomId 설정
+        if (!petInventoryItemIds.isEmpty()) {
+            inventoryCommandService.placePetsInRoom(petInventoryItemIds, command.roomId());
+        }
 
         // 5. 기존 배치 조회 또는 새로 생성
         Placement placement = placementRepository.findByRoomId(roomId)
@@ -121,13 +131,43 @@ public class RoomCommandService {
     }
 
     /**
+     * PlaceItemCommand 목록에서 DECORATION 카테고리의 인벤토리 아이템 ID 목록을 추출
+     *
+     * @param commands 인벤토리 아이템 ID를 추출할 PlaceItemCommand 목록
+     * @return 추출된 DECORATION 인벤토리 아이템 ID 목록
+     * @throws IllegalArgumentException commands가 null인 경우
+     */
+    private List<Long> extractDecorationInventoryItemIds(@NonNull List<PlaceItemCommand> commands) {
+        return commands.stream()
+            .filter(command -> !command.isPet())
+            .map(PlaceItemCommand::inventoryItemId)
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * PlaceItemCommand 목록에서 PET 카테고리의 인벤토리 아이템 ID 목록을 추출
+     *
+     * @param commands 인벤토리 아이템 ID를 추출할 PlaceItemCommand 목록
+     * @return 추출된 PET 인벤토리 아이템 ID 목록
+     * @throws IllegalArgumentException commands가 null인 경우
+     */
+    private List<Long> extractPetInventoryItemIds(@NonNull List<PlaceItemCommand> commands) {
+        return commands.stream()
+            .filter(PlaceItemCommand::isPet)
+            .map(PlaceItemCommand::inventoryItemId)
+            .collect(Collectors.toList());
+    }
+
+    /**
      * PlaceItemCommand 목록에서 인벤토리 아이템 ID 목록을 추출
      * Inventory BC와의 동기화를 위해 사용되는 Helper 메서드
      *
+     * @deprecated 카테고리별로 분리된 메서드들을 사용하세요
      * @param commands 인벤토리 아이템 ID를 추출할 PlaceItemCommand 목록
      * @return 추출된 인벤토리 아이템 ID 목록
      * @throws IllegalArgumentException commands가 null인 경우
      */
+    @Deprecated
     private List<Long> extractInventoryItemIds(@NonNull List<PlaceItemCommand> commands) {
         return commands.stream()
             .map(PlaceItemCommand::inventoryItemId)

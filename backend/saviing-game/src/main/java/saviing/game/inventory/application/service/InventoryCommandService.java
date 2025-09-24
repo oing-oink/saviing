@@ -244,7 +244,11 @@ public class InventoryCommandService {
 
         log.info("Resetting room usage for roomId: {}", roomId);
 
+        // DECORATION 카테고리: isUsed를 false로 설정
         inventoryRepository.updateRoomUsageToFalse(roomId);
+
+        // PET 카테고리: roomId를 null로 설정
+        inventoryRepository.resetPetRoomId(roomId);
 
         log.debug("Room usage reset completed for roomId: {}", roomId);
     }
@@ -274,6 +278,31 @@ public class InventoryCommandService {
         inventoryRepository.updateUsageToTrue(inventoryItemIds, roomId);
 
         log.debug("Successfully marked {} items as used in room {}", inventoryItemIds.size(), roomId);
+    }
+
+    /**
+     * 펫 아이템들을 특정 방에 배치합니다.
+     * PET 카테고리는 isUsed가 아닌 roomId를 설정하여 배치를 관리합니다.
+     *
+     * @param petInventoryItemIds 펫 인벤토리 아이템 ID 목록
+     * @param roomId 배치할 방 ID
+     * @throws IllegalArgumentException roomId가 유효하지 않은 경우
+     */
+    @Transactional
+    public void placePetsInRoom(List<Long> petInventoryItemIds, Long roomId) {
+        if (petInventoryItemIds == null || petInventoryItemIds.isEmpty()) {
+            log.debug("No pet inventory items to place in room");
+            return;
+        }
+        if (roomId == null || roomId <= 0) {
+            throw new IllegalArgumentException("roomId는 필수이며 양수여야 합니다");
+        }
+
+        log.info("Placing {} pet items in room {}", petInventoryItemIds.size(), roomId);
+
+        inventoryRepository.updatePetRoomId(petInventoryItemIds, roomId);
+
+        log.debug("Successfully placed {} pet items in room {}", petInventoryItemIds.size(), roomId);
     }
 
 }

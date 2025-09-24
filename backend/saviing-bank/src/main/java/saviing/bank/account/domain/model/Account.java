@@ -457,6 +457,6 @@ public class Account {
      * @return 적금 계좌이면 true
      */
     public boolean isSavingsAccount() {
-        return targetAmount != null && termPeriod != null;
+        return termPeriod != null;
     }
 }

@@ -198,4 +198,25 @@ public interface InventoryRepository {
      */
     int updateUsageToTrue(List<Long> inventoryItemIds, Long roomId);
 
+    /**
+     * 펫 인벤토리 아이템들의 방 ID를 업데이트합니다.
+     * PET 카테고리 아이템들의 배치를 관리하기 위해 roomId 필드를 설정합니다.
+     *
+     * @param petInventoryItemIds 펫 인벤토리 아이템 ID 목록
+     * @param roomId 배치할 방의 식별자
+     * @return 업데이트된 레코드 수
+     * @throws IllegalArgumentException petInventoryItemIds가 null이거나 비어있는 경우
+     * @throws IllegalArgumentException roomId가 null이거나 0 이하인 경우
+     */
+    int updatePetRoomId(List<Long> petInventoryItemIds, Long roomId);
+
+    /**
+     * 특정 방에 배치된 모든 펫들의 방 ID를 초기화합니다.
+     *
+     * @param roomId 초기화할 방의 식별자
+     * @return 업데이트된 레코드 수
+     * @throws IllegalArgumentException roomId가 null이거나 0 이하인 경우
+     */
+    int resetPetRoomId(Long roomId);
+
 }

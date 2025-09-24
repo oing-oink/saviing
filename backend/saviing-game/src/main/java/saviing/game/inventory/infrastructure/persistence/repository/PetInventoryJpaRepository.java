@@ -1,6 +1,9 @@
 package saviing.game.inventory.infrastructure.persistence.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -44,4 +47,25 @@ public interface PetInventoryJpaRepository extends JpaRepository<PetInventoryEnt
      * @return 펫 인벤토리 목록
      */
     List<PetInventoryEntity> findByCharacterIdAndRoomId(Long characterId, Long roomId);
+
+    /**
+     * 인벤토리 아이템 ID 목록에 해당하는 펫들을 특정 방에 배치합니다.
+     *
+     * @param inventoryItemIds 인벤토리 아이템 ID 목록
+     * @param roomId 배치할 방 ID
+     * @return 업데이트된 행의 개수
+     */
+    @Modifying
+    @Query("UPDATE PetInventoryEntity p SET p.roomId = :roomId WHERE p.inventoryItemId IN :inventoryItemIds")
+    int updateRoomIdByInventoryItemIds(@Param("inventoryItemIds") List<Long> inventoryItemIds, @Param("roomId") Long roomId);
+
+    /**
+     * 특정 방에 배치된 모든 펫들의 방 ID를 null로 초기화합니다.
+     *
+     * @param roomId 초기화할 방 ID
+     * @return 업데이트된 행의 개수
+     */
+    @Modifying
+    @Query("UPDATE PetInventoryEntity p SET p.roomId = null WHERE p.roomId = :roomId")
+    int resetRoomIdByRoomId(@Param("roomId") Long roomId);
 }

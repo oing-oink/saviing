@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import saviing.common.response.ApiResult;
@@ -113,7 +112,7 @@ public class CharacterController implements CharacterApi {
     }
 
     @Override
-    @GetMapping("/{characterId}/statistics")
+    @GetMapping("/characters/{characterId}/statistics")
     public ApiResult<CharacterStatisticsResponse> getCharacterStatistics(@PathVariable Long characterId) {
         log.info("캐릭터 통계 조회 시작: characterId={}", characterId);
 

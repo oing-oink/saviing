@@ -9,14 +9,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import saviing.common.response.ApiResult;
 import saviing.common.response.ErrorResult;
@@ -381,7 +375,6 @@ public interface CharacterApi {
             content = @Content(schema = @Schema(implementation = ErrorResult.class))
         )
     })
-    @GetMapping(value = "/characters/{characterId}/statistics", produces = MediaType.APPLICATION_JSON_VALUE)
     ApiResult<CharacterStatisticsResponse> getCharacterStatistics(
         @Parameter(description = "캐릭터 ID", required = true, example = "1")
         @PathVariable Long characterId
