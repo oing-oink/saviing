@@ -173,6 +173,8 @@ export interface GachaDrawRequest {
 
 /** 가챠 뽑기 결과 - 잔액 정보. */
 export interface GachaDrawCurrencies {
+  coin: number;
+  fishCoin: number;
   coinType: 'COIN' | 'FISH_COIN';
   balance: number;
 }

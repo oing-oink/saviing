@@ -92,7 +92,7 @@ const ConfirmStep = () => {
           {isSavingsAccount && (
             <>
               <div className="flex justify-between py-1">
-                <span className="text-gray-600">월 납입액</span>
+                <span className="text-gray-600">납입액</span>
                 <span className="font-medium">
                   {'depositAmount' in form
                     ? (form.depositAmount?.toLocaleString() ?? 0) + '원'
