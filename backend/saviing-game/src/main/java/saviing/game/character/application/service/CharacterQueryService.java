@@ -23,6 +23,9 @@ import saviing.game.inventory.application.service.InventoryQueryService;
 import saviing.game.pet.application.dto.query.GetPetInfoQuery;
 import saviing.game.pet.application.dto.result.PetResult;
 import saviing.game.pet.application.service.PetQueryService;
+import saviing.game.room.application.dto.query.GetRoomByCharacterQuery;
+import saviing.game.room.application.dto.result.RoomResult;
+import saviing.game.room.application.service.RoomQueryService;
 
 import java.util.Comparator;
 import java.util.List;
@@ -41,6 +44,7 @@ public class CharacterQueryService {
     private final CharacterResultMapper resultMapper;
     private final InventoryQueryService inventoryQueryService;
     private final PetQueryService petQueryService;
+    private final RoomQueryService roomQueryService;
 
     /**
      * 캐릭터 상세 정보를 조회합니다.
@@ -94,14 +98,21 @@ public class CharacterQueryService {
             .orElseThrow(() -> new CharacterNotFoundException(
                 "고객 ID " + query.customerId().value() + "의 활성 캐릭터를 찾을 수 없습니다"));
 
-        // 2. 1층에 배치된 펫 조회 (roomId=1에 있는 펫들 중 petId가 가장 낮은 것)
-        // TODO: roomId를 동적으로 조회하도록 변경 필요 (현재는 1층을 1L로 하드코딩)
-        Long roomId = 1L;
+        // 2. 1층에 배치된 펫 조회 (1층 방의 roomId를 동적으로 조회)
+        RoomResult firstFloorRoom = roomQueryService.findRoomByCharacterIdAndRoomNumber(
+            GetRoomByCharacterQuery.builder()
+                .characterId(character.getCharacterId().value())
+                .roomNumber(1)
+                .build()
+        );
+        Long roomId = firstFloorRoom.roomId();
+
+        log.info("1층 방 조회 완료: roomId={}, roomNumber={}", roomId, firstFloorRoom.roomNumber());
 
         List<PetInventoryResult> roomPets = inventoryQueryService.getPetsByCharacterAndRoom(
             GetPetsByCharacterAndRoomQuery.of(character.getCharacterId().value(), roomId));
 
-        log.info("{}층에 있는 펫 개수: {}", roomId, roomPets.size());
+        log.info("{}층(roomId={})에 있는 펫 개수: {}", firstFloorRoom.roomNumber(), roomId, roomPets.size());
         if (!roomPets.isEmpty()) {
             log.info("펫 목록: {}", roomPets.stream()
                 .map(PetInventoryResult::inventoryItemId)
