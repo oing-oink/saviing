@@ -10,6 +10,8 @@ import inventory_square from '@/assets/inventory_square.png';
 import { Badge } from '@/shared/components/ui/badge';
 import { ScrollArea } from '@/shared/components/ui/scroll-area';
 import ItemDetailModal from './ItemDetailModal';
+import CatSprite from '@/features/game/pet/components/CatSprite';
+import { CAT_SPRITE_PATHS } from '@/features/game/pet/data/catAnimations';
 
 const RARITY_KEYS = ['LEGENDARY', 'EPIC', 'RARE', 'COMMON'] as const;
 type RarityKey = (typeof RARITY_KEYS)[number];
@@ -27,6 +29,9 @@ const RARITY_BADGE_CLASSES: Record<RarityKey, string> = {
   RARE: 'bg-blue-500 text-white shadow-sm',
   COMMON: 'bg-slate-500 text-white/90 shadow-sm',
 };
+
+const hasCatSprite = (petId: number): petId is keyof typeof CAT_SPRITE_PATHS =>
+  Object.prototype.hasOwnProperty.call(CAT_SPRITE_PATHS, petId);
 
 const normalizeRarity = (rarity?: string): RarityKey => {
   const upper = rarity?.toUpperCase() as RarityKey | undefined;
@@ -195,6 +200,11 @@ const Inventory = ({
               {slots.map(slot => {
                 const item = slot.item;
                 const rarityKey = item ? normalizeRarity(item.rarity) : null;
+                const isCatItem =
+                  item?.itemType === 'PET' && item.itemCategory === 'CAT';
+                const canUseCatSprite = Boolean(
+                  item && isCatItem && hasCatSprite(item.itemId),
+                );
 
                 return (
                   <div
@@ -229,16 +239,29 @@ const Inventory = ({
                               {RARITY_LABELS[rarityKey]}
                             </Badge>
                           )}
-                          <img
-                            src={getItemImage(item.itemId)}
-                            alt={item.itemName}
-                            className={`h-[80%] w-[80%] object-contain ${
-                              mode === 'deco' &&
-                              (isSlotPlaced(slot.id) || isItemDisabled(item))
-                                ? 'grayscale'
-                                : ''
-                            }`}
-                          />
+                          {canUseCatSprite ? (
+                            <CatSprite
+                              petId={item.itemId}
+                              currentAnimation="idle"
+                              className={`origin-bottom scale-150 ${
+                                mode === 'deco' &&
+                                (isSlotPlaced(slot.id) || isItemDisabled(item))
+                                  ? 'opacity-60'
+                                  : ''
+                              }`}
+                            />
+                          ) : (
+                            <img
+                              src={getItemImage(item.itemId)}
+                              alt={item.itemName}
+                              className={`h-[80%] w-[80%] object-contain ${
+                                mode === 'deco' &&
+                                (isSlotPlaced(slot.id) || isItemDisabled(item))
+                                  ? 'grayscale'
+                                  : ''
+                              }`}
+                            />
+                          )}
                         </button>
                         {/* 배치됨 표시 */}
                         {mode === 'deco' &&

@@ -4,6 +4,8 @@ import { getItemImage } from '@/features/game/shop/utils/getItemImage';
 import closeButton from '@/assets/game_button/closeButton.png';
 import itemHeader from '@/assets/game_etc/itemHeader.png';
 import type { Item, PaymentMethod } from '@/features/game/shop/types/item';
+import { CAT_SPRITE_PATHS } from '@/features/game/pet/data/catAnimations';
+import CatSprite from '@/features/game/pet/components/CatSprite';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useGameEntryQuery } from '@/features/game/entry/query/useGameEntryQuery';
@@ -19,6 +21,9 @@ interface ItemDetailModalProps {
   /** 가격 정보를 숨길지 여부 (기본값: false) */
   hidePrice?: boolean;
 }
+
+const hasCatSprite = (petId: number): petId is keyof typeof CAT_SPRITE_PATHS =>
+  Object.prototype.hasOwnProperty.call(CAT_SPRITE_PATHS, petId);
 
 /** 아이템 상세 정보 조회 및 구매/미리보기를 제공하는 모달 컴포넌트. */
 const ItemDetailModal = ({
@@ -109,6 +114,9 @@ const ItemDetailModal = ({
     );
   }
 
+  const isCatItem = item.itemType === 'PET' && item.itemCategory === 'CAT';
+  const canUseCatSprite = isCatItem && hasCatSprite(item.itemId);
+
   return (
     <div className="game fixed inset-0 z-50 flex items-center justify-center bg-white/50">
       <div className="relative">
@@ -126,12 +134,20 @@ const ItemDetailModal = ({
               <img src={closeButton} alt="closeButton" className="w-[60%]" />
             </button>
           </div>
-          <div className="mx-auto mb-4 flex h-48 w-48 items-center rounded-full bg-white">
-            <img
-              src={getItemImage(item.itemId)}
-              alt={item.itemName}
-              className="mx-auto h-32 w-32 object-contain"
-            />
+          <div className="mx-auto mb-4 flex h-48 w-48 items-center justify-center rounded-full bg-white">
+            {canUseCatSprite ? (
+              <CatSprite
+                petId={item.itemId}
+                currentAnimation="idle"
+                className="origin-bottom scale-[2.4]"
+              />
+            ) : (
+              <img
+                src={getItemImage(item.itemId)}
+                alt={item.itemName}
+                className="mx-auto h-32 w-32 object-contain"
+              />
+            )}
           </div>
           <div className="flex flex-col items-center pt-2">
             <h2 className="text-xl font-semibold text-gray-800">
