@@ -41,14 +41,27 @@ public class ItemQueryService {
     public ItemResult getItem(GetItemQuery query) {
         log.debug("아이템 조회 시작: ID={}", query.itemId());
 
+        log.debug("ItemId 생성 중: rawId={}", query.itemId());
         ItemId itemId = ItemId.of(query.itemId());
+        log.debug("ItemId 생성 완료: itemId={}", itemId.value());
+
+        log.debug("아이템 Repository 조회 시작: itemId={}", itemId.value());
         Item item = itemRepository.findById(itemId)
-            .orElseThrow(() -> ItemNotFoundException.withItemId(itemId));
+            .orElseThrow(() -> {
+                log.error("아이템을 찾을 수 없습니다: itemId={}", itemId.value());
+                return ItemNotFoundException.withItemId(itemId);
+            });
+        log.debug("아이템 Repository 조회 완료: itemId={}, itemName={}", itemId.value(), item.getItemName().value());
 
-        ItemResult result = itemResultMapper.toResult(item);
-
-        log.debug("아이템 조회 완료: ID={}", query.itemId());
-        return result;
+        log.debug("ItemResult 매핑 시작: itemId={}", itemId.value());
+        try {
+            ItemResult result = itemResultMapper.toResult(item);
+            log.debug("ItemResult 매핑 완료: itemId={}, resultItemName={}", itemId.value(), result.itemName());
+            return result;
+        } catch (Exception e) {
+            log.error("ItemResult 매핑 중 오류 발생: itemId={}, error={}", itemId.value(), e.getMessage(), e);
+            throw e;
+        }
     }
 
     /**
