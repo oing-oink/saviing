@@ -10,6 +10,7 @@ import saviing.game.inventory.domain.model.vo.InventoryItemId;
 import saviing.game.pet.application.dto.command.InteractWithPetCommand;
 import saviing.game.pet.application.dto.query.GetPetInfoQuery;
 import saviing.game.pet.application.dto.result.PetResult;
+import saviing.game.pet.application.dto.result.PetInteractionResult;
 import saviing.game.pet.application.service.PetCommandService;
 import saviing.game.pet.application.service.PetQueryService;
 import saviing.game.pet.presentation.dto.request.PetInteractionRequest;
@@ -65,10 +66,12 @@ public class PetController implements PetApi {
             request.type()
         );
 
-        PetResult petResult = petCommandService.interactWithPet(command);
+        PetInteractionResult interactionResult = petCommandService.interactWithPet(command);
 
-        // TODO: 실제 소모품 정보 조회 로직 구현 필요
-        PetInteractionResponse response = petResponseMapper.toInteractionResponse(petResult, java.util.List.of());
+        PetInteractionResponse response = petResponseMapper.toInteractionResponse(
+            interactionResult.pet(),
+            interactionResult.consumption()
+        );
 
         log.info("펫 상호작용 완료: petId={}, interactionType={}", petId, request.type());
         return ApiResult.ok(response);

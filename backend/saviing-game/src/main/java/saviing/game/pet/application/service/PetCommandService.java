@@ -6,14 +6,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import saviing.game.inventory.domain.model.aggregate.ConsumptionInventory;
 import saviing.game.inventory.domain.model.vo.InventoryItemId;
+import saviing.game.inventory.domain.model.enums.InventoryType;
+import java.util.List;
 import saviing.game.inventory.domain.repository.InventoryRepository;
+import saviing.game.inventory.application.service.InventoryCommandService;
+import saviing.game.inventory.application.dto.command.ConsumeInventoryItemCommand;
 import saviing.game.pet.application.dto.command.ApplyAffectionDecayCommand;
 import saviing.game.pet.application.dto.command.CreatePetCommand;
 import saviing.game.pet.application.dto.command.InteractWithPetCommand;
 import saviing.game.pet.application.dto.result.PetResult;
+import saviing.game.pet.application.dto.result.PetInteractionResult;
+import saviing.game.pet.application.dto.result.ConsumptionResult;
 import saviing.game.pet.application.mapper.PetResultMapper;
 import saviing.game.pet.domain.exception.PetAlreadyExistsException;
 import saviing.game.pet.domain.exception.PetNotFoundException;
+import saviing.game.pet.domain.exception.PetInsufficientConsumptionItemsException;
 import saviing.game.pet.domain.model.aggregate.Pet;
 import saviing.game.pet.domain.model.vo.Affection;
 import saviing.game.pet.domain.model.vo.Energy;
@@ -32,6 +39,7 @@ public class PetCommandService {
 
     private final PetRepository petRepository;
     private final InventoryRepository inventoryRepository;
+    private final InventoryCommandService inventoryCommandService;
     private final PetResultMapper petResultMapper;
 
     /**
@@ -69,9 +77,9 @@ public class PetCommandService {
      * 소모품을 사용하고 펫의 상태를 변경합니다.
      *
      * @param command 펫 상호작용 명령
-     * @return 상호작용 후 펫 정보
+     * @return 상호작용 후 펫 정보와 소모품 정보
      */
-    public PetResult interactWithPet(InteractWithPetCommand command) {
+    public PetInteractionResult interactWithPet(InteractWithPetCommand command) {
         log.info("펫 상호작용 시작: inventoryItemId={}, interactionType={}",
             command.inventoryItemId().value(), command.interactionType());
 
@@ -82,8 +90,29 @@ public class PetCommandService {
         // 필요한 소모품 조회 및 검증
         var requiredConsumption = command.interactionType().getRequiredConsumption();
 
-        // TODO: 소모품 아이템 ID를 어떻게 결정할지 확인 필요 - 일단 임시로 처리
-        // 실제 구현 시에는 캐릭터가 가진 해당 카테고리의 소모품 중 하나를 선택해야 함
+        // 캐릭터의 모든 소모품 조회하여 해당 카테고리 찾기
+        List<ConsumptionInventory> consumptions = inventoryRepository.findByCharacterIdAndType(
+            command.characterId(),
+            InventoryType.CONSUMPTION
+        ).stream()
+            .map(inventory -> (ConsumptionInventory) inventory)
+            .filter(consumption -> consumption.isCategory(requiredConsumption) && consumption.getCount() > 0)
+            .toList();
+
+        if (consumptions.isEmpty()) {
+            throw new PetInsufficientConsumptionItemsException(
+                command.characterId().value(), requiredConsumption);
+        }
+
+        ConsumptionInventory consumptionItem = consumptions.get(0);
+
+        // 소모품 1개 소모
+        ConsumeInventoryItemCommand consumeCommand = ConsumeInventoryItemCommand.consume(
+            consumptionItem.getInventoryItemId(),
+            command.characterId(),
+            1
+        );
+        inventoryCommandService.consumeInventoryItem(consumeCommand);
 
         // 상호작용 실행 (다음 레벨에 필요한 총 경험치 계산)
         Experience requiredExp = Experience.of(pet.calculateRequiredExpForNextLevel());
@@ -92,11 +121,28 @@ public class PetCommandService {
         // 저장
         Pet savedPet = petRepository.save(pet);
 
-        log.info("펫 상호작용 완료: inventoryItemId={}, interactionType={}, energy={}, affection={}, exp={}",
-            command.inventoryItemId().value(), command.interactionType(),
-            savedPet.getEnergy().value(), savedPet.getAffection().value(), savedPet.getExperience().value());
+        // 소모 후 남은 개수 조회 (다시 조회하거나 로컬에서 계산)
+        ConsumptionInventory updatedItem = (ConsumptionInventory) inventoryRepository
+            .findById(consumptionItem.getInventoryItemId())
+            .orElseThrow(() -> new IllegalStateException("소모품 조회 실패"));
 
-        return petResultMapper.toResult(savedPet);
+        // ConsumptionResult 생성
+        ConsumptionResult consumptionResult = ConsumptionResult.builder()
+            .inventoryItemId(updatedItem.getInventoryItemId().value())
+            .itemId(updatedItem.getItemId().value())
+            .type(requiredConsumption)
+            .remaining(updatedItem.getCount())
+            .build();
+
+        log.info("펫 상호작용 완료: inventoryItemId={}, interactionType={}, energy={}, affection={}, exp={}, consumedItem={}",
+            command.inventoryItemId().value(), command.interactionType(),
+            savedPet.getEnergy().value(), savedPet.getAffection().value(), savedPet.getExperience().value(),
+            consumptionResult.inventoryItemId());
+
+        return PetInteractionResult.builder()
+            .pet(petResultMapper.toResult(savedPet))
+            .consumption(java.util.List.of(consumptionResult))
+            .build();
     }
 
     /**
