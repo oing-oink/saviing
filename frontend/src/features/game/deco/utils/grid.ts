@@ -5,7 +5,7 @@ import type {
 
 /** 셀 ID를 해석했을 때 얻을 수 있는 그리드 정보. */
 interface ParsedCellId {
-  placementArea: PlacementArea;
+  placementArea: PlacementArea | string;
   col: number;
   row: number;
 }
@@ -24,7 +24,32 @@ export const parseCellId = (cellId: string): ParsedCellId | null => {
     return null;
   }
 
-  return { placementArea: placementArea as PlacementArea, col, row };
+  return { placementArea, col, row };
+};
+
+/**
+ * 다양한 레이어 문자열을 방 배치용 표준 값(LEFT/RIGHT/BOTTOM)으로 정규화한다.
+ */
+export const normalizePlacementArea = (
+  area: PlacementArea | string | null | undefined,
+): PlacementArea | null => {
+  if (!area) {
+    return null;
+  }
+  const key = area.toString().toUpperCase();
+  if (key === 'LEFT' || key === 'LEFTWALL') {
+    return 'LEFT';
+  }
+  if (key === 'RIGHT' || key === 'RIGHTWALL') {
+    return 'RIGHT';
+  }
+  if (key === 'BOTTOM' || key === 'FLOOR') {
+    return 'BOTTOM';
+  }
+  if (key === 'ROOM_COLOR' || key === 'ROOMCOLOR') {
+    return 'ROOM_COLOR';
+  }
+  return null;
 };
 
 /** 기준 셀에서 시작해 x/y 길이만큼의 footprint ID 목록을 만든다. */

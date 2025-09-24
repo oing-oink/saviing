@@ -6,8 +6,12 @@ import type {
 import type { RoomRenderContext } from '@/features/game/room/RoomBase';
 import { useDecoStore } from '@/features/game/deco/store/useDecoStore';
 import { usePlacementController } from '@/features/game/deco/hooks/usePlacementController';
-import { buildFootprint } from '@/features/game/deco/utils/grid';
+import {
+  buildFootprint,
+  normalizePlacementArea,
+} from '@/features/game/deco/utils/grid';
 import { getItemImage } from '@/features/game/shop/utils/getItemImage';
+import type { PlacedItem as PlacedItemType } from '@/features/game/deco/types/decoTypes';
 import PlacedItem from './PlacedItem';
 import GhostItem from './GhostItem';
 import { useGrid } from '@/features/game/room/hooks/useGrid';
@@ -19,6 +23,7 @@ interface RoomCanvasProps {
   context: RoomRenderContext;
   onAutoPlacementFail?: () => void;
   allowItemPickup?: boolean;
+  allowItemPickupPredicate?: (item: PlacedItemType) => boolean;
   showActions?: boolean;
   pickupOnlyPreview?: boolean;
   allowDelete?: boolean;
@@ -32,6 +37,7 @@ const RoomCanvas = ({
   context,
   onAutoPlacementFail,
   allowItemPickup = true,
+  allowItemPickupPredicate,
   showActions = true,
   pickupOnlyPreview = false,
   allowDelete = true,
@@ -363,6 +369,18 @@ const RoomCanvas = ({
   }, [computeSprite, draftItems, draftMap]);
 
   const lastStagedCellRef = useRef<string | null>(null);
+
+  const currentPlacementArea = useMemo(() => {
+    if (!gridCells.length) {
+      return null;
+    }
+    const normalized = normalizePlacementArea(gridCells[0]?.placementArea);
+    return normalized === 'LEFT' ||
+      normalized === 'RIGHT' ||
+      normalized === 'BOTTOM'
+      ? normalized
+      : null;
+  }, [gridCells]);
 
   useEffect(() => {
     if (!dragSession) {
@@ -841,6 +859,16 @@ const RoomCanvas = ({
       return;
     }
     if (pickupOnlyPreview && !targetItem.isPreview) {
+      return;
+    }
+    if (allowItemPickupPredicate && !allowItemPickupPredicate(targetItem)) {
+      return;
+    }
+    if (!currentPlacementArea) {
+      return;
+    }
+    const itemPlacementArea = normalizePlacementArea(targetItem.layer);
+    if (!itemPlacementArea || currentPlacementArea !== itemPlacementArea) {
       return;
     }
     startDragFromPlaced(id);

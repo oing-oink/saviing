@@ -8,7 +8,11 @@ import type {
 } from '@/features/game/deco/types/decoTypes';
 import type { PlacementArea } from '@/features/game/room/hooks/useGrid';
 import type { TabId } from '@/features/game/shop/types/item';
-import { buildFootprint, parseCellId } from '@/features/game/deco/utils/grid';
+import {
+  buildFootprint,
+  normalizePlacementArea,
+  parseCellId,
+} from '@/features/game/deco/utils/grid';
 import { getItemImage } from '@/features/game/shop/utils/getItemImage';
 
 /**
@@ -235,11 +239,16 @@ const buildPlacedItemFromSession = (
     return null;
   }
 
-  if (
-    session.allowedGridType &&
-    session.allowedGridType !== parsed.placementArea
-  ) {
+  const placementArea = ensurePlaceableArea(parsed.placementArea);
+  if (!placementArea) {
     return null;
+  }
+
+  if (session.allowedGridType) {
+    const allowedArea = ensurePlaceableArea(session.allowedGridType);
+    if (!allowedArea || allowedArea !== placementArea) {
+      return null;
+    }
   }
 
   const resolvedFootprint =
@@ -264,7 +273,7 @@ const buildPlacedItemFromSession = (
     positionX: parsed.col,
     positionY: parsed.row,
     rotation: session.originalItem?.rotation ?? 0,
-    layer: parsed.placementArea,
+    layer: placementArea,
     xLength: session.xLength,
     yLength: session.yLength,
     footprintCellIds: resolvedFootprint,
@@ -320,27 +329,34 @@ const createDragSession = (
  * @returns ID와 기본값이 보장된 배치 아이템 배열
  */
 const withInstanceId = (items: PlacedItem[]): PlacedItem[] =>
-  items.map((item, index) => ({
-    id:
-      item.id ??
-      (item.inventoryItemId !== undefined
-        ? String(item.inventoryItemId)
-        : `${item.itemId}-${index}`),
-    inventoryItemId: item.inventoryItemId,
-    itemId: item.itemId,
-    cellId: item.cellId,
-    positionX: item.positionX,
-    positionY: item.positionY,
-    rotation: item.rotation ?? 0,
-    layer: item.layer,
-    xLength: item.xLength ?? 1,
-    yLength: item.yLength ?? 1,
-    footprintCellIds: item.footprintCellIds,
-    offsetX: item.offsetX,
-    offsetY: item.offsetY,
-    imageUrl: item.imageUrl ?? getItemImage(item.itemId),
-    itemType: item.itemType,
-  }));
+  items.map((item, index) => {
+    const normalizedLayer =
+      normalizePlacementArea(item.layer) ??
+      normalizePlacementArea(parseCellId(item.cellId)?.placementArea) ??
+      item.layer;
+
+    return {
+      id:
+        item.id ??
+        (item.inventoryItemId !== undefined
+          ? String(item.inventoryItemId)
+          : `${item.itemId}-${index}`),
+      inventoryItemId: item.inventoryItemId,
+      itemId: item.itemId,
+      cellId: item.cellId,
+      positionX: item.positionX,
+      positionY: item.positionY,
+      rotation: item.rotation ?? 0,
+      layer: normalizedLayer,
+      xLength: item.xLength ?? 1,
+      yLength: item.yLength ?? 1,
+      footprintCellIds: item.footprintCellIds,
+      offsetX: item.offsetX,
+      offsetY: item.offsetY,
+      imageUrl: item.imageUrl ?? getItemImage(item.itemId),
+      itemType: item.itemType,
+    };
+  });
 
 /**
  * 드래프트 아이템 배열에서 지정된 ID를 가진 아이템의 인덱스를 찾는 유틸리티 함수.
@@ -351,6 +367,15 @@ const withInstanceId = (items: PlacedItem[]): PlacedItem[] =>
  */
 const findDraftIndex = (items: PlacedItem[], id: string) =>
   items.findIndex(item => item.id === id);
+
+const PLACEABLE_AREAS: readonly PlacementArea[] = ['LEFT', 'RIGHT', 'BOTTOM'];
+
+const ensurePlaceableArea = (
+  area: PlacementArea | string | null | undefined,
+): PlacementArea | null => {
+  const normalized = normalizePlacementArea(area);
+  return normalized && PLACEABLE_AREAS.includes(normalized) ? normalized : null;
+};
 
 /**
  * 방 데코레이션 시스템의 중앙 상태 관리를 위한 Zustand 스토어.
@@ -374,23 +399,33 @@ export const decoStore = createStore<DecoStore>(set => ({
   scale: 1,
 
   startDragFromInventory: (itemId, options: StartDragOptions = {}) =>
-    set(() => ({
-      pendingPlacement: null,
-      dragSession: createDragSession(itemId, {
-        inventoryItemId: options.inventoryItemId,
-        allowedGridType: options.allowedGridType ?? null,
-        xLength: options.xLength ?? 1,
-        yLength: options.yLength ?? 1,
-        footprintCellIds: options.footprintCellIds,
-        offsetX: options.offsetX ?? 0,
-        offsetY: options.offsetY ?? 0,
-        // 서버 이미지가 준비되기 전까지 로컬 asset을 항상 사용한다.
-        imageUrl: getItemImage(Number(itemId)),
-        itemType: options.itemType ?? 'DECORATION',
-        isPreview: options.isPreview ?? false,
-        slotId: options.slotId,
-      }),
-    })),
+    set(state => {
+      const normalizedAllowed = options.allowedGridType
+        ? ensurePlaceableArea(options.allowedGridType)
+        : null;
+
+      if (options.allowedGridType && !normalizedAllowed) {
+        return state;
+      }
+
+      return {
+        pendingPlacement: null,
+        dragSession: createDragSession(itemId, {
+          inventoryItemId: options.inventoryItemId,
+          allowedGridType: normalizedAllowed,
+          xLength: options.xLength ?? 1,
+          yLength: options.yLength ?? 1,
+          footprintCellIds: options.footprintCellIds,
+          offsetX: options.offsetX ?? 0,
+          offsetY: options.offsetY ?? 0,
+          // 서버 이미지가 준비되기 전까지 로컬 asset을 항상 사용한다.
+          imageUrl: getItemImage(Number(itemId)),
+          itemType: options.itemType ?? 'DECORATION',
+          isPreview: options.isPreview ?? false,
+          slotId: options.slotId,
+        }),
+      };
+    }),
 
   startDragFromPlaced: placedId =>
     set(state => {
@@ -404,9 +439,12 @@ export const decoStore = createStore<DecoStore>(set => ({
         item => item.id !== placedId,
       );
       const parsed = parseCellId(target.cellId);
-      const inferredPlacementArea = (target.layer ?? parsed?.placementArea) as
-        | PlacementArea
-        | undefined;
+      const inferredPlacementArea = ensurePlaceableArea(
+        target.layer ?? parsed?.placementArea,
+      );
+      if (!inferredPlacementArea) {
+        return state;
+      }
       const resolvedFootprint =
         target.footprintCellIds && target.footprintCellIds.length > 0
           ? target.footprintCellIds
@@ -422,7 +460,7 @@ export const decoStore = createStore<DecoStore>(set => ({
           originPlacedId: target.id,
           originalItem: target,
           hoverCellId: target.cellId,
-          allowedGridType: inferredPlacementArea ?? null,
+          allowedGridType: inferredPlacementArea,
           xLength: target.xLength ?? 1,
           yLength: target.yLength ?? 1,
           footprintCellIds: resolvedFootprint,

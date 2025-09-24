@@ -237,7 +237,7 @@ const DecoPage = () => {
     if (category === 'RIGHT') {
       return 'RIGHT';
     }
-    if (category === 'BOTTOM' || category === 'ROOM_COLOR') {
+    if (category === 'BOTTOM') {
       return 'BOTTOM';
     }
     return null;
@@ -264,15 +264,11 @@ const DecoPage = () => {
   const handleItemSelect = (item: Item, slotId?: string) => {
     setIsPlacementBlockedOpen(false);
 
-    if (item.itemType === 'PET') {
-      // PET은 바닥에만 배치할 수 있으며 최대 2마리까지 허용한다.
+    if (item.itemType === 'PET' || item.itemCategory === 'CAT') {
       const currentPetCount = draftItems.filter(
         draft => draft.itemType === 'PET',
       ).length;
-      const alreadyPlacedPet = draftItems.some(
-        draft => draft.itemType === 'PET' && draft.itemId === item.itemId,
-      );
-      if (currentPetCount >= 2 && !alreadyPlacedPet) {
+      if (currentPetCount >= 2) {
         setIsPlacementBlockedOpen(true);
         return;
       }
@@ -289,9 +285,11 @@ const DecoPage = () => {
     }
 
     const targetArea = getCategoryPlacementArea(item.itemCategory);
-    if (targetArea) {
-      setPlacementArea(targetArea);
+    if (!targetArea) {
+      setIsPlacementBlockedOpen(true);
+      return;
     }
+    setPlacementArea(targetArea);
     startDragFromInventory(String(item.itemId), {
       inventoryItemId: item.inventoryItemId,
       allowedGridType: targetArea,
@@ -357,6 +355,15 @@ const DecoPage = () => {
                 <RoomCanvas
                   context={ctx}
                   onAutoPlacementFail={handlePlacementBlocked}
+                  allowItemPickupPredicate={item => {
+                    if (activeTab.id === 'CAT') {
+                      return item.itemType === 'PET';
+                    }
+                    if (item.itemType === 'PET') {
+                      return false;
+                    }
+                    return true;
+                  }}
                 />
               )}
             />
