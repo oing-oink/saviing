@@ -20,16 +20,17 @@ import { cn } from '@/lib/utils';
  * @returns 스프라이트 애니메이션이 적용된 div 엘리먼트
  */
 const CatSprite = ({
-  petId,
+  itemId,
   currentAnimation,
   className,
+  targetWidth,
   onAnimationComplete,
 }: PetSpriteProps) => {
-  const spritePath = CAT_SPRITE_PATHS[petId as keyof typeof CAT_SPRITE_PATHS];
+  const spritePath = CAT_SPRITE_PATHS[itemId as keyof typeof CAT_SPRITE_PATHS];
   const spriteFileName = getAnimationFileName(currentAnimation);
   const fullSpritePath = `${spritePath}/${spriteFileName}`;
 
-  const { currentFrame, frameWidth, frameHeight, isLoaded } =
+  const { currentFrame, frameWidth, frameHeight, frameCount, isLoaded } =
     useSpriteAnimation({
       spritePath: fullSpritePath,
       currentAnimation,
@@ -38,18 +39,39 @@ const CatSprite = ({
 
   // 이미지가 로드되기 전까지는 투명 플레이스홀더 표시
   if (!isLoaded || frameWidth === 0 || frameHeight === 0) {
-    return <div className={cn('bg-transparent', className)} />;
+    return (
+      <div
+        className={cn('bg-transparent', className)}
+        style={
+          typeof targetWidth === 'number'
+            ? { width: targetWidth, height: targetWidth }
+            : undefined
+        }
+      />
+    );
   }
+
+  const scale =
+    typeof targetWidth === 'number' && frameWidth > 0
+      ? targetWidth / frameWidth
+      : 1;
+
+  const safeFrameCount = Math.max(frameCount || 1, 1);
+  const displayWidth = frameWidth * scale;
+  const displayHeight = frameHeight * scale;
+  const sheetWidth = frameWidth * safeFrameCount * scale;
+  const frameOffset = currentFrame * frameWidth * scale;
 
   return (
     <div
       className={cn(className)}
       style={{
-        width: frameWidth,
-        height: frameHeight,
+        width: displayWidth,
+        height: displayHeight,
         backgroundImage: `url(${fullSpritePath})`,
         backgroundRepeat: 'no-repeat',
-        backgroundPosition: `-${currentFrame * frameWidth}px 0px`,
+        backgroundSize: `${sheetWidth}px ${displayHeight}px`,
+        backgroundPosition: `-${frameOffset}px 0px`,
         imageRendering: 'pixelated',
       }}
     />

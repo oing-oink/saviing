@@ -59,17 +59,7 @@ const protectedRoutesWithoutLayout = [
     path: `${PAGE_PATH.ACCOUNT_CREATION}/*`,
     element: <AccountCreationFunnel />,
   },
-  // Savings detail routes
-  {
-    path: PAGE_PATH.SAVINGS_DETAIL_WITH_ID,
-    element: <SavingsDetailLayout />,
-    children: [{ index: true, element: <SavingsDetailPage /> }],
-  },
-  {
-    path: PAGE_PATH.ACCOUNT_DETAIL_WITH_ID,
-    element: <SavingsDetailLayout />,
-    children: [{ index: true, element: <AccountDetailPage /> }],
-  },
+  // Savings detail routes는 아래 createBrowserRouter에서 ProtectedRoute와 함께 정의됩니다.
 ];
 
 // 공개 라우트 정의 (인증 불필요)
@@ -127,12 +117,29 @@ export const router = createBrowserRouter([
         element: <SavingsDetailLayout />,
         children: [{ index: true, element: <AccountDetailPage /> }],
       },
+      {
+        path: PAGE_PATH.DEPOSIT,
+        element: (
+          <ProtectedRoute>
+            <SavingsDetailLayout />
+          </ProtectedRoute>
+        ),
+        children: [{ index: true, element: <DepositPage /> }],
+      },
+      {
+        path: PAGE_PATH.DEPOSIT_WITH_ACCOUNT,
+        element: (
+          <ProtectedRoute>
+            <SavingsDetailLayout />
+          </ProtectedRoute>
+        ),
+        children: [{ index: true, element: <DepositPage /> }],
+      },
 
       // 레이아웃이 없는 보호된 라우트들
-      ...protectedRoutesWithoutLayout.map(({ path, element, children }) => ({
+      ...protectedRoutesWithoutLayout.map(({ path, element }) => ({
         path,
         element: <ProtectedRoute>{element}</ProtectedRoute>,
-        children,
       })),
 
       // Fallback

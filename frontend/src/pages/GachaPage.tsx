@@ -1,15 +1,50 @@
 import backButton from '@/assets/game_button/backButton.png';
 import { PAGE_PATH } from '@/shared/constants/path';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import catPaw from '@/assets/catPaw.png';
 import gachaMachine from '@/assets/gachaMachine.png';
 import coin from '@/assets/coin.png';
 import infoButton from '@/assets/game_button/infoButton.png';
 import { useGachaInfo } from '@/features/game/shop/query/useGachaInfo';
+import { useGameQuery } from '@/features/game/shared/query/useGameQuery';
+import { useGameEntryQuery } from '@/features/game/entry/query/useGameEntryQuery';
+import { useState, useEffect } from 'react';
+import InsufficientFundsModal from '@/features/game/shop/components/InsufficientFundsModal';
 
 const GachaPage = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { data: gachaInfo } = useGachaInfo();
+  const { data: gameEntry } = useGameEntryQuery();
+  const { data: gameData } = useGameQuery(gameEntry?.characterId);
+  const [showInsufficientFundsModal, setShowInsufficientFundsModal] =
+    useState(false);
+
+  // URL 파라미터에서 showInsufficientFunds 확인
+  useEffect(() => {
+    if (searchParams.get('showInsufficientFunds') === 'true') {
+      setShowInsufficientFundsModal(true);
+      // URL 파라미터 제거
+      searchParams.delete('showInsufficientFunds');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
+
+  const handleGachaAttempt = () => {
+    if (!gachaInfo || !gameData) {
+      return;
+    }
+
+    const gachaPrice = gachaInfo.gachaInfo.drawPrice.coin;
+    const currentCoin = gameData.coin;
+
+    if (currentCoin < gachaPrice) {
+      setShowInsufficientFundsModal(true);
+      return;
+    }
+
+    navigate(PAGE_PATH.GACHA_ROLLING + `?t=${Date.now()}`);
+  };
 
   return (
     <div className="game flex min-h-screen flex-col bg-store-bg font-galmuri">
@@ -47,9 +82,7 @@ const GachaPage = () => {
 
       <button
         className="mx-auto flex justify-center pt-9"
-        onClick={() => {
-          navigate(PAGE_PATH.GACHA_ROLLING);
-        }}
+        onClick={handleGachaAttempt}
       >
         <div className="relative w-[70%]">
           <img src={coin} alt="" className="w-full" />
@@ -61,6 +94,12 @@ const GachaPage = () => {
       <div className="mt-auto flex justify-center pb-6">
         <img src={catPaw} alt="" className="w-[85%]" />
       </div>
+
+      <InsufficientFundsModal
+        isOpen={showInsufficientFundsModal}
+        onClose={() => setShowInsufficientFundsModal(false)}
+        message="잔액이 부족합니다."
+      />
     </div>
   );
 };

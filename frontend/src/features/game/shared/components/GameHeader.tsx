@@ -9,6 +9,9 @@ import {
 } from '@/shared/constants/path';
 import { useAccountConnection } from '@/features/savings/query/useAccountsQuery';
 import { Button } from '@/shared/components/ui/button';
+import InterestRateModal from '@/features/game/shared/components/InterestRateModal';
+import { useState } from 'react';
+import { useGameEntryQuery } from '@/features/game/entry/query/useGameEntryQuery';
 
 /**
  * 게임 메인 페이지 상단바
@@ -19,10 +22,15 @@ const GameHeader = () => {
   const navigate = useNavigate();
   const { isLoading, hasSavingsAccount, savingsAccount } =
     useAccountConnection();
+  const [isInterestModalOpen, setIsInterestModalOpen] = useState(false);
+  const { data: gameEntry } = useGameEntryQuery();
+  const characterId = gameEntry?.characterId;
 
   const handleAccountConnection = () => {
     if (!hasSavingsAccount) {
       navigate(`${ACCOUNT_CREATION_STEPS_PATH.START}?type=savings&from=game`);
+    } else {
+      setIsInterestModalOpen(true);
     }
   };
 
@@ -30,9 +38,7 @@ const GameHeader = () => {
     if (!savingsAccount) {
       return '';
     }
-    const interestRate =
-      (savingsAccount.baseRate + savingsAccount.bonusRate) / 100;
-    return `이자율 ${interestRate.toFixed(2)}%`;
+    return `이자율 상세보기`;
   };
 
   const getButtonText = () => {
@@ -77,6 +83,14 @@ const GameHeader = () => {
           />
         </button>
       </div>
+
+      {typeof characterId === 'number' && (
+        <InterestRateModal
+          isOpen={isInterestModalOpen}
+          onClose={() => setIsInterestModalOpen(false)}
+          characterId={characterId}
+        />
+      )}
     </div>
   );
 };

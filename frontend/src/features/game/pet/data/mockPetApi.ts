@@ -11,8 +11,8 @@ import type {
  * 실제 API 응답과 동일한 구조의 데이터를 제공합니다.
  */
 export const mockPetData: PetData = {
-  petId: 9,
-  itemId: 1,
+  petId: 1009,
+  itemId: 1009,
   name: '완두',
   level: 5,
   exp: 50,

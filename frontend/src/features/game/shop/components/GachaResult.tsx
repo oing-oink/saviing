@@ -3,9 +3,11 @@ import type {
   GachaDrawCurrencies,
 } from '@/features/game/shop/types/item';
 import { getItemImage } from '@/features/game/shop/utils/getItemImage';
+import CatSprite from '@/features/game/pet/components/CatSprite';
 import closeButton from '@/assets/game_button/closeButton.png';
 import { useNavigate } from 'react-router-dom';
 import { PAGE_PATH } from '@/shared/constants/path';
+import { useGachaInfo } from '@/features/game/shop/query/useGachaInfo';
 
 /** 가챠 결과 모달에 필요한 속성. */
 interface GachaResultProps {
@@ -31,9 +33,32 @@ const RARITY_NAMES = {
 } as const;
 
 /** 가챠에서 획득한 아이템 정보를 보여주는 전체 화면 모달. */
-const GachaResult = ({ item, onClose }: GachaResultProps) => {
+const GachaResult = ({ item, currencies, onClose }: GachaResultProps) => {
+  const { data: gachaInfo } = useGachaInfo();
   const navigate = useNavigate();
   const rarity = item.rarity as keyof typeof RARITY_COLORS;
+
+  const handleRetry = () => {
+    if (!gachaInfo) {
+      return;
+    }
+
+    const gachaPrice = gachaInfo.gachaInfo.drawPrice.coin;
+    const currentCoin = currencies.coin;
+
+    if (currentCoin < gachaPrice) {
+      // 잔액 부족하면 GachaPage로 이동하고 파라미터를 통해 모달 표시 요청
+      onClose();
+      navigate(PAGE_PATH.GACHA + '?showInsufficientFunds=true');
+      return;
+    }
+
+    // 잔액이 충분하면 바로 가챠 롤링 페이지로 이동
+    onClose();
+    navigate(PAGE_PATH.GACHA_ROLLING + `?t=${Date.now()}`, {
+      replace: true,
+    });
+  };
 
   return (
     <div className="game fixed inset-0 z-50 flex items-center justify-center bg-white/50">
@@ -46,18 +71,27 @@ const GachaResult = ({ item, onClose }: GachaResultProps) => {
         <div className="mx-4 max-w-md justify-center rounded-4xl bg-secondary p-6 px-1 shadow-lg">
           <div className="mb-4 flex justify-end">
             <button
-              onClick={() => navigate(PAGE_PATH.GACHA)}
+              onClick={onClose}
               className="text-gray-500 hover:text-gray-700"
             >
               <img src={closeButton} alt="closeButton" className="w-[60%]" />
             </button>
           </div>
-          <div className="mx-auto mb-4 flex h-48 w-48 items-center rounded-full bg-white">
-            <img
-              src={getItemImage(item.itemId)}
-              alt={item.itemName}
-              className="mx-auto h-32 w-32 object-contain"
-            />
+          <div className="mx-auto mb-4 flex h-48 w-48 items-center justify-center rounded-full bg-white">
+            {item.itemType === 'PET' ? (
+              <CatSprite
+                itemId={item.itemId}
+                currentAnimation="idle"
+                className="pointer-events-none"
+                targetWidth={128}
+              />
+            ) : (
+              <img
+                src={getItemImage(item.itemId)}
+                alt={item.itemName}
+                className="mx-auto h-32 w-32 object-contain"
+              />
+            )}
           </div>
           <div className="flex flex-col items-center pt-2">
             {/* 등급 표시 - 모달 안쪽으로 이동 */}
@@ -77,14 +111,21 @@ const GachaResult = ({ item, onClose }: GachaResultProps) => {
             </p>
 
             <div className="flex gap-2">
-              <button onClick={() => navigate(PAGE_PATH.GACHA)}>
-                <div className="mt-2 mb-2 rounded-2xl border-3 border-level-06 bg-store-bg p-2 px-6 text-lg text-red-300">
-                  한 번 더
+              <button onClick={handleRetry}>
+                <div className="text-md mt-2 mb-2 rounded-2xl border-3 border-level-06 bg-store-bg p-2 px-4 text-red-300">
+                  <p>
+                    {gachaInfo?.gachaInfo.drawPrice.coin ?? 500} 코인에 한 번 더
+                  </p>
                 </div>
               </button>
-              <button onClick={onClose}>
-                <div className="mt-2 mb-2 rounded-2xl border-3 border-gray-300 bg-gray-100 p-2 px-6 text-lg text-gray-600">
-                  닫기
+              <button
+                onClick={() => {
+                  onClose();
+                  navigate(PAGE_PATH.DECO);
+                }}
+              >
+                <div className="text-md mt-2 mb-2 rounded-2xl border-3 border-gray-300 bg-gray-100 p-2 px-6 text-gray-600">
+                  내 인벤토리 보기
                 </div>
               </button>
             </div>

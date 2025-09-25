@@ -16,6 +16,8 @@ export interface Item {
   isAvailable: boolean;
   createdAt: string;
   updatedAt: string;
+  /** 인벤토리 아이템인 경우 인벤토리 ID (선택적). */
+  inventoryItemId?: number;
 }
 
 /** 아이템 목록 조회 응답. */
@@ -173,6 +175,8 @@ export interface GachaDrawRequest {
 
 /** 가챠 뽑기 결과 - 잔액 정보. */
 export interface GachaDrawCurrencies {
+  coin: number;
+  fishCoin: number;
   coinType: 'COIN' | 'FISH_COIN';
   balance: number;
 }

@@ -12,6 +12,7 @@ import {
 } from '@/features/savings/components/funnelSteps';
 import FunnelProgressBar from '@/features/savings/components/FunnelProgressBar';
 import FunnelLayout from '@/features/savings/layouts/FunnelLayout';
+import AccountCreationErrorBoundary from '@/features/savings/components/AccountCreationErrorBoundary';
 import { useAccountCreationStore } from '@/features/savings/store/useAccountCreationStore';
 import {
   ACCOUNT_TYPES,
@@ -50,6 +51,11 @@ const AccountCreationFunnel = () => {
   // 브라우저 뒤로가기 처리
   useEffect(() => {
     const handlePopState = () => {
+      if (currentStep === 'COMPLETE') {
+        navigate(PAGE_PATH.HOME);
+        return;
+      }
+
       const previousStep = getPreviousStep(currentStep, form.productType);
 
       if (previousStep) {
@@ -177,10 +183,12 @@ const AccountCreationFunnel = () => {
   };
 
   return (
-    <div className="saving min-h-screen bg-gray-50">
-      <FunnelProgressBar />
-      <FunnelLayout>{renderCurrentStep()}</FunnelLayout>
-    </div>
+    <AccountCreationErrorBoundary>
+      <div className="saving min-h-screen bg-gray-50">
+        <FunnelProgressBar />
+        <FunnelLayout>{renderCurrentStep()}</FunnelLayout>
+      </div>
+    </AccountCreationErrorBoundary>
   );
 };
 

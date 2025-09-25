@@ -64,12 +64,14 @@ export type PetAnimationState =
  * 스프라이트 렌더링에 필요한 모든 속성을 정의합니다.
  */
 export interface PetSpriteProps {
-  /** 렌더링할 펫의 ID (스프라이트 경로 결정) */
-  petId: number;
+  /** 렌더링할 펫 아이템 ID (스프라이트 경로 결정) */
+  itemId: number;
   /** 현재 재생할 애니메이션 상태 */
   currentAnimation: PetAnimationState;
   /** 추가적인 CSS 클래스명 */
   className?: string;
+  /** 렌더링할 펫의 목표 너비 (픽셀 단위, 미지정 시 원본 크기 사용) */
+  targetWidth?: number;
   /** 애니메이션 완료 시 호출되는 콜백 함수 */
   onAnimationComplete?: (animation: PetAnimationState) => void;
 }

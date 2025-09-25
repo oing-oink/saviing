@@ -24,8 +24,9 @@ export const getGameItems = async (
   const params: Record<string, string | boolean> = {
     type: type,
     category: category,
-    sort: 'NAME',
+    sort: 'PRICE',
     order: 'ASC',
+    coinType: 'COIN',
   };
 
   const response = await http.get<ItemsResponse>('/v1/game/items', {
@@ -93,6 +94,7 @@ const convertInventoryItemToItem = (inventoryItem: InventoryItem): Item => {
     isAvailable: !inventoryItem.isUsed, // isUsed의 반대
     createdAt: inventoryItem.createdAt,
     updatedAt: inventoryItem.updatedAt,
+    inventoryItemId: inventoryItem.inventoryItemId, // 인벤토리 ID 보존
   };
 };
 

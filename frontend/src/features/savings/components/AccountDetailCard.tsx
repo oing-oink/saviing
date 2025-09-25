@@ -106,7 +106,7 @@ const AccountDetailCard = ({
                   }
                 }}
               >
-                입금
+                이체
               </Button>
             </div>
           </div>

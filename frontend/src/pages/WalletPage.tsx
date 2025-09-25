@@ -5,6 +5,7 @@ import { useWalletButtons } from '@/shared/hooks/useWalletButtons';
 import { useAccountsList } from '@/features/savings/query/useSavingsQuery';
 import { useGlobalGameBackground } from '@/features/game/shared/components/GlobalGameBackground';
 import { useEffect } from 'react';
+import type { SavingsAccountData } from '@/features/savings/types/savingsTypes';
 
 const WalletPage = () => {
   const { buttons } = useWalletButtons();
@@ -15,13 +16,13 @@ const WalletPage = () => {
     hideGameBackground();
   }, [hideGameBackground]);
 
-  // 계좌 유형별로 분리
-  const savingsAccount = accounts?.find(
+  const savingsAccounts = (accounts ?? []).filter(
     account => account.product.productCategory === 'INSTALLMENT_SAVINGS',
   );
-  const demandAccount = accounts?.find(
-    account => account.product.productCategory === 'DEMAND_DEPOSIT',
+  const otherAccounts = (accounts ?? []).filter(
+    account => account.product.productCategory !== 'INSTALLMENT_SAVINGS',
   );
+  const hasAnyAccount = (accounts?.length ?? 0) > 0;
 
   // 로딩 상태
   if (isLoading) {
@@ -47,13 +48,41 @@ const WalletPage = () => {
     );
   }
 
+  const renderAccountCard = (account: SavingsAccountData) => {
+    if (account.product.productCategory === 'INSTALLMENT_SAVINGS') {
+      return (
+        <SavingsAccountWalletCard
+          key={`savings-${account.accountId}`}
+          account={account}
+        />
+      );
+    }
+
+    return (
+      <CheckingAccountWalletCard
+        key={`account-${account.accountId}`}
+        account={account}
+      />
+    );
+  };
+
   return (
     <div className="px-5 py-4">
       <div className="flex flex-col items-center gap-4">
-        {savingsAccount && (
-          <SavingsAccountWalletCard account={savingsAccount} />
+        {hasAnyAccount ? (
+          <>
+            {savingsAccounts.map(renderAccountCard)}
+            {otherAccounts.map(renderAccountCard)}
+          </>
+        ) : (
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 pb-12 font-pretendard shadow">
+            <h2 className="mb-4 font-medium text-gray-500">내 계좌</h2>
+            <div className="text-center text-gray-500">
+              <p>등록된 계좌가 없습니다.</p>
+              <p className="mt-1 text-sm">새 계좌를 개설해보세요.</p>
+            </div>
+          </div>
         )}
-        {demandAccount && <CheckingAccountWalletCard account={demandAccount} />}
         <div className="flex w-full gap-4">
           {buttons.map((btn, i) => (
             <WalletButton

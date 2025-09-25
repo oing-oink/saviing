@@ -21,6 +21,7 @@ import {
 } from '@/shared/components/ui/accordion';
 import { Button } from '@/shared/components/ui/button';
 import { PAGE_PATH } from '@/shared/constants/path';
+import DepositLayout from '@/features/savings/layouts/DepositLayout';
 
 const DemandDepositPage = () => {
   const { accountId } = useParams<{ accountId: string }>();
@@ -172,11 +173,11 @@ const DemandDepositPage = () => {
   };
 
   return (
-    <main className="saving flex min-h-dvh justify-center bg-background px-6 py-12 pb-32">
-      <div className="flex w-full max-w-md flex-col gap-6">
+    <DepositLayout>
+      <div className="flex w-full flex-col gap-6 px-6 pb-32 pt-6">
         <header className="space-y-2">
           <span className="text-xs font-semibold tracking-wide text-primary uppercase">
-            입출금 계좌 입금
+            입출금 계좌 이체
           </span>
           <h1 className="text-3xl font-semibold text-foreground">
             자유로운 입출금
@@ -225,16 +226,23 @@ const DemandDepositPage = () => {
         </section>
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-40 bg-background/95 pt-3 pb-4 backdrop-blur">
-        <div className="mx-auto w-full max-w-md px-6">
+      <div className="fixed right-0 bottom-0 left-0 z-10 bg-white p-4">
+        <div className="mx-auto w-full max-w-md">
           <Button
             type="button"
             size="lg"
             disabled={!canSubmit || transferMutation.isPending}
             onClick={handleOpenDialog}
-            className="w-full rounded-2xl bg-primary text-base font-semibold text-primary-foreground shadow-lg transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex h-12 flex-1 w-full items-center justify-center space-x-2 rounded-lg bg-primary text-white hover:bg-primary/90 disabled:bg-gray-300 disabled:text-gray-500"
           >
-            {transferMutation.isPending ? '처리 중...' : '입출금 계좌로 보내기'}
+            {transferMutation.isPending ? (
+              <>
+                <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-white"></div>
+                <span>처리 중...</span>
+              </>
+            ) : (
+              '입출금 계좌로 보내기'
+            )}
           </Button>
         </div>
       </div>
@@ -246,7 +254,7 @@ const DemandDepositPage = () => {
         onConfirm={handlePinSubmit}
         onClose={handleCloseDialog}
       />
-    </main>
+    </DepositLayout>
   );
 };
 

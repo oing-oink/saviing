@@ -12,7 +12,7 @@ const StartStep = () => {
   return (
     <>
       {/* 메인 컨텐츠 */}
-      <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
+      <div className="flex flex-1 flex-col items-center justify-center px-6 pt-16 text-center">
         <h1 className="mb-2 text-xl font-bold text-gray-900">
           적금 가입을 시작해볼까요?
         </h1>
@@ -30,10 +30,13 @@ const StartStep = () => {
       </div>
 
       {/* 하단 고정 버튼 */}
-      <div className="p-4">
+      <div
+        className="fixed right-0 bottom-0 left-0 z-10 bg-white p-4"
+        style={{ borderTop: 'none' }}
+      >
         <Button
           onClick={handleNext}
-          className="h-12 w-full rounded-lg bg-primary text-white hover:bg-blue-700"
+          className="h-12 w-full rounded-lg bg-primary text-white hover:bg-primary/90"
         >
           시작하기
         </Button>

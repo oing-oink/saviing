@@ -3,11 +3,12 @@ import { useDecoStore } from '@/features/game/deco/store/useDecoStore';
 import type { PlacedItem } from '@/features/game/deco/types/decoTypes';
 import { useInventoryItems } from '@/features/game/shop/query/useItemsQuery';
 import { TAB_TO_CATEGORY, type TabInfo } from '@/features/game/shop/types/item';
+import { useGameEntryQuery } from '@/features/game/entry/query/useGameEntryQuery';
 
 /** 선택된 탭에 맞는 데코 인벤토리 목록을 불러오는 훅. */
 export const useDecoInventory = (tab: TabInfo) => {
-  // Todo: 나중에 실제 캐릭터 ID로 수정
-  const characterId = 1;
+  const { data: gameEntry } = useGameEntryQuery();
+  const characterId = gameEntry?.characterId;
 
   const applyServerState = useDecoStore(state => state.applyServerState);
 

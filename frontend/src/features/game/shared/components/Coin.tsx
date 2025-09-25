@@ -2,6 +2,7 @@ import coinImage from '@/assets/game_button/coin.png';
 import fishCoinImage from '@/assets/game_button/fishCoin.png';
 import { useGameStore } from '@/features/game/shared/store/useGameStore';
 import { useGameQuery } from '@/features/game/shared/query/useGameQuery';
+import { useGameEntryQuery } from '@/features/game/entry/query/useGameEntryQuery';
 import { useEffect } from 'react';
 
 interface CoinProps {
@@ -17,8 +18,8 @@ interface CoinProps {
  * props가 전달되지 않으면 게임 전역 상태에서 가져옵니다.
  */
 const Coin = ({ coin, fishCoin }: CoinProps) => {
-  // Todo: 나중에 api 받아와서 수정
-  const characterId = 1;
+  const { data: gameEntry } = useGameEntryQuery();
+  const characterId = gameEntry?.characterId;
 
   const { gameData, setGameData } = useGameStore();
   const { data: apiGameData } = useGameQuery(characterId);
@@ -41,7 +42,7 @@ const Coin = ({ coin, fishCoin }: CoinProps) => {
           alt="coin"
           className="h-full w-auto object-contain"
         />
-        <span className="absolute right-4 bottom-4 text-lg font-bold text-gray-600">
+        <span className="text-md absolute right-4 bottom-4 mb-1 font-bold text-gray-600">
           {coinAmount}
         </span>
       </div>
@@ -53,7 +54,7 @@ const Coin = ({ coin, fishCoin }: CoinProps) => {
           alt="fish coin"
           className="-ml-2 h-full w-auto scale-105 object-contain"
         />
-        <span className="absolute right-5 bottom-4 text-lg font-bold text-gray-600">
+        <span className="text-md absolute right-5 bottom-4 mb-1 font-bold text-gray-600">
           {fishCoinAmount}
         </span>
       </div>

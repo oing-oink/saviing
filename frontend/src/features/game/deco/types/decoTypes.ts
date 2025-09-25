@@ -153,6 +153,12 @@ export interface DragSession {
   itemId: string;
 
   /**
+   * 인벤토리에서 드래그할 때의 인벤토리 아이템 ID.
+   * 서버 저장 시 인벤토리 소모를 추적하기 위해 사용됩니다.
+   */
+  inventoryItemId?: number;
+
+  /**
    * 인벤토리에서 드래그 시작한 슬롯의 고유 ID.
    * 예: "slot-0", "slot-1" 등
    * 개별 슬롯 추적을 통해 중복 아이템의 개별 관리를 가능하게 합니다.

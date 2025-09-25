@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getAllAccounts } from '@/features/savings/api/savingsApi';
 import { savingsKeys } from '@/features/savings/query/savingsKeys';
 import type { SavingsAccountData } from '@/features/savings/types/savingsTypes';
+import { useCustomerStore } from '@/features/auth/store/useCustomerStore';
 
 /**
  * 고객의 모든 계좌 목록을 조회하는 React Query 훅
@@ -11,9 +12,17 @@ import type { SavingsAccountData } from '@/features/savings/types/savingsTypes';
  * @returns 계좌 목록 쿼리 결과
  */
 export const useAllAccounts = () => {
+  const customerId = useCustomerStore(state => state.customerId);
+
   return useQuery({
-    queryKey: savingsKeys.accountsList(),
-    queryFn: getAllAccounts,
+    queryKey: savingsKeys.accountsList(customerId ?? undefined),
+    queryFn: () => {
+      if (customerId == null) {
+        throw new Error('로그인 정보가 없습니다.');
+      }
+      return getAllAccounts(customerId);
+    },
+    enabled: customerId != null,
   });
 };
 

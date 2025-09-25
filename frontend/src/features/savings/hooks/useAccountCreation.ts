@@ -1,5 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useErrorBoundary } from 'react-error-boundary';
 import {
   getAllAccounts,
   createCheckingAccount,
@@ -12,11 +14,7 @@ import type {
 import { useAccountCreationStore } from '@/features/savings/store/useAccountCreationStore';
 import { ACCOUNT_TYPES } from '@/features/savings/constants/accountTypes';
 import { PAGE_PATH } from '@/shared/constants/path';
-
-/**
- * 하드코딩된 고객 ID (추후 인증 시스템에서 가져올 예정)
- */
-const CUSTOMER_ID = 1;
+import { useCustomerStore } from '@/features/auth/store/useCustomerStore';
 
 /**
  * 계좌 생성 관련 로직을 처리하는 커스텀 훅
@@ -29,6 +27,8 @@ const CUSTOMER_ID = 1;
 export const useAccountCreation = () => {
   const navigate = useNavigate();
   const { form } = useAccountCreationStore();
+  const customerId = useCustomerStore(state => state.customerId);
+  const { showBoundary } = useErrorBoundary();
 
   // 기존 계좌 확인 (Query: 데이터 읽어오기)
   const {
@@ -36,11 +36,24 @@ export const useAccountCreation = () => {
     isLoading: isCheckingAccounts,
     error: checkAccountsError,
   } = useQuery({
-    queryKey: ['existingAccounts', CUSTOMER_ID],
-    queryFn: getAllAccounts, // checkExistingAccounts 대신 getAllAccounts 사용
+    queryKey: ['existingAccounts', customerId],
+    queryFn: () => {
+      if (customerId == null) {
+        throw new Error('로그인 정보가 없습니다.');
+      }
+      return getAllAccounts(customerId);
+    }, // checkExistingAccounts 대신 getAllAccounts 사용
     staleTime: 1000 * 60 * 5, // 5분간 캐시 유지
     gcTime: 1000 * 60 * 10, // 10분간 메모리 유지
+    enabled: customerId != null,
   });
+
+  // API 에러 발생 시 ErrorBoundary로 전달
+  useEffect(() => {
+    if (checkAccountsError) {
+      showBoundary(checkAccountsError);
+    }
+  }, [checkAccountsError, showBoundary]);
 
   // 입출금 계좌 생성 (Mutation: 데이터 변경)
   const createCheckingMutation = useMutation({
@@ -119,8 +132,13 @@ export const useAccountCreation = () => {
 
     if (isCheckingAccount) {
       // 입출금 계좌 생성 요청
+      if (customerId == null) {
+        console.error('로그인 정보가 없어 계좌를 생성할 수 없습니다.');
+        return;
+      }
+
       const request: CreateCheckingAccountRequest = {
-        customerId: CUSTOMER_ID,
+        customerId,
         productId: 1, // 입출금통장 상품 ID
       };
       createCheckingMutation.mutate(request);
@@ -131,14 +149,26 @@ export const useAccountCreation = () => {
       }
 
       // 적금 필수 데이터 확인
-      if (!form.depositAmount || !form.period || !form.autoAccount) {
+      if (
+        !form.depositAmount ||
+        !form.period ||
+        !form.autoAccount ||
+        !form.transferDate ||
+        !form.transferCycle ||
+        !form.withdrawAccountId
+      ) {
         console.error('적금 계좌 생성에 필요한 정보가 부족합니다.');
+        return;
+      }
+
+      if (customerId == null) {
+        console.error('로그인 정보가 없어 계좌를 생성할 수 없습니다.');
         return;
       }
 
       // 적금 계좌 생성 요청
       const request: CreateSavingsAccountRequest = {
-        customerId: CUSTOMER_ID,
+        customerId,
         productId: 2, // 자유적금 상품 ID
         targetAmount: form.depositAmount * form.period, // 월납입금액 * 기간
         termPeriod: {
@@ -146,6 +176,13 @@ export const useAccountCreation = () => {
           unit: 'WEEKS',
         },
         maturityWithdrawalAccount: form.autoAccount,
+        autoTransfer: {
+          enabled: true,
+          cycle: form.transferCycle,
+          transferDay: parseInt(form.transferDate),
+          amount: form.depositAmount,
+          withdrawAccountId: form.withdrawAccountId,
+        },
       };
       createSavingsMutation.mutate(request);
     }
