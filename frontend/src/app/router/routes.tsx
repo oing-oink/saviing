@@ -12,7 +12,6 @@ import HomePage from '@/pages/HomePage';
 import WalletPage from '@/pages/WalletPage';
 import ProductsPage from '@/pages/ProductsPage';
 import ProfilePage from '@/pages/ProfilePage';
-import LoginPage from '@/pages/LoginPage';
 import OnboardingPage from '@/pages/OnboardingPage';
 import AuthCallbackPage from '@/pages/AuthCallbackPage';
 import SavingsPage from '@/pages/SavingsPage';
@@ -60,7 +59,6 @@ const protectedRoutesWithoutLayout = [
 
 // 공개 라우트 정의 (인증 불필요)
 const publicRoutes = [
-  { path: PAGE_PATH.LOGIN, element: <LoginPage /> },
   { path: PAGE_PATH.ONBOARDING, element: <OnboardingPage /> },
   { path: PAGE_PATH.AUTH_CALLBACK, element: <AuthCallbackPage /> },
   { path: PAGE_PATH.COLORTEST, element: <ColorTestPage /> },

@@ -7,6 +7,7 @@ import { onboardingSlides } from '@/features/onboarding/data/onboardingData';
 import { getGoogleOAuthUrl } from '@/features/auth/api/authApi';
 import { useCustomerStore } from '@/features/auth/store/useCustomerStore';
 import { PAGE_PATH } from '@/shared/constants/path';
+import GoogleLoginButton from '@/features/auth/components/GoogleLoginButton';
 
 const OnboardingPage = () => {
   const navigate = useNavigate();
@@ -85,12 +86,7 @@ const OnboardingPage = () => {
 
         {/* Login Button */}
         <div className="pb-8">
-          <button
-            onClick={handleLogin}
-            className="w-full rounded-2xl bg-gradient-to-r from-indigo-500 to-blue-600 py-4 text-lg font-semibold text-white shadow-lg transition-all hover:from-indigo-600 hover:to-blue-700 hover:shadow-xl"
-          >
-            Google로 시작하기
-          </button>
+          <GoogleLoginButton onClick={handleLogin} />
           <p className="mt-4 text-center text-xs text-gray-500">
             계속하면 서비스 이용약관과 개인정보처리방침에 동의하게 됩니다.
           </p>

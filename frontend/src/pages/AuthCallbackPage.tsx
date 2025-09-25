@@ -24,7 +24,7 @@ const AuthCallbackPage = () => {
             <p className="font-pretendard text-red-600">❌ {error}</p>
           </div>
           <button
-            onClick={() => (window.location.href = '/login')}
+            onClick={() => (window.location.href = '/onboarding')}
             className="rounded-lg bg-blue-500 px-4 py-2 font-pretendard text-white hover:bg-blue-600"
           >
             로그인 페이지로 돌아가기

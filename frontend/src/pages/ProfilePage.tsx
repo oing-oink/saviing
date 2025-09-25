@@ -40,7 +40,7 @@ const ProfilePage = () => {
     clearAuth();
 
     // 2. 로그인 페이지로 이동
-    navigate(PAGE_PATH.LOGIN, { replace: true });
+    navigate(PAGE_PATH.ONBOARDING, { replace: true });
   };
 
   const profileMenuItems: ProfileMenuItem[] = [
