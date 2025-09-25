@@ -18,3 +18,24 @@ export interface GameEntryData {
  * 인벤토리에 등록된 펫 한 마리에 대한 요약 정보만 내려온다.
  */
 export type GameEntryPet = Omit<PetData, 'isUsed' | 'floor'>;
+
+/**
+ * 게임 캐릭터 생성 응답
+ */
+export interface GameCharacterData {
+  characterId: number;
+  customerId: number;
+  accountId: number;
+  connectionStatus: string;
+  connectionDate: string | null;
+  terminationReason: string | null;
+  terminatedAt: string | null;
+  coin: number;
+  fishCoin: number;
+  roomCount: number;
+  roomId: number | null;
+  isActive: boolean;
+  deactivatedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}

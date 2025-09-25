@@ -27,7 +27,8 @@ const GameEnterPage = () => {
     error: gameEntryError,
   } = useGameEntryQuery();
 
-  const currentPetItemId = gameEntry?.pet.itemId;
+  const currentPetItemId = gameEntry?.pet?.itemId;
+  const hasPet = typeof currentPetItemId === 'number';
 
   useEffect(() => {
     // 시작 위치에서 중앙으로 이동
@@ -66,7 +67,7 @@ const GameEnterPage = () => {
     );
   }
 
-  if (gameEntryError || typeof currentPetItemId !== 'number') {
+  if (gameEntryError) {
     return (
       <GameBackgroundLayout className="game relative touch-none overflow-hidden font-galmuri">
         <div className="flex h-full items-center justify-center">
@@ -109,15 +110,15 @@ const GameEnterPage = () => {
                 }}
               >
                 <div style={{ transform: `scale(${scale})` }}>
-                  <CatSprite itemId={currentPetItemId} currentAnimation={anim} />
+                  {hasPet && <CatSprite itemId={currentPetItemId} currentAnimation={anim} />}
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    </GameBackgroundLayout>
-  );
+       </div>
+     </div>
+   </GameBackgroundLayout>
+ );
 };
 
 export default GameEnterPage;

@@ -54,6 +54,9 @@ export const useCustomerStore = create<CustomerStoreState>()(
           expiresIn: null,
           isAuthenticated: false,
         });
+        if (typeof window !== 'undefined') {
+          sessionStorage.removeItem('saviing-customer-store');
+        }
       },
     }),
     {
@@ -65,3 +68,14 @@ export const useCustomerStore = create<CustomerStoreState>()(
 
 // store 인스턴스를 loader에서 사용할 수 있도록 export
 export const customerStore = useCustomerStore;
+
+declare global {
+  interface Window {
+    customerStoreDebug?: typeof customerStore;
+  }
+}
+
+if (import.meta.env.DEV && typeof window !== 'undefined') {
+  window.customerStoreDebug = customerStore;
+  console.info('[customerStore] accessToken', customerStore.getState().accessToken);
+}
