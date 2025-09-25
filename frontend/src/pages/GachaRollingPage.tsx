@@ -25,6 +25,13 @@ const GachaRollingPage = () => {
   const [gachaResult, setGachaResult] = useState<GachaDrawResponse | null>(
     null,
   );
+
+  // 디버깅: gachaResult 상태 변화 감지
+  console.log('GachaRollingPage 렌더링:', {
+    gachaResult: Boolean(gachaResult),
+    hasItem: gachaResult?.item,
+    hasCurrencies: gachaResult?.currencies,
+  });
   const { data: gameEntry } = useGameEntryQuery();
   const characterId = gameEntry?.characterId;
   const { data: gameData } = useGameQuery(characterId);
@@ -40,19 +47,18 @@ const GachaRollingPage = () => {
     // 상태 초기화
     setGachaResult(null);
 
-    // 잔액 부족 체크 (즉시 실행)
+    // 페이지 진입과 동시에 가챠 API 호출 (데이터가 준비되면)
     if (gachaInfo && gameData && typeof characterId === 'number') {
       const gachaPrice = gachaInfo.gachaInfo.drawPrice.coin;
       const currentCoin = gameData.coin;
 
+      // 잔액 부족 체크 (즉시 실행)
       if (currentCoin < gachaPrice) {
         setShowInsufficientFundsModal(true);
         return;
       }
-    }
 
-    // 페이지 진입과 동시에 가챠 API 호출 (잔액이 충분한 경우에만)
-    if (gachaInfo && gameData && typeof characterId === 'number') {
+      // 3초 후에 가챠 실행 (UI 효과를 위해)
       const timer = setTimeout(() => {
         drawGacha(
           {
@@ -62,7 +68,10 @@ const GachaRollingPage = () => {
           },
           {
             onSuccess: result => {
+              console.log('가챠 성공:', result); // 디버깅용
+              console.log('setGachaResult 호출 전 - result 구조:', JSON.stringify(result, null, 2));
               setGachaResult(result);
+              console.log('setGachaResult 호출 완료');
 
               // 가챠 성공 후 캐릭터 게임 데이터 캐시 업데이트
               queryClient.setQueryData(
@@ -85,15 +94,21 @@ const GachaRollingPage = () => {
               });
             },
             onError: error => {
-              // 잔액 부족 에러인지 확인 (에러 코드 또는 메시지로 판단)
+              console.error('가챠 실패:', error); // 디버깅용
+              // ApiError 객체에서 실제 에러 정보 추출
+              const apiErrorResponse = (error as any)?.response;
+              const errorCode = apiErrorResponse?.code;
+              const errorMessage = apiErrorResponse?.message || error.message;
+
+              // 잔액 부족 에러인지 확인
               const isInsufficientFunds =
-                (error as any)?.code === 'PURCHASE_INSUFFICIENT_FUNDS' ||
-                (error.message && error.message.includes('잔액이 부족합니다'));
+                errorCode === 'PURCHASE_INSUFFICIENT_FUNDS' ||
+                (errorMessage && errorMessage.includes('잔액이 부족합니다'));
 
               if (isInsufficientFunds) {
                 setShowInsufficientFundsModal(true);
               } else {
-                toast.error(`가챠 뽑기 실패: ${error.message}`, {
+                toast.error(`가챠 뽑기 실패: ${errorMessage}`, {
                   className: 'game font-galmuri',
                 });
                 navigate(PAGE_PATH.GACHA);
@@ -118,6 +133,74 @@ const GachaRollingPage = () => {
   const handleCloseResult = () => {
     setGachaResult(null);
     navigate(PAGE_PATH.GACHA);
+  };
+
+  const handleRetry = () => {
+    if (!gachaInfo || !gameEntry?.characterId) {
+      console.error('가챠 재실행 실패: 필수 데이터 누락', {
+        gachaInfo,
+        characterId: gameEntry?.characterId,
+      });
+      return;
+    }
+
+    console.log('가챠 재실행 시작');
+
+    // 가챠 재실행
+    drawGacha(
+      {
+        characterId: gameEntry.characterId,
+        gachaPoolId: gachaInfo.gachaPoolId,
+        paymentMethod: 'COIN',
+      },
+      {
+        onSuccess: result => {
+          console.log('가챠 재실행 성공:', result);
+          setGachaResult(result);
+
+          // 가챠 성공 후 캐릭터 게임 데이터 캐시 업데이트
+          queryClient.setQueryData(
+            gameKeys.characterData(gameEntry.characterId),
+            (oldData: any) => {
+              if (oldData) {
+                return {
+                  ...oldData,
+                  coin: result.currencies.coin,
+                  fishCoin: result.currencies.fishCoin,
+                };
+              }
+              return oldData;
+            },
+          );
+
+          // 다른 게임 관련 쿼리들도 무효화 (안전장치)
+          queryClient.invalidateQueries({
+            queryKey: gameKeys.characterData(gameEntry.characterId),
+          });
+        },
+        onError: error => {
+          console.error('가챠 재실행 실패:', error);
+          // ApiError 객체에서 실제 에러 정보 추출
+          const apiErrorResponse = (error as any)?.response;
+          const errorCode = apiErrorResponse?.code;
+          const errorMessage = apiErrorResponse?.message || error.message;
+
+          // 잔액 부족 에러인지 확인
+          const isInsufficientFunds =
+            errorCode === 'PURCHASE_INSUFFICIENT_FUNDS' ||
+            (errorMessage && errorMessage.includes('잔액이 부족합니다'));
+
+          if (isInsufficientFunds) {
+            setShowInsufficientFundsModal(true);
+          } else {
+            toast.error(`가챠 뽑기 실패: ${errorMessage}`, {
+              className: 'game font-galmuri',
+            });
+            navigate(PAGE_PATH.GACHA);
+          }
+        },
+      },
+    );
   };
 
   return (
@@ -153,11 +236,15 @@ const GachaRollingPage = () => {
 
       {/* 가챠 결과 모달 */}
       {gachaResult && (
-        <GachaResult
-          item={gachaResult.item}
-          currencies={gachaResult.currencies}
-          onClose={handleCloseResult}
-        />
+        <>
+          {console.log('GachaResult 모달 렌더링:', gachaResult)}
+          <GachaResult
+            item={gachaResult.item}
+            currencies={gachaResult.currencies}
+            onClose={handleCloseResult}
+            onRetry={handleRetry}
+          />
+        </>
       )}
 
       <InsufficientFundsModal

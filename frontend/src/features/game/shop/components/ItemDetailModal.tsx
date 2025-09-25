@@ -9,6 +9,7 @@ import CatSprite from '@/features/game/pet/components/CatSprite';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useGameEntryQuery } from '@/features/game/entry/query/useGameEntryQuery';
+import InsufficientFundsModal from '@/features/game/shop/components/InsufficientFundsModal';
 
 /** 상점 아이템 상세 모달에 필요한 속성. */
 interface ItemDetailModalProps {
@@ -38,6 +39,7 @@ const ItemDetailModal = ({
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>('COIN');
   const { data: gameEntry } = useGameEntryQuery();
   const characterId = gameEntry?.characterId;
+  const [showInsufficientFundsModal, setShowInsufficientFundsModal] = useState(false);
 
   const handlePurchase = () => {
     if (!item) {
@@ -65,9 +67,23 @@ const ItemDetailModal = ({
           onClose();
         },
         onError: error => {
-          toast.error(`구매 실패: ${error.message}`, {
-            className: 'game font-galmuri',
-          });
+          // ApiError 객체에서 실제 에러 정보 추출
+          const apiErrorResponse = (error as any)?.response;
+          const errorCode = apiErrorResponse?.code;
+          const errorMessage = apiErrorResponse?.message || error.message;
+
+          // 잔액 부족 에러인지 확인
+          const isInsufficientFunds =
+            errorCode === 'PURCHASE_INSUFFICIENT_FUNDS' ||
+            (errorMessage && errorMessage.includes('잔액이 부족합니다'));
+
+          if (isInsufficientFunds) {
+            setShowInsufficientFundsModal(true);
+          } else {
+            toast.error(`구매 실패: ${errorMessage}`, {
+              className: 'game font-galmuri',
+            });
+          }
         },
       },
     );
@@ -234,6 +250,12 @@ const ItemDetailModal = ({
           </div>
         </div>
       </div>
+
+      <InsufficientFundsModal
+        isOpen={showInsufficientFundsModal}
+        onClose={() => setShowInsufficientFundsModal(false)}
+        message="잔액이 부족합니다."
+      />
     </div>
   );
 };

@@ -8,12 +8,17 @@ import closeButton from '@/assets/game_button/closeButton.png';
 import { useNavigate } from 'react-router-dom';
 import { PAGE_PATH } from '@/shared/constants/path';
 import { useGachaInfo } from '@/features/game/shop/query/useGachaInfo';
+import { useState } from 'react';
+import InsufficientFundsModal from '@/features/game/shop/components/InsufficientFundsModal';
+import { useGameQuery } from '@/features/game/shared/query/useGameQuery';
+import { useGameEntryQuery } from '@/features/game/entry/query/useGameEntryQuery';
 
 /** 가챠 결과 모달에 필요한 속성. */
 interface GachaResultProps {
   item: Item;
   currencies: GachaDrawCurrencies;
   onClose: () => void;
+  onRetry: () => void;
 }
 
 /** 등급별 색상 매핑 */
@@ -33,31 +38,39 @@ const RARITY_NAMES = {
 } as const;
 
 /** 가챠에서 획득한 아이템 정보를 보여주는 전체 화면 모달. */
-const GachaResult = ({ item, currencies, onClose }: GachaResultProps) => {
+const GachaResult = ({ item, currencies, onClose, onRetry }: GachaResultProps) => {
   const { data: gachaInfo } = useGachaInfo();
   const navigate = useNavigate();
   const rarity = item.rarity as keyof typeof RARITY_COLORS;
+  const [showInsufficientFundsModal, setShowInsufficientFundsModal] = useState(false);
+
+  // 현재 게임 데이터를 실시간으로 가져오기
+  const { data: gameEntry } = useGameEntryQuery();
+  const characterId = gameEntry?.characterId;
+  const { data: currentGameData } = useGameQuery(characterId);
 
   const handleRetry = () => {
-    if (!gachaInfo) {
+    if (!gachaInfo || !currentGameData) {
+      console.error('재실행 버튼 클릭: 필수 데이터 누락', { gachaInfo, currentGameData });
       return;
     }
 
     const gachaPrice = gachaInfo.gachaInfo.drawPrice.coin;
-    const currentCoin = currencies.coin;
+    // 실시간 게임 데이터에서 현재 코인 상태 확인
+    const currentCoin = currentGameData.coin;
+
+    console.log('재실행 버튼 클릭:', { gachaPrice, currentCoin, sufficient: currentCoin >= gachaPrice });
 
     if (currentCoin < gachaPrice) {
-      // 잔액 부족하면 GachaPage로 이동하고 파라미터를 통해 모달 표시 요청
-      onClose();
-      navigate(PAGE_PATH.GACHA + '?showInsufficientFunds=true');
+      // 잔액 부족하면 모달 표시
+      console.log('잔액 부족 모달 표시');
+      setShowInsufficientFundsModal(true);
       return;
     }
 
-    // 잔액이 충분하면 바로 가챠 롤링 페이지로 이동
-    onClose();
-    navigate(PAGE_PATH.GACHA_ROLLING + `?t=${Date.now()}`, {
-      replace: true,
-    });
+    // 잔액이 충분하면 상위 컴포넌트에서 새로운 가챠 실행
+    console.log('상위 컴포넌트 onRetry 호출');
+    onRetry();
   };
 
   return (
@@ -132,6 +145,12 @@ const GachaResult = ({ item, currencies, onClose }: GachaResultProps) => {
           </div>
         </div>
       </div>
+
+      <InsufficientFundsModal
+        isOpen={showInsufficientFundsModal}
+        onClose={() => setShowInsufficientFundsModal(false)}
+        message="잔액이 부족합니다."
+      />
     </div>
   );
 };
