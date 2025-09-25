@@ -41,7 +41,12 @@ const toRoomPlacementsPayload = (
         positionY: item.positionY,
         xLength: item.xLength || 1,
         yLength: item.yLength || 1,
-        category: item.layer || 'BOTTOM',
+        category:
+          item.itemType === 'PET'
+            ? 'PET'
+            : typeof item.layer === 'string'
+              ? item.layer
+              : 'BOTTOM',
       })),
   };
 };

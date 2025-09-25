@@ -167,25 +167,29 @@ const DecoPage = () => {
         // API 응답을 PlacedItem 형식으로 변환
         const placedItems: PlacedItem[] = placementsResponse.placements.map(
           placement => {
-            // 인벤토리에서 해당 아이템 찾기
             const inventoryItem = inventoryMap.get(placement.inventoryItemId);
+            const normalizedLayer =
+              placement.category === 'PET' ? 'BOTTOM' : placement.category;
+            const baseCellId = `${normalizedLayer}-${placement.positionX + 1}-${placement.positionY + 1}`;
 
             return {
               id: `placement-${placement.placementId || placement.inventoryItemId}`,
               inventoryItemId: placement.inventoryItemId,
               itemId: placement.itemId,
-              cellId: `${placement.category}-${placement.positionX + 1}-${placement.positionY + 1}`,
+              cellId: baseCellId,
               positionX: placement.positionX,
               positionY: placement.positionY,
               rotation: 0,
-              layer: placement.category,
-              xLength: inventoryItem?.xLength || 1, // 인벤토리에서 실제 크기 사용
-              yLength: inventoryItem?.yLength || 1, // 인벤토리에서 실제 크기 사용
+              layer: normalizedLayer,
+              xLength: inventoryItem?.xLength || 1,
+              yLength: inventoryItem?.yLength || 1,
               footprintCellIds: undefined,
               offsetX: 0,
               offsetY: 0,
-              imageUrl: undefined, // getItemImage(itemId) 사용하도록 undefined 설정
-              itemType: inventoryItem?.itemType || 'DECORATION',
+              imageUrl: undefined,
+              itemType:
+                inventoryItem?.itemType ||
+                (placement.category === 'PET' ? 'PET' : 'DECORATION'),
               isPreview: false,
             };
           },

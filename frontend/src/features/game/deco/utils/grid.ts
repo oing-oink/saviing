@@ -43,7 +43,7 @@ export const normalizePlacementArea = (
   if (key === 'RIGHT' || key === 'RIGHTWALL') {
     return 'RIGHT';
   }
-  if (key === 'BOTTOM' || key === 'FLOOR') {
+  if (key === 'BOTTOM' || key === 'FLOOR' || key === 'PET') {
     return 'BOTTOM';
   }
   if (key === 'ROOM_COLOR' || key === 'ROOMCOLOR') {
