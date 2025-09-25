@@ -55,6 +55,9 @@ const SetConditionStep = () => {
   const [autoAccount, setAutoAccount] = useState(
     'autoAccount' in form ? form.autoAccount || '' : '',
   );
+  const [transferCycle, setTransferCycle] = useState<'WEEKLY' | 'MONTHLY'>(
+    'transferCycle' in form ? form.transferCycle || 'MONTHLY' : 'MONTHLY',
+  );
 
   const isValid =
     depositAmount.trim() !== '' && transferDate && period && autoAccount;
@@ -63,11 +66,19 @@ const SetConditionStep = () => {
     if (!isValid) {
       return;
     }
+    // 선택된 계좌의 ID 찾기
+    const selectedAccount = checkingAccounts.find(
+      acc => acc.accountNumber === autoAccount,
+    );
+    const withdrawAccountId = selectedAccount?.accountId || 0;
+
     setForm({
       depositAmount: Number(depositAmount),
       transferDate,
       period: Number(period),
       autoAccount,
+      transferCycle,
+      withdrawAccountId,
     });
     goToNextStep();
   };
@@ -95,32 +106,98 @@ const SetConditionStep = () => {
           />
         </div>
 
+        {/* 자동이체 주기 */}
+        <div className="mb-3">
+          <label className="mb-1 block text-sm font-medium text-gray-700">
+            자동이체 주기
+          </label>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setTransferCycle('WEEKLY');
+                setTransferDate(''); // 주기 변경 시 이체일 초기화
+              }}
+              className={`flex-1 rounded-lg border px-4 py-2 text-sm ${
+                transferCycle === 'WEEKLY'
+                  ? 'bg-violet-500 text-white'
+                  : 'bg-white text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              매주
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setTransferCycle('MONTHLY');
+                setTransferDate(''); // 주기 변경 시 이체일 초기화
+              }}
+              className={`flex-1 rounded-lg border px-4 py-2 text-sm ${
+                transferCycle === 'MONTHLY'
+                  ? 'bg-violet-500 text-white'
+                  : 'bg-white text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              매월
+            </button>
+          </div>
+        </div>
+
         {/* 이체일 */}
         <div className="mb-3">
           <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="transfer-date-selection">
               <AccordionTrigger className="text-left text-gray-700">
                 {transferDate
-                  ? `매월 ${transferDate}일 이체`
+                  ? transferCycle === 'WEEKLY'
+                    ? `매주 ${['일', '월', '화', '수', '목', '금', '토'][Number(transferDate) % 7]}요일 이체`
+                    : `매월 ${transferDate}일 이체`
                   : '이체일을 선택해주세요'}
               </AccordionTrigger>
               <AccordionContent>
-                <div className="grid grid-cols-4 gap-2 pt-2">
-                  {Array.from({ length: 28 }, (_, i) => i + 1).map(day => (
-                    <button
-                      key={day}
-                      type="button"
-                      onClick={() => setTransferDate(String(day))}
-                      className={`rounded-md border px-4 py-2 text-sm ${
-                        transferDate === String(day)
-                          ? 'bg-violet-500 text-white'
-                          : 'bg-white text-gray-700 hover:bg-gray-100'
-                      }`}
-                    >
-                      {day}일
-                    </button>
-                  ))}
-                </div>
+                {transferCycle === 'WEEKLY' ? (
+                  <div className="grid grid-cols-2 gap-2 pt-2">
+                    {[
+                      '월요일',
+                      '화요일',
+                      '수요일',
+                      '목요일',
+                      '금요일',
+                      '토요일',
+                      '일요일',
+                    ].map((day, index) => (
+                      <button
+                        key={day}
+                        type="button"
+                        onClick={() => setTransferDate(String(index + 1))}
+                        className={`rounded-md border px-4 py-2 text-sm ${
+                          transferDate === String(index + 1)
+                            ? 'bg-violet-500 text-white'
+                            : 'bg-white text-gray-700 hover:bg-gray-100'
+                        }`}
+                      >
+                        {day}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-4 gap-2 pt-2">
+                    {Array.from({ length: 28 }, (_, i) => i + 1).map(day => (
+                      <button
+                        key={day}
+                        type="button"
+                        onClick={() => setTransferDate(String(day))}
+                        className={`rounded-md border px-4 py-2 text-sm ${
+                          transferDate === String(day)
+                            ? 'bg-violet-500 text-white'
+                            : 'bg-white text-gray-700 hover:bg-gray-100'
+                        }`}
+                      >
+                        {day}일
+                      </button>
+                    ))}
+                  </div>
+                )}
               </AccordionContent>
             </AccordionItem>
           </Accordion>

@@ -42,7 +42,7 @@ const CompleteStep = () => {
 
         {/* 메시지 */}
         <p className="mb-1 text-lg font-semibold text-gray-900">
-          적금 계좌가 개설되었습니다
+          계좌가 개설되었습니다
         </p>
         <p className="text-sm text-gray-500">
           통장은 앱에서 언제든 확인할 수 있어요

@@ -139,7 +139,14 @@ export const useAccountCreation = () => {
       }
 
       // 적금 필수 데이터 확인
-      if (!form.depositAmount || !form.period || !form.autoAccount) {
+      if (
+        !form.depositAmount ||
+        !form.period ||
+        !form.autoAccount ||
+        !form.transferDate ||
+        !form.transferCycle ||
+        !form.withdrawAccountId
+      ) {
         console.error('적금 계좌 생성에 필요한 정보가 부족합니다.');
         return;
       }
@@ -159,6 +166,13 @@ export const useAccountCreation = () => {
           unit: 'WEEKS',
         },
         maturityWithdrawalAccount: form.autoAccount,
+        autoTransfer: {
+          enabled: true,
+          cycle: form.transferCycle,
+          transferDay: parseInt(form.transferDate),
+          amount: form.depositAmount,
+          withdrawAccountId: form.withdrawAccountId,
+        },
       };
       createSavingsMutation.mutate(request);
     }

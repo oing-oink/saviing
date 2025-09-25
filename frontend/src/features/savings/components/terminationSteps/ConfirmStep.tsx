@@ -25,9 +25,13 @@ const ConfirmStep = () => {
     }
 
     try {
+      // 실제 적금 해지 API 호출
+      await terminateMutation.mutateAsync(accountId);
+      // 해지 성공 후 다음 단계로 이동
       goToNextStep();
-    } catch (error) {
-      console.error('적금 해지 실패:', error);
+    } catch {
+      // 사용자에게 에러 알림
+      alert('적금 해지 중 오류가 발생했습니다. 다시 시도해주세요.');
     }
   };
 
