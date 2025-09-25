@@ -10,6 +10,7 @@ import type {
   GachaDrawRequest,
   GachaDrawResponse,
 } from '@/features/game/shop/types/item';
+import { getItemImage } from '@/features/game/shop/utils/getItemImage';
 
 /**
  * 게임 아이템 전체 목록을 조회한다.
@@ -37,7 +38,13 @@ export const getGameItems = async (
     return { items: [], totalCount: 0 };
   }
 
-  return response.body;
+  return {
+    items: response.body.items.map(item => ({
+      ...item,
+      imageUrl: getItemImage(item.itemId),
+    })),
+    totalCount: response.body.totalCount,
+  };
 };
 
 /**
@@ -52,7 +59,10 @@ export const getGameItemDetail = async (itemId: number): Promise<Item> => {
     throw new Error('아이템 정보를 찾을 수 없습니다.');
   }
 
-  return response.body;
+  return {
+    ...response.body,
+    imageUrl: getItemImage(response.body.itemId),
+  };
 };
 
 /**
@@ -90,7 +100,7 @@ const convertInventoryItemToItem = (inventoryItem: InventoryItem): Item => {
     yLength: inventoryItem.yLength,
     coin: 0, // 인벤토리에서는 가격 정보 없음
     fishCoin: 0, // 인벤토리에서는 가격 정보 없음
-    imageUrl: inventoryItem.image,
+    imageUrl: getItemImage(inventoryItem.itemId),
     isAvailable: !inventoryItem.isUsed, // isUsed의 반대
     createdAt: inventoryItem.createdAt,
     updatedAt: inventoryItem.updatedAt,
@@ -108,17 +118,21 @@ const convertInventoryItemToItem = (inventoryItem: InventoryItem): Item => {
  */
 export const getInventoryItems = async (
   characterId: number,
-  type: string,
-  category: string,
+  type?: string,
+  category?: string,
   isUsed?: boolean,
 ): Promise<ItemsResponse> => {
   const params: Record<string, string | boolean> = {
-    type: type,
-    category: category,
     sort: 'NAME',
     order: 'ASC',
   };
 
+  if (type) {
+    params.type = type;
+  }
+  if (category) {
+    params.category = category;
+  }
   // isUsed 파라미터가 제공된 경우에만 추가 (추후 사용)
   if (isUsed !== undefined) {
     params.isUsed = isUsed;
@@ -177,5 +191,11 @@ export const drawGacha = async (
     throw new Error('가챠 뽑기 중 오류가 발생했습니다.');
   }
 
-  return response.body;
+  return {
+    ...response.body,
+    item: {
+      ...response.body.item,
+      imageUrl: getItemImage(response.body.item.itemId),
+    },
+  };
 };

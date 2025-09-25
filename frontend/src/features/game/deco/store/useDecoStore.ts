@@ -7,7 +7,8 @@ import type {
   RoomMeta,
 } from '@/features/game/deco/types/decoTypes';
 import type { PlacementArea } from '@/features/game/room/hooks/useGrid';
-import type { TabId } from '@/features/game/shop/types/item';
+import type { Item, TabId } from '@/features/game/shop/types/item';
+import type { RoomPlacementItem } from '@/features/game/room/api/roomApi';
 import {
   buildFootprint,
   normalizePlacementArea,
@@ -114,6 +115,14 @@ interface ApplyServerStatePayload {
   placedItems: PlacedItem[];
 }
 
+export interface RoomSnapshotPayload {
+  roomId: number;
+  characterId: number;
+  placements: RoomPlacementItem[];
+  inventoryItems: Item[];
+  roomMeta?: RoomMeta;
+}
+
 /**
  * 데코레이션 시스템의 상태를 변경하는 모든 액션 함수들의 인터페이스.
  *
@@ -121,6 +130,16 @@ interface ApplyServerStatePayload {
  * 데코 시스템의 모든 상태 변경 동작을 정의합니다.
  */
 interface DecoActions {
+  /**
+   * 서버 스냅샷 데이터를 스토어에 주입합니다.
+   */
+  loadRoomSnapshot: (payload: RoomSnapshotPayload) => void;
+
+  /**
+   * 최근 스냅샷 적재 오류 상태를 기록합니다.
+   */
+  setHydrationError: (error: Error | null) => void;
+
   /**
    * 인벤토리에서 새 아이템의 드래그를 시작합니다.
    *
@@ -428,6 +447,108 @@ const resolveItemImageUrl = (
   return getItemImage(itemId);
 };
 
+const createEmptyInventoryByCategory = (): Record<TabId, Item[]> => ({
+  CAT: [],
+  LEFT: [],
+  RIGHT: [],
+  BOTTOM: [],
+  ROOM_COLOR: [],
+});
+
+const resolveTabIdForItem = (item: Item): TabId | null => {
+  if (item.itemType === 'PET' || item.itemCategory === 'CAT') {
+    return 'CAT';
+  }
+
+  switch (item.itemCategory) {
+    case 'LEFT':
+    case 'RIGHT':
+    case 'BOTTOM':
+    case 'ROOM_COLOR':
+      return item.itemCategory as TabId;
+    default:
+      return null;
+  }
+};
+
+const groupInventoryByCategory = (items: Item[]): Record<TabId, Item[]> => {
+  const grouped = createEmptyInventoryByCategory();
+  items.forEach(item => {
+    const tabId = resolveTabIdForItem(item);
+    if (tabId) {
+      grouped[tabId].push(item);
+    }
+  });
+  return grouped;
+};
+
+const buildPlacedItemsFromServer = (
+  placements: RoomPlacementItem[],
+  inventoryItems: Item[],
+): PlacedItem[] => {
+  const inventoryMap = new Map(
+    inventoryItems
+      .filter(item => typeof item.inventoryItemId === 'number')
+      .map(item => [item.inventoryItemId as number, item]),
+  );
+
+  return placements.map(placement => {
+    const inventoryItem = inventoryMap.get(placement.inventoryItemId);
+    const normalizedLayer =
+      placement.category === 'PET' ? 'BOTTOM' : placement.category;
+    const baseCellId = `${normalizedLayer}-${placement.positionX + 1}-${placement.positionY + 1}`;
+    const itemType =
+      inventoryItem?.itemType ||
+      (placement.category === 'PET' ? 'PET' : 'DECORATION');
+    const imageUrl = resolveItemImageUrl(
+      inventoryItem?.itemId ?? placement.itemId,
+      itemType,
+      inventoryItem?.imageUrl,
+    );
+
+    return {
+      id: `placement-${placement.placementId || placement.inventoryItemId || placement.itemId}`,
+      inventoryItemId: placement.inventoryItemId,
+      itemId: placement.itemId,
+      cellId: baseCellId,
+      positionX: placement.positionX,
+      positionY: placement.positionY,
+      rotation: 0,
+      layer: normalizedLayer,
+      xLength: inventoryItem?.xLength || 1,
+      yLength: inventoryItem?.yLength || 1,
+      footprintCellIds: undefined,
+      offsetX: 0,
+      offsetY: 0,
+      imageUrl,
+      itemType,
+      isPreview: false,
+    } satisfies PlacedItem;
+  });
+};
+
+const updateInventoryAvailability = (
+  items: Item[],
+  placedItems: PlacedItem[],
+): Item[] => {
+  const placedInventoryIds = new Set(
+    placedItems
+      .map(item => item.inventoryItemId)
+      .filter((id): id is number => typeof id === 'number'),
+  );
+
+  return items.map(item => {
+    if (typeof item.inventoryItemId !== 'number') {
+      return item;
+    }
+
+    return {
+      ...item,
+      isAvailable: !placedInventoryIds.has(item.inventoryItemId),
+    };
+  });
+};
+
 /**
  * 방 데코레이션 시스템의 중앙 상태 관리를 위한 Zustand 스토어.
  *
@@ -435,7 +556,7 @@ const resolveItemImageUrl = (
  * 데코 시스템의 모든 상태와 액션을 관리합니다. vanilla 스토어로
  * 생성되어 React 외부에서도 접근 가능합니다.
  */
-export const decoStore = createStore<DecoStore>(set => ({
+export const decoStore = createStore<DecoStore>((set, get) => ({
   /** 방의 그리드 구성 및 레이어 정보 */
   roomMeta: initialRoomMeta,
   /** 서버에 저장된 확정 배치 아이템들 */
@@ -448,6 +569,58 @@ export const decoStore = createStore<DecoStore>(set => ({
   pendingPlacement: null,
   /** 캔버스의 현재 확대/축소 비율 */
   scale: 1,
+  /** 전체 인벤토리 아이템 목록 */
+  inventoryItems: [],
+  /** 카테고리별 인벤토리 아이템 */
+  inventoryByCategory: createEmptyInventoryByCategory(),
+  /** 현재 메모리에 적재된 방/캐릭터 컨텍스트 */
+  roomContext: null,
+  /** 서버 스냅샷 적재 여부 */
+  isHydrated: false,
+  /** 최근 스냅샷 적재 오류 */
+  hydrationError: null,
+
+  loadRoomSnapshot: ({
+    roomId,
+    characterId,
+    placements,
+    inventoryItems,
+    roomMeta,
+  }: RoomSnapshotPayload) => {
+    const snapshotMeta = roomMeta ?? get().roomMeta ?? initialRoomMeta;
+    const inventoryClones = inventoryItems.map(item => ({ ...item }));
+    const placedFromServer = buildPlacedItemsFromServer(
+      placements,
+      inventoryClones,
+    );
+    const normalizedPlaced = withInstanceId(placedFromServer);
+    const inventoryWithAvailability = updateInventoryAvailability(
+      inventoryClones,
+      normalizedPlaced,
+    );
+    const groupedInventory = groupInventoryByCategory(
+      inventoryWithAvailability,
+    );
+
+    set(() => ({
+      roomMeta: snapshotMeta,
+      placedItems: [...normalizedPlaced],
+      draftItems: [...normalizedPlaced],
+      dragSession: null,
+      pendingPlacement: null,
+      inventoryItems: inventoryWithAvailability,
+      inventoryByCategory: groupedInventory,
+      roomContext: { roomId, characterId },
+      isHydrated: true,
+      hydrationError: null,
+    }));
+  },
+
+  setHydrationError: (error: Error | null) =>
+    set(state => ({
+      hydrationError: error,
+      isHydrated: error ? false : state.isHydrated,
+    })),
 
   startDragFromInventory: (itemId, options: StartDragOptions = {}) =>
     set(state => {
@@ -666,14 +839,21 @@ export const decoStore = createStore<DecoStore>(set => ({
 
   // 서버에서 내려온 방 상태를 store 형식으로 맞춰 초기화한다.
   applyServerState: ({ roomMeta, placedItems }) =>
-    set(() => {
+    set(state => {
       const normalized = withInstanceId(placedItems);
+      const inventoryItems = updateInventoryAvailability(
+        state.inventoryItems,
+        normalized,
+      );
+
       return {
-        roomMeta: roomMeta ?? initialRoomMeta,
+        roomMeta: roomMeta ?? state.roomMeta ?? initialRoomMeta,
         placedItems: [...normalized],
         draftItems: [...normalized],
         dragSession: null,
         pendingPlacement: null,
+        inventoryItems,
+        inventoryByCategory: groupInventoryByCategory(inventoryItems),
       };
     }),
 

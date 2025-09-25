@@ -35,7 +35,6 @@ export interface RoomBaseProps {
   mode?: RoomMode;
   placementArea: TabId | null;
   initialTransform?: Partial<RoomTransform>;
-  onTransformChange?: (transform: RoomTransform) => void;
   children?: RoomRenderable;
   panEnabled?: boolean;
 }
@@ -55,7 +54,6 @@ const renderRoomChildren = (
 const RoomBase = ({
   mode = 'readonly',
   placementArea,
-  onTransformChange,
   children,
   panEnabled = true,
 }: RoomBaseProps) => {
@@ -67,13 +65,6 @@ const RoomBase = ({
     targetRef: imageRef,
     panEnabled,
   });
-
-  useEffect(() => {
-    if (!onTransformChange) {
-      return;
-    }
-    onTransformChange({ scale, position });
-  }, [scale, position, onTransformChange]);
 
   const { gridLines, gridCells, surfacePolygon } = useGrid({
     scale,

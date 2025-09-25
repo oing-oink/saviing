@@ -1,35 +1,23 @@
-import { useEffect, useMemo } from 'react';
+import { useCallback } from 'react';
 import { useDecoStore } from '@/features/game/deco/store/useDecoStore';
-import type { PlacedItem } from '@/features/game/deco/types/decoTypes';
-import { useInventoryItems } from '@/features/game/shop/query/useItemsQuery';
-import { TAB_TO_CATEGORY, type TabInfo } from '@/features/game/shop/types/item';
-import { useGameEntryQuery } from '@/features/game/entry/query/useGameEntryQuery';
+import type { TabInfo } from '@/features/game/shop/types/item';
 
-/** 선택된 탭에 맞는 데코 인벤토리 목록을 불러오는 훅. */
+/** 선택된 탭에 맞는 데코 인벤토리 목록을 스토어에서 가져오는 훅. */
 export const useDecoInventory = (tab: TabInfo) => {
-  const { data: gameEntry } = useGameEntryQuery();
-  const characterId = gameEntry?.characterId;
+  const items = useDecoStore(state => state.inventoryByCategory[tab.id] ?? []);
+  const placedItems = useDecoStore(state => state.placedItems);
+  const isHydrated = useDecoStore(state => state.isHydrated);
+  const error = useDecoStore(state => state.hydrationError);
 
-  const applyServerState = useDecoStore(state => state.applyServerState);
-
-  const category = useMemo(() => TAB_TO_CATEGORY[tab.id], [tab.id]);
-  // PET의 경우 type도 함께 사용, 다른 경우는 카테고리만 사용
-  const query = useInventoryItems(
-    characterId,
-    category === 'CAT' ? 'PET' : 'DECORATION',
-    category,
-  );
-
-  useEffect(() => {
-    applyServerState({ placedItems: [] });
-  }, [applyServerState]);
+  const isLoading = !isHydrated && !error;
+  const refetch = useCallback(async () => undefined, []);
 
   return {
-    items: query.data?.items ?? [],
-    placedItems: [] as PlacedItem[],
-    isLoading: query.isLoading,
-    isError: query.isError,
-    error: query.error,
-    refetch: query.refetch,
+    items,
+    placedItems,
+    isLoading,
+    isError: Boolean(error),
+    error,
+    refetch,
   } as const;
 };

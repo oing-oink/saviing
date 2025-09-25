@@ -7,24 +7,16 @@ import { usePetStore } from '@/features/game/pet/store/usePetStore';
 import { useEnterTransitionStore } from '@/features/game/shared/store/useEnterTransitionStore';
 import GameBackgroundLayout from '@/features/game/shared/layouts/GameBackgroundLayout';
 import { Loader2 } from 'lucide-react';
-import { useGameEntryQuery } from '@/features/game/entry/query/useGameEntryQuery';
 import { useDecoStore } from '@/features/game/deco/store/useDecoStore';
-import { getRoomPlacements } from '@/features/game/room/api/roomApi';
-import { getInventoryItems } from '@/features/game/shop/api/itemsApi';
 import type { PlacedItem } from '@/features/game/deco/types/decoTypes';
 import { RoomCanvas } from '@/features/game/deco/components/roomCanvas';
 import { cn } from '@/lib/utils';
+import { useGameEntryQuery } from '@/features/game/entry/query/useGameEntryQuery';
+import { useRoomSnapshotQuery } from '@/features/game/room/query/useRoomSnapshotQuery';
 
 const GamePage = () => {
-  const {
-    data: gameEntry,
-    isLoading: isGameEntryLoading,
-    error: gameEntryError,
-  } = useGameEntryQuery();
-
-  const [currentPetId, setCurrentPetId] = useState<number | null>(
-    gameEntry?.pet?.petId ?? null,
-  );
+  // 룸에서 선택된 펫 ID (상태 패널에 표시할 대상)
+  const [currentPetId, setCurrentPetId] = useState<number | null>(null);
   const behavior = usePetStore(state => state.behavior);
   const setBehavior = usePetStore(state => state.setBehavior);
   const isTransitioningToGame = useEnterTransitionStore(
@@ -33,105 +25,99 @@ const GamePage = () => {
   const finishTransitionToGame = useEnterTransitionStore(
     state => state.finishTransitionToGame,
   );
+  const placedItems = useDecoStore(state => state.placedItems);
+  const isHydrated = useDecoStore(state => state.isHydrated);
+  const hydrationError = useDecoStore(state => state.hydrationError);
+  const roomContext = useDecoStore(state => state.roomContext);
+  const loadRoomSnapshot = useDecoStore(state => state.loadRoomSnapshot);
+  const setHydrationError = useDecoStore(state => state.setHydrationError);
 
-  const applyServerState = useDecoStore(state => state.applyServerState);
+  const shouldHydrate = !isHydrated;
+  const { data: gameEntry } = useGameEntryQuery({
+    enabled: shouldHydrate && !roomContext,
+  });
+
+  const snapshotRoomId = roomContext?.roomId ?? gameEntry?.roomId;
+  const snapshotCharacterId =
+    roomContext?.characterId ?? gameEntry?.characterId;
+  const shouldFetchSnapshot =
+    shouldHydrate &&
+    typeof snapshotRoomId === 'number' &&
+    typeof snapshotCharacterId === 'number';
+
+  const snapshotQuery = useRoomSnapshotQuery(
+    shouldFetchSnapshot ? (snapshotRoomId as number) : undefined,
+    shouldFetchSnapshot ? (snapshotCharacterId as number) : undefined,
+    {
+      enabled: shouldFetchSnapshot,
+    },
+  );
 
   useEffect(() => {
-    const entryPet = gameEntry?.pet as
-      | { petId?: number; inventoryItemId?: number }
-      | undefined;
-    const initialId =
-      typeof entryPet?.inventoryItemId === 'number'
-        ? entryPet.inventoryItemId
-        : entryPet?.petId;
-    if (typeof initialId === 'number') {
-      setCurrentPetId(initialId);
-    } else {
+    if (!snapshotQuery.isFetching) {
+      return;
+    }
+    setHydrationError(null);
+  }, [setHydrationError, snapshotQuery.isFetching]);
+
+  useEffect(() => {
+    if (!snapshotQuery.data) {
+      return;
+    }
+    loadRoomSnapshot(snapshotQuery.data);
+  }, [loadRoomSnapshot, snapshotQuery.data]);
+
+  useEffect(() => {
+    if (!snapshotQuery.error) {
+      return;
+    }
+    setHydrationError(snapshotQuery.error);
+  }, [setHydrationError, snapshotQuery.error]);
+
+  useEffect(() => {
+    if (!shouldHydrate || roomContext) {
+      return;
+    }
+    if (
+      gameEntry &&
+      (typeof snapshotRoomId !== 'number' ||
+        typeof snapshotCharacterId !== 'number')
+    ) {
+      setHydrationError(new Error('방 또는 캐릭터 정보를 불러올 수 없습니다.'));
+    }
+  }, [
+    gameEntry,
+    roomContext,
+    setHydrationError,
+    shouldHydrate,
+    snapshotCharacterId,
+    snapshotRoomId,
+  ]);
+
+  const isInitialLoading = !isHydrated;
+  const dataError = hydrationError ?? undefined;
+
+  useEffect(() => {
+    if (!isHydrated) {
       setCurrentPetId(null);
-    }
-  }, [gameEntry]);
-
-  // 컴포넌트 초기화 시 방 배치 정보 로드 (DecoPage와 동일한 로직)
-  useEffect(() => {
-    if (!gameEntry) {
       return;
     }
 
-    const { roomId, characterId } = gameEntry;
-    if (typeof roomId !== 'number' || typeof characterId !== 'number') {
-      console.warn('GamePage - roomId 또는 characterId가 유효하지 않습니다.', {
-        roomId,
-        characterId,
-      });
+    const availablePetIds = placedItems
+      .filter(item => item.itemType === 'PET')
+      .map(item => item.inventoryItemId ?? item.itemId);
+
+    if (availablePetIds.length === 0) {
+      setCurrentPetId(null);
       return;
     }
 
-    const loadRoomPlacements = async () => {
-      try {
-        // 배치 정보와 인벤토리 정보를 병렬로 조회
-        const [placementsResponse, ...inventoryResponses] = await Promise.all([
-          getRoomPlacements(roomId),
-          // 모든 카테고리의 인벤토리 조회
-          getInventoryItems(characterId, 'DECORATION', 'LEFT'),
-          getInventoryItems(characterId, 'DECORATION', 'RIGHT'),
-          getInventoryItems(characterId, 'DECORATION', 'BOTTOM'),
-          getInventoryItems(characterId, 'DECORATION', 'ROOM_COLOR'),
-          getInventoryItems(characterId, 'PET', 'CAT'),
-        ]);
+    if (currentPetId !== null && availablePetIds.includes(currentPetId)) {
+      return;
+    }
 
-        // 모든 인벤토리 아이템을 하나의 배열로 합치기
-        const allInventoryItems = inventoryResponses.flatMap(
-          response => response.items,
-        );
-
-        // inventoryItemId를 키로 하는 Map 생성 (업데이트된 아이템들로)
-        const inventoryMap = new Map(
-          allInventoryItems.map(item => [item.inventoryItemId!, item]),
-        );
-
-        // API 응답을 PlacedItem 형식으로 변환
-        const placedItems: PlacedItem[] = placementsResponse.placements.map(
-          placement => {
-            const inventoryItem = inventoryMap.get(placement.inventoryItemId);
-            const normalizedLayer =
-              placement.category === 'PET' ? 'BOTTOM' : placement.category;
-            const baseCellId = `${normalizedLayer}-${placement.positionX + 1}-${placement.positionY + 1}`;
-
-            return {
-              id: `placement-${placement.placementId || placement.inventoryItemId}`,
-              inventoryItemId: placement.inventoryItemId,
-              itemId: placement.itemId,
-              cellId: baseCellId,
-              positionX: placement.positionX,
-              positionY: placement.positionY,
-              rotation: 0,
-              layer: normalizedLayer,
-              xLength: inventoryItem?.xLength || 1,
-              yLength: inventoryItem?.yLength || 1,
-              footprintCellIds: undefined,
-              offsetX: 0,
-              offsetY: 0,
-              imageUrl: undefined,
-              itemType:
-                inventoryItem?.itemType ||
-                (placement.category === 'PET' ? 'PET' : 'DECORATION'),
-              isPreview: false,
-            };
-          },
-        );
-
-        console.log('GamePage - 로드된 배치 아이템:', placedItems);
-
-        // 데코 스토어에 서버 상태 적용
-        applyServerState({ placedItems });
-      } catch (error) {
-        console.error('GamePage - 방 배치 정보 로드 실패:', error);
-      }
-    };
-
-    loadRoomPlacements();
-  }, [applyServerState, gameEntry]);
-
+    setCurrentPetId(availablePetIds[0] ?? null);
+  }, [currentPetId, isHydrated, placedItems]);
   useEffect(() => {
     setBehavior({ currentAnimation: 'idle' });
     if (isTransitioningToGame) {
@@ -182,6 +168,7 @@ const GamePage = () => {
       return undefined;
     }
 
+    // 펫 정보 시트가 열렸을 때 룸이 가려지지 않도록 적당히 위로 이동시키는 로직
     const updateOffset = () => {
       const roomEl = roomContainerRef.current;
       const sheetEl = sheetRef.current;
@@ -240,6 +227,7 @@ const GamePage = () => {
       return undefined;
     }
 
+    // 팝오버 폭을 룸 그리드와 동일하게 맞춘다.
     const measure = () => {
       const container = roomContainerRef.current;
       if (container) {
@@ -266,6 +254,7 @@ const GamePage = () => {
     }
   };
 
+  // 룸에서 펫 타일을 클릭하면 해당 펫을 정보 카드에 표시한다.
   const handlePlacedItemClick = useCallback(
     ({ item }: { item: PlacedItem; clientX: number; clientY: number }) => {
       if (item.itemType !== 'PET') {
@@ -281,7 +270,7 @@ const GamePage = () => {
     [setIsPopoverOpen, setCurrentPetId],
   );
 
-  if (isGameEntryLoading) {
+  if (isInitialLoading) {
     return (
       <GameBackgroundLayout className="game relative touch-none overflow-hidden font-galmuri">
         <div className="flex h-full items-center justify-center gap-2">
@@ -292,13 +281,13 @@ const GamePage = () => {
     );
   }
 
-  if (gameEntryError) {
+  if (dataError) {
     return (
       <GameBackgroundLayout className="game relative touch-none overflow-hidden font-galmuri">
         <div className="flex h-full items-center justify-center">
           <span className="text-sm text-red-500">
-            펫 정보를 불러올 수 없습니다
-            {gameEntryError ? `: ${gameEntryError.message}` : ''}
+            게임 데이터를 불러올 수 없습니다
+            {dataError ? `: ${dataError.message}` : ''}
           </span>
         </div>
       </GameBackgroundLayout>
@@ -325,6 +314,7 @@ const GamePage = () => {
             }
           >
             <div className="relative flex w-full justify-center">
+              {/* 룸 캔버스를 읽기 전용으로 실행하고, 펫 클릭 이벤트와 애니메이션 상태를 연동한다. */}
               <Room mode="readonly" placementArea={null}>
                 {context => (
                   <RoomCanvas
@@ -347,6 +337,7 @@ const GamePage = () => {
         </div>
       </div>
 
+      {/* 선택된 펫의 상태 정보를 화면 하단 팝오버로 표시 */}
       <div
         className="pointer-events-none fixed bottom-[env(safe-area-inset-bottom,0)] z-40 px-4 pb-6"
         style={{
