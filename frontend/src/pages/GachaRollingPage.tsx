@@ -12,6 +12,7 @@ import type { GachaDrawResponse } from '@/features/game/shop/types/item';
 import toast from 'react-hot-toast';
 import { useQueryClient } from '@tanstack/react-query';
 import { gameKeys } from '@/features/game/shared/query/gameKeys';
+import { useGameEntryQuery } from '@/features/game/entry/query/useGameEntryQuery';
 
 const GachaRollingPage = () => {
   const navigate = useNavigate();
@@ -22,6 +23,8 @@ const GachaRollingPage = () => {
   const [gachaResult, setGachaResult] = useState<GachaDrawResponse | null>(
     null,
   );
+  const { data: gameEntry } = useGameEntryQuery();
+  const characterId = gameEntry?.characterId;
 
   useFireworks(Boolean(gachaResult));
 
@@ -33,11 +36,11 @@ const GachaRollingPage = () => {
     setGachaResult(null);
 
     // 페이지 진입과 동시에 가챠 API 호출
-    if (gachaInfo) {
+    if (gachaInfo && typeof characterId === 'number') {
       const timer = setTimeout(() => {
         drawGacha(
           {
-            characterId: 1, // TODO: 실제 캐릭터 ID 사용
+            characterId,
             gachaPoolId: gachaInfo.gachaPoolId,
             paymentMethod: 'COIN', // 기본적으로 코인 사용
           },
@@ -46,7 +49,6 @@ const GachaRollingPage = () => {
               setGachaResult(result);
 
               // 가챠 성공 후 캐릭터 게임 데이터 캐시 업데이트
-              const characterId = 1; // TODO: 실제 캐릭터 ID 사용
               queryClient.setQueryData(
                 gameKeys.characterData(characterId),
                 (oldData: any) => {
@@ -78,7 +80,7 @@ const GachaRollingPage = () => {
 
       return () => clearTimeout(timer);
     }
-  }, [gachaInfo, drawGacha, navigate, timestamp]);
+  }, [characterId, drawGacha, gachaInfo, navigate, queryClient, timestamp]);
 
   const handleCloseResult = () => {
     setGachaResult(null);

@@ -18,10 +18,16 @@ import { gameKeys } from './gameKeys';
  *
  * @returns React Query 결과 객체
  */
-export const useGameQuery = (characterId: number) => {
+export const useGameQuery = (characterId?: number) => {
+  const queryKey =
+    typeof characterId === 'number'
+      ? gameKeys.characterData(characterId)
+      : (['character', 'unknown'] as const);
+
   return useQuery<CharacterGameData, Error>({
-    queryKey: gameKeys.characterData(characterId),
-    queryFn: () => getCharacterGameData(characterId),
+    queryKey,
+    queryFn: () => getCharacterGameData(characterId as number),
+    enabled: typeof characterId === 'number',
   });
 };
 
@@ -35,10 +41,13 @@ export const useGameQuery = (characterId: number) => {
  * @param characterId - 조회할 캐릭터 ID
  * @returns React Query 결과 객체
  */
-export const useCharacterStatistics = (characterId: number) => {
+export const useCharacterStatistics = (characterId?: number) => {
   return useQuery<CharacterStatistics, Error>({
-    queryKey: gameKeys.characterStatistics(characterId),
-    queryFn: () => getCharacterStatistics(characterId),
-    enabled: Boolean(characterId), // characterId가 있을 때만 실행
+    queryKey:
+      typeof characterId === 'number'
+        ? gameKeys.characterStatistics(characterId)
+        : (['character', 'unknown', 'statistics'] as const),
+    queryFn: () => getCharacterStatistics(characterId as number),
+    enabled: typeof characterId === 'number', // characterId가 있을 때만 실행
   });
 };
