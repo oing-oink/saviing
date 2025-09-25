@@ -22,7 +22,9 @@ const GamePage = () => {
     error: gameEntryError,
   } = useGameEntryQuery();
 
-  const [currentPetId, setCurrentPetId] = useState(gameEntry?.pet?.petId);
+  const [currentPetId, setCurrentPetId] = useState<number | null>(
+    gameEntry?.pet?.petId ?? null,
+  );
   const behavior = usePetStore(state => state.behavior);
   const setBehavior = usePetStore(state => state.setBehavior);
   const isTransitioningToGame = useEnterTransitionStore(
@@ -33,6 +35,21 @@ const GamePage = () => {
   );
 
   const applyServerState = useDecoStore(state => state.applyServerState);
+
+  useEffect(() => {
+    const entryPet = gameEntry?.pet as
+      | { petId?: number; inventoryItemId?: number }
+      | undefined;
+    const initialId =
+      typeof entryPet?.inventoryItemId === 'number'
+        ? entryPet.inventoryItemId
+        : entryPet?.petId;
+    if (typeof initialId === 'number') {
+      setCurrentPetId(initialId);
+    } else {
+      setCurrentPetId(null);
+    }
+  }, [gameEntry]);
 
   // 컴포넌트 초기화 시 방 배치 정보 로드 (DecoPage와 동일한 로직)
   useEffect(() => {
@@ -350,7 +367,13 @@ const GamePage = () => {
             ref={sheetRef}
             className="overflow-hidden rounded-2xl border border-black/10 bg-white/95 shadow-lg backdrop-blur-sm"
           >
-            <PetStatusCard petId={currentPetId} />
+            {currentPetId !== null ? (
+              <PetStatusCard petId={currentPetId} />
+            ) : (
+              <div className="flex h-60 items-center justify-center p-4 text-sm text-muted-foreground">
+                표시할 펫이 없습니다.
+              </div>
+            )}
           </div>
         </div>
       </div>

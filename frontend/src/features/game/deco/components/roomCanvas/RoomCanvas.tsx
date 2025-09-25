@@ -1087,7 +1087,6 @@ const RoomCanvas = ({
                 style={{ pointerEvents: 'none', overflow: 'visible' }}
               >
                 <div
-                  xmlns="http://www.w3.org/1999/xhtml"
                   className="flex h-full w-full items-end justify-center"
                   style={{ pointerEvents: 'none' }}
                 >
@@ -1153,7 +1152,6 @@ const RoomCanvas = ({
                   }}
                 >
                   <div
-                    xmlns="http://www.w3.org/1999/xhtml"
                     className="flex h-full w-full items-end justify-center"
                     style={{ pointerEvents: 'none' }}
                   >
@@ -1216,7 +1214,6 @@ const RoomCanvas = ({
                   }}
                 >
                   <div
-                    xmlns="http://www.w3.org/1999/xhtml"
                     className="flex h-full w-full items-end justify-center"
                     style={{ pointerEvents: 'none' }}
                   >
