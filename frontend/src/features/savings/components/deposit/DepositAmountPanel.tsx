@@ -12,8 +12,8 @@ interface DepositAmountPanelProps {
   availableBalance: number;
   afterTransferBalance: number;
   projectedBalance: number;
-  projectedProgress: number;
-  remainingAfterDeposit: number;
+  projectedProgress?: number;
+  remainingAfterDeposit?: number;
   isSourceSelectable: boolean;
   memo: string;
   onMemoChange: (value: string) => void;
@@ -125,12 +125,12 @@ const DepositAmountPanel = ({
           value={`${formatCurrency(afterTransferBalance)}원`}
         />
         <SummaryRow
-          label="예상 적립금"
-          value={`${formatCurrency(projectedBalance)}원 · ${projectedProgress}%`}
+          label="예상 잔액"
+          value={`${formatCurrency(projectedBalance)}원${projectedProgress !== undefined ? ` · ${projectedProgress}%` : ''}`}
         />
       </div>
 
-      {amount > 0 ? (
+      {amount > 0 && remainingAfterDeposit !== undefined ? (
         <div className="rounded-[1rem] bg-primary/5 px-[1.25rem] py-[1rem] text-center text-xs text-primary">
           입금 후 목표까지 남은 금액은{' '}
           <span className="font-semibold">
