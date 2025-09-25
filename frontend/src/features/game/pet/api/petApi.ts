@@ -5,7 +5,6 @@ import type {
   PetInteractionResponse,
 } from '@/features/game/pet/types/petTypes';
 import {
-  mockGetPet,
   mockPetInteraction,
   mockRenamePetName,
 } from '@/features/game/pet/data/mockPetApi';
@@ -30,11 +29,11 @@ const USE_MOCK = true;
  * @throws API 호출 실패 시 네트워크 오류 또는 HTTP 오류 발생
  */
 export const getPet = async (petId: number): Promise<PetData> => {
-  if (USE_MOCK) {
-    // Mock 데이터 사용
-    const mockResponse = await mockGetPet();
-    return mockResponse.body!;
-  }
+  // if (USE_MOCK) {
+  //   // Mock 데이터 사용
+  //   const mockResponse = await mockGetPet();
+  //   return mockResponse.body!;
+  // }
 
   // 실제 API 호출
   const response = await http.get<PetData>(`/v1/game/pets/${petId}`);
