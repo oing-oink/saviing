@@ -6,6 +6,8 @@ import { useEnterTransitionStore } from '@/features/game/shared/store/useEnterTr
 import { useNavigate } from 'react-router-dom';
 import { PAGE_PATH } from '@/shared/constants/path';
 import GameBackgroundLayout from '@/features/game/shared/layouts/GameBackgroundLayout';
+import { useGameEntryQuery } from '@/features/game/entry/query/useGameEntryQuery';
+import { Loader2 } from 'lucide-react';
 
 const GameEnterPage = () => {
   const navigate = useNavigate();
@@ -18,6 +20,14 @@ const GameEnterPage = () => {
   const [atCenter, setAtCenter] = useState(false);
   const [roomRise, setRoomRise] = useState(false);
   const hasNavigatedRef = useRef(false);
+
+  const {
+    data: gameEntry,
+    isLoading: isGameEntryLoading,
+    error: gameEntryError,
+  } = useGameEntryQuery();
+
+  const currentPetItemId = gameEntry?.pet.itemId;
 
   useEffect(() => {
     // 시작 위치에서 중앙으로 이동
@@ -44,6 +54,30 @@ const GameEnterPage = () => {
   const startX = origin?.x ?? 0;
   const startY = origin?.y ?? -80;
   const scale = origin?.scale ?? 4;
+
+  if (isGameEntryLoading) {
+    return (
+      <GameBackgroundLayout className="game relative touch-none overflow-hidden font-galmuri">
+        <div className="flex h-full items-center justify-center gap-2">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          <span className="text-sm text-muted-foreground">불러오는 중...</span>
+        </div>
+      </GameBackgroundLayout>
+    );
+  }
+
+  if (gameEntryError || typeof currentPetItemId !== 'number') {
+    return (
+      <GameBackgroundLayout className="game relative touch-none overflow-hidden font-galmuri">
+        <div className="flex h-full items-center justify-center">
+          <span className="text-sm text-red-500">
+            펫 정보를 불러올 수 없습니다
+            {gameEntryError ? `: ${gameEntryError.message}` : ''}
+          </span>
+        </div>
+      </GameBackgroundLayout>
+    );
+  }
 
   return (
     <GameBackgroundLayout className="game relative touch-none overflow-hidden font-galmuri">
@@ -75,7 +109,7 @@ const GameEnterPage = () => {
                 }}
               >
                 <div style={{ transform: `scale(${scale})` }}>
-                  <CatSprite petId={1009} currentAnimation={anim} />
+                  <CatSprite itemId={currentPetItemId} currentAnimation={anim} />
                 </div>
               </div>
             </div>

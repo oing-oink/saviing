@@ -12,7 +12,7 @@ import type {
  */
 export const mockPetData: PetData = {
   petId: 1009,
-  itemId: 1,
+  itemId: 1009,
   name: '완두',
   level: 5,
   exp: 50,

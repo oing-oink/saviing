@@ -1,7 +1,7 @@
 import type { PetSpriteProps } from '@/features/game/pet/types/petTypes';
 import {
-  CAT_SPRITE_PATHS,
   getAnimationFileName,
+  resolveSpritePath,
 } from '@/features/game/pet/data/catAnimations';
 import { useSpriteAnimation } from '@/features/game/pet/hooks/useSpriteAnimation';
 import { cn } from '@/lib/utils';
@@ -13,19 +13,19 @@ import { cn } from '@/lib/utils';
  * 배경 이미지의 position을 조작하여 각 프레임을 순차적으로 표시합니다.
  *
  * @param props - 스프라이트 컴포넌트의 props
- * @param props.petId - 펫의 고유 식별자 (스프라이트 경로 결정에 사용)
+ * @param props.itemId - 펫 아이템 식별자 (스프라이트 경로 결정에 사용)
  * @param props.currentAnimation - 현재 재생할 애니메이션 타입
  * @param props.className - 추가적인 CSS 클래스명
  * @param props.onAnimationComplete - 애니메이션 완료 시 호출되는 콜백 함수
  * @returns 스프라이트 애니메이션이 적용된 div 엘리먼트
  */
 const CatSprite = ({
-  petId,
+  itemId,
   currentAnimation,
   className,
   onAnimationComplete,
 }: PetSpriteProps) => {
-  const spritePath = CAT_SPRITE_PATHS[petId as keyof typeof CAT_SPRITE_PATHS];
+  const spritePath = resolveSpritePath(itemId);
   const spriteFileName = getAnimationFileName(currentAnimation);
   const fullSpritePath = `${spritePath}/${spriteFileName}`;
 
