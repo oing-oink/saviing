@@ -15,6 +15,9 @@ import type { PlacedItem as PlacedItemType } from '@/features/game/deco/types/de
 import PlacedItem from './PlacedItem';
 import GhostItem from './GhostItem';
 import { useGrid } from '@/features/game/room/hooks/useGrid';
+import CatSprite from '@/features/game/pet/components/CatSprite';
+import { CAT_ANIMATIONS } from '@/features/game/pet/data/catAnimations';
+import type { PetAnimationState } from '@/features/game/pet/types/petTypes';
 
 /**
  * RoomCanvas 컴포넌트에서 필요한 컨텍스트와 동작 제어 옵션.
@@ -28,6 +31,13 @@ interface RoomCanvasProps {
   pickupOnlyPreview?: boolean;
   allowDelete?: boolean;
   deleteOnlyPreview?: boolean;
+  onPlacedItemClick?: (payload: {
+    item: PlacedItemType;
+    clientX: number;
+    clientY: number;
+  }) => void;
+  catAnimationState?: PetAnimationState;
+  onCatAnimationComplete?: (animation: PetAnimationState) => void;
 }
 
 /**
@@ -42,6 +52,9 @@ const RoomCanvas = ({
   pickupOnlyPreview = false,
   allowDelete = true,
   deleteOnlyPreview = false,
+  onPlacedItemClick,
+  catAnimationState,
+  onCatAnimationComplete,
 }: RoomCanvasProps) => {
   const { containerRef, gridCells, scale, surfacePolygon } = context;
 
@@ -281,7 +294,7 @@ const RoomCanvas = ({
           item.footprintCellIds && item.footprintCellIds.length > 0
             ? item.footprintCellIds
             : buildFootprint(item.cellId, item.xLength, item.yLength);
-        return computeSprite({
+        const sprite = computeSprite({
           id: item.id,
           footprintIds,
           rotation: item.rotation ?? 0,
@@ -290,6 +303,14 @@ const RoomCanvas = ({
           xLength: item.xLength ?? 1,
           yLength: item.yLength ?? 1,
         });
+        if (!sprite) {
+          return null;
+        }
+        return {
+          ...sprite,
+          itemType: item.itemType ?? 'DECORATION',
+          itemId: item.itemId,
+        };
       })
       .filter(
         (
@@ -304,6 +325,8 @@ const RoomCanvas = ({
           rotation: number;
           centerX: number;
           centerY: number;
+          itemType: string;
+          itemId: number;
         } => Boolean(sprite),
       );
 
@@ -430,41 +453,62 @@ const RoomCanvas = ({
   }, [computeSprite, dragSession, ghost.footprintCellIds, ghost.ghostCellId]);
 
   const pendingSprite = useMemo(() => {
-    const source =
-      pendingPlacement ??
-      (ghost.isValid && ghostSprite
-        ? {
-            id: `${dragSession?.itemId ?? 'ghost'}-pending`,
-            cellId: ghost.ghostCellId ?? '',
-            footprintCellIds: ghost.footprintCellIds,
-            rotation: dragSession?.originalItem?.rotation ?? 0,
-            itemId: Number(dragSession?.itemId ?? 0),
-            imageUrl: dragSession?.imageUrl,
-            xLength: dragSession?.xLength ?? 1,
-            yLength: dragSession?.yLength ?? 1,
-          }
-        : null);
-    if (!source) {
+    if (!pendingPlacement) {
       return null;
     }
     const footprintIds =
-      source.footprintCellIds && source.footprintCellIds.length > 0
-        ? source.footprintCellIds
-        : buildFootprint(source.cellId, source.xLength, source.yLength);
+      pendingPlacement.footprintCellIds && pendingPlacement.footprintCellIds.length > 0
+        ? pendingPlacement.footprintCellIds
+        : buildFootprint(
+            pendingPlacement.cellId,
+            pendingPlacement.xLength ?? 1,
+            pendingPlacement.yLength ?? 1,
+          );
     return computeSprite({
-      id: source.id,
+      id: pendingPlacement.id,
       footprintIds,
-      rotation: source.rotation ?? 0,
-      itemId: source.itemId,
-      imageUrl: source.imageUrl,
-      xLength: source.xLength,
-      yLength: source.yLength,
+      rotation: pendingPlacement.rotation ?? 0,
+      itemId: pendingPlacement.itemId,
+      imageUrl: pendingPlacement.imageUrl,
+      xLength: pendingPlacement.xLength ?? 1,
+      yLength: pendingPlacement.yLength ?? 1,
     });
-  }, [computeSprite, dragSession, ghost, ghostSprite, pendingPlacement]);
+  }, [computeSprite, pendingPlacement]);
+
+  const getCatRenderBox = useCallback(
+    (
+      imageUrl: string | undefined,
+      fallbackWidth: number,
+      fallbackHeight: number,
+      animation: PetAnimationState,
+    ) => {
+      const metrics = imageUrl ? imageSizeCacheRef.current.get(imageUrl) : null;
+      const sheetWidth = metrics?.width ?? fallbackWidth;
+      const sheetHeight = metrics?.height ?? fallbackHeight;
+      const frameInfo = CAT_ANIMATIONS[animation];
+      const frameCount = frameInfo?.frames ?? 1;
+      const frameWidth = frameCount > 0 ? sheetWidth / frameCount : sheetWidth;
+      const frameHeight = sheetHeight;
+      if (frameWidth <= 0 || frameHeight <= 0) {
+        return { width: fallbackWidth, height: fallbackHeight };
+      }
+      const aspect = frameHeight / frameWidth;
+      return {
+        width: fallbackWidth,
+        height: Math.max(fallbackWidth * aspect, fallbackHeight),
+      };
+    },
+    [],
+  );
 
   const isPointerActiveRef = useRef(false);
   const [isPointerActive, setIsPointerActive] = useState(false);
   const hasPointerMovedRef = useRef(false);
+
+  const displayPendingSprite = useMemo(
+    () => (!isPointerActive ? pendingSprite : null),
+    [isPointerActive, pendingSprite],
+  );
 
   const actionAnchor = useMemo(() => {
     if (!showActions) {
@@ -473,14 +517,20 @@ const RoomCanvas = ({
     if (ghost.isValid && ghostSprite) {
       return ghostSprite;
     }
-    if (pendingSprite) {
-      return pendingSprite;
+    if (displayPendingSprite) {
+      return displayPendingSprite;
     }
     if (isPointerActive && ghostSprite) {
       return ghostSprite;
     }
     return null;
-  }, [ghost.isValid, ghostSprite, isPointerActive, pendingSprite, showActions]);
+  }, [
+    displayPendingSprite,
+    ghost.isValid,
+    ghostSprite,
+    isPointerActive,
+    showActions,
+  ]);
 
   const deleteTargetId = useMemo(() => {
     if (pendingPlacement) {
@@ -875,11 +925,14 @@ const RoomCanvas = ({
     clientX: number;
     clientY: number;
   }) => {
-    if (!allowItemPickup) {
-      return;
-    }
     const targetItem = draftItems.find(item => item.id === id);
     if (!targetItem) {
+      return;
+    }
+
+    onPlacedItemClick?.({ item: targetItem, clientX, clientY });
+
+    if (!allowItemPickup) {
       return;
     }
     if (pickupOnlyPreview && !targetItem.isPreview) {
@@ -1012,65 +1065,183 @@ const RoomCanvas = ({
           />
         ) : null}
         {/* 확정된 아이템 스프라이트 */}
-        {spriteData.map(sprite => (
-          <image
-            key={`${sprite.id}-image`}
-            href={sprite.imageUrl}
-            xlinkHref={sprite.imageUrl}
-            x={sprite.x}
-            y={sprite.y}
-            width={sprite.width}
-            height={sprite.height}
-            preserveAspectRatio="xMidYMax meet"
-            transform={
-              sprite.rotation
-                ? `rotate(${sprite.rotation}, ${sprite.centerX}, ${sprite.centerY})`
-                : undefined
-            }
-            style={{ pointerEvents: 'none' }}
-          />
-        ))}
-        {pendingSprite ? (
-          <image
-            key={`${pendingSprite.id}-pending-image`}
-            href={pendingSprite.imageUrl}
-            xlinkHref={pendingSprite.imageUrl}
-            x={pendingSprite.x}
-            y={pendingSprite.y}
-            width={pendingSprite.width}
-            height={pendingSprite.height}
-            preserveAspectRatio="xMidYMax meet"
-            transform={
-              pendingSprite.rotation
-                ? `rotate(${pendingSprite.rotation}, ${pendingSprite.centerX}, ${pendingSprite.centerY})`
-                : undefined
-            }
-            opacity={0.85}
-            style={{ pointerEvents: 'none' }}
-          />
+        {spriteData.map(sprite => {
+          if (sprite.itemType === 'PET') {
+            const catAnimation = catAnimationState ?? 'idle';
+            const box = getCatRenderBox(
+              sprite.imageUrl,
+              sprite.width,
+              sprite.height,
+              catAnimation,
+            );
+            const offsetX = sprite.centerX - box.width / 2;
+            const offsetY = sprite.y + sprite.height - box.height;
+            return (
+              <foreignObject
+                key={`${sprite.id}-cat`}
+                x={offsetX}
+                y={offsetY}
+                width={box.width}
+                height={box.height}
+                style={{ pointerEvents: 'none', overflow: 'visible' }}
+              >
+                <div
+                  xmlns="http://www.w3.org/1999/xhtml"
+                  className="flex h-full w-full items-end justify-center"
+                  style={{ pointerEvents: 'none' }}
+                >
+                  <CatSprite
+                    petId={sprite.itemId}
+                    currentAnimation={catAnimation}
+                    className="pointer-events-none"
+                    targetWidth={box.width}
+                    onAnimationComplete={onCatAnimationComplete}
+                  />
+                </div>
+              </foreignObject>
+            );
+          }
+          return (
+            <image
+              key={`${sprite.id}-image`}
+              href={sprite.imageUrl}
+              xlinkHref={sprite.imageUrl}
+              x={sprite.x}
+              y={sprite.y}
+              width={sprite.width}
+              height={sprite.height}
+              preserveAspectRatio="xMidYMax meet"
+              transform={
+                sprite.rotation
+                  ? `rotate(${sprite.rotation}, ${sprite.centerX}, ${sprite.centerY})`
+                  : undefined
+              }
+              style={{ pointerEvents: 'none' }}
+            />
+          );
+        })}
+        {displayPendingSprite ? (
+          ((pendingPlacement && pendingPlacement.itemType === 'PET') ||
+            (!pendingPlacement && dragSession?.itemType === 'PET')) ? (
+            (() => {
+              const catAnimation = catAnimationState ?? 'idle';
+              const box = getCatRenderBox(
+                displayPendingSprite.imageUrl,
+                displayPendingSprite.width,
+                displayPendingSprite.height,
+                catAnimation,
+              );
+              const offsetX = displayPendingSprite.centerX - box.width / 2;
+              const offsetY =
+                displayPendingSprite.y + displayPendingSprite.height - box.height;
+              const pendingItemId =
+                pendingPlacement?.itemId ?? Number(dragSession?.itemId ?? 0);
+              return (
+                <foreignObject
+                  key={`${displayPendingSprite.id}-pending-cat`}
+                  x={offsetX}
+                  y={offsetY}
+                  width={box.width}
+                  height={box.height}
+                  style={{ pointerEvents: 'none', overflow: 'visible', opacity: 0.85 }}
+                >
+                  <div
+                    xmlns="http://www.w3.org/1999/xhtml"
+                    className="flex h-full w-full items-end justify-center"
+                    style={{ pointerEvents: 'none' }}
+                  >
+                    <CatSprite
+                      petId={pendingItemId}
+                      currentAnimation={catAnimation}
+                      className="pointer-events-none"
+                      targetWidth={box.width}
+                      onAnimationComplete={onCatAnimationComplete}
+                    />
+                  </div>
+                </foreignObject>
+              );
+            })()
+          ) : (
+            <image
+              key={`${displayPendingSprite.id}-pending-image`}
+              href={displayPendingSprite.imageUrl}
+              xlinkHref={displayPendingSprite.imageUrl}
+              x={displayPendingSprite.x}
+              y={displayPendingSprite.y}
+              width={displayPendingSprite.width}
+              height={displayPendingSprite.height}
+              preserveAspectRatio="xMidYMax meet"
+              transform={
+                displayPendingSprite.rotation
+                  ? `rotate(${displayPendingSprite.rotation}, ${displayPendingSprite.centerX}, ${displayPendingSprite.centerY})`
+                  : undefined
+              }
+              opacity={0.85}
+              style={{ pointerEvents: 'none' }}
+            />
+          )
         ) : null}
         {/* 드래그 중 고스트 스프라이트 (유효할 때만 표시) */}
-        {ghostSprite && ghost.isValid ? (
-          <image
-            key={`${ghostSprite.id}-image`}
-            href={ghostSprite.imageUrl}
-            xlinkHref={ghostSprite.imageUrl}
-            x={ghostSprite.x}
-            y={ghostSprite.y}
-            width={ghostSprite.width}
-            height={ghostSprite.height}
-            preserveAspectRatio="xMidYMax meet"
-            transform={
-              ghostSprite.rotation
-                ? `rotate(${ghostSprite.rotation}, ${ghostSprite.centerX}, ${ghostSprite.centerY})`
-                : undefined
-            }
-            opacity={0.6}
-            style={{ pointerEvents: 'none' }}
-          />
+        {isPointerActive && ghostSprite && ghost.isValid ? (
+          dragSession?.itemType === 'PET' ? (
+            (() => {
+              const catAnimation = catAnimationState ?? 'idle';
+              const box = getCatRenderBox(
+                ghostSprite.imageUrl,
+                ghostSprite.width,
+                ghostSprite.height,
+                catAnimation,
+              );
+              const offsetX = ghostSprite.centerX - box.width / 2;
+              const offsetY = ghostSprite.y + ghostSprite.height - box.height;
+              const ghostItemId = Number(dragSession?.itemId ?? 0);
+              return (
+                <foreignObject
+                  key={`${ghostSprite.id}-ghost-cat`}
+                  x={offsetX}
+                  y={offsetY}
+                  width={box.width}
+                  height={box.height}
+                  style={{ pointerEvents: 'none', overflow: 'visible', opacity: 0.6 }}
+                >
+                  <div
+                    xmlns="http://www.w3.org/1999/xhtml"
+                    className="flex h-full w-full items-end justify-center"
+                    style={{ pointerEvents: 'none' }}
+                  >
+                    <CatSprite
+                      petId={ghostItemId}
+                      currentAnimation={catAnimation}
+                      className="pointer-events-none"
+                      targetWidth={box.width}
+                      onAnimationComplete={onCatAnimationComplete}
+                    />
+                  </div>
+                </foreignObject>
+              );
+            })()
+          ) : (
+            <image
+              key={`${ghostSprite.id}-image`}
+              href={ghostSprite.imageUrl}
+              xlinkHref={ghostSprite.imageUrl}
+              x={ghostSprite.x}
+              y={ghostSprite.y}
+              width={ghostSprite.width}
+              height={ghostSprite.height}
+              preserveAspectRatio="xMidYMax meet"
+              transform={
+                ghostSprite.rotation
+                  ? `rotate(${ghostSprite.rotation}, ${ghostSprite.centerX}, ${ghostSprite.centerY})`
+                  : undefined
+              }
+              opacity={0.6}
+              style={{ pointerEvents: 'none' }}
+            />
+          )
         ) : null}
         <GhostItem polygons={ghostPolygons} isValid={ghost.isValid} />
-        {allowItemPickup
+        {(allowItemPickup || onPlacedItemClick)
           ? draftPolygons.map(item => (
               <PlacedItem
                 key={`${item.id}-hit`}

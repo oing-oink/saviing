@@ -1,15 +1,8 @@
 import GameHeader from '@/features/game/shared/components/GameHeader';
 import ElevatorButton from '@/features/game/shared/components/ElevatorButton';
 import PetStatusCard from '@/features/game/pet/components/PetStatusCard';
-import CatSprite from '@/features/game/pet/components/CatSprite';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-  PopoverAnchor,
-} from '@/shared/components/ui/popover';
 import Room from '@/features/game/room/Room';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePetStore } from '@/features/game/pet/store/usePetStore';
 import { useEnterTransitionStore } from '@/features/game/shared/store/useEnterTransitionStore';
 import GameBackgroundLayout from '@/features/game/shared/layouts/GameBackgroundLayout';
@@ -20,6 +13,7 @@ import { getRoomPlacements } from '@/features/game/room/api/roomApi';
 import { getInventoryItems } from '@/features/game/shop/api/itemsApi';
 import type { PlacedItem } from '@/features/game/deco/types/decoTypes';
 import { RoomCanvas } from '@/features/game/deco/components/roomCanvas';
+import { cn } from '@/lib/utils';
 
 const GamePage = () => {
   const {
@@ -28,7 +22,7 @@ const GamePage = () => {
     error: gameEntryError,
   } = useGameEntryQuery();
 
-  const currentPetId = gameEntry?.pet?.petId;
+  const [currentPetId, setCurrentPetId] = useState(gameEntry?.pet?.petId);
   const currentPetItemId = gameEntry?.pet?.itemId;
   const hasPet =
     typeof currentPetId === 'number' && typeof currentPetItemId === 'number';
@@ -119,6 +113,121 @@ const GamePage = () => {
 
   // Popover 상태 관리
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const roomContainerRef = useRef<HTMLDivElement | null>(null);
+  const sheetRef = useRef<HTMLDivElement | null>(null);
+  const [roomOffset, setRoomOffset] = useState(0);
+  const [sheetWidth, setSheetWidth] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!isPopoverOpen) {
+      setRoomOffset(0);
+      setSheetWidth(null);
+      return undefined;
+    }
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsPopoverOpen(false);
+      }
+    };
+    const handlePointerDown = (event: PointerEvent) => {
+      const sheetEl = sheetRef.current;
+      if (!sheetEl) {
+        return;
+      }
+      if (!sheetEl.contains(event.target as Node)) {
+        setIsPopoverOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('pointerdown', handlePointerDown, true);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('pointerdown', handlePointerDown, true);
+    };
+  }, [isPopoverOpen]);
+
+  useEffect(() => {
+    if (!isPopoverOpen) {
+      setRoomOffset(0);
+      setSheetWidth(null);
+      return undefined;
+    }
+
+    const updateOffset = () => {
+      const roomEl = roomContainerRef.current;
+      const sheetEl = sheetRef.current;
+      if (!roomEl || !sheetEl) {
+        setRoomOffset(0);
+        return;
+      }
+
+      const roomRect = roomEl.getBoundingClientRect();
+      const sheetRect = sheetEl.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+
+      const gapBelowRoom = viewportHeight - roomRect.bottom;
+      const margin = 24;
+      const neededGap = sheetRect.height + margin - gapBelowRoom;
+      if (neededGap <= 0) {
+        setRoomOffset(0);
+        return;
+      }
+
+      const maxLift = Math.max(roomRect.top, 0);
+      const lift = Math.min(neededGap, maxLift);
+      setRoomOffset(lift > 0 ? lift : 0);
+    };
+
+    const handleResize = () => {
+      requestAnimationFrame(updateOffset);
+    };
+
+    let frame = requestAnimationFrame(updateOffset);
+
+    const sheetEl = sheetRef.current;
+    const resizeObserver = sheetEl
+      ? new ResizeObserver(() => {
+          requestAnimationFrame(updateOffset);
+        })
+      : null;
+
+    if (sheetEl && resizeObserver) {
+      resizeObserver.observe(sheetEl);
+    }
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      cancelAnimationFrame(frame);
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      }
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [isPopoverOpen]);
+
+  useEffect(() => {
+    if (!isPopoverOpen) {
+      return undefined;
+    }
+
+    const measure = () => {
+      const container = roomContainerRef.current;
+      if (container) {
+        setSheetWidth(container.getBoundingClientRect().width);
+      } else {
+        setSheetWidth(null);
+      }
+    };
+
+    measure();
+    window.addEventListener('resize', measure);
+
+    return () => {
+      window.removeEventListener('resize', measure);
+    };
+  }, [isPopoverOpen]);
 
   // 애니메이션 완료 시 idle로 복귀
   const handleAnimationComplete = (animation: string) => {
@@ -152,6 +261,17 @@ const GamePage = () => {
       </GameBackgroundLayout>
     );
   }
+  
+  const handlePlacedItemClick = useCallback(
+    ({ item }: { item: PlacedItem; clientX: number; clientY: number }) => {
+      if (item.itemType !== 'PET') {
+        return;
+      }
+      setCurrentPetId(item.itemId);
+      setIsPopoverOpen(true);
+    },
+    [setIsPopoverOpen, setCurrentPetId],
+  );
 
   return (
     <GameBackgroundLayout className="game relative touch-none overflow-hidden font-galmuri">
@@ -160,58 +280,29 @@ const GamePage = () => {
           <GameHeader />
         </div>
 
-        <div className="relative flex w-full flex-1 justify-center">
-          <div className="relative inline-block w-full">
-            <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
-              <PopoverTrigger asChild>
-                <button
-                  className={`absolute left-1/2 z-[1] -translate-x-1/2 -translate-y-1/2 cursor-pointer outline-none ${
-                    isPopoverOpen ? 'top-[30%]' : 'top-1/2'
-                  }`}
-                  type="button"
-                  disabled={!hasPet}
-                >
-                  {hasPet && (
-                    <CatSprite
-                      itemId={currentPetItemId}
-                      currentAnimation={behavior.currentAnimation}
-                      className="scale-400"
-                      onAnimationComplete={handleAnimationComplete}
-                    />
-                  )}
-                </button>
-              </PopoverTrigger>
-
-              <div
-                className={`absolute left-1/2 z-0 w-full -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ease-in-out ${
-                  isPopoverOpen && hasPet ? 'top-[30%]' : 'top-1/2'
-                }`}
-              >
-                <Room mode="readonly" placementArea={null}>
-                  {context => (
-                    <RoomCanvas
-                      context={context}
-                      allowItemPickup={false}
-                      showActions={false}
-                      allowDelete={false}
-                    />
-                  )}
-                </Room>
-              </div>
-
-              <PopoverAnchor className="absolute right-0 bottom-0 left-0" />
-
-              {hasPet && (
-                <PopoverContent
-                  side="top"
-                  align="center"
-                  sideOffset={16}
-                  className="w-screen max-w-md p-0"
-                >
-                  <PetStatusCard petId={currentPetId} />
-                </PopoverContent>
-              )}
-            </Popover>
+        <div
+          ref={roomContainerRef}
+          className="relative flex w-full flex-1 items-center justify-center transition-transform duration-300"
+        >
+          <div
+            className="relative flex w-full items-center justify-center transition-transform duration-300"
+            style={roomOffset ? { transform: `translateY(-${roomOffset}px)` } : undefined}
+          >
+            <div className="relative flex w-full justify-center">
+              <Room mode="readonly" placementArea={null}>
+                {context => (
+                  <RoomCanvas
+                    context={context}
+                    allowItemPickup={false}
+                    showActions={false}
+                    allowDelete={false}
+                    onPlacedItemClick={handlePlacedItemClick}
+                    catAnimationState={behavior.currentAnimation}
+                    onCatAnimationComplete={handleAnimationComplete}
+                  />
+                )}
+              </Room>
+            </div>
           </div>
         </div>
 
@@ -219,8 +310,34 @@ const GamePage = () => {
           <ElevatorButton />
         </div>
       </div>
+
+      <div
+        className="pointer-events-none fixed bottom-[env(safe-area-inset-bottom,0)] z-40 px-4 pb-6"
+        style={{
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width:
+            sheetWidth !== null
+              ? `${sheetWidth}px`
+              : undefined,
+        }}
+      >
+        <div
+          className={cn(
+            'mx-auto w-full max-w-[min(calc(100vw - env(safe-area-inset-left,0) - env(safe-area-inset-right,0)),80rem)] transition-all duration-300 ease-out',
+            isPopoverOpen
+              ? 'pointer-events-auto translate-y-0 opacity-100'
+              : 'pointer-events-none translate-y-6 opacity-0'
+          )}
+        >
+          <div
+            ref={sheetRef}
+            className="overflow-hidden rounded-2xl border border-black/10 bg-white/95 shadow-lg backdrop-blur-sm"
+          >
+            <PetStatusCard petId={currentPetId} />
+          </div>
+        </div>
+      </div>
     </GameBackgroundLayout>
   );
-};
-
-export default GamePage;
+}

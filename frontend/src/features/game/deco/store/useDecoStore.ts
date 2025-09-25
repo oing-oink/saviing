@@ -14,6 +14,10 @@ import {
   parseCellId,
 } from '@/features/game/deco/utils/grid';
 import { getItemImage } from '@/features/game/shop/utils/getItemImage';
+import { getCatSpritePath } from '@/features/game/pet/utils/getCatSpritePath';
+
+const MIN_PET_X_LENGTH = 4;
+const MIN_PET_Y_LENGTH = 4;
 
 /**
  * 인벤토리에서 드래그를 시작할 때 사용할 수 있는 추가 옵션들.
@@ -270,27 +274,37 @@ const buildPlacedItemFromSession = (
       : `${placementArea}::${slotId}`
     : undefined;
 
+  const numericItemId = Number(session.itemId);
+  const itemType = session.itemType ?? session.originalItem?.itemType ?? 'DECORATION';
+  const imageUrl = resolveItemImageUrl(
+    numericItemId,
+    itemType,
+    session.imageUrl ?? session.originalItem?.imageUrl,
+  );
+
   return {
     id,
     inventoryItemId:
       session.inventoryItemId ?? session.originalItem?.inventoryItemId,
-    itemId: Number(session.itemId),
+    itemId: numericItemId,
     cellId,
     positionX: parsed.col,
     positionY: parsed.row,
     rotation: session.originalItem?.rotation ?? 0,
     layer: placementArea,
-    xLength: session.xLength,
-    yLength: session.yLength,
+    xLength:
+      itemType === 'PET'
+        ? Math.max(session.xLength, MIN_PET_X_LENGTH)
+        : session.xLength,
+    yLength:
+      itemType === 'PET'
+        ? Math.max(session.yLength, MIN_PET_Y_LENGTH)
+        : session.yLength,
     footprintCellIds: resolvedFootprint,
     offsetX: session.offsetX ?? 0,
     offsetY: session.offsetY ?? 0,
-    imageUrl:
-      session.imageUrl ??
-      session.originalItem?.imageUrl ??
-      getItemImage(Number(session.itemId)),
-    itemType:
-      session.itemType ?? session.originalItem?.itemType ?? 'DECORATION',
+    imageUrl,
+    itemType,
     isPreview: session.isPreview ?? session.originalItem?.isPreview ?? false,
     slotId: normalizedSlotId,
   };
@@ -341,6 +355,19 @@ const withInstanceId = (items: PlacedItem[]): PlacedItem[] =>
       normalizePlacementArea(parseCellId(item.cellId)?.placementArea) ??
       item.layer;
 
+    const isPet = item.itemType === 'PET';
+    const normalizedXLength = isPet
+      ? Math.max(item.xLength ?? MIN_PET_X_LENGTH, MIN_PET_X_LENGTH)
+      : item.xLength ?? 1;
+    const normalizedYLength = isPet
+      ? Math.max(item.yLength ?? MIN_PET_Y_LENGTH, MIN_PET_Y_LENGTH)
+      : item.yLength ?? 1;
+    const expectedFootprint = normalizedXLength * normalizedYLength;
+    const footprintCellIds =
+      item.footprintCellIds && item.footprintCellIds.length >= expectedFootprint
+        ? item.footprintCellIds
+        : buildFootprint(item.cellId, normalizedXLength, normalizedYLength);
+
     return {
       id:
         item.id ??
@@ -354,12 +381,12 @@ const withInstanceId = (items: PlacedItem[]): PlacedItem[] =>
       positionY: item.positionY,
       rotation: item.rotation ?? 0,
       layer: normalizedLayer,
-      xLength: item.xLength ?? 1,
-      yLength: item.yLength ?? 1,
-      footprintCellIds: item.footprintCellIds,
+      xLength: normalizedXLength,
+      yLength: normalizedYLength,
+      footprintCellIds,
       offsetX: item.offsetX,
       offsetY: item.offsetY,
-      imageUrl: item.imageUrl ?? getItemImage(item.itemId),
+      imageUrl: resolveItemImageUrl(item.itemId, item.itemType, item.imageUrl),
       itemType: item.itemType,
     };
   });
@@ -381,6 +408,23 @@ const ensurePlaceableArea = (
 ): PlacementArea | null => {
   const normalized = normalizePlacementArea(area);
   return normalized && PLACEABLE_AREAS.includes(normalized) ? normalized : null;
+};
+
+const resolveItemImageUrl = (
+  itemId: number,
+  itemType?: string,
+  preferred?: string | null,
+) => {
+  if (preferred) {
+    return preferred;
+  }
+  if (itemType === 'PET') {
+    const catSprite = getCatSpritePath(itemId, 'idle');
+    if (catSprite) {
+      return catSprite;
+    }
+  }
+  return getItemImage(itemId);
 };
 
 /**
@@ -414,19 +458,28 @@ export const decoStore = createStore<DecoStore>(set => ({
         return state;
       }
 
+      const itemType = options.itemType ?? 'DECORATION';
+      const numericItemId = Number(itemId);
+      const resolvedImageUrl = resolveItemImageUrl(numericItemId, itemType);
+
       return {
         pendingPlacement: null,
         dragSession: createDragSession(itemId, {
           inventoryItemId: options.inventoryItemId,
           allowedGridType: normalizedAllowed,
-          xLength: options.xLength ?? 1,
-          yLength: options.yLength ?? 1,
+          xLength:
+            itemType === 'PET'
+              ? Math.max(options.xLength ?? MIN_PET_X_LENGTH, MIN_PET_X_LENGTH)
+              : options.xLength ?? 1,
+          yLength:
+            itemType === 'PET'
+              ? Math.max(options.yLength ?? MIN_PET_Y_LENGTH, MIN_PET_Y_LENGTH)
+              : options.yLength ?? 1,
           footprintCellIds: options.footprintCellIds,
           offsetX: options.offsetX ?? 0,
           offsetY: options.offsetY ?? 0,
-          // 서버 이미지가 준비되기 전까지 로컬 asset을 항상 사용한다.
-          imageUrl: getItemImage(Number(itemId)),
-          itemType: options.itemType ?? 'DECORATION',
+          imageUrl: resolvedImageUrl,
+          itemType,
           isPreview: options.isPreview ?? false,
           slotId: options.slotId,
         }),
@@ -477,8 +530,14 @@ export const decoStore = createStore<DecoStore>(set => ({
           originalItem: target,
           hoverCellId: target.cellId,
           allowedGridType: inferredPlacementArea,
-          xLength: target.xLength ?? 1,
-          yLength: target.yLength ?? 1,
+          xLength:
+            target.itemType === 'PET'
+              ? Math.max(target.xLength ?? MIN_PET_X_LENGTH, MIN_PET_X_LENGTH)
+              : target.xLength ?? 1,
+          yLength:
+            target.itemType === 'PET'
+              ? Math.max(target.yLength ?? MIN_PET_Y_LENGTH, MIN_PET_Y_LENGTH)
+              : target.yLength ?? 1,
           footprintCellIds: resolvedFootprint,
           offsetX: target.offsetX ?? 0,
           offsetY: target.offsetY ?? 0,
