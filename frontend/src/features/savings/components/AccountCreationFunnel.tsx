@@ -51,6 +51,11 @@ const AccountCreationFunnel = () => {
   // 브라우저 뒤로가기 처리
   useEffect(() => {
     const handlePopState = () => {
+      if (currentStep === 'COMPLETE') {
+        navigate(PAGE_PATH.HOME);
+        return;
+      }
+
       const previousStep = getPreviousStep(currentStep, form.productType);
 
       if (previousStep) {

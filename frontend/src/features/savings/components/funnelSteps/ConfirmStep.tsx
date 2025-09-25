@@ -84,62 +84,89 @@ const ConfirmStep = () => {
   return (
     <>
       {/* 메인 컨텐츠 */}
-      <div className="flex flex-1 flex-col px-6 py-8">
+      <div className="flex flex-1 flex-col px-6 py-8 pb-24">
         <h1 className="mb-2 text-xl font-bold text-gray-900">
           설정한 조건을 확인해주세요
         </h1>
         <p className="mb-6 text-gray-600">마지막으로 한 번 더 확인해보세요</p>
 
-        {/* 요약 박스 */}
-        <div className="rounded-lg border bg-gray-50 p-4">
-          <div className="flex justify-between py-1">
-            <span className="text-gray-600">계좌 유형</span>
-            <span className="font-medium">
-              {productInfo?.productName ?? form.productType ?? '-'}
-            </span>
-          </div>
+        <div className="space-y-6 rounded-lg border bg-white p-6">
+          {/* 계좌 정보 */}
+          <div>
+            <h3 className="mb-3 border-b pb-3 font-semibold text-gray-900">
+              계좌 정보
+            </h3>
+            <div className="space-y-2">
+              <div className="rounded-lg bg-primary/10 p-3">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-700">계좌 유형</span>
+                  <span className="font-medium text-primary">
+                    {productInfo?.productName ?? form.productType ?? '-'}
+                  </span>
+                </div>
+              </div>
 
-          {isSavingsAccount && (
-            <>
-              <div className="flex justify-between py-1">
-                <span className="text-gray-600">납입액</span>
-                <span className="font-medium">
-                  {'depositAmount' in form
-                    ? (form.depositAmount?.toLocaleString() ?? 0) + '원'
-                    : '-'}
-                </span>
-              </div>
-              <div className="flex justify-between py-1">
-                <span className="text-gray-600">이체일</span>
-                <span className="font-medium">
-                  {'transferDate' in form && form.transferDate
-                    ? `매월 ${form.transferDate}일`
-                    : '-'}
-                </span>
-              </div>
-              <div className="flex justify-between py-1">
-                <span className="text-gray-600">적금 기간</span>
-                <span className="font-medium">
-                  {'period' in form && form.period ? `${form.period}주` : '-'}
-                </span>
-              </div>
-              <div className="flex justify-between py-1">
-                <span className="text-gray-600">예상 만기금액</span>
-                <span className="font-medium">
-                  {maturityAmount.toLocaleString()}원
-                </span>
-              </div>
-            </>
-          )}
+              {isSavingsAccount && (
+                <>
+                  <div className="rounded-lg bg-primary/10 p-3">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-700">자동 납입액</span>
+                      <span className="font-medium text-primary">
+                        {'depositAmount' in form
+                          ? (form.depositAmount?.toLocaleString() ?? 0) + '원'
+                          : '-'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="rounded-lg bg-primary/10 p-3">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-700">이체일</span>
+                      <span className="font-medium text-primary">
+                        {'transferCycle' in form &&
+                        form.transferCycle === 'WEEKLY' &&
+                        'transferDate' in form &&
+                        form.transferDate
+                          ? `매주 ${['일', '월', '화', '수', '목', '금', '토'][Number(form.transferDate) % 7]}요일`
+                          : 'transferDate' in form && form.transferDate
+                            ? `매월 ${form.transferDate}일`
+                            : '-'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="rounded-lg bg-primary/10 p-3">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-700">적금 기간</span>
+                      <span className="font-medium text-primary">
+                        {'period' in form && form.period
+                          ? `${form.period}주`
+                          : '-'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="rounded-lg bg-primary/10 p-3">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-700">예상 만기금액</span>
+                      <span className="font-medium text-primary">
+                        {maturityAmount.toLocaleString()}원
+                      </span>
+                    </div>
+                  </div>
+                </>
+              )}
 
-          {!isSavingsAccount && (
-            <div className="flex justify-between py-1">
-              <span className="text-gray-600">설명</span>
-              <span className="font-medium">
-                {productInfo?.description ?? '자유로운 입출금이 가능합니다'}
-              </span>
+              {!isSavingsAccount && (
+                <div className="rounded-lg bg-primary/10 p-3">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-700">설명</span>
+                    <span className="font-medium text-primary">
+                      {productInfo?.description ??
+                        '자유로운 입출금이 가능합니다'}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
 
         {/* 에러 메시지 */}
@@ -150,29 +177,34 @@ const ConfirmStep = () => {
             </p>
           </div>
         )}
+      </div>
 
-        {/* 수정 버튼 */}
-        <div className="mt-6">
+      {/* 하단 고정 버튼 */}
+      <div className="fixed right-0 bottom-0 left-0 z-10 bg-white p-4">
+        <div className="flex space-x-3">
           <Button
             variant="outline"
             onClick={handleEdit}
             disabled={isLoading}
-            className="h-12 w-full rounded-lg"
+            className="h-12 flex-1 rounded-lg"
           >
             수정하기
           </Button>
+          <Button
+            onClick={handleSubmit}
+            disabled={isLoading}
+            className="flex h-12 flex-1 items-center justify-center space-x-2 rounded-lg bg-primary text-white hover:bg-primary/90 disabled:bg-gray-300 disabled:text-gray-500"
+          >
+            {isLoading ? (
+              <>
+                <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-white"></div>
+                <span>계좌 개설 중...</span>
+              </>
+            ) : (
+              <span>계좌 개설하기</span>
+            )}
+          </Button>
         </div>
-      </div>
-
-      {/* 하단 버튼 */}
-      <div className="bg-white p-4">
-        <Button
-          onClick={handleSubmit}
-          disabled={isLoading}
-          className="h-12 w-full rounded-lg bg-primary text-white disabled:bg-gray-200 disabled:text-gray-400"
-        >
-          {isLoading ? '계좌 개설 중...' : '계좌 개설하기'}
-        </Button>
       </div>
     </>
   );

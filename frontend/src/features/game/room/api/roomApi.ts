@@ -55,6 +55,22 @@ export interface RoomDetailResponse {
   pets: RoomPetResponse[];
 }
 
+/** 방 배치 정보 단일 아이템. */
+export interface RoomPlacementItem {
+  placementId: number;
+  inventoryItemId: number;
+  itemId: number; // 아이템 마스터 데이터 ID 추가
+  positionX: number;
+  positionY: number;
+  category: string;
+}
+
+/** 방 배치 정보 응답 구조. */
+export interface RoomPlacementsResponse {
+  roomId: number;
+  placements: RoomPlacementItem[];
+}
+
 /** 방 상세 정보를 조회한다. */
 export const getRoomDetail = async (): Promise<RoomDetailResponse> => {
   const response = await http.get<RoomDetailResponse>('/v1/game/room');
@@ -62,4 +78,49 @@ export const getRoomDetail = async (): Promise<RoomDetailResponse> => {
     throw new Error('방 정보를 불러오지 못했습니다.');
   }
   return response.body;
+};
+
+/** 방 배치 저장 요청 아이템. */
+export interface SaveRoomPlacementItem {
+  roomId: number;
+  inventoryItemId: number;
+  itemId: number;
+  positionX: number;
+  positionY: number;
+  xLength: number;
+  yLength: number;
+  category: string;
+}
+
+/** 방 배치 저장 요청 구조. */
+export interface SaveRoomPlacementsRequest {
+  characterId: number;
+  placedItems: SaveRoomPlacementItem[];
+}
+
+/** 특정 방의 배치 정보를 조회한다. */
+export const getRoomPlacements = async (
+  roomId: number,
+): Promise<RoomPlacementsResponse> => {
+  const response = await http.get<RoomPlacementsResponse>(
+    `/v1/game/rooms/${roomId}/placements`,
+  );
+  if (!response.body) {
+    throw new Error('방 배치 정보를 불러오지 못했습니다.');
+  }
+  return response.body;
+};
+
+/** 특정 방의 배치 정보를 저장한다. */
+export const saveRoomPlacements = async (
+  roomId: number,
+  payload: SaveRoomPlacementsRequest,
+): Promise<void> => {
+  const response = await http.put(
+    `/v1/game/rooms/${roomId}/placements`,
+    payload,
+  );
+  if (!response.success) {
+    throw new Error('방 배치 정보를 저장하지 못했습니다.');
+  }
 };

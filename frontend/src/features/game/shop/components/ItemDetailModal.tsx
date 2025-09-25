@@ -2,9 +2,10 @@ import { useGameItemDetail } from '@/features/game/shop/query/useItemsQuery';
 import { usePurchase } from '@/features/game/shop/query/usePurchaseQuery';
 import { getItemImage } from '@/features/game/shop/utils/getItemImage';
 import closeButton from '@/assets/game_button/closeButton.png';
-import Coin from '@/features/game/shared/components/Coin';
 import itemHeader from '@/assets/game_etc/itemHeader.png';
 import type { Item, PaymentMethod } from '@/features/game/shop/types/item';
+import { CAT_SPRITE_PATHS } from '@/features/game/pet/data/catAnimations';
+import CatSprite from '@/features/game/pet/components/CatSprite';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useGameEntryQuery } from '@/features/game/entry/query/useGameEntryQuery';
@@ -21,6 +22,9 @@ interface ItemDetailModalProps {
   hidePrice?: boolean;
 }
 
+const hasCatSprite = (petId: number): petId is keyof typeof CAT_SPRITE_PATHS =>
+  Object.prototype.hasOwnProperty.call(CAT_SPRITE_PATHS, petId);
+
 /** 아이템 상세 정보 조회 및 구매/미리보기를 제공하는 모달 컴포넌트. */
 const ItemDetailModal = ({
   itemId,
@@ -28,7 +32,6 @@ const ItemDetailModal = ({
   onClose,
   onPreview,
   hideActions = false,
-  hidePrice = false,
 }: ItemDetailModalProps) => {
   const { data: item, isLoading, error } = useGameItemDetail(itemId);
   const { mutate: purchase, isPending: isPurchasing } = usePurchase();
@@ -111,6 +114,9 @@ const ItemDetailModal = ({
     );
   }
 
+  const isCatItem = item.itemType === 'PET' && item.itemCategory === 'CAT';
+  const canUseCatSprite = isCatItem && hasCatSprite(item.itemId);
+
   return (
     <div className="game fixed inset-0 z-50 flex items-center justify-center bg-white/50">
       <div className="relative">
@@ -128,12 +134,20 @@ const ItemDetailModal = ({
               <img src={closeButton} alt="closeButton" className="w-[60%]" />
             </button>
           </div>
-          <div className="mx-auto mb-4 flex h-48 w-48 items-center rounded-full bg-white">
-            <img
-              src={getItemImage(item.itemId)}
-              alt={item.itemName}
-              className="mx-auto h-32 w-32 object-contain"
-            />
+          <div className="mx-auto mb-4 flex h-48 w-48 items-center justify-center rounded-full bg-white">
+            {canUseCatSprite ? (
+              <CatSprite
+                itemId={item.itemId}
+                currentAnimation="idle"
+                className="origin-bottom scale-[2.4]"
+              />
+            ) : (
+              <img
+                src={getItemImage(item.itemId)}
+                alt={item.itemName}
+                className="mx-auto h-32 w-32 object-contain"
+              />
+            )}
           </div>
           <div className="flex flex-col items-center pt-2">
             <h2 className="text-xl font-semibold text-gray-800">
@@ -153,8 +167,6 @@ const ItemDetailModal = ({
               </button>
             )}
 
-            {!hidePrice && <Coin coin={item.coin} fishCoin={item.fishCoin} />}
-
             {!hideActions && (
               <>
                 {/* 결제 방법 선택 */}
@@ -165,7 +177,7 @@ const ItemDetailModal = ({
                   <div className="flex justify-center gap-2">
                     <button
                       onClick={() => setSelectedPayment('COIN')}
-                      className={`rounded-lg px-4 py-2 text-sm ${
+                      className={`flex-1 rounded-lg px-4 py-2 text-xs ${
                         selectedPayment === 'COIN'
                           ? 'bg-primary text-white'
                           : 'bg-gray-200 text-gray-700'
@@ -175,7 +187,7 @@ const ItemDetailModal = ({
                     </button>
                     <button
                       onClick={() => setSelectedPayment('FISH_COIN')}
-                      className={`rounded-lg px-4 py-2 text-sm ${
+                      className={`flex-1 rounded-lg px-4 py-2 text-xs ${
                         selectedPayment === 'FISH_COIN'
                           ? 'bg-primary text-white'
                           : 'bg-gray-200 text-gray-700'
@@ -201,7 +213,7 @@ const ItemDetailModal = ({
                   </button>
                   <button
                     onClick={onClose}
-                    className="rounded-lg bg-gray-500 px-6 py-2 text-center text-white hover:bg-gray-600"
+                    className="flex-1 rounded-lg bg-gray-500 px-6 py-2 text-center text-sm whitespace-nowrap text-white hover:bg-gray-600"
                   >
                     취소
                   </button>

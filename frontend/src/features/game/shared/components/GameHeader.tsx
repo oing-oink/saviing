@@ -11,6 +11,7 @@ import { useAccountConnection } from '@/features/savings/query/useAccountsQuery'
 import { Button } from '@/shared/components/ui/button';
 import InterestRateModal from '@/features/game/shared/components/InterestRateModal';
 import { useState } from 'react';
+import { useGameEntryQuery } from '@/features/game/entry/query/useGameEntryQuery';
 
 /**
  * 게임 메인 페이지 상단바
@@ -22,6 +23,8 @@ const GameHeader = () => {
   const { isLoading, hasSavingsAccount, savingsAccount } =
     useAccountConnection();
   const [isInterestModalOpen, setIsInterestModalOpen] = useState(false);
+  const { data: gameEntry } = useGameEntryQuery();
+  const characterId = gameEntry?.characterId;
 
   const handleAccountConnection = () => {
     if (!hasSavingsAccount) {
@@ -81,11 +84,13 @@ const GameHeader = () => {
         </button>
       </div>
 
-      <InterestRateModal
-        isOpen={isInterestModalOpen}
-        onClose={() => setIsInterestModalOpen(false)}
-        characterId={1}
-      />
+      {typeof characterId === 'number' && (
+        <InterestRateModal
+          isOpen={isInterestModalOpen}
+          onClose={() => setIsInterestModalOpen(false)}
+          characterId={characterId}
+        />
+      )}
     </div>
   );
 };

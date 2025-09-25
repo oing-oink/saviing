@@ -4,7 +4,7 @@ import type { SourceAccount } from '@/features/savings/types/deposit';
 
 interface SourceAccountListProps {
   accounts: SourceAccount[];
-  selectedAccountId: string;
+  selectedAccountId: string | null;
   onSelect: (accountId: string) => void;
 }
 

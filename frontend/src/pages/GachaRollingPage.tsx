@@ -11,8 +11,10 @@ import GachaResult from '@/features/game/shop/components/GachaResult';
 import type { GachaDrawResponse } from '@/features/game/shop/types/item';
 import toast from 'react-hot-toast';
 import { useQueryClient } from '@tanstack/react-query';
+import InsufficientFundsModal from '@/features/game/shop/components/InsufficientFundsModal';
 import { gameKeys } from '@/features/game/shared/query/gameKeys';
 import { useGameEntryQuery } from '@/features/game/entry/query/useGameEntryQuery';
+import { useGameQuery } from '@/features/game/shared/query/useGameQuery';
 
 const GachaRollingPage = () => {
   const navigate = useNavigate();
@@ -25,6 +27,9 @@ const GachaRollingPage = () => {
   );
   const { data: gameEntry } = useGameEntryQuery();
   const characterId = gameEntry?.characterId;
+  const { data: gameData } = useGameQuery(characterId);
+  const [showInsufficientFundsModal, setShowInsufficientFundsModal] =
+    useState(false);
 
   useFireworks(Boolean(gachaResult));
 
@@ -35,8 +40,19 @@ const GachaRollingPage = () => {
     // 상태 초기화
     setGachaResult(null);
 
-    // 페이지 진입과 동시에 가챠 API 호출
-    if (gachaInfo && typeof characterId === 'number') {
+    // 잔액 부족 체크 (즉시 실행)
+    if (gachaInfo && gameData && typeof characterId === 'number') {
+      const gachaPrice = gachaInfo.gachaInfo.drawPrice.coin;
+      const currentCoin = gameData.coin;
+
+      if (currentCoin < gachaPrice) {
+        setShowInsufficientFundsModal(true);
+        return;
+      }
+    }
+
+    // 페이지 진입과 동시에 가챠 API 호출 (잔액이 충분한 경우에만)
+    if (gachaInfo && gameData && typeof characterId === 'number') {
       const timer = setTimeout(() => {
         drawGacha(
           {
@@ -69,10 +85,19 @@ const GachaRollingPage = () => {
               });
             },
             onError: error => {
-              toast.error(`가챠 뽑기 실패: ${error.message}`, {
-                className: 'game font-galmuri',
-              });
-              navigate(PAGE_PATH.GACHA);
+              // 잔액 부족 에러인지 확인 (에러 코드 또는 메시지로 판단)
+              const isInsufficientFunds =
+                (error as any)?.code === 'PURCHASE_INSUFFICIENT_FUNDS' ||
+                (error.message && error.message.includes('잔액이 부족합니다'));
+
+              if (isInsufficientFunds) {
+                setShowInsufficientFundsModal(true);
+              } else {
+                toast.error(`가챠 뽑기 실패: ${error.message}`, {
+                  className: 'game font-galmuri',
+                });
+                navigate(PAGE_PATH.GACHA);
+              }
             },
           },
         );
@@ -80,7 +105,15 @@ const GachaRollingPage = () => {
 
       return () => clearTimeout(timer);
     }
-  }, [characterId, drawGacha, gachaInfo, navigate, queryClient, timestamp]);
+  }, [
+    characterId,
+    drawGacha,
+    gachaInfo,
+    gameData,
+    navigate,
+    queryClient,
+    timestamp,
+  ]);
 
   const handleCloseResult = () => {
     setGachaResult(null);
@@ -126,6 +159,15 @@ const GachaRollingPage = () => {
           onClose={handleCloseResult}
         />
       )}
+
+      <InsufficientFundsModal
+        isOpen={showInsufficientFundsModal}
+        onClose={() => {
+          setShowInsufficientFundsModal(false);
+          navigate(PAGE_PATH.GACHA);
+        }}
+        message="잔액이 부족합니다."
+      />
     </div>
   );
 };

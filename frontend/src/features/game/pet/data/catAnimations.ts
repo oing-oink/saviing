@@ -47,16 +47,16 @@ export const CAT_ANIMATIONS: Record<CatAnimationType, AnimationConfig> = {
  * 각 펫 아이템 ID(게임 마스터 데이터 기준)별로 스프라이트 이미지가 위치한 경로를 정의합니다.
  */
 export const CAT_SPRITE_PATHS: Record<number, string> = {
-  1: '/game/pet/cat1',
-  2: '/game/pet/cat2',
-  3: '/game/pet/cat3',
-  4: '/game/pet/cat4',
-  5: '/game/pet/cat5',
-  6: '/game/pet/cat6',
-  7: '/game/pet/cat7',
-  8: '/game/pet/cat8',
-  9: '/game/pet/cat9',
-  10: '/game/pet/cat10',
+  1001: '/game/pet/cat1',
+  1002: '/game/pet/cat2',
+  1003: '/game/pet/cat3',
+  1004: '/game/pet/cat4',
+  1005: '/game/pet/cat5',
+  1006: '/game/pet/cat6',
+  1007: '/game/pet/cat7',
+  1008: '/game/pet/cat8',
+  1009: '/game/pet/cat9',
+  1010: '/game/pet/cat10',
 };
 
 /**

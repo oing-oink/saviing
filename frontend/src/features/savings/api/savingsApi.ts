@@ -371,3 +371,38 @@ export const terminateSavingsAccount = async (
 
   return response.body!;
 };
+
+/**
+ * 입출금 계좌로 이체를 실행하는 API 함수
+ *
+ * 사용자가 입력한 PIN 확인 후 입출금 계좌로 입금 처리를 수행합니다.
+ * 멱등성 키를 자동으로 생성하여 중복 거래를 방지합니다.
+ *
+ * @param sourceAccountId - 출금할 계좌의 ID (숫자형)
+ * @param targetAccountId - 입금할 입출금 계좌의 ID (숫자형)
+ * @param amount - 이체할 금액
+ * @param memo - 이체 메모 (선택사항)
+ * @returns 이체 결과가 담긴 TransferResponse 객체
+ * @throws API 호출 실패 시 네트워크 오류 또는 HTTP 오류 발생
+ */
+export const transferToDemandDeposit = async (
+  sourceAccountId: number,
+  targetAccountId: number,
+  amount: number,
+  memo?: string,
+): Promise<TransferResponse> => {
+  const transferData: TransferRequest = {
+    sourceAccountId,
+    targetAccountId,
+    amount,
+    memo,
+    idempotencyKey: generateIdempotencyKey(),
+  };
+
+  const response = await http.post<TransferResponse>(
+    '/v1/transactions/transfer',
+    transferData,
+  );
+
+  return response.body!;
+};

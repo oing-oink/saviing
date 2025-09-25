@@ -6,7 +6,7 @@ import {
 } from '@/shared/components/ui/card';
 import { Button } from '@/shared/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { PAGE_PATH } from '@/shared/constants/path';
+import { PAGE_PATH, createDemandDepositPath } from '@/shared/constants/path';
 import { formatDate } from '@/shared/utils/dateFormat';
 import type { SavingsAccountData } from '@/features/savings/types/savingsTypes';
 
@@ -100,9 +100,13 @@ const AccountDetailCard = ({
               </Button>
               <Button
                 className="flex-1"
-                onClick={() => navigate(PAGE_PATH.HOME)}
+                onClick={() => {
+                  if (accountData?.accountId) {
+                    navigate(createDemandDepositPath(accountData.accountId));
+                  }
+                }}
               >
-                입금
+                이체
               </Button>
             </div>
           </div>
