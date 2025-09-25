@@ -10,6 +10,8 @@ export const PAGE_PATH = {
   DEPOSIT: '/deposit',
   DEPOSIT_WITH_ACCOUNT: '/deposit/:accountId',
   DEPOSIT_RESULT: '/deposit/result',
+  DEMAND_DEPOSIT: '/demand-deposit',
+  DEMAND_DEPOSIT_WITH_ACCOUNT: '/demand-deposit/:accountId',
   ACCOUNT_CREATION: '/account-creation',
   SAVINGS_DETAIL: '/savings/detail',
   SAVINGS_DETAIL_WITH_ID: '/savings/detail/:accountId',
@@ -65,6 +67,9 @@ export const createAccountDetailPath = (accountId: string | number) =>
 
 export const createDepositPath = (accountId: string | number) =>
   `/deposit/${accountId}`;
+
+export const createDemandDepositPath = (accountId: string | number) =>
+  `/demand-deposit/${accountId}`;
 
 // 계좌 생성 URL
 export const ACCOUNT_CREATION_STEPS_PATH = {

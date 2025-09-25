@@ -19,6 +19,7 @@ import SavingsPage from '@/pages/SavingsPage';
 import SavingsDetailPage from '@/pages/SavingsDetailPage';
 import AccountDetailPage from '@/pages/AccountDetailPage';
 import DepositPage from '@/pages/DepositPage';
+import DemandDepositPage from '@/pages/DemandDepositPage';
 import DepositResultPage from '@/pages/DepositResultPage';
 import GamePage from '@/pages/GamePage';
 import ShopPage from '@/pages/ShopPage';
@@ -41,6 +42,12 @@ const savingsLayoutRoutes = [
 // 레이아웃 없는 보호된 라우트들
 const protectedRoutesWithoutLayout = [
   { path: PAGE_PATH.SAVINGS, element: <SavingsPage /> },
+  { path: PAGE_PATH.DEPOSIT, element: <DepositPage /> },
+  { path: PAGE_PATH.DEPOSIT_WITH_ACCOUNT, element: <DepositPage /> },
+  {
+    path: PAGE_PATH.DEMAND_DEPOSIT_WITH_ACCOUNT,
+    element: <DemandDepositPage />,
+  },
   { path: PAGE_PATH.DEPOSIT_RESULT, element: <DepositResultPage /> },
   { path: PAGE_PATH.GAME, element: <GamePage /> },
   { path: PAGE_PATH.GAME_ENTER, element: <GameEnterPage /> },
