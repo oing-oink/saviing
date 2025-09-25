@@ -7,13 +7,14 @@ import CatSprite from '@/features/game/pet/components/CatSprite';
 import closeButton from '@/assets/game_button/closeButton.png';
 import { useNavigate } from 'react-router-dom';
 import { PAGE_PATH } from '@/shared/constants/path';
-import { useGachaInfo } from '@/features/game/shop/query/useGachaInfo';
 
 /** 가챠 결과 모달에 필요한 속성. */
 interface GachaResultProps {
   item: Item;
   currencies: GachaDrawCurrencies;
+  drawPrice: number;
   onClose: () => void;
+  onRetry: () => void;
 }
 
 /** 등급별 색상 매핑 */
@@ -33,31 +34,27 @@ const RARITY_NAMES = {
 } as const;
 
 /** 가챠에서 획득한 아이템 정보를 보여주는 전체 화면 모달. */
-const GachaResult = ({ item, currencies, onClose }: GachaResultProps) => {
-  const { data: gachaInfo } = useGachaInfo();
+const GachaResult = ({
+  item,
+  currencies,
+  drawPrice,
+  onClose,
+  onRetry,
+}: GachaResultProps) => {
   const navigate = useNavigate();
   const rarity = item.rarity as keyof typeof RARITY_COLORS;
+  const remainingCoin =
+    currencies.coinType === 'COIN' ? currencies.balance : currencies.coin;
+  const canAffordNext = remainingCoin >= drawPrice;
 
-  const handleRetry = () => {
-    if (!gachaInfo) {
+  const handleRetryClick = () => {
+    if (canAffordNext) {
+      onRetry();
       return;
     }
 
-    const gachaPrice = gachaInfo.gachaInfo.drawPrice.coin;
-    const currentCoin = currencies.coin;
-
-    if (currentCoin < gachaPrice) {
-      // 잔액 부족하면 GachaPage로 이동하고 파라미터를 통해 모달 표시 요청
-      onClose();
-      navigate(PAGE_PATH.GACHA + '?showInsufficientFunds=true');
-      return;
-    }
-
-    // 잔액이 충분하면 바로 가챠 롤링 페이지로 이동
     onClose();
-    navigate(PAGE_PATH.GACHA_ROLLING + `?t=${Date.now()}`, {
-      replace: true,
-    });
+    navigate(PAGE_PATH.SHOP);
   };
 
   return (
@@ -110,11 +107,25 @@ const GachaResult = ({ item, currencies, onClose }: GachaResultProps) => {
               {item.itemDescription}
             </p>
 
+            {!canAffordNext && (
+              <p className="pb-1 text-sm text-red-400">
+                다시 도전할 잔액이 부족해요: 현재 잔액 {remainingCoin}
+              </p>
+            )}
+
             <div className="flex gap-2">
-              <button onClick={handleRetry}>
-                <div className="text-md mt-2 mb-2 rounded-2xl border-3 border-level-06 bg-store-bg p-2 px-4 text-red-300">
+              <button onClick={handleRetryClick}>
+                <div
+                  className={`text-md mt-2 mb-2 rounded-2xl border-3 p-2 px-4 ${
+                    canAffordNext
+                      ? 'border-level-06 bg-store-bg text-red-300'
+                      : 'border-gray-300 bg-gray-200 text-gray-500'
+                  }`}
+                >
                   <p>
-                    {gachaInfo?.gachaInfo.drawPrice.coin ?? 500} 코인에 한 번 더
+                    {canAffordNext
+                      ? `${drawPrice} 코인에 한 번 더`
+                      : '샵으로 돌아가기'}
                   </p>
                 </div>
               </button>
