@@ -42,19 +42,32 @@ export const useGameItemDetail = (itemId: number | null) => {
  * @param isUsed 사용 여부 (옵셔널)
  */
 export const useInventoryItems = (
-  characterId: number,
+  characterId: number | undefined,
   type: string,
   category: string,
   isUsed?: boolean,
 ) => {
+  const queryKey =
+    typeof characterId === 'number'
+      ? itemsKeys.inventoryByTypeAndCategory(
+          characterId,
+          type,
+          category,
+          isUsed,
+        )
+      : ([
+          ...itemsKeys.inventory(),
+          'unknown',
+          type,
+          category,
+          isUsed,
+        ] as const);
+
   return useQuery({
-    queryKey: itemsKeys.inventoryByTypeAndCategory(
-      characterId,
-      type,
-      category,
-      isUsed,
-    ),
-    queryFn: () => getInventoryItems(characterId, type, category, isUsed),
+    queryKey,
+    queryFn: () =>
+      getInventoryItems(characterId as number, type, category, isUsed),
+    enabled: typeof characterId === 'number',
     staleTime: 1000 * 60, // 1분
     gcTime: 1000 * 60 * 5, // 5분
   });
