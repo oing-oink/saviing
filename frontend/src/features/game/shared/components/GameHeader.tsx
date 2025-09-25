@@ -72,7 +72,7 @@ const GameHeader = () => {
         <Button
           onClick={handleAccountConnection}
           disabled={isLoading}
-          className="rounded-2xl border border-gray-600 text-base text-gray-600"
+          className="rounded-2xl border border-gray-600 text-base text-gray-600 active:scale-95 active:brightness-90"
         >
           {getButtonText()}
         </Button>
