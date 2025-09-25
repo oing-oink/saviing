@@ -341,3 +341,5 @@ const GamePage = () => {
     </GameBackgroundLayout>
   );
 }
+
+export default GamePage;

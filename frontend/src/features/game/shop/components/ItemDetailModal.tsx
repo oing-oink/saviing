@@ -137,7 +137,7 @@ const ItemDetailModal = ({
           <div className="mx-auto mb-4 flex h-48 w-48 items-center justify-center rounded-full bg-white">
             {canUseCatSprite ? (
               <CatSprite
-                petId={item.itemId}
+                itemId={item.itemId}
                 currentAnimation="idle"
                 className="origin-bottom scale-[2.4]"
               />

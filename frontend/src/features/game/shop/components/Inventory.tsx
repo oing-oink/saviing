@@ -241,7 +241,7 @@ const Inventory = ({
                           )}
                           {canUseCatSprite ? (
                             <CatSprite
-                              petId={item.itemId}
+                              itemId={item.itemId}
                               currentAnimation="idle"
                               className={`origin-bottom scale-150 ${
                                 mode === 'deco' &&

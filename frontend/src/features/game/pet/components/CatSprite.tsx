@@ -26,7 +26,7 @@ const CatSprite = ({
   targetWidth,
   onAnimationComplete,
 }: PetSpriteProps) => {
-  const spritePath = CAT_SPRITE_PATHS[petId as keyof typeof CAT_SPRITE_PATHS];
+  const spritePath = CAT_SPRITE_PATHS[itemId as keyof typeof CAT_SPRITE_PATHS];
   const spriteFileName = getAnimationFileName(currentAnimation);
   const fullSpritePath = `${spritePath}/${spriteFileName}`;
 

@@ -1091,7 +1091,7 @@ const RoomCanvas = ({
                   style={{ pointerEvents: 'none' }}
                 >
                   <CatSprite
-                    petId={sprite.itemId}
+                    itemId={sprite.itemId}
                     currentAnimation={catAnimation}
                     className="pointer-events-none"
                     targetWidth={box.width}
@@ -1151,7 +1151,7 @@ const RoomCanvas = ({
                     style={{ pointerEvents: 'none' }}
                   >
                     <CatSprite
-                      petId={pendingItemId}
+                      itemId={pendingItemId}
                       currentAnimation={catAnimation}
                       className="pointer-events-none"
                       targetWidth={box.width}
@@ -1210,7 +1210,7 @@ const RoomCanvas = ({
                     style={{ pointerEvents: 'none' }}
                   >
                     <CatSprite
-                      petId={ghostItemId}
+                      itemId={ghostItemId}
                       currentAnimation={catAnimation}
                       className="pointer-events-none"
                       targetWidth={box.width}
