@@ -77,7 +77,7 @@ const AccountTypeStep = () => {
               >
                 <div className="flex items-start space-x-3">
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="mb-1 flex items-center gap-2">
                       {option.recommended && (
                         <span
                           className={`rounded px-2 py-0.5 text-xs ${
@@ -136,7 +136,10 @@ const AccountTypeStep = () => {
       </div>
 
       {/* 하단 고정 버튼 */}
-      <div className="fixed right-0 bottom-0 left-0 z-10 bg-white p-4" style={{borderTop: 'none'}}>
+      <div
+        className="fixed right-0 bottom-0 left-0 z-10 bg-white p-4"
+        style={{ borderTop: 'none' }}
+      >
         <div className="flex space-x-3">
           <Button
             variant="outline"

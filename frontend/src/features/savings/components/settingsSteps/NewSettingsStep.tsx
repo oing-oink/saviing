@@ -33,11 +33,18 @@ const NewSettingsStep = () => {
 
   // 적금 데이터가 로드되면 기존 값으로 폼 초기화
   useEffect(() => {
-    if (savingsDetail && !newSettings.newAmount && !newSettings.newTransferDate && !newSettings.newTransferCycle && !newSettings.newAutoAccount) {
+    if (
+      savingsDetail &&
+      !newSettings.newAmount &&
+      !newSettings.newTransferDate &&
+      !newSettings.newTransferCycle &&
+      !newSettings.newAutoAccount
+    ) {
       const currentAmount = savingsDetail.savings?.autoTransfer?.amount;
       setFormData({
         newAmount: currentAmount ? currentAmount.toLocaleString() : '',
-        newTransferDate: savingsDetail.savings?.autoTransfer?.transferDay?.toString() || '',
+        newTransferDate:
+          savingsDetail.savings?.autoTransfer?.transferDay?.toString() || '',
         newTransferCycle: savingsDetail.savings?.autoTransfer?.cycle || '',
         newAutoAccount: currentAutoAccountId?.toString() || '',
       });
@@ -99,7 +106,10 @@ const NewSettingsStep = () => {
     const numbers = value.replace(/[^\d]/g, '');
 
     // 범위 체크 (1~1,000,000)
-    if (numbers === '' || (Number(numbers) >= 1 && Number(numbers) <= 1000000)) {
+    if (
+      numbers === '' ||
+      (Number(numbers) >= 1 && Number(numbers) <= 1000000)
+    ) {
       setFormData(prev => ({ ...prev, newAmount: formatNumber(value) }));
     }
   };
@@ -122,7 +132,9 @@ const NewSettingsStep = () => {
     const settingsToUpdate: Record<string, unknown> = {};
 
     if (selectedChangeTypes.includes('AMOUNT') && formData.newAmount) {
-      settingsToUpdate.newAmount = Number(formData.newAmount.replace(/[^\d]/g, ''));
+      settingsToUpdate.newAmount = Number(
+        formData.newAmount.replace(/[^\d]/g, ''),
+      );
     }
     if (selectedChangeTypes.includes('TRANSFER_DATE')) {
       if (formData.newTransferCycle) {

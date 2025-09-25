@@ -83,7 +83,9 @@ const ConfirmStep = () => {
         <div className="space-y-6 rounded-lg border bg-white p-6">
           {/* 계좌 정보 */}
           <div>
-            <h3 className="mb-3 font-semibold text-gray-900 border-b pb-3">계좌 정보</h3>
+            <h3 className="mb-3 border-b pb-3 font-semibold text-gray-900">
+              계좌 정보
+            </h3>
             <div className="space-y-2">
               <div className="rounded-lg bg-primary/10 p-3">
                 <div className="flex justify-between text-sm">
@@ -110,7 +112,10 @@ const ConfirmStep = () => {
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-700">이체일</span>
                       <span className="font-medium text-primary">
-                        {'transferCycle' in form && form.transferCycle === 'WEEKLY' && 'transferDate' in form && form.transferDate
+                        {'transferCycle' in form &&
+                        form.transferCycle === 'WEEKLY' &&
+                        'transferDate' in form &&
+                        form.transferDate
                           ? `매주 ${['일', '월', '화', '수', '목', '금', '토'][Number(form.transferDate) % 7]}요일`
                           : 'transferDate' in form && form.transferDate
                             ? `매월 ${form.transferDate}일`
@@ -122,7 +127,9 @@ const ConfirmStep = () => {
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-700">적금 기간</span>
                       <span className="font-medium text-primary">
-                        {'period' in form && form.period ? `${form.period}주` : '-'}
+                        {'period' in form && form.period
+                          ? `${form.period}주`
+                          : '-'}
                       </span>
                     </div>
                   </div>
@@ -142,7 +149,8 @@ const ConfirmStep = () => {
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-700">설명</span>
                     <span className="font-medium text-primary">
-                      {productInfo?.description ?? '자유로운 입출금이 가능합니다'}
+                      {productInfo?.description ??
+                        '자유로운 입출금이 가능합니다'}
                     </span>
                   </div>
                 </div>
@@ -159,7 +167,6 @@ const ConfirmStep = () => {
             </p>
           </div>
         )}
-
       </div>
 
       {/* 하단 고정 버튼 */}

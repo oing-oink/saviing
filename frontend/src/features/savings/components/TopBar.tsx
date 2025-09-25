@@ -14,7 +14,7 @@ const TopBar = () => {
       {/* 왼쪽 로고 */}
       <button
         onClick={handleLogoClick}
-        className="text-2xl font-bold text-primary hover:text-primary/90 focus:outline-none focus:ring-2 focus:ring-violet-50 focus:ring-offset-0 transition-colors"
+        className="text-2xl font-bold text-primary transition-colors hover:text-primary/90 focus:ring-2 focus:ring-violet-50 focus:ring-offset-0 focus:outline-none"
       >
         Saviing
       </button>

@@ -71,12 +71,17 @@ const SetConditionStep = () => {
   };
 
   // 자동 납입액 변경 핸들러
-  const handleDepositAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleDepositAmountChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const value = e.target.value;
     const numbers = value.replace(/[^\d]/g, '');
 
     // 범위 체크 (0~1,000,000)
-    if (numbers === '' || (Number(numbers) >= 0 && Number(numbers) <= 1000000)) {
+    if (
+      numbers === '' ||
+      (Number(numbers) >= 0 && Number(numbers) <= 1000000)
+    ) {
       setDepositAmount(formatNumber(value));
     }
   };
@@ -352,7 +357,10 @@ const SetConditionStep = () => {
       </div>
 
       {/* 하단 고정 버튼 */}
-      <div className="fixed right-0 bottom-0 left-0 z-10 h-20 bg-white p-4" style={{borderTop: 'none'}}>
+      <div
+        className="fixed right-0 bottom-0 left-0 z-10 h-20 bg-white p-4"
+        style={{ borderTop: 'none' }}
+      >
         <div className="flex space-x-3">
           <Button
             variant="outline"
@@ -364,7 +372,7 @@ const SetConditionStep = () => {
           <Button
             onClick={handleNext}
             disabled={!isValid}
-            className="h-12 flex-1 rounded-lg bg-primary text-white hover:bg-primary/90 disabled:bg-gray-300 disabled:text-gray-500 focus-visible:ring-0 focus-visible:border-transparent"
+            className="h-12 flex-1 rounded-lg bg-primary text-white hover:bg-primary/90 focus-visible:border-transparent focus-visible:ring-0 disabled:bg-gray-300 disabled:text-gray-500"
           >
             설정 완료
           </Button>

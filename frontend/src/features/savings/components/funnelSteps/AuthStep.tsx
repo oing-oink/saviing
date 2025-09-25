@@ -48,9 +48,7 @@ const AuthStep = () => {
             </div>
             <div
               className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${
-                selected
-                  ? 'border-primary bg-primary'
-                  : 'border-gray-300'
+                selected ? 'border-primary bg-primary' : 'border-gray-300'
               }`}
             >
               {selected && (
@@ -72,7 +70,10 @@ const AuthStep = () => {
       </div>
 
       {/* 하단 고정 버튼 */}
-      <div className="fixed right-0 bottom-0 left-0 z-10 bg-white p-4" style={{borderTop: 'none'}}>
+      <div
+        className="fixed right-0 bottom-0 left-0 z-10 bg-white p-4"
+        style={{ borderTop: 'none' }}
+      >
         <div className="flex space-x-3">
           <Button
             variant="outline"

@@ -20,7 +20,6 @@ const SavingCard = () => {
     account => account.product.productCategory === 'DEMAND_DEPOSIT',
   );
 
-
   // 저축 상세 페이지로 이동
   const handleSavingsManagement = () => {
     if (savingsAccount?.accountId) {

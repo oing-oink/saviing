@@ -77,7 +77,6 @@ const GameHeader = () => {
           />
         </button>
       </div>
-
     </div>
   );
 };
