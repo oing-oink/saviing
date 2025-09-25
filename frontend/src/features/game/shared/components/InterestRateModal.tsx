@@ -89,7 +89,7 @@ const InterestRateModal = ({
   // 펫 레벨 점수 (60% 비중)
   const petWeight = 0.6;
   const petMaxScore = 100; // 최대 레벨 10개 × 최대 레벨 10 = 100
-  const petScore = Math.min(statisticsData.topPetLevelSum, petMaxScore);
+  const petScore = Math.min(statisticsData.topPetLevelSum || 0, petMaxScore);
   const petBonusRate = (petScore / petMaxScore) * maxBonusRate * petWeight;
 
   // 인벤토리 레어리티 점수 (40% 비중, 각 항목 10%)
@@ -98,19 +98,19 @@ const InterestRateModal = ({
   const maxItemScore = 20; // 각 항목별 최대 20점
 
   const catScore = Math.min(
-    statisticsData.inventoryRarityStatistics.pet.CAT,
+    statisticsData.inventoryRarityStatistics?.pet?.CAT || 0,
     maxItemScore,
   );
   const leftScore = Math.min(
-    statisticsData.inventoryRarityStatistics.decoration.LEFT,
+    statisticsData.inventoryRarityStatistics?.decoration?.LEFT || 0,
     maxItemScore,
   );
   const rightScore = Math.min(
-    statisticsData.inventoryRarityStatistics.decoration.RIGHT,
+    statisticsData.inventoryRarityStatistics?.decoration?.RIGHT || 0,
     maxItemScore,
   );
   const bottomScore = Math.min(
-    statisticsData.inventoryRarityStatistics.decoration.BOTTOM,
+    statisticsData.inventoryRarityStatistics?.decoration?.BOTTOM || 0,
     maxItemScore,
   );
 
@@ -182,11 +182,13 @@ const InterestRateModal = ({
                           펫 레벨 합 (비중 60%)
                         </span>
                         <span className="text-sm font-medium text-purple-700">
-                          +{petBonusRate.toFixed(3)}%
+                          +{(isNaN(petBonusRate) ? 0 : petBonusRate).toFixed(3)}
+                          %
                         </span>
                       </div>
                       <div className="text-center text-sm text-gray-600">
-                        상위 10마리 레벨 합: {statisticsData.topPetLevelSum}점
+                        상위 10마리 레벨 합:{' '}
+                        {statisticsData.topPetLevelSum || 0}점
                       </div>
                     </div>
 
@@ -217,7 +219,12 @@ const InterestRateModal = ({
 
                       <div className="border-t border-gray-300 pt-1 text-center">
                         <span className="text-sm font-medium text-blue-700">
-                          +{totalInventoryBonus.toFixed(3)}%
+                          +
+                          {(isNaN(totalInventoryBonus)
+                            ? 0
+                            : totalInventoryBonus
+                          ).toFixed(3)}
+                          %
                         </span>
                       </div>
                     </div>
@@ -229,7 +236,7 @@ const InterestRateModal = ({
                       최종 이자율
                     </span>
                     <span className="text-xl font-bold text-red-400">
-                      {finalRate.toFixed(2)}%
+                      {(isNaN(finalRate) ? baseRate : finalRate).toFixed(2)}%
                     </span>
                   </div>
                 </div>
