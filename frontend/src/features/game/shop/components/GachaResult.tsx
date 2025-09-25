@@ -3,6 +3,7 @@ import type {
   GachaDrawCurrencies,
 } from '@/features/game/shop/types/item';
 import { getItemImage } from '@/features/game/shop/utils/getItemImage';
+import CatSprite from '@/features/game/pet/components/CatSprite';
 import closeButton from '@/assets/game_button/closeButton.png';
 import { useNavigate } from 'react-router-dom';
 import { PAGE_PATH } from '@/shared/constants/path';
@@ -54,12 +55,21 @@ const GachaResult = ({ item, onClose }: GachaResultProps) => {
               <img src={closeButton} alt="closeButton" className="w-[60%]" />
             </button>
           </div>
-          <div className="mx-auto mb-4 flex h-48 w-48 items-center rounded-full bg-white">
-            <img
-              src={getItemImage(item.itemId)}
-              alt={item.itemName}
-              className="mx-auto h-32 w-32 object-contain"
-            />
+          <div className="mx-auto mb-4 flex h-48 w-48 items-center justify-center rounded-full bg-white">
+            {item.itemType === 'PET' ? (
+              <CatSprite
+                itemId={item.itemId}
+                currentAnimation="idle"
+                className="pointer-events-none"
+                targetWidth={128}
+              />
+            ) : (
+              <img
+                src={getItemImage(item.itemId)}
+                alt={item.itemName}
+                className="mx-auto h-32 w-32 object-contain"
+              />
+            )}
           </div>
           <div className="flex flex-col items-center pt-2">
             {/* 등급 표시 - 모달 안쪽으로 이동 */}
