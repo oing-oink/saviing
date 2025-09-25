@@ -306,6 +306,23 @@ public class Account {
         this.lastRateChangeAt = changedAt;
         this.updatedAt = Instant.now();
     }
+
+    /**
+     * 현재 보너스 금리보다 높은 경우에만 보너스 금리를 업데이트합니다.
+     * 게임 진행도에 따른 이자율 혜택 증가 정책을 구현하기 위해 사용됩니다.
+     *
+     * @param newBonusRate 새로 설정하려는 보너스 금리
+     * @param changedAt 금리 변경 시점
+     * @return 실제 설정된 현재 보너스 금리 (변경되지 않은 경우 기존값)
+     */
+    public BasisPoints updateBonusRateIfHigher(@NonNull BasisPoints newBonusRate, @NonNull Instant changedAt) {
+        if (newBonusRate.isGreaterThan(this.bonusRate)) {
+            this.bonusRate = newBonusRate;
+            this.lastRateChangeAt = changedAt;
+            this.updatedAt = Instant.now();
+        }
+        return this.bonusRate;
+    }
     
     /**
      * 이자를 계산하여 누적 이자에 추가합니다.
@@ -440,6 +457,6 @@ public class Account {
      * @return 적금 계좌이면 true
      */
     public boolean isSavingsAccount() {
-        return targetAmount != null && termPeriod != null;
+        return termPeriod != null;
     }
 }

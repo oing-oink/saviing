@@ -9,13 +9,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.security.core.Authentication;
 import saviing.common.response.ApiResult;
 import saviing.common.response.ErrorResult;
@@ -23,6 +18,7 @@ import saviing.game.character.presentation.dto.request.ConnectAccountRequest;
 import saviing.game.character.presentation.dto.request.CreateCharacterRequest;
 import saviing.game.character.presentation.dto.response.CharacterResponse;
 import saviing.game.character.presentation.dto.response.GameEntryResponse;
+import saviing.game.character.presentation.dto.response.CharacterStatisticsResponse;
 
 @Tag(name = "Character", description = "게임 캐릭터 관리 API")
 public interface CharacterApi {
@@ -262,6 +258,9 @@ public interface CharacterApi {
         @PathVariable Long characterId
     );
 
+    // =========================
+    // 1) 메인 엔트리 게임 정보 조회
+    // =========================
     @Operation(
         summary = "메인 엔트리 게임 정보 조회",
         description = "메인 페이지에서 표시할 게임 정보를 조회합니다. 활성 캐릭터와 1층에 배치된 첫 번째 펫 정보를 반환합니다. JWT 토큰에서 customerId를 자동 추출합니다."
@@ -301,5 +300,83 @@ public interface CharacterApi {
     })
     ApiResult<GameEntryResponse> getGameEntry(
         @Parameter(hidden = true) Authentication authentication
+    );
+
+    // =========================
+    // 2) 캐릭터 통계 조회
+    // =========================
+    @Operation(
+        summary = "캐릭터 통계 조회",
+        description = "캐릭터의 펫 레벨 합계와 인벤토리 희귀도 통계를 조회합니다. 상위 10개 펫의 레벨 합계와 카테고리별 상위 5개 아이템의 희귀도 합계를 제공합니다."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "캐릭터 통계 조회 성공",
+            content = @Content(
+                schema = @Schema(implementation = CharacterStatisticsResponse.class),
+                examples = @ExampleObject(
+                    name = "CHARACTER_STATISTICS_SUCCESS",
+                    summary = "캐릭터 통계 조회 성공 예시",
+                    value = """
+                        {
+                          "success": true,
+                          "status": 200,
+                          "message": "success",
+                          "data": {
+                            "characterId": 1,
+                            "topPetLevelSum": 150,
+                            "inventoryRarityStatistics": {
+                              "pet": {
+                                "CAT": 12
+                              },
+                              "decoration": {
+                                "LEFT": 15,
+                                "RIGHT": 8,
+                                "BOTTOM": 6,
+                                "ROOM_COLOR": 4
+                              }
+                            }
+                          },
+                          "timestamp": "2025-01-15T10:30:00"
+                        }
+                        """
+                )
+            )
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description = "잘못된 캐릭터 ID 형식 - 양수가 아닌 값 입력",
+            content = @Content(schema = @Schema(implementation = ErrorResult.class))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "캐릭터를 찾을 수 없음 (CHARACTER_NOT_FOUND)",
+            content = @Content(
+                schema = @Schema(implementation = ErrorResult.class),
+                examples = @ExampleObject(
+                    name = "CHARACTER_NOT_FOUND",
+                    summary = "캐릭터를 찾을 수 없는 경우",
+                    value = """
+                        {
+                        "success": false,
+                        "status": 404,
+                        "code": "CHARACTER_NOT_FOUND",
+                        "message": "캐릭터를 찾을 수 없습니다",
+                        "timestamp": "2025-01-15T10:30:00"
+                        }
+                    """
+                )
+            )
+        ),
+        @ApiResponse(
+            responseCode = "500",
+            description = "서버 내부 오류",
+            content = @Content(schema = @Schema(implementation = ErrorResult.class))
+        )
+    })
+    ApiResult<CharacterStatisticsResponse> getCharacterStatistics(
+        @Parameter(description = "캐릭터 ID", required = true, example = "1")
+        @PathVariable Long characterId
     );
 }

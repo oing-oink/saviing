@@ -7,6 +7,12 @@ api:
   version: ${API_VERSION:v1.0-dev}
   versionPath: ${API_VERSION_PATH:v1}
 
+bank:
+  api:
+    base-url: ${BANK_API_BASE_URL:http://localhost:8080}
+    connect-timeout: ${BANK_API_CONNECT_TIMEOUT:3000}
+    read-timeout: ${BANK_API_READ_TIMEOUT:5000}
+
 spring:
   application:
     name: GAME

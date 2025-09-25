@@ -260,4 +260,27 @@ public class InventoryRepositoryImpl implements InventoryRepository {
 
         return decorationInventoryJpaRepository.updateUsageToTrueByInventoryItemIds(inventoryItemIds, roomId);
     }
+
+    @Override
+    @Transactional
+    public int updatePetRoomId(List<Long> petInventoryItemIds, Long roomId) {
+        if (petInventoryItemIds == null || petInventoryItemIds.isEmpty()) {
+            throw new IllegalArgumentException("petInventoryItemIds는 필수이며 비어있을 수 없습니다");
+        }
+        if (roomId == null || roomId <= 0) {
+            throw new IllegalArgumentException("roomId는 필수이며 양수여야 합니다");
+        }
+
+        return petInventoryJpaRepository.updateRoomIdByInventoryItemIds(petInventoryItemIds, roomId);
+    }
+
+    @Override
+    @Transactional
+    public int resetPetRoomId(Long roomId) {
+        if (roomId == null || roomId <= 0) {
+            throw new IllegalArgumentException("roomId는 필수이며 양수여야 합니다");
+        }
+
+        return petInventoryJpaRepository.resetRoomIdByRoomId(roomId);
+    }
 }
