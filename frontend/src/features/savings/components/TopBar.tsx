@@ -1,9 +1,11 @@
 import { Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { PAGE_PATH } from '@/shared/constants/path';
+import { useCustomerStore } from '@/features/auth/store/useCustomerStore';
 
 const TopBar = () => {
   const navigate = useNavigate();
+  const { name } = useCustomerStore();
 
   const handleLogoClick = () => {
     navigate(PAGE_PATH.HOME);
@@ -21,8 +23,8 @@ const TopBar = () => {
 
       {/* 오른쪽 사용자 정보 + 알림 */}
       <div className="flex items-center gap-4">
-        <span className="text-lg font-semibold text-violet-500">오익준님</span>
-        <Bell className="h-6 w-6 text-secondary" />
+        <span className="text-lg font-semibold text-violet-500">{name}님</span>
+        <Bell className="h-6 w-6 text-violet-500" />
       </div>
     </header>
   );

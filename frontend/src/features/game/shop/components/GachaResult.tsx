@@ -6,6 +6,7 @@ import { getItemImage } from '@/features/game/shop/utils/getItemImage';
 import closeButton from '@/assets/game_button/closeButton.png';
 import { useNavigate } from 'react-router-dom';
 import { PAGE_PATH } from '@/shared/constants/path';
+import { useGachaInfo } from '@/features/game/shop/query/useGachaInfo';
 
 /** 가챠 결과 모달에 필요한 속성. */
 interface GachaResultProps {
@@ -32,6 +33,7 @@ const RARITY_NAMES = {
 
 /** 가챠에서 획득한 아이템 정보를 보여주는 전체 화면 모달. */
 const GachaResult = ({ item, onClose }: GachaResultProps) => {
+  const { data: gachaInfo } = useGachaInfo();
   const navigate = useNavigate();
   const rarity = item.rarity as keyof typeof RARITY_COLORS;
 
@@ -46,7 +48,7 @@ const GachaResult = ({ item, onClose }: GachaResultProps) => {
         <div className="mx-4 max-w-md justify-center rounded-4xl bg-secondary p-6 px-1 shadow-lg">
           <div className="mb-4 flex justify-end">
             <button
-              onClick={() => navigate(PAGE_PATH.GACHA)}
+              onClick={onClose}
               className="text-gray-500 hover:text-gray-700"
             >
               <img src={closeButton} alt="closeButton" className="w-[60%]" />
@@ -77,14 +79,28 @@ const GachaResult = ({ item, onClose }: GachaResultProps) => {
             </p>
 
             <div className="flex gap-2">
-              <button onClick={() => navigate(PAGE_PATH.GACHA)}>
-                <div className="mt-2 mb-2 rounded-2xl border-3 border-level-06 bg-store-bg p-2 px-6 text-lg text-red-300">
-                  한 번 더
+              <button
+                onClick={() => {
+                  onClose();
+                  navigate(PAGE_PATH.GACHA_ROLLING + `?t=${Date.now()}`, {
+                    replace: true,
+                  });
+                }}
+              >
+                <div className="text-md mt-2 mb-2 rounded-2xl border-3 border-level-06 bg-store-bg p-2 px-4 text-red-300">
+                  <p>
+                    {gachaInfo?.gachaInfo.drawPrice.coin ?? 500} 코인에 한 번 더
+                  </p>
                 </div>
               </button>
-              <button onClick={onClose}>
-                <div className="mt-2 mb-2 rounded-2xl border-3 border-gray-300 bg-gray-100 p-2 px-6 text-lg text-gray-600">
-                  닫기
+              <button
+                onClick={() => {
+                  onClose();
+                  navigate(PAGE_PATH.DECO);
+                }}
+              >
+                <div className="text-md mt-2 mb-2 rounded-2xl border-3 border-gray-300 bg-gray-100 p-2 px-6 text-gray-600">
+                  내 인벤토리 보기
                 </div>
               </button>
             </div>

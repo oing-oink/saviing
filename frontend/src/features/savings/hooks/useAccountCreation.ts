@@ -1,5 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useErrorBoundary } from 'react-error-boundary';
 import {
   getAllAccounts,
   createCheckingAccount,
@@ -26,6 +28,7 @@ export const useAccountCreation = () => {
   const navigate = useNavigate();
   const { form } = useAccountCreationStore();
   const customerId = useCustomerStore(state => state.customerId);
+  const { showBoundary } = useErrorBoundary();
 
   // 기존 계좌 확인 (Query: 데이터 읽어오기)
   const {
@@ -44,6 +47,13 @@ export const useAccountCreation = () => {
     gcTime: 1000 * 60 * 10, // 10분간 메모리 유지
     enabled: customerId != null,
   });
+
+  // API 에러 발생 시 ErrorBoundary로 전달
+  useEffect(() => {
+    if (checkAccountsError) {
+      showBoundary(checkAccountsError);
+    }
+  }, [checkAccountsError, showBoundary]);
 
   // 입출금 계좌 생성 (Mutation: 데이터 변경)
   const createCheckingMutation = useMutation({

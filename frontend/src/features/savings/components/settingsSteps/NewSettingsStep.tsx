@@ -7,6 +7,12 @@ import {
   useSavingsAccountDetail,
 } from '@/features/savings/query/useSavingsQuery';
 import { Button } from '@/shared/components/ui/button';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/shared/components/ui/accordion';
 
 const NewSettingsStep = () => {
   const { accountId } = useParams<{ accountId: string }>();
@@ -30,6 +36,26 @@ const NewSettingsStep = () => {
     newTransferCycle: newSettings.newTransferCycle || '',
     newAutoAccount: newSettings.newAutoAccount || '',
   });
+  const [amountError, setAmountError] = useState('');
+  const [accordionValue, setAccordionValue] = useState<string | undefined>(
+    undefined,
+  );
+
+  // 납입금액 유효성 검사
+  const validateAmount = (value: string) => {
+    const numbers = value.replace(/[^\d]/g, '');
+    if (numbers === '') {
+      return { isValid: false, message: '납입금액을 입력해주세요.' };
+    }
+    const amount = Number(numbers);
+    if (amount < 1000) {
+      return { isValid: false, message: '최소 1,000원 이상 입력해야 합니다.' };
+    }
+    if (amount > 1000000) {
+      return { isValid: false, message: '최대 1,000,000원까지 입력 가능합니다.' };
+    }
+    return { isValid: true, message: '' };
+  };
 
   // 적금 데이터가 로드되면 기존 값으로 폼 초기화
   useEffect(() => {
@@ -105,13 +131,16 @@ const NewSettingsStep = () => {
     const value = e.target.value;
     const numbers = value.replace(/[^\d]/g, '');
 
-    // 범위 체크 (1~1,000,000)
-    if (
-      numbers === '' ||
-      (Number(numbers) >= 1 && Number(numbers) <= 1000000)
-    ) {
-      setFormData(prev => ({ ...prev, newAmount: formatNumber(value) }));
+    if (Number(numbers) > 1000000) {
+      setFormData(prev => ({ ...prev, newAmount: formatNumber('1000000') }));
+      const validation = validateAmount('1000000');
+      setAmountError(validation.isValid ? '' : validation.message);
+      return;
     }
+
+    setFormData(prev => ({ ...prev, newAmount: formatNumber(value) }));
+    const validation = validateAmount(value);
+    setAmountError(validation.isValid ? '' : validation.message);
   };
 
   const handleInputChange = (field: string, value: string | number) => {
@@ -132,6 +161,11 @@ const NewSettingsStep = () => {
     const settingsToUpdate: Record<string, unknown> = {};
 
     if (selectedChangeTypes.includes('AMOUNT') && formData.newAmount) {
+      const validation = validateAmount(formData.newAmount);
+      if (!validation.isValid) {
+        setAmountError(validation.message);
+        return;
+      }
       settingsToUpdate.newAmount = Number(
         formData.newAmount.replace(/[^\d]/g, ''),
       );
@@ -164,7 +198,7 @@ const NewSettingsStep = () => {
       switch (type) {
         case 'AMOUNT': {
           const amount = Number(formData.newAmount.replace(/[^\d]/g, ''));
-          return formData.newAmount && amount >= 1 && amount <= 1000000;
+          return formData.newAmount && amount >= 1000 && amount <= 1000000;
         }
         case 'TRANSFER_DATE':
           return formData.newTransferCycle && formData.newTransferDate;
@@ -185,10 +219,10 @@ const NewSettingsStep = () => {
         </h1>
         <p className="mb-6 text-gray-600">변경할 새로운 값을 입력해주세요</p>
 
-        <div className="space-y-6 rounded-lg border bg-white p-6">
+        <div className="space-y-4">
           {selectedChangeTypes.includes('AMOUNT') && (
-            <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700">
+            <div className="mb-3">
+              <label className="mb-1 block text-sm font-medium text-gray-700">
                 새로운 자동 납입금액
               </label>
               <div className="relative">
@@ -197,10 +231,19 @@ const NewSettingsStep = () => {
                   value={formData.newAmount}
                   onChange={handleAmountChange}
                   placeholder="0"
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:ring-2 focus:ring-primary"
+                  className={`w-full rounded-lg border px-3 py-2 pr-8 focus:outline-none ${
+                    amountError
+                      ? 'border-red-500 focus:border-red-500'
+                      : 'border-gray-300 focus:border-violet-500'
+                  }`}
                 />
-                <span className="absolute top-2 right-3 text-gray-500">원</span>
+                <span className="absolute top-1/2 right-3 -translate-y-1/2 text-sm text-gray-500">
+                  원
+                </span>
               </div>
+              {amountError && (
+                <p className="mt-1 text-xs text-red-600">{amountError}</p>
+              )}
               <p className="mt-1 text-xs text-gray-500">
                 현재:{' '}
                 {savingsDetail?.savings?.autoTransfer?.amount?.toLocaleString() ||
@@ -208,35 +251,49 @@ const NewSettingsStep = () => {
                 원
               </p>
               <p className="mt-1 text-xs text-gray-400">
-                * 최소 1원부터 최대 1,000,000원까지만 입력 가능합니다
+                * 최대 1,000,000(백만)원까지 입력 가능합니다
               </p>
             </div>
           )}
 
           {selectedChangeTypes.includes('TRANSFER_DATE') && (
-            <div className="space-y-4">
-              {/* 납입 주기 선택 */}
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700">
+            <>
+              <div className="mb-3">
+                <label className="mb-1 block text-sm font-medium text-gray-700">
                   납입 주기
                 </label>
-                <select
-                  value={formData.newTransferCycle || ''}
-                  onChange={e =>
-                    handleInputChange('newTransferCycle', e.target.value)
-                  }
-                  className="w-full appearance-none rounded-lg border border-gray-300 bg-white px-3 py-2 focus:border-primary focus:ring-2 focus:ring-primary"
-                >
-                  <option value="" className="text-gray-500">
-                    선택해주세요
-                  </option>
-                  <option value="WEEKLY" className="text-gray-900">
-                    주간 (매주)
-                  </option>
-                  <option value="MONTHLY" className="text-gray-900">
-                    월간 (매월)
-                  </option>
-                </select>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleInputChange('newTransferCycle', 'WEEKLY');
+                      handleInputChange('newTransferDate', ''); // 주기 변경 시 이체일 초기화
+                      setAccordionValue('transfer-date-selection'); // 이체일 선택 자동 열기
+                    }}
+                    className={`flex-1 rounded-lg border px-4 py-2 text-sm ${
+                      formData.newTransferCycle === 'WEEKLY'
+                        ? 'bg-violet-500 text-white'
+                        : 'bg-white text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    매주
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleInputChange('newTransferCycle', 'MONTHLY');
+                      handleInputChange('newTransferDate', ''); // 주기 변경 시 이체일 초기화
+                      setAccordionValue('transfer-date-selection'); // 이체일 선택 자동 열기
+                    }}
+                    className={`flex-1 rounded-lg border px-4 py-2 text-sm ${
+                      formData.newTransferCycle === 'MONTHLY'
+                        ? 'bg-violet-500 text-white'
+                        : 'bg-white text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    매월
+                  </button>
+                </div>
                 <p className="mt-1 text-xs text-gray-500">
                   현재:{' '}
                   {savingsDetail?.savings?.autoTransfer
@@ -245,55 +302,76 @@ const NewSettingsStep = () => {
                 </p>
               </div>
 
-              {/* 날짜 선택 */}
-              {formData.newTransferCycle && (
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-gray-700">
-                    {formData.newTransferCycle === 'WEEKLY'
-                      ? '자동이체 요일'
-                      : '자동이체 날짜'}
-                  </label>
-                  <select
-                    value={formData.newTransferDate}
-                    onChange={e =>
-                      handleInputChange('newTransferDate', e.target.value)
-                    }
-                    className="w-full appearance-none rounded-lg border border-gray-300 bg-white px-3 py-2 focus:border-primary focus:ring-2 focus:ring-primary"
-                  >
-                    <option value="" className="text-gray-500">
-                      선택해주세요
-                    </option>
-                    {formData.newTransferCycle === 'WEEKLY'
-                      ? // 주간: 0=일요일, 1=월요일, ..., 6=토요일
-                        [
-                          { value: '0', label: '일요일' },
-                          { value: '1', label: '월요일' },
-                          { value: '2', label: '화요일' },
-                          { value: '3', label: '수요일' },
-                          { value: '4', label: '목요일' },
-                          { value: '5', label: '금요일' },
-                          { value: '6', label: '토요일' },
-                        ].map(day => (
-                          <option
-                            key={day.value}
-                            value={day.value}
-                            className="text-gray-900"
-                          >
-                            매주 {day.label}
-                          </option>
-                        ))
-                      : // 월간: 1일~31일
-                        Array.from({ length: 31 }, (_, i) => i + 1).map(day => (
-                          <option
-                            key={day}
-                            value={day.toString()}
-                            className="text-gray-900"
-                          >
-                            매월 {day}일
-                          </option>
-                        ))}
-                  </select>
-                  <p className="mt-1 text-xs text-gray-500">
+              <div className="mb-3">
+                <Accordion
+                  type="single"
+                  collapsible
+                  className="w-full"
+                  value={accordionValue}
+                  onValueChange={setAccordionValue}
+                >
+                  <AccordionItem value="transfer-date-selection">
+                    <AccordionTrigger className="text-left text-gray-700">
+                      {formData.newTransferDate
+                        ? formData.newTransferCycle === 'WEEKLY'
+                          ? `매주 ${['일', '월', '화', '수', '목', '금', '토'][Number(formData.newTransferDate) % 7]}요일 이체`
+                          : `매월 ${formData.newTransferDate}일 이체`
+                        : '이체일을 선택해주세요'}
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      {formData.newTransferCycle === 'WEEKLY' ? (
+                        <div className="grid grid-cols-2 gap-2 pt-2">
+                          {[
+                            '월요일',
+                            '화요일',
+                            '수요일',
+                            '목요일',
+                            '금요일',
+                            '토요일',
+                            '일요일',
+                          ].map((day, index) => (
+                            <button
+                              key={day}
+                              type="button"
+                              onClick={() => {
+                                handleInputChange('newTransferDate', String(index + 1));
+                                setAccordionValue('auto-account-selection');
+                              }}
+                              className={`rounded-md border px-4 py-2 text-sm ${
+                                formData.newTransferDate === String(index + 1)
+                                  ? 'bg-violet-500 text-white'
+                                  : 'bg-white text-gray-700 hover:bg-gray-100'
+                              }`}
+                            >
+                              {day}
+                            </button>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-4 gap-2 pt-2">
+                          {Array.from({ length: 28 }, (_, i) => i + 1).map(day => (
+                            <button
+                              key={day}
+                              type="button"
+                              onClick={() => {
+                                handleInputChange('newTransferDate', String(day));
+                                setAccordionValue('auto-account-selection');
+                              }}
+                              className={`rounded-md border px-4 py-2 text-sm ${
+                                formData.newTransferDate === String(day)
+                                  ? 'bg-violet-500 text-white'
+                                  : 'bg-white text-gray-700 hover:bg-gray-100'
+                              }`}
+                            >
+                              {day}일
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+                 <p className="mt-1 text-xs text-gray-500">
                     현재:{' '}
                     {savingsDetail?.savings?.autoTransfer
                       ? getTransferDateDisplay(
@@ -302,43 +380,58 @@ const NewSettingsStep = () => {
                         )
                       : '정보 없음'}
                   </p>
-                </div>
-              )}
-            </div>
+              </div>
+            </>
           )}
 
           {selectedChangeTypes.includes('AUTO_ACCOUNT') && (
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700">
-                새로운 연결 계좌
-              </label>
-              <select
-                value={formData.newAutoAccount}
-                onChange={e =>
-                  handleInputChange('newAutoAccount', e.target.value)
-                }
-                className="w-full appearance-none rounded-lg border border-gray-300 bg-white px-3 py-2 focus:border-primary focus:ring-2 focus:ring-primary"
+              <Accordion
+                type="single"
+                collapsible
+                className="w-full"
+                value={accordionValue}
+                onValueChange={setAccordionValue}
               >
-                <option value="" className="text-gray-500">
-                  계좌를 선택해주세요
-                </option>
-                {checkingAccounts.length > 0 ? (
-                  checkingAccounts.map(account => (
-                    <option
-                      key={account.accountId}
-                      value={account.accountId}
-                      className="text-gray-900"
-                    >
-                      {account.product.productName} (*
-                      {account.accountNumber.slice(-4)})
-                    </option>
-                  ))
-                ) : (
-                  <option disabled className="text-gray-400">
-                    변경 가능한 계좌가 없습니다
-                  </option>
-                )}
-              </select>
+                <AccordionItem value="auto-account-selection">
+                  <AccordionTrigger className="text-left text-gray-700">
+                    {formData.newAutoAccount
+                      ? checkingAccounts.find(
+                          acc => acc.accountId.toString() === formData.newAutoAccount,
+                        )?.product.productName + 
+                        ' (*' + 
+                        checkingAccounts.find(
+                          acc => acc.accountId.toString() === formData.newAutoAccount,
+                        )?.accountNumber.slice(-4) + ')'
+                      : '자동이체 계좌를 선택해주세요'}
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="space-y-2 pt-2">
+                      {checkingAccounts.map(account => (
+                        <button
+                          key={account.accountId}
+                          type="button"
+                          onClick={() => handleInputChange('newAutoAccount', account.accountId.toString())}
+                          className={`w-full rounded-lg border p-3 text-left text-sm ${
+                            formData.newAutoAccount === account.accountId.toString()
+                              ? 'bg-violet-500 text-white'
+                              : 'bg-white text-gray-700 hover:bg-gray-100'
+                          }`}
+                        >
+                          <div className="font-medium">
+                            {account.product.productName}
+                          </div>
+                          <div className="py-1 text-xs opacity-80">
+                            {account.accountNumber}
+                            {account.balance &&
+                              ` • 잔액: ${account.balance.toLocaleString()}원`}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
               <div className="mt-1 space-y-1">
                 <p className="text-xs text-gray-500">
                   현재:{' '}

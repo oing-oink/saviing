@@ -13,10 +13,20 @@ import { useEffect, useState } from 'react';
 import { usePetStore } from '@/features/game/pet/store/usePetStore';
 import { useEnterTransitionStore } from '@/features/game/shared/store/useEnterTransitionStore';
 import GameBackgroundLayout from '@/features/game/shared/layouts/GameBackgroundLayout';
+import { Loader2 } from 'lucide-react';
+import { useGameEntryQuery } from '@/features/game/entry/query/useGameEntryQuery';
 
 const GamePage = () => {
-  // TODO: API 연결 후 동적으로 관리
-  const currentPetId = 1009;
+  const {
+    data: gameEntry,
+    isLoading: isGameEntryLoading,
+    error: gameEntryError,
+  } = useGameEntryQuery();
+
+  const currentPetId = gameEntry?.pet?.petId;
+  const currentPetItemId = gameEntry?.pet?.itemId;
+  const hasPet =
+    typeof currentPetId === 'number' && typeof currentPetItemId === 'number';
   const behavior = usePetStore(state => state.behavior);
   const setBehavior = usePetStore(state => state.setBehavior);
   const isTransitioningToGame = useEnterTransitionStore(
@@ -31,8 +41,7 @@ const GamePage = () => {
     if (isTransitioningToGame) {
       finishTransitionToGame();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [finishTransitionToGame, isTransitioningToGame, setBehavior]);
 
   // Popover 상태 관리
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
@@ -46,6 +55,30 @@ const GamePage = () => {
     }
   };
 
+  if (isGameEntryLoading) {
+    return (
+      <GameBackgroundLayout className="game relative touch-none overflow-hidden font-galmuri">
+        <div className="flex h-full items-center justify-center gap-2">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          <span className="text-sm text-muted-foreground">불러오는 중...</span>
+        </div>
+      </GameBackgroundLayout>
+    );
+  }
+
+  if (gameEntryError) {
+    return (
+      <GameBackgroundLayout className="game relative touch-none overflow-hidden font-galmuri">
+        <div className="flex h-full items-center justify-center">
+          <span className="text-sm text-red-500">
+            펫 정보를 불러올 수 없습니다
+            {gameEntryError ? `: ${gameEntryError.message}` : ''}
+          </span>
+        </div>
+      </GameBackgroundLayout>
+    );
+  }
+
   return (
     <GameBackgroundLayout className="game relative touch-none overflow-hidden font-galmuri">
       <div className="relative flex h-full flex-col">
@@ -58,22 +91,26 @@ const GamePage = () => {
             <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
               <PopoverTrigger asChild>
                 <button
-                  className={`absolute left-1/2 z-10 -translate-x-1/2 -translate-y-1/2 cursor-pointer outline-none ${
+                  className={`absolute left-1/2 z-[1] -translate-x-1/2 -translate-y-1/2 cursor-pointer outline-none ${
                     isPopoverOpen ? 'top-[30%]' : 'top-1/2'
                   }`}
                   type="button"
+                  disabled={!hasPet}
                 >
-                  <CatSprite
-                    petId={currentPetId}
-                    currentAnimation={behavior.currentAnimation}
-                    className="scale-400"
-                    onAnimationComplete={handleAnimationComplete}
-                  />
+                  {hasPet && (
+                    <CatSprite
+                      itemId={currentPetItemId}
+                      currentAnimation={behavior.currentAnimation}
+                      className="scale-400"
+                      onAnimationComplete={handleAnimationComplete}
+                    />
+                  )}
                 </button>
               </PopoverTrigger>
+
               <div
                 className={`absolute left-1/2 z-0 w-full -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ease-in-out ${
-                  isPopoverOpen ? 'top-[30%]' : 'top-1/2'
+                  isPopoverOpen && hasPet ? 'top-[30%]' : 'top-1/2'
                 }`}
               >
                 <Room mode="readonly" placementArea={null} />
@@ -81,14 +118,16 @@ const GamePage = () => {
 
               <PopoverAnchor className="absolute right-0 bottom-0 left-0" />
 
-              <PopoverContent
-                side="top"
-                align="center"
-                sideOffset={16}
-                className="w-screen max-w-md p-0"
-              >
-                <PetStatusCard petId={currentPetId} />
-              </PopoverContent>
+              {hasPet && (
+                <PopoverContent
+                  side="top"
+                  align="center"
+                  sideOffset={16}
+                  className="w-screen max-w-md p-0"
+                >
+                  <PetStatusCard petId={currentPetId} />
+                </PopoverContent>
+              )}
             </Popover>
           </div>
         </div>

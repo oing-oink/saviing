@@ -2,6 +2,12 @@ import { useState } from 'react';
 import { useAccountCreationStore } from '@/features/savings/store/useAccountCreationStore';
 import { useStepProgress } from '@/features/savings/hooks/useStepProgress';
 import { Button } from '@/shared/components/ui/button';
+import {
+  validateName,
+  validateBirthDate,
+  validatePhoneNumber,
+  formatPhoneNumber,
+} from '@/features/savings/utils/validation';
 
 const UserInfoStep = () => {
   const { setForm, form } = useAccountCreationStore();
@@ -10,46 +16,49 @@ const UserInfoStep = () => {
   const [birth, setBirth] = useState(form.birth);
   const [phone, setPhone] = useState(form.phone);
 
-  // 휴대폰 번호 포맷팅 함수
-  const formatPhoneNumber = (value: string) => {
-    // 숫자만 추출
-    const numbers = value.replace(/[^\d]/g, '');
+  // 각 필드별 에러 상태
+  const [nameError, setNameError] = useState('');
+  const [birthError, setBirthError] = useState('');
+  const [phoneError, setPhoneError] = useState('');
 
-    // 최대 11자리까지만
-    const trimmed = numbers.slice(0, 11);
-
-    // 자동 포맷팅
-    if (trimmed.length <= 3) {
-      return trimmed;
-    } else if (trimmed.length <= 7) {
-      return `${trimmed.slice(0, 3)}-${trimmed.slice(3)}`;
-    } else {
-      return `${trimmed.slice(0, 3)}-${trimmed.slice(3, 7)}-${trimmed.slice(7)}`;
-    }
+  // 이름 입력 처리
+  const handleNameChange = (value: string) => {
+    setName(value);
+    const validation = validateName(value);
+    setNameError(validation.isValid ? '' : validation.message);
   };
 
-  // 휴대폰 번호 변경 핸들러
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatPhoneNumber(e.target.value);
-    setPhone(formatted);
+  // 생년월일 입력 처리
+  const handleBirthChange = (value: string) => {
+    setBirth(value);
+    const validation = validateBirthDate(value);
+    setBirthError(validation.isValid ? '' : validation.message);
   };
 
-  // 생년월일 변경 핸들러
-  const handleBirthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedDate = e.target.value;
-    const today = new Date().toISOString().split('T')[0];
-
-    // 미래 날짜나 1900년 이전 날짜 입력 방지
-    if (selectedDate > today || selectedDate < '1900-01-01') {
-      return; // 변경하지 않음
-    }
-
-    setBirth(selectedDate);
+  // 휴대폰 번호 입력 처리
+  const handlePhoneChange = (value: string) => {
+    const formattedPhone = formatPhoneNumber(value);
+    setPhone(formattedPhone);
+    const validation = validatePhoneNumber(formattedPhone);
+    setPhoneError(validation.isValid ? '' : validation.message);
   };
 
-  const isValid = name.trim() && birth.trim() && phone.trim();
+  // 전체 유효성 검사
+  const isValid =
+    validateName(name).isValid &&
+    validateBirthDate(birth).isValid &&
+    validatePhoneNumber(phone).isValid;
 
   const handleNext = () => {
+    // 최종 검증
+    const nameValidation = validateName(name);
+    const birthValidation = validateBirthDate(birth);
+    const phoneValidation = validatePhoneNumber(phone);
+
+    setNameError(nameValidation.isValid ? '' : nameValidation.message);
+    setBirthError(birthValidation.isValid ? '' : birthValidation.message);
+    setPhoneError(phoneValidation.isValid ? '' : phoneValidation.message);
+
     if (!isValid) {
       return;
     }
@@ -79,10 +88,19 @@ const UserInfoStep = () => {
             type="text"
             placeholder="이름을 입력해주세요"
             value={name}
-            onChange={e => setName(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-violet-500 focus:outline-none"
+            // onChange={e => setName(e.target.value)}
+            // className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-violet-500 focus:outline-none"
             maxLength={10}
+            onChange={e => handleNameChange(e.target.value)}
+            className={`w-full rounded-lg border px-3 py-2 text-sm focus:outline-none ${
+              nameError
+                ? 'border-red-500 focus:border-red-500'
+                : 'border-gray-300 focus:border-violet-500'
+            }`}
           />
+          {nameError && (
+            <p className="mt-1 text-xs text-red-600">{nameError}</p>
+          )}
         </div>
 
         {/* 생년월일 */}
@@ -94,11 +112,20 @@ const UserInfoStep = () => {
             type="date"
             placeholder="연도-월-일"
             value={birth}
-            onChange={handleBirthChange}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-violet-500 focus:outline-none"
+            // onChange={handleBirthChange}
+            // className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-violet-500 focus:outline-none"
             min="1900-01-01"
             max={new Date().toISOString().split('T')[0]}
+            onChange={e => handleBirthChange(e.target.value)}
+            className={`w-full rounded-lg border px-3 py-2 text-sm focus:outline-none ${
+              birthError
+                ? 'border-red-500 focus:border-red-500'
+                : 'border-gray-300 focus:border-violet-500'
+            }`}
           />
+          {birthError && (
+            <p className="mt-1 text-xs text-red-600">{birthError}</p>
+          )}
         </div>
 
         {/* 휴대폰 번호 */}
@@ -110,10 +137,20 @@ const UserInfoStep = () => {
             type="tel"
             placeholder="010-0000-0000"
             value={phone}
-            onChange={handlePhoneChange}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-violet-500 focus:outline-none"
+            // onChange={handlePhoneChange}
+            // className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-violet-500 focus:outline-none"
+            // maxLength={13}
+            onChange={e => handlePhoneChange(e.target.value)}
             maxLength={13}
+            className={`w-full rounded-lg border px-3 py-2 text-sm focus:outline-none ${
+              phoneError
+                ? 'border-red-500 focus:border-red-500'
+                : 'border-gray-300 focus:border-violet-500'
+            }`}
           />
+          {phoneError && (
+            <p className="mt-1 text-xs text-red-600">{phoneError}</p>
+          )}
         </div>
       </div>
 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import backButton from '@/assets/game_button/backButton.png';
 import { PAGE_PATH } from '@/shared/constants/path';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import catPaw from '@/assets/catPaw.png';
 import gachaMachine from '@/assets/gachaMachine.png';
 import { useGachaDraw } from '@/features/game/shop/query/useGachaDraw';
@@ -10,30 +10,63 @@ import { useFireworks } from '@/features/game/shop/hooks/useFireworks';
 import GachaResult from '@/features/game/shop/components/GachaResult';
 import type { GachaDrawResponse } from '@/features/game/shop/types/item';
 import toast from 'react-hot-toast';
+import { useQueryClient } from '@tanstack/react-query';
+import { gameKeys } from '@/features/game/shared/query/gameKeys';
+import { useGameEntryQuery } from '@/features/game/entry/query/useGameEntryQuery';
 
 const GachaRollingPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const queryClient = useQueryClient();
   const { data: gachaInfo } = useGachaInfo();
   const { mutate: drawGacha } = useGachaDraw();
   const [gachaResult, setGachaResult] = useState<GachaDrawResponse | null>(
     null,
   );
+  const { data: gameEntry } = useGameEntryQuery();
+  const characterId = gameEntry?.characterId;
 
   useFireworks(Boolean(gachaResult));
 
+  // timestamp가 변경될 때마다 새로운 가챠 실행
+  const timestamp = searchParams.get('t');
+
   useEffect(() => {
+    // 상태 초기화
+    setGachaResult(null);
+
     // 페이지 진입과 동시에 가챠 API 호출
-    if (gachaInfo) {
+    if (gachaInfo && typeof characterId === 'number') {
       const timer = setTimeout(() => {
         drawGacha(
           {
-            characterId: 1, // TODO: 실제 캐릭터 ID 사용
+            characterId,
             gachaPoolId: gachaInfo.gachaPoolId,
             paymentMethod: 'COIN', // 기본적으로 코인 사용
           },
           {
             onSuccess: result => {
               setGachaResult(result);
+
+              // 가챠 성공 후 캐릭터 게임 데이터 캐시 업데이트
+              queryClient.setQueryData(
+                gameKeys.characterData(characterId),
+                (oldData: any) => {
+                  if (oldData) {
+                    return {
+                      ...oldData,
+                      coin: result.currencies.coin,
+                      fishCoin: result.currencies.fishCoin,
+                    };
+                  }
+                  return oldData;
+                },
+              );
+
+              // 다른 게임 관련 쿼리들도 무효화 (안전장치)
+              queryClient.invalidateQueries({
+                queryKey: gameKeys.characterData(characterId),
+              });
             },
             onError: error => {
               toast.error(`가챠 뽑기 실패: ${error.message}`, {
@@ -47,7 +80,7 @@ const GachaRollingPage = () => {
 
       return () => clearTimeout(timer);
     }
-  }, [gachaInfo, drawGacha, navigate]);
+  }, [characterId, drawGacha, gachaInfo, navigate, queryClient, timestamp]);
 
   const handleCloseResult = () => {
     setGachaResult(null);

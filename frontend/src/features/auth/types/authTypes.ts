@@ -2,6 +2,7 @@ export interface LoginResponse {
   accessToken: string;
   customerId: number;
   expiresIn: number;
+  name: string;
 }
 
 export interface Customer {
