@@ -39,7 +39,8 @@ const ItemDetailModal = ({
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>('COIN');
   const { data: gameEntry } = useGameEntryQuery();
   const characterId = gameEntry?.characterId;
-  const [showInsufficientFundsModal, setShowInsufficientFundsModal] = useState(false);
+  const [showInsufficientFundsModal, setShowInsufficientFundsModal] =
+    useState(false);
 
   const handlePurchase = () => {
     if (!item) {
