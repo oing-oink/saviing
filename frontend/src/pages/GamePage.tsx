@@ -91,7 +91,7 @@ const GamePage = () => {
             <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
               <PopoverTrigger asChild>
                 <button
-                  className={`absolute left-1/2 z-10 -translate-x-1/2 -translate-y-1/2 cursor-pointer outline-none ${
+                  className={`absolute left-1/2 z-[1] -translate-x-1/2 -translate-y-1/2 cursor-pointer outline-none ${
                     isPopoverOpen ? 'top-[30%]' : 'top-1/2'
                   }`}
                   type="button"
