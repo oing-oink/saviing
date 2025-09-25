@@ -283,7 +283,7 @@ const DepositPage = () => {
             size="lg"
             disabled={!canSubmit || transferMutation.isPending}
             onClick={handleOpenDialog}
-            className="flex h-12 flex-1 w-full items-center justify-center space-x-2 rounded-lg bg-primary text-white hover:bg-primary/90 disabled:bg-gray-300 disabled:text-gray-500"
+            className="flex h-12 w-full flex-1 items-center justify-center space-x-2 rounded-lg bg-primary text-white hover:bg-primary/90 disabled:bg-gray-300 disabled:text-gray-500"
           >
             {transferMutation.isPending ? (
               <>

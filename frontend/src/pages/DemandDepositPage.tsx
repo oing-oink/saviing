@@ -28,8 +28,7 @@ const DemandDepositPage = () => {
   const { customer } = useCustomerStore();
 
   // 실제 API에서 입출금 계좌 정보 가져오기
-  const { data: demandDepositAccountData, isLoading: isDemandDepositLoading } =
-    useSavingsAccount(accountId || '');
+  const { data: demandDepositAccountData } = useSavingsAccount(accountId || '');
 
   // 실제 API에서 모든 계좌 목록 가져오기
   const { data: allAccounts } = useAccountsList();
@@ -40,9 +39,10 @@ const DemandDepositPage = () => {
       return [];
     }
     return allAccounts
-      .filter(account =>
-        account.product.productCategory !== 'DEMAND_DEPOSIT' ||
-        account.accountId !== parseInt(accountId || '0')
+      .filter(
+        account =>
+          account.product.productCategory !== 'DEMAND_DEPOSIT' ||
+          account.accountId !== parseInt(accountId || '0'),
       )
       .map(account => ({
         id: account.accountId.toString(),
@@ -104,7 +104,8 @@ const DemandDepositPage = () => {
       targetAccountId: number;
       amount: number;
       memo?: string;
-    }) => transferToDemandDeposit(sourceAccountId, targetAccountId, amount, memo),
+    }) =>
+      transferToDemandDeposit(sourceAccountId, targetAccountId, amount, memo),
     onSuccess: data => {
       const transferSummary = {
         amount,
@@ -174,7 +175,7 @@ const DemandDepositPage = () => {
 
   return (
     <DepositLayout>
-      <div className="flex w-full flex-col gap-6 px-6 pb-32 pt-6">
+      <div className="flex w-full flex-col gap-6 px-6 pt-6 pb-32">
         <header className="space-y-2">
           <span className="text-xs font-semibold tracking-wide text-primary uppercase">
             입출금 계좌 이체
@@ -233,7 +234,7 @@ const DemandDepositPage = () => {
             size="lg"
             disabled={!canSubmit || transferMutation.isPending}
             onClick={handleOpenDialog}
-            className="flex h-12 flex-1 w-full items-center justify-center space-x-2 rounded-lg bg-primary text-white hover:bg-primary/90 disabled:bg-gray-300 disabled:text-gray-500"
+            className="flex h-12 w-full flex-1 items-center justify-center space-x-2 rounded-lg bg-primary text-white hover:bg-primary/90 disabled:bg-gray-300 disabled:text-gray-500"
           >
             {transferMutation.isPending ? (
               <>

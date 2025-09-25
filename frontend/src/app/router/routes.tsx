@@ -44,7 +44,10 @@ const protectedRoutesWithoutLayout = [
   { path: PAGE_PATH.SAVINGS, element: <SavingsPage /> },
   { path: PAGE_PATH.DEPOSIT, element: <DepositPage /> },
   { path: PAGE_PATH.DEPOSIT_WITH_ACCOUNT, element: <DepositPage /> },
-  { path: PAGE_PATH.DEMAND_DEPOSIT_WITH_ACCOUNT, element: <DemandDepositPage /> },
+  {
+    path: PAGE_PATH.DEMAND_DEPOSIT_WITH_ACCOUNT,
+    element: <DemandDepositPage />,
+  },
   { path: PAGE_PATH.DEPOSIT_RESULT, element: <DepositResultPage /> },
   { path: PAGE_PATH.GAME, element: <GamePage /> },
   { path: PAGE_PATH.GAME_ENTER, element: <GameEnterPage /> },

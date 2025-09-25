@@ -27,7 +27,9 @@ export const useDemandDepositTransferForm = ({
   sourceAccounts,
   demandAccount,
 }: UseDemandDepositTransferFormProps) => {
-  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
+  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(
+    null,
+  );
   const [amount, setAmount] = useState<number>(0);
 
   const selectedAccount = useMemo(() => {
@@ -35,7 +37,9 @@ export const useDemandDepositTransferForm = ({
   }, [sourceAccounts, selectedAccountId]);
 
   const quickAmounts = useMemo(() => {
-    if (!selectedAccount) return [10000, 50000, 100000, 500000];
+    if (!selectedAccount) {
+      return [10000, 50000, 100000, 500000];
+    }
 
     const balance = selectedAccount.balance;
     const amounts = [10000, 50000, 100000, 500000];
@@ -66,7 +70,8 @@ export const useDemandDepositTransferForm = ({
   const actions = {
     selectAccount: (accountId: string) => setSelectedAccountId(accountId),
     changeAmount: (newAmount: number) => setAmount(newAmount),
-    addQuickAmount: (quickAmount: number) => setAmount(prev => prev + quickAmount),
+    addQuickAmount: (quickAmount: number) =>
+      setAmount(prev => prev + quickAmount),
     fillAll: () => {
       if (selectedAccount) {
         setAmount(selectedAccount.balance);
