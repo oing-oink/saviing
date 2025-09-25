@@ -22,7 +22,6 @@ const ShopPage = () => {
     state => state.startDragFromInventory,
   );
   const cancelDrag = useDecoStore(state => state.cancelDrag);
-  const draftItems = useDecoStore(state => state.draftItems);
 
   const getCategoryPlacementArea = (category: string): TabId | null => {
     if (category === 'LEFT') {
@@ -31,7 +30,7 @@ const ShopPage = () => {
     if (category === 'RIGHT') {
       return 'RIGHT';
     }
-    if (category === 'BOTTOM' || category === 'ROOM_COLOR') {
+    if (category === 'BOTTOM') {
       return 'BOTTOM';
     }
     return null;
@@ -55,18 +54,7 @@ const ShopPage = () => {
   const handlePreviewItem = (item: Item) => {
     cancelDrag();
 
-    if (item.itemType === 'PET') {
-      // PET은 최대 두 마리까지만 배치 가능하므로 초과 시 미리보기 시작을 막는다.
-      const petCount = draftItems.filter(
-        draft => draft.itemType === 'PET',
-      ).length;
-      const alreadyPlacedPet = draftItems.some(
-        draft => draft.itemType === 'PET' && draft.itemId === item.itemId,
-      );
-      if (petCount >= 2 && !alreadyPlacedPet) {
-        setIsPlacementBlockedOpen(true);
-        return;
-      }
+    if (item.itemType === 'PET' || item.itemCategory === 'CAT') {
       setPlacementArea('BOTTOM');
       setIsPlacementBlockedOpen(false);
       startDragFromInventory(String(item.itemId), {
@@ -80,9 +68,11 @@ const ShopPage = () => {
     }
 
     const targetArea = getCategoryPlacementArea(item.itemCategory);
-    if (targetArea) {
-      setPlacementArea(targetArea);
+    if (!targetArea) {
+      setIsPlacementBlockedOpen(true);
+      return;
     }
+    setPlacementArea(targetArea);
     setIsPlacementBlockedOpen(false);
     startDragFromInventory(String(item.itemId), {
       allowedGridType: targetArea,

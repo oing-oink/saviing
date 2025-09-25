@@ -42,7 +42,7 @@ const Coin = ({ coin, fishCoin }: CoinProps) => {
           alt="coin"
           className="h-full w-auto object-contain"
         />
-        <span className="absolute right-4 bottom-4 text-lg font-bold text-gray-600">
+        <span className="text-md absolute right-4 bottom-4 mb-1 font-bold text-gray-600">
           {coinAmount}
         </span>
       </div>
@@ -54,7 +54,7 @@ const Coin = ({ coin, fishCoin }: CoinProps) => {
           alt="fish coin"
           className="-ml-2 h-full w-auto scale-105 object-contain"
         />
-        <span className="absolute right-5 bottom-4 text-lg font-bold text-gray-600">
+        <span className="text-md absolute right-5 bottom-4 mb-1 font-bold text-gray-600">
           {fishCoinAmount}
         </span>
       </div>

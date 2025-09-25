@@ -75,10 +75,8 @@ const PlacedItem = ({
    * @param event - React 마우스 이벤트 객체
    */
   const handleMouseDown = (event: MouseEvent<SVGPolygonElement>) => {
-    try {
+    if (event.cancelable) {
       event.preventDefault();
-    } catch {
-      // passive event listener에서는 preventDefault 호출 불가
     }
     event.stopPropagation();
     onPick({ id, clientX: event.clientX, clientY: event.clientY });
@@ -92,11 +90,7 @@ const PlacedItem = ({
    * @param event - React 터치 이벤트 객체
    */
   const handleTouchStart = (event: TouchEvent<SVGPolygonElement>) => {
-    try {
-      event.preventDefault();
-    } catch {
-      // passive event listener에서는 preventDefault 호출 불가
-    }
+    // React 18에서는 기본으로 passive 리스너가 사용되므로 preventDefault 호출을 건너뛴다.
     event.stopPropagation();
     const touch = event.changedTouches[0];
     onPick({ id, clientX: touch.clientX, clientY: touch.clientY });
@@ -122,6 +116,7 @@ const PlacedItem = ({
           fill={fill}
           stroke={stroke}
           strokeWidth={1}
+          data-interactive="true"
           onMouseDown={handleMouseDown}
           onTouchStart={handleTouchStart}
           pointerEvents="auto"

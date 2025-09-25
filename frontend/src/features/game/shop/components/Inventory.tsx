@@ -5,10 +5,13 @@ import { useSlots } from '@/features/game/shop/hooks/useSlots';
 import { useItemModal } from '@/features/game/shop/hooks/useItemModal';
 import { getItemImage } from '@/features/game/shop/utils/getItemImage';
 import { useDecoStore } from '@/features/game/deco/store/useDecoStore';
+import { normalizePlacementArea } from '@/features/game/deco/utils/grid';
 import inventory_square from '@/assets/inventory_square.png';
 import { Badge } from '@/shared/components/ui/badge';
 import { ScrollArea } from '@/shared/components/ui/scroll-area';
 import ItemDetailModal from './ItemDetailModal';
+import CatSprite from '@/features/game/pet/components/CatSprite';
+import { CAT_SPRITE_PATHS } from '@/features/game/pet/data/catAnimations';
 
 const RARITY_KEYS = ['LEGENDARY', 'EPIC', 'RARE', 'COMMON'] as const;
 type RarityKey = (typeof RARITY_KEYS)[number];
@@ -26,6 +29,9 @@ const RARITY_BADGE_CLASSES: Record<RarityKey, string> = {
   RARE: 'bg-blue-500 text-white shadow-sm',
   COMMON: 'bg-slate-500 text-white/90 shadow-sm',
 };
+
+const hasCatSprite = (petId: number): petId is keyof typeof CAT_SPRITE_PATHS =>
+  Object.prototype.hasOwnProperty.call(CAT_SPRITE_PATHS, petId);
 
 const normalizeRarity = (rarity?: string): RarityKey => {
   const upper = rarity?.toUpperCase() as RarityKey | undefined;
@@ -67,7 +73,7 @@ const Inventory = ({
   // 데코 모드에서 배치된 아이템들 추적
   const draftItems = useDecoStore(state => state.draftItems);
 
-  // 배치된 슬롯 ID들을 Set으로 관리 (빠른 조회를 위해)
+  // 배치된 slotId들을 Set으로 관리 (빠른 조회를 위해)
   const placedSlotIds = useMemo(() => {
     if (mode !== 'deco') {
       return new Set<string>();
@@ -76,12 +82,55 @@ const Inventory = ({
     return new Set(
       draftItems
         .filter(item => !item.isPreview && item.slotId) // 프리뷰 아이템 제외 및 slotId 있는 것만
-        .map(item => item.slotId!),
+        .map(item => {
+          const slotId = item.slotId!;
+          if (slotId.includes('::')) {
+            return slotId;
+          }
+          const layer = normalizePlacementArea(item.layer);
+          const prefix = item.itemType === 'PET' ? 'CAT' : (layer ?? 'GLOBAL');
+          return `${prefix}::${slotId}`;
+        }),
     );
   }, [mode, draftItems]);
 
-  // 슬롯이 이미 배치되었는지 확인하는 함수
-  const isSlotPlaced = (slotId: string) => placedSlotIds.has(slotId);
+  // 배치된 inventoryItemId들을 Set으로 관리 (빠른 조회를 위해)
+  const placedInventoryItemIds = useMemo(() => {
+    if (mode !== 'deco') {
+      return new Set<number>();
+    }
+
+    return new Set(
+      draftItems
+        .filter(item => !item.isPreview && item.inventoryItemId) // 프리뷰 아이템 제외 및 inventoryItemId 있는 것만
+        .map(item => item.inventoryItemId!),
+    );
+  }, [mode, draftItems]);
+
+  // 슬롯이 이미 배치되었는지 확인하는 함수 (slotId 기반)
+  const isSlotPlaced = (slotKey: string) => placedSlotIds.has(slotKey);
+
+  // 아이템이 이미 배치되었는지 확인하는 함수 (inventoryItemId 기반 또는 isAvailable 속성)
+  const isItemDisabled = (item: Item): boolean => {
+    if (mode !== 'deco') {
+      return false;
+    }
+
+    // isAvailable이 false면 비활성화
+    if (item.isAvailable === false) {
+      return true;
+    }
+
+    // inventoryItemId가 배치된 목록에 있으면 비활성화
+    if (
+      item.inventoryItemId &&
+      placedInventoryItemIds.has(item.inventoryItemId)
+    ) {
+      return true;
+    }
+
+    return false;
+  };
 
   // API에서 이미 필터링된 데이터를 받으므로 추가 필터링 불필요
   const slots = useSlots(items);
@@ -91,13 +140,22 @@ const Inventory = ({
     onTabChange(tab);
   };
 
+  const buildSlotKey = (slotId: string) => {
+    if (mode !== 'deco') {
+      return slotId;
+    }
+    const prefix = activeTab.id === 'CAT' ? 'CAT' : activeTab.id;
+    return `${prefix}::${slotId}`;
+  };
+
   const handleSlotClick = (item: Item, slotId: string) => {
     if (mode === 'deco') {
+      const slotKey = buildSlotKey(slotId);
       // 이미 배치된 슬롯은 클릭할 수 없음
-      if (isSlotPlaced(slotId)) {
+      if (isSlotPlaced(slotKey) || isItemDisabled(item)) {
         return;
       }
-      onItemSelect?.(item, slotId);
+      onItemSelect?.(item, slotKey);
       return;
     }
     handleItemClick(item);
@@ -142,6 +200,11 @@ const Inventory = ({
               {slots.map(slot => {
                 const item = slot.item;
                 const rarityKey = item ? normalizeRarity(item.rarity) : null;
+                const isCatItem =
+                  item?.itemType === 'PET' && item.itemCategory === 'CAT';
+                const canUseCatSprite = Boolean(
+                  item && isCatItem && hasCatSprite(item.itemId),
+                );
 
                 return (
                   <div
@@ -157,9 +220,14 @@ const Inventory = ({
                       <>
                         <button
                           onClick={() => handleSlotClick(item, slot.id)}
-                          disabled={mode === 'deco' && isSlotPlaced(slot.id)}
+                          disabled={
+                            mode === 'deco' &&
+                            (isSlotPlaced(buildSlotKey(slot.id)) ||
+                              isItemDisabled(item))
+                          }
                           className={`relative flex h-[70%] w-[70%] items-center justify-center ${
-                            mode === 'deco' && isSlotPlaced(slot.id)
+                            mode === 'deco' &&
+                            (isSlotPlaced(slot.id) || isItemDisabled(item))
                               ? 'cursor-not-allowed opacity-50'
                               : 'hover:opacity-80'
                           }`}
@@ -171,24 +239,39 @@ const Inventory = ({
                               {RARITY_LABELS[rarityKey]}
                             </Badge>
                           )}
-                          <img
-                            src={getItemImage(item.itemId)}
-                            alt={item.itemName}
-                            className={`h-[80%] w-[80%] object-contain ${
-                              mode === 'deco' && isSlotPlaced(slot.id)
-                                ? 'grayscale'
-                                : ''
-                            }`}
-                          />
+                          {canUseCatSprite ? (
+                            <CatSprite
+                              itemId={item.itemId}
+                              currentAnimation="idle"
+                              className={`origin-bottom scale-150 ${
+                                mode === 'deco' &&
+                                (isSlotPlaced(slot.id) || isItemDisabled(item))
+                                  ? 'opacity-60'
+                                  : ''
+                              }`}
+                            />
+                          ) : (
+                            <img
+                              src={getItemImage(item.itemId)}
+                              alt={item.itemName}
+                              className={`h-[80%] w-[80%] object-contain ${
+                                mode === 'deco' &&
+                                (isSlotPlaced(slot.id) || isItemDisabled(item))
+                                  ? 'grayscale'
+                                  : ''
+                              }`}
+                            />
+                          )}
                         </button>
                         {/* 배치됨 표시 */}
-                        {mode === 'deco' && isSlotPlaced(slot.id) && (
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="rounded bg-black/60 px-1 py-0.5 text-[8px] font-bold text-white">
-                              배치됨
+                        {mode === 'deco' &&
+                          (isSlotPlaced(slot.id) || isItemDisabled(item)) && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="rounded bg-black/60 px-1 py-0.5 text-[8px] font-bold text-white">
+                                배치됨
+                              </div>
                             </div>
-                          </div>
-                        )}
+                          )}
                       </>
                     )}
                   </div>

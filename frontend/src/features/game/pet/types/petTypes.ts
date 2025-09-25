@@ -4,9 +4,9 @@
  * 펫의 레벨, 경험치, 애정도, 포만감 등 게임에서 사용되는 모든 펫 관련 정보를 포함합니다.
  */
 export interface PetData {
-  /** 펫 인벤토리의 고유 식별자 */
+  /** 펫의 고유 식별자 */
   petId: number;
-  /** 펫 아이템의 ID (스프라이트/종류 결정용) */
+  /** 펫 아이템의 ID (인벤토리 연결용) */
   itemId: number;
   /** 펫의 이름 */
   name: string;
@@ -70,6 +70,8 @@ export interface PetSpriteProps {
   currentAnimation: PetAnimationState;
   /** 추가적인 CSS 클래스명 */
   className?: string;
+  /** 렌더링할 펫의 목표 너비 (픽셀 단위, 미지정 시 원본 크기 사용) */
+  targetWidth?: number;
   /** 애니메이션 완료 시 호출되는 콜백 함수 */
   onAnimationComplete?: (animation: PetAnimationState) => void;
 }
