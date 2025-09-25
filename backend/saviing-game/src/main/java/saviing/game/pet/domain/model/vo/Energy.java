@@ -1,5 +1,8 @@
 package saviing.game.pet.domain.model.vo;
 
+import saviing.game.pet.domain.exception.PetInvalidValueException;
+import saviing.game.pet.domain.exception.PetInvalidAmountException;
+
 /**
  * 펫 포만감 Value Object
  * 활동 시 소모되고 시간에 따라 회복되는 시스템
@@ -11,9 +14,7 @@ public record Energy(int value) {
 
     public Energy {
         if (value < MIN_ENERGY || value > MAX_ENERGY) {
-            throw new IllegalArgumentException(
-                String.format("펫 포만감은 %d와 %d 사이여야 합니다. 입력값: %d", MIN_ENERGY, MAX_ENERGY, value)
-            );
+            throw PetInvalidValueException.invalidEnergy(value);
         }
     }
 
@@ -35,7 +36,7 @@ public record Energy(int value) {
 
     public Energy consume(Energy amount) {
         if (amount.value < 0) {
-            throw new IllegalArgumentException("포만감 소모량은 음수일 수 없습니다");
+            throw PetInvalidAmountException.invalidEnergyAmount(amount.value, "소모");
         }
         int newValue = Math.max(MIN_ENERGY, value - amount.value);
         return new Energy(newValue);
@@ -43,7 +44,7 @@ public record Energy(int value) {
 
     public Energy recover(Energy amount) {
         if (amount.value < 0) {
-            throw new IllegalArgumentException("포만감 회복량은 음수일 수 없습니다");
+            throw PetInvalidAmountException.invalidEnergyAmount(amount.value, "회복");
         }
         int newValue = Math.min(MAX_ENERGY, value + amount.value);
         return new Energy(newValue);

@@ -86,7 +86,7 @@ public class ItemEntityMapper {
     /**
      * 문자열을 Category로 변환합니다.
      *
-     * @param category 문자열 (예: "Pet.CAT", "Accessory.HAT")
+     * @param category 문자열 (예: "CAT", "HAT", "FOOD")
      * @return Category
      */
     private Category parseCategory(String category) {
@@ -95,26 +95,17 @@ public class ItemEntityMapper {
         }
 
         try {
-            // "Pet.CAT" 형태로 저장된 경우 처리
-            if (category.startsWith("Pet.")) {
-                String enumName = category.substring(4); // "Pet." 제거
-                return Pet.valueOf(enumName);
-            } else if (category.startsWith("Accessory.")) {
-                String enumName = category.substring(10); // "Accessory." 제거
-                return Accessory.valueOf(enumName);
-            } else if (category.startsWith("Decoration.")) {
-                String enumName = category.substring(11); // "Decoration." 제거
-                return Decoration.valueOf(enumName);
-            } else {
-                // 단순 enum 이름인 경우 (하위 호환성)
-                // Pet 먼저 시도
+            // 각 카테고리 enum에서 순서대로 시도
+            try {
+                return Pet.valueOf(category);
+            } catch (IllegalArgumentException e1) {
                 try {
-                    return Pet.valueOf(category);
-                } catch (IllegalArgumentException e1) {
+                    return Accessory.valueOf(category);
+                } catch (IllegalArgumentException e2) {
                     try {
-                        return Accessory.valueOf(category);
-                    } catch (IllegalArgumentException e2) {
                         return Decoration.valueOf(category);
+                    } catch (IllegalArgumentException e3) {
+                        return Consumption.valueOf(category);
                     }
                 }
             }
@@ -127,22 +118,15 @@ public class ItemEntityMapper {
      * Category를 문자열로 변환합니다.
      *
      * @param category Category
-     * @return 문자열 (예: "Pet.CAT")
+     * @return 문자열 (예: "CAT", "HAT", "FOOD")
      */
     private String formatCategory(Category category) {
         if (category == null) {
             return null;
         }
 
-        if (category instanceof Pet pet) {
-            return "Pet." + pet.name();
-        } else if (category instanceof Accessory accessory) {
-            return "Accessory." + accessory.name();
-        } else if (category instanceof Decoration decoration) {
-            return "Decoration." + decoration.name();
-        } else {
-            throw new IllegalArgumentException("지원하지 않는 카테고리 타입: " + category.getClass());
-        }
+        // 모든 Category enum은 name() 메서드로 문자열 변환 가능
+        return ((Enum<?>) category).name();
     }
 
     /**

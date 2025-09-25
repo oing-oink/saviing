@@ -1,5 +1,8 @@
 package saviing.game.pet.domain.model.vo;
 
+import saviing.game.pet.domain.exception.PetInvalidValueException;
+import saviing.game.pet.domain.exception.PetMaxLevelReachedException;
+
 /**
  * 펫 레벨 Value Object
  */
@@ -9,9 +12,7 @@ public record PetLevel(int value) {
 
     public PetLevel {
         if (value < MIN_LEVEL || value > MAX_LEVEL) {
-            throw new IllegalArgumentException(
-                String.format("펫 레벨은 %d와 %d 사이여야 합니다. 입력값: %d", MIN_LEVEL, MAX_LEVEL, value)
-            );
+            throw PetInvalidValueException.invalidLevel(value);
         }
     }
 
@@ -29,7 +30,7 @@ public record PetLevel(int value) {
 
     public PetLevel levelUp() {
         if (isMaxLevel()) {
-            throw new IllegalStateException("이미 최대 레벨입니다");
+            throw new PetMaxLevelReachedException(value, MAX_LEVEL);
         }
         return new PetLevel(value + 1);
     }

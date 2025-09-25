@@ -166,8 +166,11 @@ public class ShopCommandService {
             return item;
 
         } catch (PurchaseException e) {
+            log.error("구매 예외 발생: itemId={}, error={}", command.itemId(), e.getMessage());
             throw e;
         } catch (Exception e) {
+            log.error("아이템 검증 중 예상치 못한 예외 발생: itemId={}, exceptionType={}, error={}",
+                command.itemId(), e.getClass().getSimpleName(), e.getMessage(), e);
             throw new ShopException(ShopErrorCode.PURCHASE_ITEM_VALIDATION_FAILED, "아이템 검증 중 오류가 발생했습니다", e);
         }
     }

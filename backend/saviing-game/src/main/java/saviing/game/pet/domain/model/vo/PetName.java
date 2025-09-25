@@ -1,5 +1,7 @@
 package saviing.game.pet.domain.model.vo;
 
+import saviing.game.pet.domain.exception.PetInvalidNameException;
+
 /**
  * 펫 이름 Value Object
  */
@@ -8,15 +10,13 @@ public record PetName(String value) {
 
     public PetName {
         if (value == null) {
-            throw new IllegalArgumentException("펫 이름은 null일 수 없습니다");
+            throw PetInvalidNameException.nullName();
         }
         if (value.trim().isEmpty()) {
-            throw new IllegalArgumentException("펫 이름은 빈 문자열일 수 없습니다");
+            throw PetInvalidNameException.emptyName();
         }
         if (value.trim().length() > MAX_LENGTH) {
-            throw new IllegalArgumentException(
-                String.format("펫 이름은 %d자를 초과할 수 없습니다. 입력값: %s", MAX_LENGTH, value)
-            );
+            throw PetInvalidNameException.tooLong(value);
         }
     }
 

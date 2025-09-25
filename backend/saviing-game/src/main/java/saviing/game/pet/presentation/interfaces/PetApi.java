@@ -10,7 +10,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import saviing.common.response.ApiResult;
 import saviing.common.response.ErrorResult;
+import saviing.game.pet.presentation.dto.request.PetInteractionRequest;
 import saviing.game.pet.presentation.dto.response.PetInfoResponse;
+import saviing.game.pet.presentation.dto.response.PetInteractionResponse;
 
 /**
  * 펫 API 컨트롤러 인터페이스
@@ -59,5 +61,40 @@ public interface PetApi {
     ApiResult<PetInfoResponse> getPetInfo(
         @Parameter(description = "펫 ID", example = "1")
         Long petId
+    );
+
+    @Operation(
+        summary = "펫과 상호작용",
+        description = "펫과 상호작용(먹이주기/놀아주기)을 수행합니다. 소모품을 사용하고 펫의 상태를 변경합니다."
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "상호작용 성공"),
+        @ApiResponse(
+            responseCode = "400",
+            description = "잘못된 요청",
+            content = @Content(schema = @Schema(implementation = ErrorResult.class))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "펫을 찾을 수 없음",
+            content = @Content(schema = @Schema(implementation = ErrorResult.class))
+        ),
+        @ApiResponse(
+            responseCode = "409",
+            description = "상호작용 불가능 (에너지 부족, 소모품 부족 등)",
+            content = @Content(schema = @Schema(implementation = ErrorResult.class))
+        ),
+        @ApiResponse(
+            responseCode = "500",
+            description = "서버 내부 오류",
+            content = @Content(schema = @Schema(implementation = ErrorResult.class))
+        )
+    })
+    ApiResult<PetInteractionResponse> interactWithPet(
+        @Parameter(description = "펫 ID", example = "1")
+        Long petId,
+
+        @Parameter(description = "상호작용 요청 정보")
+        PetInteractionRequest request
     );
 }
