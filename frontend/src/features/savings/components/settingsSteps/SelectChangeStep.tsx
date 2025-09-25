@@ -12,8 +12,8 @@ const SelectChangeStep = () => {
   const changeOptions = [
     {
       type: 'AMOUNT' as ChangeType,
-      title: '월 납입금액 변경',
-      description: '매월 납입하는 금액을 조정합니다',
+      title: '자동 납입금액 변경',
+      description: '매주/매월 납입하는 금액을 조정합니다',
     },
     {
       type: 'TRANSFER_DATE' as ChangeType,

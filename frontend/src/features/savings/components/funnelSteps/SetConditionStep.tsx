@@ -7,7 +7,7 @@ import { getAllAccounts } from '@/features/savings/api/savingsApi';
 import { Button } from '@/shared/components/ui/button';
 import {
   validateMonthlyAmount,
-  formatNumber,
+  // formatNumber,
 } from '@/features/savings/utils/validation';
 import {
   Accordion,
@@ -19,7 +19,7 @@ import { useCustomerStore } from '@/features/auth/store/useCustomerStore';
 
 const SetConditionStep = () => {
   const { setForm, form } = useAccountCreationStore();
-  const { goToNextStep } = useStepProgress();
+  const { goToNextStep, goToPreviousStep } = useStepProgress();
   const customerId = useCustomerStore(state => state.customerId);
   const { showBoundary } = useErrorBoundary();
 
@@ -56,7 +56,7 @@ const SetConditionStep = () => {
 
   const [depositAmount, setDepositAmount] = useState(
     'depositAmount' in form && form.depositAmount
-      ? String(form.depositAmount)
+      ? form.depositAmount.toLocaleString()
       : '',
   );
   const [depositAmountError, setDepositAmountError] = useState('');
@@ -72,11 +72,28 @@ const SetConditionStep = () => {
   const [transferCycle, setTransferCycle] = useState<'WEEKLY' | 'MONTHLY'>(
     'transferCycle' in form ? form.transferCycle || 'MONTHLY' : 'MONTHLY',
   );
+  const [accordionValue, setAccordionValue] = useState<string | undefined>(
+    undefined,
+  );
 
-  // 월 납입액 입력 처리
+  // 숫자 포맷팅 함수
+  const formatNumber = (value: string) => {
+    // 숫자만 추출
+    const numbers = value.replace(/[^\d]/g, ''); // 숫자만 입력 가능
+    // 숫자를 천단위 쉼표로 포맷팅
+    return numbers ? Number(numbers).toLocaleString() : '';
+  };
+
+  // 납입액 입력 처리
   const handleDepositAmountChange = (value: string) => {
     // 숫자만 입력 허용
     const numericValue = value.replace(/[^0-9]/g, '');
+
+    // 백만원 한도 제한
+    if (numericValue && Number(numericValue) > 1000000) {
+      return;
+    }
+
     setDepositAmount(numericValue);
 
     const validation = validateMonthlyAmount(numericValue);
@@ -108,7 +125,7 @@ const SetConditionStep = () => {
     const withdrawAccountId = selectedAccount?.accountId || 0;
 
     setForm({
-      depositAmount: Number(depositAmount),
+      depositAmount: Number(depositAmount.replace(/[^\d]/g, '')),
       transferDate,
       period: Number(period),
       autoAccount,
@@ -116,6 +133,10 @@ const SetConditionStep = () => {
       withdrawAccountId,
     });
     goToNextStep();
+  };
+
+  const handleBack = () => {
+    goToPreviousStep();
   };
 
   return (
@@ -127,17 +148,17 @@ const SetConditionStep = () => {
         </h1>
         <p className="mb-4 text-gray-600">나에게 맞는 조건으로 설정하세요</p>
 
-        {/* 납입액 */}
+        {/* 자동 납입액 */}
         <div className="mb-3">
           <label className="mb-1 block text-sm font-medium text-gray-700">
-            납입액
+            자동 납입액
           </label>
           <div className="relative">
             <input
               type="text"
               value={depositAmount ? formatNumber(depositAmount) : ''}
               onChange={e => handleDepositAmountChange(e.target.value)}
-              placeholder="100,000"
+              placeholder="0"
               className={`w-full rounded-lg border px-3 py-2 pr-8 focus:outline-none ${
                 depositAmountError
                   ? 'border-red-500 focus:border-red-500'
@@ -151,6 +172,9 @@ const SetConditionStep = () => {
           {depositAmountError && (
             <p className="mt-1 text-xs text-red-600">{depositAmountError}</p>
           )}
+          <p className="mt-1 text-xs text-gray-400">
+            * 최대 1,000,000(백만)원까지만 입력 가능합니다
+          </p>
         </div>
 
         {/* 자동이체 주기 */}
@@ -164,6 +188,7 @@ const SetConditionStep = () => {
               onClick={() => {
                 setTransferCycle('WEEKLY');
                 setTransferDate(''); // 주기 변경 시 이체일 초기화
+                setAccordionValue('transfer-date-selection'); // 이체일 선택 자동 열기
               }}
               className={`flex-1 rounded-lg border px-4 py-2 text-sm ${
                 transferCycle === 'WEEKLY'
@@ -178,6 +203,7 @@ const SetConditionStep = () => {
               onClick={() => {
                 setTransferCycle('MONTHLY');
                 setTransferDate(''); // 주기 변경 시 이체일 초기화
+                setAccordionValue('transfer-date-selection'); // 이체일 선택 자동 열기
               }}
               className={`flex-1 rounded-lg border px-4 py-2 text-sm ${
                 transferCycle === 'MONTHLY'
@@ -192,7 +218,13 @@ const SetConditionStep = () => {
 
         {/* 이체일 */}
         <div className="mb-3">
-          <Accordion type="single" collapsible className="w-full">
+          <Accordion
+            type="single"
+            collapsible
+            className="w-full"
+            value={accordionValue}
+            onValueChange={setAccordionValue}
+          >
             <AccordionItem value="transfer-date-selection">
               <AccordionTrigger className="text-left text-gray-700">
                 {transferDate
@@ -216,7 +248,10 @@ const SetConditionStep = () => {
                       <button
                         key={day}
                         type="button"
-                        onClick={() => setTransferDate(String(index + 1))}
+                        onClick={() => {
+                          setTransferDate(String(index + 1));
+                          setAccordionValue('period-selection'); // 적금 기간 선택 자동 열기
+                        }}
                         className={`rounded-md border px-4 py-2 text-sm ${
                           transferDate === String(index + 1)
                             ? 'bg-violet-500 text-white'
@@ -233,7 +268,10 @@ const SetConditionStep = () => {
                       <button
                         key={day}
                         type="button"
-                        onClick={() => setTransferDate(String(day))}
+                        onClick={() => {
+                          setTransferDate(String(day));
+                          setAccordionValue('period-selection'); // 적금 기간 선택 자동 열기
+                        }}
                         className={`rounded-md border px-4 py-2 text-sm ${
                           transferDate === String(day)
                             ? 'bg-violet-500 text-white'
@@ -252,7 +290,13 @@ const SetConditionStep = () => {
 
         {/* 적금 기간 (주 단위) */}
         <div className="mb-3">
-          <Accordion type="single" collapsible className="w-full">
+          <Accordion
+            type="single"
+            collapsible
+            className="w-full"
+            value={accordionValue}
+            onValueChange={setAccordionValue}
+          >
             <AccordionItem value="period-selection">
               <AccordionTrigger className="text-left text-gray-700">
                 {period ? `${period}주 설정` : '적금 기간을 선택해주세요'}
@@ -263,7 +307,10 @@ const SetConditionStep = () => {
                     <button
                       key={weeks}
                       type="button"
-                      onClick={() => setPeriod(String(weeks))}
+                      onClick={() => {
+                        setPeriod(String(weeks));
+                        setAccordionValue('account-selection'); // 자동이체 계좌 선택 자동 열기
+                      }}
                       className={`rounded-md border px-3 py-2 text-sm ${
                         period === String(weeks)
                           ? 'bg-violet-500 text-white'
@@ -290,7 +337,13 @@ const SetConditionStep = () => {
               계좌 목록을 불러오는데 실패했습니다.
             </div>
           ) : (
-            <Accordion type="single" collapsible className="w-full">
+            <Accordion
+              type="single"
+              collapsible
+              className="w-full"
+              value={accordionValue}
+              onValueChange={setAccordionValue}
+            >
               <AccordionItem value="account-selection">
                 <AccordionTrigger className="text-left text-gray-700">
                   {autoAccount
@@ -340,15 +393,27 @@ const SetConditionStep = () => {
         </div>
       </div>
 
-      {/* 하단 버튼 */}
-      <div className="fixed right-0 bottom-0 left-0 h-20 border-t border-gray-200 bg-white p-4">
-        <Button
-          onClick={handleNext}
-          disabled={!isValid}
-          className="h-12 w-full rounded-lg bg-primary text-white disabled:bg-gray-200 disabled:text-gray-400"
-        >
-          설정 완료
-        </Button>
+      {/* 하단 고정 버튼 */}
+      <div
+        className="fixed right-0 bottom-0 left-0 z-10 h-20 bg-white p-4"
+        style={{ borderTop: 'none' }}
+      >
+        <div className="flex space-x-3">
+          <Button
+            variant="outline"
+            onClick={handleBack}
+            className="h-12 flex-1 rounded-lg"
+          >
+            이전
+          </Button>
+          <Button
+            onClick={handleNext}
+            disabled={!isValid}
+            className="h-12 flex-1 rounded-lg bg-primary text-white hover:bg-primary/90 focus-visible:border-transparent focus-visible:ring-0 disabled:bg-gray-300 disabled:text-gray-500"
+          >
+            설정 완료
+          </Button>
+        </div>
       </div>
     </div>
   );

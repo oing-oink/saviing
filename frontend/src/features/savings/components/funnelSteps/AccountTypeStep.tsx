@@ -16,7 +16,7 @@ import { PAGE_PATH } from '@/shared/constants/path';
 
 const AccountTypeStep = () => {
   const { setForm, form } = useAccountCreationStore();
-  const { goToNextStep } = useStepProgress();
+  const { goToNextStep, goToPreviousStep } = useStepProgress();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const customerId = useCustomerStore(state => state.customerId);
@@ -105,10 +105,14 @@ const AccountTypeStep = () => {
     navigate(PAGE_PATH.HOME);
   };
 
+  const handleBack = () => {
+    goToPreviousStep();
+  };
+
   return (
     <>
       {/* 메인 컨텐츠 */}
-      <div className="flex flex-1 flex-col px-6 py-8">
+      <div className="flex flex-1 flex-col px-6 py-8 pb-24">
         <h1 className="mb-2 text-xl font-bold text-gray-900">
           어떤 계좌를 개설하고 싶으세요?
         </h1>
@@ -119,27 +123,54 @@ const AccountTypeStep = () => {
             const isSelected = selected === option.id;
 
             return (
-              <button
+              <div
                 key={option.id}
                 onClick={() => handleAccountTypeSelect(option.id)}
-                className={`w-full rounded-xl border p-4 text-left transition ${
+                className={`cursor-pointer rounded-lg border p-4 transition-all ${
                   isSelected
-                    ? 'border-violet-500 bg-violet-50 shadow-sm'
+                    ? 'border-primary bg-primary/10'
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
               >
-                <div className="flex items-center gap-2">
-                  {option.recommended && (
-                    <span className="rounded bg-blue-100 px-2 py-0.5 text-xs text-blue-600">
-                      추천
-                    </span>
-                  )}
-                  <span className="font-semibold">{option.title}</span>
+                <div className="flex items-start space-x-3">
+                  <div className="flex-1">
+                    <div className="mb-1 flex items-center gap-2">
+                      {option.recommended && (
+                        <span className="rounded bg-blue-100 px-2 py-0.5 text-xs text-blue-600">
+                          추천
+                        </span>
+                      )}
+                      <span className="font-semibold text-gray-900">
+                        {option.title}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600">
+                      {option.description}
+                    </p>
+                  </div>
+                  <div
+                    className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${
+                      isSelected
+                        ? 'border-primary bg-primary'
+                        : 'border-gray-300'
+                    }`}
+                  >
+                    {isSelected && (
+                      <svg
+                        className="h-3 w-3 text-white"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    )}
+                  </div>
                 </div>
-                <p className="mt-1 text-sm text-gray-600">
-                  {option.description}
-                </p>
-              </button>
+              </div>
             );
           })}
         </div>
@@ -186,15 +217,27 @@ const AccountTypeStep = () => {
         </div>
       )}
 
-      {/* 하단 버튼 */}
-      <div className="bg-white p-4">
-        <Button
-          onClick={handleNext}
-          disabled={!selected}
-          className="h-12 w-full rounded-lg bg-primary text-white disabled:bg-gray-200 disabled:text-gray-400"
-        >
-          다음
-        </Button>
+      {/* 하단 고정 버튼 */}
+      <div
+        className="fixed right-0 bottom-0 left-0 z-10 bg-white p-4"
+        style={{ borderTop: 'none' }}
+      >
+        <div className="flex space-x-3">
+          <Button
+            variant="outline"
+            onClick={handleBack}
+            className="h-12 flex-1 rounded-lg"
+          >
+            이전
+          </Button>
+          <Button
+            onClick={handleNext}
+            disabled={!selected}
+            className="h-12 flex-1 rounded-lg bg-primary text-white hover:bg-primary/90 disabled:bg-gray-300 disabled:text-gray-500"
+          >
+            다음
+          </Button>
+        </div>
       </div>
     </>
   );

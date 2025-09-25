@@ -5,7 +5,7 @@
 /**
  * 이름 validation
  * - 특수문자, 숫자 금지
- * - 최대 6자
+ * - 최대 10자
  */
 export const validateName = (
   name: string,
@@ -17,7 +17,7 @@ export const validateName = (
   }
 
   if (trimmedName.length > 6) {
-    return { isValid: false, message: '이름은 최대 6자까지 입력 가능합니다.' };
+    return { isValid: false, message: '이름은 최대 10자까지 입력 가능합니다.' };
   }
 
   // 한글, 영문만 허용 (특수문자, 숫자 금지)
