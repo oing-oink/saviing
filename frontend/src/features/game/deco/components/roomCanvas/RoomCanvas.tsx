@@ -457,7 +457,8 @@ const RoomCanvas = ({
       return null;
     }
     const footprintIds =
-      pendingPlacement.footprintCellIds && pendingPlacement.footprintCellIds.length > 0
+      pendingPlacement.footprintCellIds &&
+      pendingPlacement.footprintCellIds.length > 0
         ? pendingPlacement.footprintCellIds
         : buildFootprint(
             pendingPlacement.cellId,
@@ -1121,8 +1122,8 @@ const RoomCanvas = ({
           );
         })}
         {displayPendingSprite ? (
-          ((pendingPlacement && pendingPlacement.itemType === 'PET') ||
-            (!pendingPlacement && dragSession?.itemType === 'PET')) ? (
+          (pendingPlacement && pendingPlacement.itemType === 'PET') ||
+          (!pendingPlacement && dragSession?.itemType === 'PET') ? (
             (() => {
               const catAnimation = catAnimationState ?? 'idle';
               const box = getCatRenderBox(
@@ -1133,7 +1134,9 @@ const RoomCanvas = ({
               );
               const offsetX = displayPendingSprite.centerX - box.width / 2;
               const offsetY =
-                displayPendingSprite.y + displayPendingSprite.height - box.height;
+                displayPendingSprite.y +
+                displayPendingSprite.height -
+                box.height;
               const pendingItemId =
                 pendingPlacement?.itemId ?? Number(dragSession?.itemId ?? 0);
               return (
@@ -1143,7 +1146,11 @@ const RoomCanvas = ({
                   y={offsetY}
                   width={box.width}
                   height={box.height}
-                  style={{ pointerEvents: 'none', overflow: 'visible', opacity: 0.85 }}
+                  style={{
+                    pointerEvents: 'none',
+                    overflow: 'visible',
+                    opacity: 0.85,
+                  }}
                 >
                   <div
                     xmlns="http://www.w3.org/1999/xhtml"
@@ -1202,7 +1209,11 @@ const RoomCanvas = ({
                   y={offsetY}
                   width={box.width}
                   height={box.height}
-                  style={{ pointerEvents: 'none', overflow: 'visible', opacity: 0.6 }}
+                  style={{
+                    pointerEvents: 'none',
+                    overflow: 'visible',
+                    opacity: 0.6,
+                  }}
                 >
                   <div
                     xmlns="http://www.w3.org/1999/xhtml"
@@ -1241,7 +1252,7 @@ const RoomCanvas = ({
           )
         ) : null}
         <GhostItem polygons={ghostPolygons} isValid={ghost.isValid} />
-        {(allowItemPickup || onPlacedItemClick)
+        {allowItemPickup || onPlacedItemClick
           ? draftPolygons.map(item => (
               <PlacedItem
                 key={`${item.id}-hit`}

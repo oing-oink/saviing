@@ -275,7 +275,8 @@ const buildPlacedItemFromSession = (
     : undefined;
 
   const numericItemId = Number(session.itemId);
-  const itemType = session.itemType ?? session.originalItem?.itemType ?? 'DECORATION';
+  const itemType =
+    session.itemType ?? session.originalItem?.itemType ?? 'DECORATION';
   const imageUrl = resolveItemImageUrl(
     numericItemId,
     itemType,
@@ -358,10 +359,10 @@ const withInstanceId = (items: PlacedItem[]): PlacedItem[] =>
     const isPet = item.itemType === 'PET';
     const normalizedXLength = isPet
       ? Math.max(item.xLength ?? MIN_PET_X_LENGTH, MIN_PET_X_LENGTH)
-      : item.xLength ?? 1;
+      : (item.xLength ?? 1);
     const normalizedYLength = isPet
       ? Math.max(item.yLength ?? MIN_PET_Y_LENGTH, MIN_PET_Y_LENGTH)
-      : item.yLength ?? 1;
+      : (item.yLength ?? 1);
     const expectedFootprint = normalizedXLength * normalizedYLength;
     const footprintCellIds =
       item.footprintCellIds && item.footprintCellIds.length >= expectedFootprint
@@ -470,11 +471,11 @@ export const decoStore = createStore<DecoStore>(set => ({
           xLength:
             itemType === 'PET'
               ? Math.max(options.xLength ?? MIN_PET_X_LENGTH, MIN_PET_X_LENGTH)
-              : options.xLength ?? 1,
+              : (options.xLength ?? 1),
           yLength:
             itemType === 'PET'
               ? Math.max(options.yLength ?? MIN_PET_Y_LENGTH, MIN_PET_Y_LENGTH)
-              : options.yLength ?? 1,
+              : (options.yLength ?? 1),
           footprintCellIds: options.footprintCellIds,
           offsetX: options.offsetX ?? 0,
           offsetY: options.offsetY ?? 0,
@@ -533,11 +534,11 @@ export const decoStore = createStore<DecoStore>(set => ({
           xLength:
             target.itemType === 'PET'
               ? Math.max(target.xLength ?? MIN_PET_X_LENGTH, MIN_PET_X_LENGTH)
-              : target.xLength ?? 1,
+              : (target.xLength ?? 1),
           yLength:
             target.itemType === 'PET'
               ? Math.max(target.yLength ?? MIN_PET_Y_LENGTH, MIN_PET_Y_LENGTH)
-              : target.yLength ?? 1,
+              : (target.yLength ?? 1),
           footprintCellIds: resolvedFootprint,
           offsetX: target.offsetX ?? 0,
           offsetY: target.offsetY ?? 0,

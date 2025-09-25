@@ -23,9 +23,6 @@ const GamePage = () => {
   } = useGameEntryQuery();
 
   const [currentPetId, setCurrentPetId] = useState(gameEntry?.pet?.petId);
-  const currentPetItemId = gameEntry?.pet?.itemId;
-  const hasPet =
-    typeof currentPetId === 'number' && typeof currentPetItemId === 'number';
   const behavior = usePetStore(state => state.behavior);
   const setBehavior = usePetStore(state => state.setBehavior);
   const isTransitioningToGame = useEnterTransitionStore(
@@ -197,7 +194,7 @@ const GamePage = () => {
       requestAnimationFrame(updateOffset);
     };
 
-    let frame = requestAnimationFrame(updateOffset);
+    const frame = requestAnimationFrame(updateOffset);
 
     const sheetEl = sheetRef.current;
     const resizeObserver = sheetEl
@@ -252,6 +249,21 @@ const GamePage = () => {
     }
   };
 
+  const handlePlacedItemClick = useCallback(
+    ({ item }: { item: PlacedItem; clientX: number; clientY: number }) => {
+      if (item.itemType !== 'PET') {
+        return;
+      }
+      const nextPetId =
+        item.itemType === 'PET'
+          ? (item.inventoryItemId ?? item.itemId)
+          : item.itemId;
+      setCurrentPetId(nextPetId);
+      setIsPopoverOpen(true);
+    },
+    [setIsPopoverOpen, setCurrentPetId],
+  );
+
   if (isGameEntryLoading) {
     return (
       <GameBackgroundLayout className="game relative touch-none overflow-hidden font-galmuri">
@@ -275,17 +287,6 @@ const GamePage = () => {
       </GameBackgroundLayout>
     );
   }
-  
-  const handlePlacedItemClick = useCallback(
-    ({ item }: { item: PlacedItem; clientX: number; clientY: number }) => {
-      if (item.itemType !== 'PET') {
-        return;
-      }
-      setCurrentPetId(item.itemId);
-      setIsPopoverOpen(true);
-    },
-    [setIsPopoverOpen, setCurrentPetId],
-  );
 
   return (
     <GameBackgroundLayout className="game relative touch-none overflow-hidden font-galmuri">
@@ -300,7 +301,11 @@ const GamePage = () => {
         >
           <div
             className="relative flex w-full items-center justify-center transition-transform duration-300"
-            style={roomOffset ? { transform: `translateY(-${roomOffset}px)` } : undefined}
+            style={
+              roomOffset
+                ? { transform: `translateY(-${roomOffset}px)` }
+                : undefined
+            }
           >
             <div className="relative flex w-full justify-center">
               <Room mode="readonly" placementArea={null}>
@@ -330,18 +335,15 @@ const GamePage = () => {
         style={{
           left: '50%',
           transform: 'translateX(-50%)',
-          width:
-            sheetWidth !== null
-              ? `${sheetWidth}px`
-              : undefined,
+          width: sheetWidth !== null ? `${sheetWidth}px` : undefined,
         }}
       >
         <div
           className={cn(
-            'mx-auto w-full max-w-[min(calc(100vw - env(safe-area-inset-left,0) - env(safe-area-inset-right,0)),80rem)] transition-all duration-300 ease-out',
+            'max-w-[min(calc(100vw - env(safe-area-inset-left,0) - env(safe-area-inset-right,0)),80rem)] mx-auto w-full transition-all duration-300 ease-out',
             isPopoverOpen
               ? 'pointer-events-auto translate-y-0 opacity-100'
-              : 'pointer-events-none translate-y-6 opacity-0'
+              : 'pointer-events-none translate-y-6 opacity-0',
           )}
         >
           <div
@@ -354,6 +356,6 @@ const GamePage = () => {
       </div>
     </GameBackgroundLayout>
   );
-}
+};
 
 export default GamePage;

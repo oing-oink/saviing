@@ -1,4 +1,7 @@
-import { CAT_SPRITE_PATHS, getAnimationFileName } from '@/features/game/pet/data/catAnimations';
+import {
+  CAT_SPRITE_PATHS,
+  getAnimationFileName,
+} from '@/features/game/pet/data/catAnimations';
 
 /**
  * 고양이 스프라이트 시트 경로를 반환한다.

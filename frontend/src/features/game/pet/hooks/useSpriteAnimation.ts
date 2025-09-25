@@ -92,5 +92,11 @@ export const useSpriteAnimation = ({
     }
   }, [animationCompleted, onAnimationComplete]);
 
-  return { currentFrame, frameWidth, frameHeight, frameCount: config.frames, isLoaded };
+  return {
+    currentFrame,
+    frameWidth,
+    frameHeight,
+    frameCount: config.frames,
+    isLoaded,
+  };
 };
