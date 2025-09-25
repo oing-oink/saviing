@@ -14,7 +14,7 @@ import {
 
 const TermsStep = () => {
   const { setForm, form } = useAccountCreationStore();
-  const { goToNextStep } = useStepProgress();
+  const { goToNextStep, goToPreviousStep } = useStepProgress();
   const { createAccount, isCreatingChecking, createCheckingError } =
     useAccountCreation();
 
@@ -66,10 +66,14 @@ const TermsStep = () => {
     }
   };
 
+  const handleBack = () => {
+    goToPreviousStep();
+  };
+
   return (
     <>
       {/* 메인 컨텐츠 */}
-      <div className="flex flex-1 flex-col px-6 py-8">
+      <div className="flex flex-1 flex-col px-6 py-8 pb-24">
         <h1 className="mb-2 text-xl font-bold text-gray-900">
           약관에 동의해주세요
         </h1>
@@ -168,15 +172,32 @@ const TermsStep = () => {
         )}
       </div>
 
-      {/* 하단 버튼 */}
-      <div className="bg-white p-4">
-        <Button
-          onClick={handleNext}
-          disabled={!isValid || isLoading}
-          className="h-12 w-full rounded-lg bg-primary text-white disabled:bg-gray-200 disabled:text-gray-400"
-        >
-          {isLoading ? '계좌 개설 중...' : '동의하고 계속'}
-        </Button>
+      {/* 하단 고정 버튼 */}
+      <div className="fixed right-0 bottom-0 left-0 z-10 bg-white p-4" style={{borderTop: 'none'}}>
+        <div className="flex space-x-3">
+          <Button
+            variant="outline"
+            onClick={handleBack}
+            disabled={isLoading}
+            className="h-12 flex-1 rounded-lg"
+          >
+            이전
+          </Button>
+          <Button
+            onClick={handleNext}
+            disabled={!isValid || isLoading}
+            className="flex h-12 flex-1 items-center justify-center space-x-2 rounded-lg bg-primary text-white hover:bg-primary/90 disabled:bg-gray-300 disabled:text-gray-500"
+          >
+            {isLoading ? (
+              <>
+                <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-white"></div>
+                <span>계좌 개설 중...</span>
+              </>
+            ) : (
+              <span>동의하고 계속</span>
+            )}
+          </Button>
+        </div>
       </div>
 
       {/* 약관 전문 Dialog */}

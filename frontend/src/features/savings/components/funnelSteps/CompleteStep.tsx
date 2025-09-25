@@ -49,11 +49,11 @@ const CompleteStep = () => {
         </p>
       </div>
 
-      {/* 하단 버튼 */}
-      <div className="bg-white p-4">
+      {/* 하단 고정 버튼 */}
+      <div className="fixed right-0 bottom-0 left-0 z-10 bg-white p-4" style={{borderTop: 'none'}}>
         <Button
           onClick={handleGoHome}
-          className="h-12 w-full rounded-lg bg-primary text-white disabled:bg-gray-200 disabled:text-gray-400"
+          className="h-12 w-full rounded-lg bg-primary text-white hover:bg-primary/90"
         >
           메인으로 가기
         </Button>

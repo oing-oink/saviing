@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useSavingsSettingsStore } from '@/features/savings/store/useSavingsSettingsStore';
 import { useSavingsSettingsChange } from '@/features/savings/hooks/useSavingsSettingsChange';
@@ -20,16 +20,29 @@ const NewSettingsStep = () => {
   // 적금 계좌 상세 정보 조회 (현재 정보 표시용)
   const { data: savingsDetail } = useSavingsAccountDetail(accountId!);
 
+  // 현재 연결된 자동이체 계좌 ID
+  const currentAutoAccountId =
+    savingsDetail?.savings?.autoTransfer?.withdrawAccountId;
+
   const [formData, setFormData] = useState({
-    newAmount: newSettings.newAmount || '',
+    newAmount: newSettings.newAmount?.toString() || '',
     newTransferDate: newSettings.newTransferDate || '',
     newTransferCycle: newSettings.newTransferCycle || '',
     newAutoAccount: newSettings.newAutoAccount || '',
   });
 
-  // 현재 연결된 자동이체 계좌 ID
-  const currentAutoAccountId =
-    savingsDetail?.savings?.autoTransfer?.withdrawAccountId;
+  // 적금 데이터가 로드되면 기존 값으로 폼 초기화
+  useEffect(() => {
+    if (savingsDetail && !newSettings.newAmount && !newSettings.newTransferDate && !newSettings.newTransferCycle && !newSettings.newAutoAccount) {
+      const currentAmount = savingsDetail.savings?.autoTransfer?.amount;
+      setFormData({
+        newAmount: currentAmount ? currentAmount.toLocaleString() : '',
+        newTransferDate: savingsDetail.savings?.autoTransfer?.transferDay?.toString() || '',
+        newTransferCycle: savingsDetail.savings?.autoTransfer?.cycle || '',
+        newAutoAccount: currentAutoAccountId?.toString() || '',
+      });
+    }
+  }, [savingsDetail, currentAutoAccountId, newSettings]);
 
   // 입출금 계좌만 필터링하고 현재 연결된 계좌는 제외
   const checkingAccounts =
@@ -72,6 +85,25 @@ const NewSettingsStep = () => {
     }
   };
 
+  // 숫자 포맷팅 함수
+  const formatNumber = (value: string) => {
+    // 숫자만 추출
+    const numbers = value.replace(/[^\d]/g, '');
+    // 숫자를 천단위 쉼표로 포맷팅
+    return numbers ? Number(numbers).toLocaleString() : '';
+  };
+
+  // 납입금액 변경 핸들러
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const numbers = value.replace(/[^\d]/g, '');
+
+    // 범위 체크 (1~1,000,000)
+    if (numbers === '' || (Number(numbers) >= 1 && Number(numbers) <= 1000000)) {
+      setFormData(prev => ({ ...prev, newAmount: formatNumber(value) }));
+    }
+  };
+
   const handleInputChange = (field: string, value: string | number) => {
     setFormData(prev => {
       const newData = { ...prev, [field]: value };
@@ -90,7 +122,7 @@ const NewSettingsStep = () => {
     const settingsToUpdate: Record<string, unknown> = {};
 
     if (selectedChangeTypes.includes('AMOUNT') && formData.newAmount) {
-      settingsToUpdate.newAmount = Number(formData.newAmount);
+      settingsToUpdate.newAmount = Number(formData.newAmount.replace(/[^\d]/g, ''));
     }
     if (selectedChangeTypes.includes('TRANSFER_DATE')) {
       if (formData.newTransferCycle) {
@@ -118,8 +150,10 @@ const NewSettingsStep = () => {
   const isFormValid = () => {
     return selectedChangeTypes.every(type => {
       switch (type) {
-        case 'AMOUNT':
-          return formData.newAmount && Number(formData.newAmount) > 0;
+        case 'AMOUNT': {
+          const amount = Number(formData.newAmount.replace(/[^\d]/g, ''));
+          return formData.newAmount && amount >= 1 && amount <= 1000000;
+        }
         case 'TRANSFER_DATE':
           return formData.newTransferCycle && formData.newTransferDate;
         case 'AUTO_ACCOUNT':
@@ -143,14 +177,14 @@ const NewSettingsStep = () => {
           {selectedChangeTypes.includes('AMOUNT') && (
             <div>
               <label className="mb-2 block text-sm font-medium text-gray-700">
-                새로운 월 납입금액
+                새로운 자동 납입금액
               </label>
               <div className="relative">
                 <input
-                  type="number"
+                  type="text"
                   value={formData.newAmount}
-                  onChange={e => handleInputChange('newAmount', e.target.value)}
-                  placeholder="300000"
+                  onChange={handleAmountChange}
+                  placeholder="0"
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:ring-2 focus:ring-primary"
                 />
                 <span className="absolute top-2 right-3 text-gray-500">원</span>
@@ -160,6 +194,9 @@ const NewSettingsStep = () => {
                 {savingsDetail?.savings?.autoTransfer?.amount?.toLocaleString() ||
                   '정보 없음'}
                 원
+              </p>
+              <p className="mt-1 text-xs text-gray-400">
+                * 최소 1원부터 최대 1,000,000원까지만 입력 가능합니다
               </p>
             </div>
           )}
