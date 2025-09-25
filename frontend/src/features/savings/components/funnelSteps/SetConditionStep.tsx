@@ -1,9 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAccountCreationStore } from '@/features/savings/store/useAccountCreationStore';
 import { useStepProgress } from '@/features/savings/hooks/useStepProgress';
 import { useQuery } from '@tanstack/react-query';
+import { useErrorBoundary } from 'react-error-boundary';
 import { getAllAccounts } from '@/features/savings/api/savingsApi';
 import { Button } from '@/shared/components/ui/button';
+import {
+  validateMonthlyAmount,
+  formatNumber,
+} from '@/features/savings/utils/validation';
 import {
   Accordion,
   AccordionContent,
@@ -16,6 +21,7 @@ const SetConditionStep = () => {
   const { setForm, form } = useAccountCreationStore();
   const { goToNextStep } = useStepProgress();
   const customerId = useCustomerStore(state => state.customerId);
+  const { showBoundary } = useErrorBoundary();
 
   // 내 계좌 목록 가져오기
   const {
@@ -34,6 +40,13 @@ const SetConditionStep = () => {
     enabled: customerId != null,
   });
 
+  // API 에러 발생 시 ErrorBoundary로 전달
+  useEffect(() => {
+    if (accountsError) {
+      showBoundary(accountsError);
+    }
+  }, [accountsError, showBoundary]);
+
   // 입출금 계좌만 필터링 (productId가 1이고 상태가 ACTIVE인 것)
   const checkingAccounts =
     accounts?.filter(
@@ -46,6 +59,7 @@ const SetConditionStep = () => {
       ? String(form.depositAmount)
       : '',
   );
+  const [depositAmountError, setDepositAmountError] = useState('');
   const [transferDate, setTransferDate] = useState(
     'transferDate' in form ? form.transferDate || '' : '',
   );
@@ -59,13 +73,34 @@ const SetConditionStep = () => {
     'transferCycle' in form ? form.transferCycle || 'MONTHLY' : 'MONTHLY',
   );
 
+  // 월 납입액 입력 처리
+  const handleDepositAmountChange = (value: string) => {
+    // 숫자만 입력 허용
+    const numericValue = value.replace(/[^0-9]/g, '');
+    setDepositAmount(numericValue);
+
+    const validation = validateMonthlyAmount(numericValue);
+    setDepositAmountError(validation.isValid ? '' : validation.message);
+  };
+
+  // 전체 유효성 검사
   const isValid =
-    depositAmount.trim() !== '' && transferDate && period && autoAccount;
+    validateMonthlyAmount(depositAmount).isValid &&
+    transferDate &&
+    period &&
+    autoAccount;
 
   const handleNext = () => {
+    // 최종 검증
+    const amountValidation = validateMonthlyAmount(depositAmount);
+    setDepositAmountError(
+      amountValidation.isValid ? '' : amountValidation.message,
+    );
+
     if (!isValid) {
       return;
     }
+
     // 선택된 계좌의 ID 찾기
     const selectedAccount = checkingAccounts.find(
       acc => acc.accountNumber === autoAccount,
@@ -92,18 +127,30 @@ const SetConditionStep = () => {
         </h1>
         <p className="mb-4 text-gray-600">나에게 맞는 조건으로 설정하세요</p>
 
-        {/* 월 납입액 */}
+        {/* 납입액 */}
         <div className="mb-3">
           <label className="mb-1 block text-sm font-medium text-gray-700">
-            월 납입액
+            납입액
           </label>
-          <input
-            type="number"
-            value={depositAmount}
-            onChange={e => setDepositAmount(e.target.value)}
-            placeholder="100,000"
-            className="w-full rounded-lg border px-3 py-2"
-          />
+          <div className="relative">
+            <input
+              type="text"
+              value={depositAmount ? formatNumber(depositAmount) : ''}
+              onChange={e => handleDepositAmountChange(e.target.value)}
+              placeholder="100,000"
+              className={`w-full rounded-lg border px-3 py-2 pr-8 focus:outline-none ${
+                depositAmountError
+                  ? 'border-red-500 focus:border-red-500'
+                  : 'border-gray-300 focus:border-violet-500'
+              }`}
+            />
+            <span className="absolute top-1/2 right-3 -translate-y-1/2 text-sm text-gray-500">
+              원
+            </span>
+          </div>
+          {depositAmountError && (
+            <p className="mt-1 text-xs text-red-600">{depositAmountError}</p>
+          )}
         </div>
 
         {/* 자동이체 주기 */}
