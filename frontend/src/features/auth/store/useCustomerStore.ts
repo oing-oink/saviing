@@ -10,6 +10,7 @@ interface CustomerStoreState {
   customerId: number | null;
   expiresIn: number | null;
   isAuthenticated: boolean;
+  name: string | null;
 
   // 액션들
   setLoginData: (loginData: LoginResponse) => void;
@@ -29,6 +30,7 @@ export const useCustomerStore = create<CustomerStoreState>()(
       customerId: null,
       expiresIn: null,
       isAuthenticated: false,
+      name: null,
 
       // 로그인 데이터 설정
       setLoginData: (loginData: LoginResponse) => {
@@ -37,6 +39,7 @@ export const useCustomerStore = create<CustomerStoreState>()(
           customerId: loginData.customerId,
           expiresIn: loginData.expiresIn,
           isAuthenticated: true,
+          name: loginData.name,
         });
       },
 
@@ -53,6 +56,7 @@ export const useCustomerStore = create<CustomerStoreState>()(
           customerId: null,
           expiresIn: null,
           isAuthenticated: false,
+          name: null,
         });
         if (typeof window !== 'undefined') {
           sessionStorage.removeItem('saviing-customer-store');
@@ -77,5 +81,8 @@ declare global {
 
 if (import.meta.env.DEV && typeof window !== 'undefined') {
   window.customerStoreDebug = customerStore;
-  console.info('[customerStore] accessToken', customerStore.getState().accessToken);
+  console.info(
+    '[customerStore] accessToken',
+    customerStore.getState().accessToken,
+  );
 }
