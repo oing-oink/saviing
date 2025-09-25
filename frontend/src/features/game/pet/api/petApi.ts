@@ -5,7 +5,6 @@ import type {
   PetInteractionResponse,
 } from '@/features/game/pet/types/petTypes';
 import {
-  mockGetPet,
   mockPetInteraction,
   mockRenamePetName,
 } from '@/features/game/pet/data/mockPetApi';

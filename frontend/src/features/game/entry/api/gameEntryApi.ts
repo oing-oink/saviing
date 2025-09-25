@@ -22,11 +22,8 @@ export const getGameEntry = async (): Promise<GameEntryData> => {
 export const createGameCharacter = async (
   customerId: number,
 ): Promise<GameCharacterData> => {
-  const response = await http.post<GameCharacterData>(
-    '/v1/game/characters',
-    {
-      customerId,
-    },
-  );
+  const response = await http.post<GameCharacterData>('/v1/game/characters', {
+    customerId,
+  });
   return response.body!;
 };

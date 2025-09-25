@@ -110,15 +110,20 @@ const GameEnterPage = () => {
                 }}
               >
                 <div style={{ transform: `scale(${scale})` }}>
-                  {hasPet && <CatSprite itemId={currentPetItemId} currentAnimation={anim} />}
+                  {hasPet && (
+                    <CatSprite
+                      itemId={currentPetItemId}
+                      currentAnimation={anim}
+                    />
+                  )}
                 </div>
               </div>
             </div>
           </div>
-       </div>
-     </div>
-   </GameBackgroundLayout>
- );
+        </div>
+      </div>
+    </GameBackgroundLayout>
+  );
 };
 
 export default GameEnterPage;
