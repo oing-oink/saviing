@@ -26,6 +26,7 @@ import { getRoomPlacements } from '@/features/game/room/api/roomApi';
 import { getInventoryItems } from '@/features/game/shop/api/itemsApi';
 import type { PlacedItem } from '@/features/game/deco/types/decoTypes';
 import GameBackgroundLayout from '@/features/game/shared/layouts/GameBackgroundLayout';
+import { useGameEntryQuery } from '@/features/game/entry/query/useGameEntryQuery';
 
 const DecoPage = () => {
   const navigate = useNavigate();
@@ -37,6 +38,7 @@ const DecoPage = () => {
 
   const { items, isLoading, isError, error } = useDecoInventory(activeTab);
   const saveMutation = useDecoSaveMutation();
+  const { data: gameEntry } = useGameEntryQuery();
 
   const draftItems = useDecoStore(state => state.draftItems);
   const placedItems = useDecoStore(state => state.placedItems);
@@ -50,11 +52,21 @@ const DecoPage = () => {
 
   // 컴포넌트 초기화 시 방 배치 정보 로드
   useEffect(() => {
+    if (!gameEntry) {
+      return;
+    }
+
+    const { roomId, characterId } = gameEntry;
+    if (typeof roomId !== 'number' || typeof characterId !== 'number') {
+      console.warn('DecoPage - roomId 또는 characterId가 유효하지 않습니다.', {
+        roomId,
+        characterId,
+      });
+      return;
+    }
+
     const loadRoomPlacements = async () => {
       try {
-        const roomId = 1; // 하드코딩된 roomId
-        const characterId = 1; // 하드코딩된 characterId
-
         // 배치 정보와 인벤토리 정보를 병렬로 조회
         const [placementsResponse, ...inventoryResponses] = await Promise.all([
           getRoomPlacements(roomId),
@@ -189,7 +201,7 @@ const DecoPage = () => {
     };
 
     loadRoomPlacements();
-  }, [applyServerState]);
+  }, [applyServerState, gameEntry, queryClient]);
 
   useEffect(() => {
     return () => {

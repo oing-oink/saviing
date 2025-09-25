@@ -39,11 +39,21 @@ const GamePage = () => {
 
   // 컴포넌트 초기화 시 방 배치 정보 로드 (DecoPage와 동일한 로직)
   useEffect(() => {
+    if (!gameEntry) {
+      return;
+    }
+
+    const { roomId, characterId } = gameEntry;
+    if (typeof roomId !== 'number' || typeof characterId !== 'number') {
+      console.warn('GamePage - roomId 또는 characterId가 유효하지 않습니다.', {
+        roomId,
+        characterId,
+      });
+      return;
+    }
+
     const loadRoomPlacements = async () => {
       try {
-        const roomId = 1; // 하드코딩된 roomId
-        const characterId = 1; // 하드코딩된 characterId
-
         // 배치 정보와 인벤토리 정보를 병렬로 조회
         const [placementsResponse, ...inventoryResponses] = await Promise.all([
           getRoomPlacements(roomId),
@@ -102,7 +112,7 @@ const GamePage = () => {
     };
 
     loadRoomPlacements();
-  }, [applyServerState]);
+  }, [applyServerState, gameEntry]);
 
   useEffect(() => {
     setBehavior({ currentAnimation: 'idle' });
