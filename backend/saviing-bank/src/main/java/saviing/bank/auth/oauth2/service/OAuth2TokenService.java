@@ -82,6 +82,7 @@ public class OAuth2TokenService {
         LoginResponse loginResponse = LoginResponse.of(
             accessToken,
             customer.getCustomerId(),
+            customer.getName(),
             jwtConfig.getTokenExpiryInSeconds()
         );
 
