@@ -49,12 +49,24 @@ export const useInventoryItems = (
 ) => {
   const queryKey =
     typeof characterId === 'number'
-      ? itemsKeys.inventoryByTypeAndCategory(characterId, type, category, isUsed)
-      : ([...itemsKeys.inventory(), 'unknown', type, category, isUsed] as const);
+      ? itemsKeys.inventoryByTypeAndCategory(
+          characterId,
+          type,
+          category,
+          isUsed,
+        )
+      : ([
+          ...itemsKeys.inventory(),
+          'unknown',
+          type,
+          category,
+          isUsed,
+        ] as const);
 
   return useQuery({
     queryKey,
-    queryFn: () => getInventoryItems(characterId as number, type, category, isUsed),
+    queryFn: () =>
+      getInventoryItems(characterId as number, type, category, isUsed),
     enabled: typeof characterId === 'number',
     staleTime: 1000 * 60, // 1분
     gcTime: 1000 * 60 * 5, // 5분

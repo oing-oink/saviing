@@ -80,14 +80,7 @@ const GachaRollingPage = () => {
 
       return () => clearTimeout(timer);
     }
-  }, [
-    characterId,
-    drawGacha,
-    gachaInfo,
-    navigate,
-    queryClient,
-    timestamp,
-  ]);
+  }, [characterId, drawGacha, gachaInfo, navigate, queryClient, timestamp]);
 
   const handleCloseResult = () => {
     setGachaResult(null);

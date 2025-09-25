@@ -190,9 +190,7 @@ const ItemDetailModal = ({
                 <div className="flex justify-center gap-2">
                   <button
                     onClick={handlePurchase}
-                    disabled={
-                      isPurchasing || typeof characterId !== 'number'
-                    }
+                    disabled={isPurchasing || typeof characterId !== 'number'}
                     className={`rounded-lg px-6 py-2 text-center font-semibold ${
                       isPurchasing || typeof characterId !== 'number'
                         ? 'cursor-not-allowed bg-gray-300 text-gray-500'
