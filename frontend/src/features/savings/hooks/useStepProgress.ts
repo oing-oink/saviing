@@ -36,7 +36,10 @@ export const useStepProgress = () => {
     (searchParams.get('step') as AccountCreationStep) || 'START';
 
   // URL 파라미터에서 type을 가져와서 우선 적용, 없으면 store의 productType 사용
-  const urlProductType = searchParams.get('type') as typeof ACCOUNT_TYPES.SAVINGS | typeof ACCOUNT_TYPES.CHECKING | null;
+  const urlProductType = searchParams.get('type') as
+    | typeof ACCOUNT_TYPES.SAVINGS
+    | typeof ACCOUNT_TYPES.CHECKING
+    | null;
   const productType = urlProductType || form.productType;
 
   // 계좌 타입에 따라 다른 스텝 배열 사용

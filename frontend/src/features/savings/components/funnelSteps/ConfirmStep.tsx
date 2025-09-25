@@ -1,7 +1,9 @@
+import { useEffect } from 'react';
 import { useAccountCreationStore } from '@/features/savings/store/useAccountCreationStore';
 import { useStepProgress } from '@/features/savings/hooks/useStepProgress';
 import { useAccountCreation } from '@/features/savings/hooks/useAccountCreation';
 import { useQuery } from '@tanstack/react-query';
+import { useErrorBoundary } from 'react-error-boundary';
 import { getAllAccounts } from '@/features/savings/api/savingsApi';
 import { Button } from '@/shared/components/ui/button';
 import { ACCOUNT_TYPES } from '@/features/savings/constants/accountTypes';
@@ -18,9 +20,10 @@ const ConfirmStep = () => {
     createSavingsError,
   } = useAccountCreation();
   const customerId = useCustomerStore(state => state.customerId);
+  const { showBoundary } = useErrorBoundary();
 
   // 계좌 목록 가져와서 상품 정보 추출
-  const { data: accounts } = useQuery({
+  const { data: accounts, error: accountsError } = useQuery({
     queryKey: ['allAccounts', customerId],
     queryFn: () => {
       if (customerId == null) {
@@ -31,6 +34,13 @@ const ConfirmStep = () => {
     staleTime: 1000 * 60 * 5,
     enabled: customerId != null,
   });
+
+  // API 에러 발생 시 ErrorBoundary로 전달
+  useEffect(() => {
+    if (accountsError) {
+      showBoundary(accountsError);
+    }
+  }, [accountsError, showBoundary]);
 
   // 현재 선택된 계좌 타입에 맞는 상품 정보 찾기
   const getProductInfo = () => {

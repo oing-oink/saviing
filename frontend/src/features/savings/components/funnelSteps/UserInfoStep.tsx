@@ -44,9 +44,10 @@ const UserInfoStep = () => {
   };
 
   // 전체 유효성 검사
-  const isValid = validateName(name).isValid &&
-                  validateBirthDate(birth).isValid &&
-                  validatePhoneNumber(phone).isValid;
+  const isValid =
+    validateName(name).isValid &&
+    validateBirthDate(birth).isValid &&
+    validatePhoneNumber(phone).isValid;
 
   const handleNext = () => {
     // 최종 검증

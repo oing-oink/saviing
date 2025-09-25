@@ -7,7 +7,9 @@
  * - 특수문자, 숫자 금지
  * - 최대 6자
  */
-export const validateName = (name: string): { isValid: boolean; message: string } => {
+export const validateName = (
+  name: string,
+): { isValid: boolean; message: string } => {
   const trimmedName = name.trim();
 
   if (!trimmedName) {
@@ -32,7 +34,9 @@ export const validateName = (name: string): { isValid: boolean; message: string 
  * - 미래 날짜 금지
  * - YYYY-MM-DD 형식
  */
-export const validateBirthDate = (birthDate: string): { isValid: boolean; message: string } => {
+export const validateBirthDate = (
+  birthDate: string,
+): { isValid: boolean; message: string } => {
   if (!birthDate) {
     return { isValid: false, message: '생년월일을 입력해주세요.' };
   }
@@ -59,7 +63,9 @@ export const validateBirthDate = (birthDate: string): { isValid: boolean; messag
  * - 숫자만 허용
  * - 010으로 시작하는 11자리
  */
-export const validatePhoneNumber = (phone: string): { isValid: boolean; message: string } => {
+export const validatePhoneNumber = (
+  phone: string,
+): { isValid: boolean; message: string } => {
   const trimmedPhone = phone.trim();
 
   if (!trimmedPhone) {
@@ -77,7 +83,10 @@ export const validatePhoneNumber = (phone: string): { isValid: boolean; message:
   // 010으로 시작하는 11자리 체크
   const validPhoneRegex = /^010\d{8}$/;
   if (!validPhoneRegex.test(phoneNumbers)) {
-    return { isValid: false, message: '올바른 휴대폰 번호를 입력해주세요. (예: 010-1234-5678)' };
+    return {
+      isValid: false,
+      message: '올바른 휴대폰 번호를 입력해주세요. (예: 010-1234-5678)',
+    };
   }
 
   return { isValid: true, message: '' };
@@ -89,7 +98,9 @@ export const validatePhoneNumber = (phone: string): { isValid: boolean; message:
  * - 숫자만 허용
  * - 최소 1,000원 이상
  */
-export const validateDepositAmount = (amount: string): { isValid: boolean; message: string } => {
+export const validateDepositAmount = (
+  amount: string,
+): { isValid: boolean; message: string } => {
   const trimmedAmount = amount.trim();
 
   if (!trimmedAmount) {
@@ -107,7 +118,10 @@ export const validateDepositAmount = (amount: string): { isValid: boolean; messa
   }
 
   if (numericAmount > 10000000) {
-    return { isValid: false, message: '최대 10,000,000원까지 입력 가능합니다.' };
+    return {
+      isValid: false,
+      message: '최대 10,000,000원까지 입력 가능합니다.',
+    };
   }
 
   return { isValid: true, message: '' };
@@ -119,7 +133,9 @@ export const validateDepositAmount = (amount: string): { isValid: boolean; messa
  * - 최소 1,000원 이상
  * - 최대 10,000,000원
  */
-export const validateMonthlyAmount = (amount: string): { isValid: boolean; message: string } => {
+export const validateMonthlyAmount = (
+  amount: string,
+): { isValid: boolean; message: string } => {
   const trimmedAmount = amount.trim();
 
   if (!trimmedAmount) {
@@ -137,7 +153,10 @@ export const validateMonthlyAmount = (amount: string): { isValid: boolean; messa
   }
 
   if (numericAmount > 10000000) {
-    return { isValid: false, message: '최대 10,000,000원까지 입력 가능합니다.' };
+    return {
+      isValid: false,
+      message: '최대 10,000,000원까지 입력 가능합니다.',
+    };
   }
 
   return { isValid: true, message: '' };

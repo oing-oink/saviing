@@ -47,20 +47,23 @@ const GachaRollingPage = () => {
 
               // 가챠 성공 후 캐릭터 게임 데이터 캐시 업데이트
               const characterId = 1; // TODO: 실제 캐릭터 ID 사용
-              queryClient.setQueryData(gameKeys.characterData(characterId), (oldData: any) => {
-                if (oldData) {
-                  return {
-                    ...oldData,
-                    coin: result.currencies.coin,
-                    fishCoin: result.currencies.fishCoin
-                  };
-                }
-                return oldData;
-              });
+              queryClient.setQueryData(
+                gameKeys.characterData(characterId),
+                (oldData: any) => {
+                  if (oldData) {
+                    return {
+                      ...oldData,
+                      coin: result.currencies.coin,
+                      fishCoin: result.currencies.fishCoin,
+                    };
+                  }
+                  return oldData;
+                },
+              );
 
               // 다른 게임 관련 쿼리들도 무효화 (안전장치)
               queryClient.invalidateQueries({
-                queryKey: gameKeys.characterData(characterId)
+                queryKey: gameKeys.characterData(characterId),
               });
             },
             onError: error => {

@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAccountCreationStore } from '@/features/savings/store/useAccountCreationStore';
 import { useStepProgress } from '@/features/savings/hooks/useStepProgress';
 import { useQuery } from '@tanstack/react-query';
+import { useErrorBoundary } from 'react-error-boundary';
 import { getAllAccounts } from '@/features/savings/api/savingsApi';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -20,6 +21,7 @@ const SetConditionStep = () => {
   const { setForm, form } = useAccountCreationStore();
   const { goToNextStep } = useStepProgress();
   const customerId = useCustomerStore(state => state.customerId);
+  const { showBoundary } = useErrorBoundary();
 
   // 내 계좌 목록 가져오기
   const {
@@ -37,6 +39,13 @@ const SetConditionStep = () => {
     staleTime: 1000 * 60 * 5, // 5분간 캐시 유지
     enabled: customerId != null,
   });
+
+  // API 에러 발생 시 ErrorBoundary로 전달
+  useEffect(() => {
+    if (accountsError) {
+      showBoundary(accountsError);
+    }
+  }, [accountsError, showBoundary]);
 
   // 입출금 계좌만 필터링 (productId가 1이고 상태가 ACTIVE인 것)
   const checkingAccounts =

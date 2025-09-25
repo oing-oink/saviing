@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { useErrorBoundary } from 'react-error-boundary';
 import { useAccountCreationStore } from '@/features/savings/store/useAccountCreationStore';
 import { useStepProgress } from '@/features/savings/hooks/useStepProgress';
 import { Button } from '@/shared/components/ui/button';
@@ -19,6 +20,7 @@ const AccountTypeStep = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const customerId = useCustomerStore(state => state.customerId);
+  const { showBoundary } = useErrorBoundary();
   const [selected, setSelected] = useState<AccountType | null>(
     form.productType,
   );
@@ -26,7 +28,11 @@ const AccountTypeStep = () => {
     useState(false);
 
   // 내 계좌 목록 가져오기
-  const { data: accounts, isLoading: isLoadingAccounts } = useQuery({
+  const {
+    data: accounts,
+    isLoading: isLoadingAccounts,
+    error: accountsError,
+  } = useQuery({
     queryKey: ['allAccounts', customerId],
     queryFn: () => {
       if (customerId == null) {
@@ -37,6 +43,13 @@ const AccountTypeStep = () => {
     staleTime: 1000 * 60 * 5,
     enabled: customerId != null,
   });
+
+  // API 에러 발생 시 ErrorBoundary로 전달
+  useEffect(() => {
+    if (accountsError) {
+      showBoundary(accountsError);
+    }
+  }, [accountsError, showBoundary]);
 
   // 입출금 계좌 존재 여부 확인
   const hasCheckingAccount =

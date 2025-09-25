@@ -79,20 +79,26 @@ const GachaResult = ({ item, onClose }: GachaResultProps) => {
             </p>
 
             <div className="flex gap-2">
-              <button onClick={() => {
-                onClose();
-                navigate(PAGE_PATH.GACHA_ROLLING + `?t=${Date.now()}`, { replace: true });
-              }}>
+              <button
+                onClick={() => {
+                  onClose();
+                  navigate(PAGE_PATH.GACHA_ROLLING + `?t=${Date.now()}`, {
+                    replace: true,
+                  });
+                }}
+              >
                 <div className="text-md mt-2 mb-2 rounded-2xl border-3 border-level-06 bg-store-bg p-2 px-4 text-red-300">
                   <p>
                     {gachaInfo?.gachaInfo.drawPrice.coin ?? 500} 코인에 한 번 더
                   </p>
                 </div>
               </button>
-              <button onClick={() => {
-                onClose();
-                navigate(PAGE_PATH.DECO);
-              }}>
+              <button
+                onClick={() => {
+                  onClose();
+                  navigate(PAGE_PATH.DECO);
+                }}
+              >
                 <div className="text-md mt-2 mb-2 rounded-2xl border-3 border-gray-300 bg-gray-100 p-2 px-6 text-gray-600">
                   내 인벤토리 보기
                 </div>
