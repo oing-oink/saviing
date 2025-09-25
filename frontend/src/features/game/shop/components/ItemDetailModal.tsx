@@ -7,6 +7,7 @@ import itemHeader from '@/assets/game_etc/itemHeader.png';
 import type { Item, PaymentMethod } from '@/features/game/shop/types/item';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
+import { useGameEntryQuery } from '@/features/game/entry/query/useGameEntryQuery';
 
 /** 상점 아이템 상세 모달에 필요한 속성. */
 interface ItemDetailModalProps {
@@ -32,13 +33,20 @@ const ItemDetailModal = ({
   const { data: item, isLoading, error } = useGameItemDetail(itemId);
   const { mutate: purchase, isPending: isPurchasing } = usePurchase();
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>('COIN');
+  const { data: gameEntry } = useGameEntryQuery();
+  const characterId = gameEntry?.characterId;
 
   const handlePurchase = () => {
     if (!item) {
       return;
     }
 
-    const characterId = 1;
+    if (typeof characterId !== 'number') {
+      toast.error('캐릭터 정보를 확인할 수 없습니다.', {
+        className: 'game font-galmuri',
+      });
+      return;
+    }
 
     purchase(
       {
@@ -182,9 +190,11 @@ const ItemDetailModal = ({
                 <div className="flex justify-center gap-2">
                   <button
                     onClick={handlePurchase}
-                    disabled={isPurchasing}
+                    disabled={
+                      isPurchasing || typeof characterId !== 'number'
+                    }
                     className={`rounded-lg px-6 py-2 text-center font-semibold ${
-                      isPurchasing
+                      isPurchasing || typeof characterId !== 'number'
                         ? 'cursor-not-allowed bg-gray-300 text-gray-500'
                         : 'bg-green-500 text-white hover:bg-green-600'
                     }`}
