@@ -7,12 +7,13 @@ package saviing.bank.auth.dto;
 public record LoginResponse(
     String accessToken,
     Long customerId,
+    String name,
     Long expiresIn
 ) {
     /**
      * LoginResponse 생성을 위한 팩토리 메서드
      */
-    public static LoginResponse of(String accessToken, Long customerId, Long expiresIn) {
-        return new LoginResponse(accessToken, customerId, expiresIn);
+    public static LoginResponse of(String accessToken, Long customerId, String name, Long expiresIn) {
+        return new LoginResponse(accessToken, customerId, name, expiresIn);
     }
 }
