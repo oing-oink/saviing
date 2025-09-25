@@ -172,9 +172,9 @@ const SetConditionStep = () => {
           {depositAmountError && (
             <p className="mt-1 text-xs text-red-600">{depositAmountError}</p>
           )}
-        <p className="mt-1 text-xs text-gray-400">
-          * 최대 1,000,000(백만)원까지만 입력 가능합니다
-        </p>
+          <p className="mt-1 text-xs text-gray-400">
+            * 최대 1,000,000(백만)원까지만 입력 가능합니다
+          </p>
         </div>
 
         {/* 자동이체 주기 */}

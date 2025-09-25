@@ -52,7 +52,10 @@ const NewSettingsStep = () => {
       return { isValid: false, message: '최소 1,000원 이상 입력해야 합니다.' };
     }
     if (amount > 1000000) {
-      return { isValid: false, message: '최대 1,000,000원까지 입력 가능합니다.' };
+      return {
+        isValid: false,
+        message: '최대 1,000,000원까지 입력 가능합니다.',
+      };
     }
     return { isValid: true, message: '' };
   };
@@ -334,7 +337,10 @@ const NewSettingsStep = () => {
                               key={day}
                               type="button"
                               onClick={() => {
-                                handleInputChange('newTransferDate', String(index + 1));
+                                handleInputChange(
+                                  'newTransferDate',
+                                  String(index + 1),
+                                );
                                 setAccordionValue('auto-account-selection');
                               }}
                               className={`rounded-md border px-4 py-2 text-sm ${
@@ -349,37 +355,42 @@ const NewSettingsStep = () => {
                         </div>
                       ) : (
                         <div className="grid grid-cols-4 gap-2 pt-2">
-                          {Array.from({ length: 28 }, (_, i) => i + 1).map(day => (
-                            <button
-                              key={day}
-                              type="button"
-                              onClick={() => {
-                                handleInputChange('newTransferDate', String(day));
-                                setAccordionValue('auto-account-selection');
-                              }}
-                              className={`rounded-md border px-4 py-2 text-sm ${
-                                formData.newTransferDate === String(day)
-                                  ? 'bg-violet-500 text-white'
-                                  : 'bg-white text-gray-700 hover:bg-gray-100'
-                              }`}
-                            >
-                              {day}일
-                            </button>
-                          ))}
+                          {Array.from({ length: 28 }, (_, i) => i + 1).map(
+                            day => (
+                              <button
+                                key={day}
+                                type="button"
+                                onClick={() => {
+                                  handleInputChange(
+                                    'newTransferDate',
+                                    String(day),
+                                  );
+                                  setAccordionValue('auto-account-selection');
+                                }}
+                                className={`rounded-md border px-4 py-2 text-sm ${
+                                  formData.newTransferDate === String(day)
+                                    ? 'bg-violet-500 text-white'
+                                    : 'bg-white text-gray-700 hover:bg-gray-100'
+                                }`}
+                              >
+                                {day}일
+                              </button>
+                            ),
+                          )}
                         </div>
                       )}
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
-                 <p className="mt-1 text-xs text-gray-500">
-                    현재:{' '}
-                    {savingsDetail?.savings?.autoTransfer
-                      ? getTransferDateDisplay(
-                          savingsDetail.savings.autoTransfer.cycle,
-                          savingsDetail.savings.autoTransfer.transferDay,
-                        )
-                      : '정보 없음'}
-                  </p>
+                <p className="mt-1 text-xs text-gray-500">
+                  현재:{' '}
+                  {savingsDetail?.savings?.autoTransfer
+                    ? getTransferDateDisplay(
+                        savingsDetail.savings.autoTransfer.cycle,
+                        savingsDetail.savings.autoTransfer.transferDay,
+                      )
+                    : '정보 없음'}
+                </p>
               </div>
             </>
           )}
@@ -397,12 +408,19 @@ const NewSettingsStep = () => {
                   <AccordionTrigger className="text-left text-gray-700">
                     {formData.newAutoAccount
                       ? checkingAccounts.find(
-                          acc => acc.accountId.toString() === formData.newAutoAccount,
-                        )?.product.productName + 
-                        ' (*' + 
-                        checkingAccounts.find(
-                          acc => acc.accountId.toString() === formData.newAutoAccount,
-                        )?.accountNumber.slice(-4) + ')'
+                          acc =>
+                            acc.accountId.toString() ===
+                            formData.newAutoAccount,
+                        )?.product.productName +
+                        ' (*' +
+                        checkingAccounts
+                          .find(
+                            acc =>
+                              acc.accountId.toString() ===
+                              formData.newAutoAccount,
+                          )
+                          ?.accountNumber.slice(-4) +
+                        ')'
                       : '자동이체 계좌를 선택해주세요'}
                   </AccordionTrigger>
                   <AccordionContent>
@@ -411,9 +429,15 @@ const NewSettingsStep = () => {
                         <button
                           key={account.accountId}
                           type="button"
-                          onClick={() => handleInputChange('newAutoAccount', account.accountId.toString())}
+                          onClick={() =>
+                            handleInputChange(
+                              'newAutoAccount',
+                              account.accountId.toString(),
+                            )
+                          }
                           className={`w-full rounded-lg border p-3 text-left text-sm ${
-                            formData.newAutoAccount === account.accountId.toString()
+                            formData.newAutoAccount ===
+                            account.accountId.toString()
                               ? 'bg-violet-500 text-white'
                               : 'bg-white text-gray-700 hover:bg-gray-100'
                           }`}
