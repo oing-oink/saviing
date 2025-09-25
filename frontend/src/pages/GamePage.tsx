@@ -22,11 +22,11 @@ const GamePage = () => {
     error: gameEntryError,
   } = useGameEntryQuery();
 
-  const [currentPetId, setCurrentPetId] = useState<number | null>(
-    gameEntry?.pet?.petId ?? null,
-  );
   const behavior = usePetStore(state => state.behavior);
   const setBehavior = usePetStore(state => state.setBehavior);
+  const selectedPetId = usePetStore(state => state.selectedPetId);
+  const setPlacedPetIds = usePetStore(state => state.setPlacedPetIds);
+  const setSelectedPetId = usePetStore(state => state.setSelectedPetId);
   const isTransitioningToGame = useEnterTransitionStore(
     state => state.isTransitioningToGame,
   );
@@ -35,21 +35,6 @@ const GamePage = () => {
   );
 
   const applyServerState = useDecoStore(state => state.applyServerState);
-
-  useEffect(() => {
-    const entryPet = gameEntry?.pet as
-      | { petId?: number; inventoryItemId?: number }
-      | undefined;
-    const initialId =
-      typeof entryPet?.inventoryItemId === 'number'
-        ? entryPet.inventoryItemId
-        : entryPet?.petId;
-    if (typeof initialId === 'number') {
-      setCurrentPetId(initialId);
-    } else {
-      setCurrentPetId(null);
-    }
-  }, [gameEntry]);
 
   // 컴포넌트 초기화 시 방 배치 정보 로드 (DecoPage와 동일한 로직)
   useEffect(() => {
@@ -124,6 +109,13 @@ const GamePage = () => {
 
         // 데코 스토어에 서버 상태 적용
         applyServerState({ placedItems });
+
+        // PET 카테고리인 배치 아이템들의 inventoryItemId를 petId로 전역 상태에 저장
+        const petIds = placementsResponse.placements
+          .filter(placement => placement.category === 'PET')
+          .map(placement => placement.inventoryItemId);
+
+        setPlacedPetIds(petIds);
       } catch (error) {
         console.error('GamePage - 방 배치 정보 로드 실패:', error);
       }
@@ -146,8 +138,10 @@ const GamePage = () => {
   const [roomOffset, setRoomOffset] = useState(0);
   const [sheetWidth, setSheetWidth] = useState<number | null>(null);
 
+  // PetStatusCard 상태 변화 감지 및 로깅
   useEffect(() => {
     if (!isPopoverOpen) {
+      setSelectedPetId(null);
       setRoomOffset(0);
       setSheetWidth(null);
       return undefined;
@@ -172,8 +166,9 @@ const GamePage = () => {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('pointerdown', handlePointerDown, true);
+      setSelectedPetId(null);
     };
-  }, [isPopoverOpen]);
+  }, [isPopoverOpen, setSelectedPetId]);
 
   useEffect(() => {
     if (!isPopoverOpen) {
@@ -275,10 +270,10 @@ const GamePage = () => {
         item.itemType === 'PET'
           ? (item.inventoryItemId ?? item.itemId)
           : item.itemId;
-      setCurrentPetId(nextPetId);
+      setSelectedPetId(nextPetId);
       setIsPopoverOpen(true);
     },
-    [setIsPopoverOpen, setCurrentPetId],
+    [setSelectedPetId],
   );
 
   if (isGameEntryLoading) {
@@ -367,8 +362,8 @@ const GamePage = () => {
             ref={sheetRef}
             className="overflow-hidden rounded-2xl border border-black/10 bg-white/95 shadow-lg backdrop-blur-sm"
           >
-            {currentPetId !== null ? (
-              <PetStatusCard petId={currentPetId} />
+            {selectedPetId !== null ? (
+              <PetStatusCard petId={selectedPetId} />
             ) : (
               <div className="flex h-60 items-center justify-center p-4 text-sm text-muted-foreground">
                 표시할 펫이 없습니다.
