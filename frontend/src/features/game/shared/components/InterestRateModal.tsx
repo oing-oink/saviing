@@ -39,8 +39,13 @@ const InterestRateModal = ({
       <Dialog open={isOpen} onOpenChange={handleOpenChange}>
         <DialogPortal>
           <DialogOverlay className="bg-transparent backdrop-blur-sm backdrop-brightness-110" />
-          <DialogContent className="game max-w-xs rounded-4xl bg-secondary p-6 font-galmuri" showCloseButton={false}>
-            <DialogDescription className="sr-only">통계 정보를 불러오고 있습니다</DialogDescription>
+          <DialogContent
+            className="game max-w-xs rounded-4xl bg-secondary p-6 font-galmuri"
+            showCloseButton={false}
+          >
+            <DialogDescription className="sr-only">
+              통계 정보를 불러오고 있습니다
+            </DialogDescription>
             <div className="text-center">통계 정보를 불러오는 중...</div>
           </DialogContent>
         </DialogPortal>
@@ -53,8 +58,13 @@ const InterestRateModal = ({
       <Dialog open={isOpen} onOpenChange={handleOpenChange}>
         <DialogPortal>
           <DialogOverlay className="bg-transparent backdrop-blur-sm backdrop-brightness-110" />
-          <DialogContent className="game max-w-xs rounded-4xl bg-secondary p-6 font-galmuri" showCloseButton={false}>
-            <DialogDescription className="sr-only">통계 정보를 불러오는 중 오류가 발생했습니다</DialogDescription>
+          <DialogContent
+            className="game max-w-xs rounded-4xl bg-secondary p-6 font-galmuri"
+            showCloseButton={false}
+          >
+            <DialogDescription className="sr-only">
+              통계 정보를 불러오는 중 오류가 발생했습니다
+            </DialogDescription>
             <div className="text-center text-red-500">
               통계 정보를 불러올 수 없습니다.
             </div>
@@ -120,15 +130,20 @@ const InterestRateModal = ({
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogPortal>
         <DialogOverlay className="bg-transparent backdrop-blur-sm backdrop-brightness-110" />
-        <DialogContent className="game max-w-xs border-0 bg-transparent p-0 font-galmuri shadow-none" showCloseButton={false}>
-          <DialogDescription className="sr-only">펫과 인벤토리 레어리티를 기반으로 계산된 이자율 상세 정보</DialogDescription>
+        <DialogContent
+          className="game max-w-xs border-0 bg-transparent p-0 font-galmuri shadow-none"
+          showCloseButton={false}
+        >
+          <DialogDescription className="sr-only">
+            펫과 인벤토리 레어리티를 기반으로 계산된 이자율 상세 정보
+          </DialogDescription>
           <div className="relative">
             <img
               src={infoHeader}
               alt="itemHeader"
-              className="absolute left-1/2 top-0 w-44 -translate-x-1/2 -translate-y-1/2 z-10"
+              className="absolute top-0 left-1/2 z-10 w-44 -translate-x-1/2 -translate-y-1/2"
             />
-            <div className="rounded-4xl bg-secondary px-5 pb-4 pt-8 shadow-xl">
+            <div className="rounded-4xl bg-secondary px-5 pt-8 pb-4 shadow-xl">
               <div className="mb-3 flex justify-end">
                 <button
                   onClick={onClose}
@@ -149,7 +164,9 @@ const InterestRateModal = ({
                   {/* 기본 금리 */}
                   <div className="flex items-center justify-between rounded-lg bg-white/50 p-2.5">
                     <span className="font-medium text-gray-700">기본 금리</span>
-                    <span className="font-semibold text-primary">{baseRate}%</span>
+                    <span className="font-semibold text-primary">
+                      {baseRate}%
+                    </span>
                   </div>
 
                   {/* 보너스 금리 섹션 */}
