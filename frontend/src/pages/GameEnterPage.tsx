@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import GameHeader from '@/features/game/shared/components/GameHeader';
 import Room from '@/features/game/room/Room';
 import CatSprite from '@/features/game/pet/components/CatSprite';
@@ -11,6 +11,9 @@ import { Loader2 } from 'lucide-react';
 
 import { useDecoStore } from '@/features/game/deco/store/useDecoStore';
 import { useRoomSnapshotQuery } from '@/features/game/room/query/useRoomSnapshotQuery';
+import { RoomCanvas } from '@/features/game/deco/components/roomCanvas';
+import { ROOM_INITIAL_SCALE } from '@/features/game/room/constants';
+import ElevatorButton from '@/features/game/shared/components/ElevatorButton';
 
 const ROOM_RISE_DURATION = 700;
 
@@ -31,6 +34,12 @@ const GameEnterPage = () => {
   const [roomDataError, setRoomDataError] = useState<Error | null>(null);
   const hasNavigatedRef = useRef(false);
   const hasSnapshotAppliedRef = useRef(false);
+  const roomInitialTransform = useMemo(
+    () => ({
+      scale: ROOM_INITIAL_SCALE,
+    }),
+    [],
+  );
 
   const {
     data: gameEntry,
@@ -42,15 +51,48 @@ const GameEnterPage = () => {
   const hasPet = typeof currentPetItemId === 'number';
 
   useEffect(() => {
-    const enter = requestAnimationFrame(() => setAtCenter(true));
-
     return () => {
-      cancelAnimationFrame(enter);
       if (!hasNavigatedRef.current) {
         reset();
       }
     };
   }, [reset]);
+
+  useEffect(() => {
+    if (!roomDataLoaded) {
+      setAtCenter(false);
+      setRoomRise(false);
+      return;
+    }
+
+    if (typeof window === 'undefined') {
+      setRoomRise(true);
+      setAtCenter(true);
+      return;
+    }
+
+    let raf1: number | undefined;
+    let raf2: number | undefined;
+
+    raf1 = window.requestAnimationFrame(() => {
+      raf2 = window.requestAnimationFrame(() => {
+        setRoomRise(true);
+        setAtCenter(true);
+      });
+    });
+
+    return () => {
+      if (typeof window === 'undefined') {
+        return;
+      }
+      if (raf1 !== undefined) {
+        window.cancelAnimationFrame(raf1);
+      }
+      if (raf2 !== undefined) {
+        window.cancelAnimationFrame(raf2);
+      }
+    };
+  }, [roomDataLoaded]);
 
   const roomId = gameEntry?.roomId;
   const characterId = gameEntry?.characterId;
@@ -82,6 +124,7 @@ const GameEnterPage = () => {
       setRoomDataError(null);
       setHydrationError(null);
       setRoomRise(false);
+      setAtCenter(false);
     }
   }, [setHydrationError, snapshotQuery.isFetching]);
 
@@ -92,7 +135,18 @@ const GameEnterPage = () => {
     loadRoomSnapshot(snapshotQuery.data);
     hasSnapshotAppliedRef.current = true;
     setRoomDataLoaded(true);
-    setRoomRise(true);
+    setRoomRise(false);
+    setAtCenter(false);
+
+    if (typeof window !== 'undefined') {
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
+          setRoomRise(true);
+        });
+      });
+    } else {
+      setRoomRise(true);
+    }
   }, [loadRoomSnapshot, snapshotQuery.data]);
 
   useEffect(() => {
@@ -112,11 +166,15 @@ const GameEnterPage = () => {
   };
 
   useEffect(() => {
-    if (!roomDataLoaded || roomDataError || hasNavigatedRef.current) {
+    if (
+      !roomDataLoaded ||
+      roomDataError ||
+      hasNavigatedRef.current ||
+      !roomRise
+    ) {
       return;
     }
 
-    setRoomRise(true);
     const timer = window.setTimeout(() => {
       if (hasNavigatedRef.current) {
         return;
@@ -129,12 +187,18 @@ const GameEnterPage = () => {
     return () => {
       clearTimeout(timer);
     };
-  }, [navigate, roomDataError, roomDataLoaded, startTransitionToGame]);
+  }, [
+    navigate,
+    roomDataError,
+    roomDataLoaded,
+    roomRise,
+    startTransitionToGame,
+  ]);
 
   // 시작 위치 (Home의 CatSprite 위치) -> 화면 중앙 목표로 낙하
   const startX = origin?.x ?? 0;
   const startY = origin?.y ?? -80;
-  const scale = origin?.scale ?? 4;
+  const startScale = origin?.scale ?? 4;
 
   if (isGameEntryLoading) {
     return (
@@ -187,46 +251,83 @@ const GameEnterPage = () => {
           <GameHeader />
         </div>
 
-        <div className="relative flex w-full flex-1 justify-center">
-          {!roomDataLoaded && !roomDataError && (
-            <div className="pointer-events-none absolute inset-0 z-20 flex items-end justify-center pb-12">
-              <div className="flex items-center gap-2 rounded-full bg-black/40 px-3 py-1 text-xs text-white backdrop-blur">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                <span>방을 준비하는 중...</span>
-              </div>
-            </div>
-          )}
+        <div className="relative flex w-full flex-1 items-center justify-center">
+          <div className="relative flex w-full items-center justify-center">
+            <div className="relative flex w-full justify-center">
+              <div className="relative inline-block w-full">
+                {!roomDataLoaded && !roomDataError && (
+                  <div className="pointer-events-none absolute inset-0 z-20 flex items-end justify-center pb-12">
+                    <div className="flex items-center gap-2 rounded-full bg-black/40 px-3 py-1 text-xs text-white backdrop-blur">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>방을 준비하는 중...</span>
+                    </div>
+                  </div>
+                )}
 
-          <div className="relative inline-block w-full">
-            {/* 바닥에서 올라오는 룸 (GamePage의 위치와 동일) */}
-            <div
-              className={`pointer-events-none absolute left-1/2 z-0 w-full -translate-x-1/2 -translate-y-1/2 transition-all duration-700 ease-out ${
-                roomRise ? 'top-1/2' : 'top-[120%]'
-              }`}
-            >
-              <Room mode="readonly" placementArea={null} />
-            </div>
+                <div
+                  className="pointer-events-none relative w-full"
+                  style={{
+                    transform: roomRise ? 'translateY(0)' : 'translateY(320%)',
+                    transition: 'transform 700ms ease-out',
+                  }}
+                >
+                  <Room
+                    mode="readonly"
+                    placementArea={null}
+                    initialTransform={roomInitialTransform}
+                  >
+                    {context => (
+                      <RoomCanvas
+                        context={context}
+                        allowItemPickup={false}
+                        showActions={false}
+                        allowDelete={false}
+                        excludeItemTypes={['PET']}
+                      />
+                    )}
+                  </Room>
+                </div>
 
-            {/* 시작 위치에서 중앙으로 이동하는 스프라이트 (동일 기준 좌표) */}
-            <div className="pointer-events-none absolute top-1/2 left-1/2 z-10 -translate-x-1/2 -translate-y-1/2">
-              <div
-                className={`transition-transform duration-[1200ms] ease-out`}
-                style={{
-                  transform: atCenter
-                    ? 'translate(0px, 0px)'
-                    : `translate(${startX}px, ${startY}px)`,
-                }}
-              >
-                <div style={{ transform: `scale(${scale})` }}>
-                  {hasPet && (
-                    <CatSprite
-                      itemId={currentPetItemId}
-                      currentAnimation={anim}
-                    />
-                  )}
+                <div
+                  className="pointer-events-none absolute z-10"
+                  style={{
+                    left: '50%',
+                    top: '70%',
+                    transform: 'translate(-50%, -50%)',
+                  }}
+                >
+                  <div
+                    className="transition-transform duration-[1200ms] ease-out"
+                    style={{
+                      transform: atCenter
+                        ? 'translate(0px, 0px)'
+                        : `translate(${startX}px, ${startY}px)`,
+                    }}
+                  >
+                    <div style={{ transform: `scale(${startScale})` }}>
+                      {hasPet && (
+                        <CatSprite
+                          itemId={currentPetItemId}
+                          currentAnimation={anim}
+                        />
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <div
+          className="pointer-events-none fixed bottom-[env(safe-area-inset-bottom,0)] z-40 px-4 pb-6 opacity-0"
+          style={{
+            left: '50%',
+            transform: 'translateX(-50%)',
+          }}
+        >
+          <div className="max-w-[min(calc(100vw - env(safe-area-inset-left,0) - env(safe-area-inset-right,0)),80rem)] mx-auto w-full">
+            <div className="overflow-hidden rounded-2xl border border-black/10 bg-white/95 shadow-lg backdrop-blur-sm" />
           </div>
         </div>
       </div>

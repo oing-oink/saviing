@@ -38,7 +38,7 @@ interface Line {
   y2: number;
 }
 
-const GRID_DIVISIONS = 24;
+export const GRID_DIVISIONS = 24;
 
 const AREAS_CONFIG: Partial<
   Record<PlacementArea, [Point, Point, Point, Point]>

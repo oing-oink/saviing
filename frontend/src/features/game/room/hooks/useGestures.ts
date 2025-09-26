@@ -8,6 +8,8 @@ interface UseGesturesProps {
   minScale?: number;
   maxScale?: number;
   panEnabled?: boolean;
+  initialScale?: number;
+  initialPosition?: { x: number; y: number };
 }
 
 /** 배경 이미지를 확대·이동할 수 있도록 제스처 이벤트를 관리하는 훅. */
@@ -17,17 +19,24 @@ export const useGestures = ({
   minScale = 1,
   maxScale = 4,
   panEnabled = true,
+  initialScale,
+  initialPosition,
 }: UseGesturesProps) => {
   // 화면에 반영할 값 (배율, 위치)
-  const [scale, setScale] = useState(1);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const scaleRef = useRef(scale);
-  const positionRef = useRef(position);
+  const clampScale = (value: number) =>
+    Math.min(Math.max(minScale, value), maxScale);
+  const initialScaleValue = clampScale(initialScale ?? 1);
+  const initialPositionValue = initialPosition ?? { x: 0, y: 0 };
+
+  const [scale, setScale] = useState(() => initialScaleValue);
+  const [position, setPosition] = useState(() => initialPositionValue);
+  const scaleRef = useRef(initialScaleValue);
+  const positionRef = useRef(initialPositionValue);
 
   // 제스처 임시 저장값 -> 렌더링 필요 x(ref 사용)
   const isPanningRef = useRef(false);
   const panStartRef = useRef({ x: 0, y: 0 });
-  const initialScaleRef = useRef(1);
+  const initialScaleRef = useRef(initialScaleValue);
   const initialPinchDistanceRef = useRef(0);
 
   // 1. [보조 함수] 이미지가 바깥을 벗어나지 않도록 위치 제한

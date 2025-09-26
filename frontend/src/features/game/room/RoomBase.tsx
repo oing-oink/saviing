@@ -1,5 +1,5 @@
 import roomImage from '@/assets/room.png';
-import { useEffect, useMemo, useRef } from 'react';
+import { useMemo, useRef } from 'react';
 import type { ReactNode, RefObject } from 'react';
 import { useGestures } from './hooks/useGestures';
 import { type TabId } from '@/features/game/shop/types/item';
@@ -56,6 +56,7 @@ const RoomBase = ({
   placementArea,
   children,
   panEnabled = true,
+  initialTransform,
 }: RoomBaseProps) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
@@ -64,6 +65,8 @@ const RoomBase = ({
     containerRef,
     targetRef: imageRef,
     panEnabled,
+    initialScale: initialTransform?.scale,
+    initialPosition: initialTransform?.position,
   });
 
   const { gridLines, gridCells, surfacePolygon } = useGrid({

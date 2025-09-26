@@ -38,6 +38,7 @@ interface RoomCanvasProps {
   }) => void;
   catAnimationState?: PetAnimationState;
   onCatAnimationComplete?: (animation: PetAnimationState) => void;
+  excludeItemTypes?: PlacedItemType['itemType'][];
 }
 
 /**
@@ -55,6 +56,7 @@ const RoomCanvas = ({
   onPlacedItemClick,
   catAnimationState,
   onCatAnimationComplete,
+  excludeItemTypes,
 }: RoomCanvasProps) => {
   const { containerRef, gridCells, scale, surfacePolygon } = context;
 
@@ -266,12 +268,24 @@ const RoomCanvas = ({
       .map(cell => cell.vertices.map(({ x, y }) => `${x},${y}`).join(' '));
   }, [cellMap, ghost.footprintCellIds]);
 
+  const renderableDraftItems = useMemo(() => {
+    if (!excludeItemTypes || excludeItemTypes.length === 0) {
+      return draftItems;
+    }
+    return draftItems.filter(item => {
+      if (!item.itemType) {
+        return true;
+      }
+      return !excludeItemTypes.includes(item.itemType);
+    });
+  }, [draftItems, excludeItemTypes]);
+
   const draftMap = useMemo(() => {
-    return new Map(draftItems.map(item => [item.id, item]));
-  }, [draftItems]);
+    return new Map(renderableDraftItems.map(item => [item.id, item]));
+  }, [renderableDraftItems]);
 
   const draftPolygons = useMemo(() => {
-    return draftItems.map(item => {
+    return renderableDraftItems.map(item => {
       const footprint =
         item.footprintCellIds && item.footprintCellIds.length > 0
           ? item.footprintCellIds
@@ -285,10 +299,10 @@ const RoomCanvas = ({
         polygons,
       };
     });
-  }, [cellMap, draftItems]);
+  }, [cellMap, renderableDraftItems]);
 
   const spriteData = useMemo(() => {
-    const sprites = draftItems
+    const sprites = renderableDraftItems
       .map(item => {
         const footprintIds =
           item.footprintCellIds && item.footprintCellIds.length > 0
@@ -389,7 +403,7 @@ const RoomCanvas = ({
     });
 
     return sprites;
-  }, [computeSprite, draftItems, draftMap]);
+  }, [computeSprite, draftMap, renderableDraftItems]);
 
   const lastStagedCellRef = useRef<string | null>(null);
 

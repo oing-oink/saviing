@@ -13,6 +13,7 @@ import { RoomCanvas } from '@/features/game/deco/components/roomCanvas';
 import { cn } from '@/lib/utils';
 import { useGameEntryQuery } from '@/features/game/entry/query/useGameEntryQuery';
 import { useRoomSnapshotQuery } from '@/features/game/room/query/useRoomSnapshotQuery';
+import { ROOM_INITIAL_SCALE } from '@/features/game/room/constants';
 
 const GamePage = () => {
   // 룸에서 선택된 펫 ID (상태 패널에 표시할 대상)
@@ -131,6 +132,14 @@ const GamePage = () => {
   const sheetRef = useRef<HTMLDivElement | null>(null);
   const [roomOffset, setRoomOffset] = useState(0);
   const [sheetWidth, setSheetWidth] = useState<number | null>(null);
+
+  const initialScaleBoostRef = useRef(false);
+  if (isTransitioningToGame && !initialScaleBoostRef.current) {
+    initialScaleBoostRef.current = true;
+  }
+  const initialRoomTransform = initialScaleBoostRef.current
+    ? { scale: ROOM_INITIAL_SCALE }
+    : undefined;
 
   useEffect(() => {
     if (!isPopoverOpen) {
@@ -315,7 +324,11 @@ const GamePage = () => {
           >
             <div className="relative flex w-full justify-center">
               {/* 룸 캔버스를 읽기 전용으로 실행하고, 펫 클릭 이벤트와 애니메이션 상태를 연동한다. */}
-              <Room mode="readonly" placementArea={null}>
+              <Room
+                mode="readonly"
+                placementArea={null}
+                initialTransform={initialRoomTransform}
+              >
                 {context => (
                   <RoomCanvas
                     context={context}

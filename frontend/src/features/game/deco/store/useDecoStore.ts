@@ -6,7 +6,10 @@ import type {
   PlacedItem,
   RoomMeta,
 } from '@/features/game/deco/types/decoTypes';
-import type { PlacementArea } from '@/features/game/room/hooks/useGrid';
+import {
+  GRID_DIVISIONS,
+  type PlacementArea,
+} from '@/features/game/room/hooks/useGrid';
 import type { Item, TabId } from '@/features/game/shop/types/item';
 import type { RoomPlacementItem } from '@/features/game/room/api/roomApi';
 import {
@@ -482,6 +485,46 @@ const groupInventoryByCategory = (items: Item[]): Record<TabId, Item[]> => {
   return grouped;
 };
 
+const centerPrimaryCatPlacement = (items: PlacedItem[]): PlacedItem[] => {
+  const catIndex = items.findIndex(item => item.itemType === 'PET');
+  if (catIndex < 0) {
+    return items;
+  }
+
+  const target = items[catIndex];
+  const normalizedLayer =
+    normalizePlacementArea(target.layer) ?? 'BOTTOM';
+  const safeXLength = Math.max(target.xLength ?? MIN_PET_X_LENGTH, MIN_PET_X_LENGTH);
+  const safeYLength = Math.max(target.yLength ?? MIN_PET_Y_LENGTH, MIN_PET_Y_LENGTH);
+
+  const computeCenter = (length: number) => {
+    if (length >= GRID_DIVISIONS) {
+      return 0;
+    }
+    const available = GRID_DIVISIONS - length;
+    return Math.max(0, Math.floor(available / 2));
+  };
+
+  const positionX = computeCenter(safeXLength);
+  const positionY = computeCenter(safeYLength);
+  const cellId = `${normalizedLayer}-${positionX + 1}-${positionY + 1}`;
+  const footprintCellIds = buildFootprint(cellId, safeXLength, safeYLength);
+
+  const nextItems = [...items];
+  nextItems[catIndex] = {
+    ...target,
+    positionX,
+    positionY,
+    cellId,
+    layer: normalizedLayer,
+    xLength: safeXLength,
+    yLength: safeYLength,
+    footprintCellIds,
+  };
+
+  return nextItems;
+};
+
 const buildPlacedItemsFromServer = (
   placements: RoomPlacementItem[],
   inventoryItems: Item[],
@@ -594,9 +637,10 @@ export const decoStore = createStore<DecoStore>((set, get) => ({
       inventoryClones,
     );
     const normalizedPlaced = withInstanceId(placedFromServer);
+    const centeredPlaced = centerPrimaryCatPlacement(normalizedPlaced);
     const inventoryWithAvailability = updateInventoryAvailability(
       inventoryClones,
-      normalizedPlaced,
+      centeredPlaced,
     );
     const groupedInventory = groupInventoryByCategory(
       inventoryWithAvailability,
@@ -604,8 +648,8 @@ export const decoStore = createStore<DecoStore>((set, get) => ({
 
     set(() => ({
       roomMeta: snapshotMeta,
-      placedItems: [...normalizedPlaced],
-      draftItems: [...normalizedPlaced],
+      placedItems: [...centeredPlaced],
+      draftItems: [...centeredPlaced],
       dragSession: null,
       pendingPlacement: null,
       inventoryItems: inventoryWithAvailability,
