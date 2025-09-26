@@ -82,17 +82,20 @@ const InterestRateModal = ({
     );
   }
 
-  // 계산 로직
+  // 백엔드에서 계산된 이자율 사용
+  const finalRate = statisticsData.calculatedInterestRate;
+
+  // UI 표시용 계산 (실제 계산은 백엔드에서 수행)
   const baseRate = 1.5; // 기본 금리 1.5%
   const maxBonusRate = 3.0; // 최대 보너스 3%
 
-  // 펫 레벨 점수 (60% 비중)
+  // 펫 레벨 점수 (60% 비중) - 표시용
   const petWeight = 0.6;
   const petMaxScore = 100; // 최대 레벨 10개 × 최대 레벨 10 = 100
   const petScore = Math.min(statisticsData.topPetLevelSum || 0, petMaxScore);
   const petBonusRate = (petScore / petMaxScore) * maxBonusRate * petWeight;
 
-  // 인벤토리 레어리티 점수 (40% 비중, 각 항목 10%)
+  // 인벤토리 레어리티 점수 (40% 비중, 각 항목 10%) - 표시용
   const inventoryWeight = 0.4;
   const itemWeight = inventoryWeight / 4; // CAT, LEFT, RIGHT, BOTTOM 각각 10%
   const maxItemScore = 20; // 각 항목별 최대 20점
@@ -123,8 +126,6 @@ const InterestRateModal = ({
 
   const totalInventoryBonus =
     catBonusRate + leftBonusRate + rightBonusRate + bottomBonusRate;
-  const totalBonusRate = petBonusRate + totalInventoryBonus;
-  const finalRate = baseRate + totalBonusRate;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
@@ -182,8 +183,7 @@ const InterestRateModal = ({
                           펫 레벨 합 (비중 60%)
                         </span>
                         <span className="text-sm font-medium text-purple-700">
-                          +{(isNaN(petBonusRate) ? 0 : petBonusRate).toFixed(3)}
-                          %
+                          +{petBonusRate.toFixed(2)}%
                         </span>
                       </div>
                       <div className="text-center text-sm text-gray-600">
@@ -219,12 +219,7 @@ const InterestRateModal = ({
 
                       <div className="border-t border-gray-300 pt-1 text-center">
                         <span className="text-sm font-medium text-blue-700">
-                          +
-                          {(isNaN(totalInventoryBonus)
-                            ? 0
-                            : totalInventoryBonus
-                          ).toFixed(3)}
-                          %
+                          +{totalInventoryBonus.toFixed(2)}%
                         </span>
                       </div>
                     </div>
@@ -236,7 +231,7 @@ const InterestRateModal = ({
                       최종 이자율
                     </span>
                     <span className="text-xl font-bold text-red-400">
-                      {(isNaN(finalRate) ? baseRate : finalRate).toFixed(2)}%
+                      {finalRate.toFixed(2)}%
                     </span>
                   </div>
                 </div>
