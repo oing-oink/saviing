@@ -397,12 +397,12 @@ const GamePage = () => {
           </div>
         </div>
 
-      <div className="absolute right-0 bottom-0 z-10 pr-3 pb-5">
-        <ElevatorButton />
+        <div className="absolute right-0 bottom-0 z-10 pr-3 pb-5">
+          <ElevatorButton />
+        </div>
       </div>
-    </div>
 
-    {/* 선택된 펫의 상태 정보를 화면 하단 팝오버로 표시 */}
+      {/* 선택된 펫의 상태 정보를 화면 하단 팝오버로 표시 */}
       <div
         className="pointer-events-none fixed bottom-[env(safe-area-inset-bottom,0)] z-40 px-4 pb-6"
         style={{

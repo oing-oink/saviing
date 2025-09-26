@@ -145,7 +145,12 @@ const DecoPage = () => {
       setPlacementArea('BOTTOM');
       return;
     }
-    if (tab.id === 'LEFT' || tab.id === 'RIGHT' || tab.id === 'BOTTOM' || tab.id === 'ROOM_COLOR') {
+    if (
+      tab.id === 'LEFT' ||
+      tab.id === 'RIGHT' ||
+      tab.id === 'BOTTOM' ||
+      tab.id === 'ROOM_COLOR'
+    ) {
       setPlacementArea(tab.id);
       return;
     }

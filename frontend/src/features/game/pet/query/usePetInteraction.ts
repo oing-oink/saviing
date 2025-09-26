@@ -73,7 +73,9 @@ export const usePetInteraction = (petId: number) => {
       };
 
       const errorCode =
-        apiError.response?.data?.code || apiError.code || apiError.response?.code;
+        apiError.response?.data?.code ||
+        apiError.code ||
+        apiError.response?.code;
 
       if (errorCode === 'PET_INSUFFICIENT_ENERGY') {
         message = '펫이 배고파서 놀 수 없습니다.';

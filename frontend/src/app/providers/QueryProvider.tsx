@@ -13,7 +13,7 @@ const QueryProvider = ({ children }: PropsWithChildren) => {
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      {/* {import.meta.env.DEV && <ReactQueryDevtools />} */}
+      {import.meta.env.DEV && <ReactQueryDevtools />}
     </QueryClientProvider>
   );
 };
