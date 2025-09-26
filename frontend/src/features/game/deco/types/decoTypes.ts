@@ -280,6 +280,33 @@ export interface DecoState {
    * 1.0이 기본 크기이며, 모든 좌표 계산에 영향을 줍니다.
    */
   scale: number;
+
+  /**
+   * 서버에서 조회한 전체 인벤토리 아이템 목록.
+   * 카테고리 필터링 및 배치 가능 여부 계산의 근간이 됩니다.
+   */
+  inventoryItems: Item[];
+
+  /**
+   * 탭/카테고리별로 분류된 인벤토리 아이템 목록.
+   * UI에서 즉시 사용할 수 있도록 사전 분류된 상태입니다.
+   */
+  inventoryByCategory: Record<TabId, Item[]>;
+
+  /**
+   * 현재 메모리에 적재된 방/캐릭터 컨텍스트.
+   */
+  roomContext: { roomId: number; characterId: number } | null;
+
+  /**
+   * 서버 스냅샷이 메모리에 적재되어 있는지 여부.
+   */
+  isHydrated: boolean;
+
+  /**
+   * 최근 스냅샷 적재 과정에서 발생한 오류.
+   */
+  hydrationError: Error | null;
 }
 
 /**

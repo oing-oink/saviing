@@ -4,6 +4,10 @@ import {
   type CatAnimationType,
 } from '@/features/game/pet/data/catAnimations';
 
+const spriteSizeCache = new Map<string, { width: number; height: number }>();
+
+const useSpriteAnimationCache = () => spriteSizeCache;
+
 /**
  * 스프라이트 애니메이션 훅의 props 타입
  */
@@ -33,6 +37,7 @@ export const useSpriteAnimation = ({
   currentAnimation,
   onAnimationComplete,
 }: UseSpriteAnimationProps) => {
+  const staticCache = useSpriteAnimationCache();
   const [currentFrame, setCurrentFrame] = useState(0);
   const [frameWidth, setFrameWidth] = useState(0);
   const [frameHeight, setFrameHeight] = useState(0);
@@ -44,14 +49,31 @@ export const useSpriteAnimation = ({
 
   // 이미지 크기 계산
   useEffect(() => {
+    const cached = staticCache.get(spritePath);
+    if (cached) {
+      setFrameWidth(cached.width / config.frames);
+      setFrameHeight(cached.height);
+      setIsLoaded(true);
+      return;
+    }
+
+    let cancelled = false;
     const img = new Image();
     img.src = spritePath;
     img.onload = () => {
+      if (cancelled) {
+        return;
+      }
+      staticCache.set(spritePath, { width: img.width, height: img.height });
       setFrameWidth(img.width / config.frames);
       setFrameHeight(img.height);
       setIsLoaded(true);
     };
-  }, [spritePath, config.frames]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [spritePath, config.frames, staticCache]);
 
   // 애니메이션 변경 시 초기화
   useEffect(() => {

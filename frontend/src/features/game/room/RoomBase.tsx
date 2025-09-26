@@ -1,5 +1,5 @@
 import roomImage from '@/assets/room.png';
-import { useEffect, useMemo, useRef } from 'react';
+import { useMemo, useRef } from 'react';
 import type { ReactNode, RefObject } from 'react';
 import { useGestures } from './hooks/useGestures';
 import { type TabId } from '@/features/game/shop/types/item';
@@ -35,7 +35,6 @@ export interface RoomBaseProps {
   mode?: RoomMode;
   placementArea: TabId | null;
   initialTransform?: Partial<RoomTransform>;
-  onTransformChange?: (transform: RoomTransform) => void;
   children?: RoomRenderable;
   panEnabled?: boolean;
 }
@@ -55,9 +54,9 @@ const renderRoomChildren = (
 const RoomBase = ({
   mode = 'readonly',
   placementArea,
-  onTransformChange,
   children,
   panEnabled = true,
+  initialTransform,
 }: RoomBaseProps) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
@@ -66,14 +65,9 @@ const RoomBase = ({
     containerRef,
     targetRef: imageRef,
     panEnabled,
+    initialScale: initialTransform?.scale,
+    initialPosition: initialTransform?.position,
   });
-
-  useEffect(() => {
-    if (!onTransformChange) {
-      return;
-    }
-    onTransformChange({ scale, position });
-  }, [scale, position, onTransformChange]);
 
   const { gridLines, gridCells, surfacePolygon } = useGrid({
     scale,
