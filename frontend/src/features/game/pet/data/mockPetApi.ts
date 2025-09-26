@@ -64,7 +64,7 @@ export const mockPetInteraction = async (
     // 상호작용에 따른 능력치 변화 시뮬레이션
     affection: Math.min(mockPetData.maxAffection, mockPetData.affection + 10),
     energy:
-      request.type === 'FOOD'
+      request.type === 'FEED'
         ? Math.min(mockPetData.maxEnergy, mockPetData.energy + 20)
         : Math.max(0, mockPetData.energy - 10),
     exp: mockPetData.exp + 5,
@@ -77,18 +77,18 @@ export const mockPetInteraction = async (
     {
       inventoryItemId: 4,
       itemId: 4,
-      type: 'FOOD',
+      type: 'FOOD' as PetConsumableCategory,
       remaining:
-        request.type === 'FOOD'
+        request.type === 'FEED'
           ? Math.max(0, mockCurrentInventory.feed - 1)
           : mockCurrentInventory.feed,
     },
     {
       inventoryItemId: 5,
       itemId: 5,
-      type: 'TOY',
+      type: 'TOY' as PetConsumableCategory,
       remaining:
-        request.type === 'TOY'
+        request.type === 'PLAY'
           ? Math.max(0, mockCurrentInventory.toy - 1)
           : mockCurrentInventory.toy,
     },
