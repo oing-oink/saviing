@@ -34,6 +34,8 @@ export interface PurchaseRequest {
   characterId: number;
   itemId: number;
   paymentMethod: PaymentMethod;
+  /** 구매 수량 (미지정 시 1로 처리). */
+  count?: number;
 }
 
 /** 아이템 구매 응답 구조. */
