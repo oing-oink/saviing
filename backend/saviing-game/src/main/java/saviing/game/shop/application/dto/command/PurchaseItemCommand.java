@@ -10,13 +10,22 @@ import saviing.game.shop.domain.model.vo.PaymentMethod;
  * @param characterId 캐릭터 ID
  * @param itemId 아이템 ID
  * @param paymentMethod 결제 수단 (COIN 또는 FISH_COIN)
+ * @param count 구매 개수 (소모품의 경우)
  */
 @Builder
 public record PurchaseItemCommand(
     Long characterId,
     Long itemId,
-    PaymentMethod paymentMethod
+    PaymentMethod paymentMethod,
+    Integer count
 ) {
+    public PurchaseItemCommand {
+        // count가 null이거나 0 이하면 기본값 1로 설정
+        if (count == null || count <= 0) {
+            count = 1;
+        }
+    }
+
     /**
      * 명령의 유효성을 검증합니다.
      *
@@ -31,6 +40,9 @@ public record PurchaseItemCommand(
         }
         if (paymentMethod == null) {
             throw new IllegalArgumentException("결제 수단은 필수입니다.");
+        }
+        if (count == null || count <= 0) {
+            throw new IllegalArgumentException("구매 개수는 1 이상이어야 합니다.");
         }
     }
 }

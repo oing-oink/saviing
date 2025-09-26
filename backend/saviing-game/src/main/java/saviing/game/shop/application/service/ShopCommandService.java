@@ -192,9 +192,9 @@ public class ShopCommandService {
             Integer fishCoinAmount = null;
 
             if (paymentMethod.isCoin()) {
-                coinAmount = item.coin();
+                coinAmount = item.coin() * command.count();
             } else if (paymentMethod.isFishCoin()) {
-                fishCoinAmount = item.fishCoin();
+                fishCoinAmount = item.fishCoin() * command.count();
             }
 
             // 잔액 확인
@@ -240,18 +240,22 @@ public class ShopCommandService {
             // 아이템 타입에 따라 적절한 Command 생성
             AddInventoryItemCommand addCommand;
             if (item.itemType().name().equals("CONSUMPTION")) {
-                // 소모품의 경우 count 포함
+                // 소모품의 경우 사용자가 지정한 개수 사용
                 addCommand = AddInventoryItemCommand.withCount(
                     CharacterId.of(command.characterId()),
                     ItemId.of(command.itemId()),
-                    1  // 구매 시 기본 1개
+                    command.count()
                 );
             } else {
-                // 일반 아이템
-                addCommand = AddInventoryItemCommand.of(
-                    CharacterId.of(command.characterId()),
-                    ItemId.of(command.itemId())
-                );
+                // 일반 아이템은 개수 개념이 없으므로 command.count()만큼 반복 구매
+                for (int i = 0; i < command.count(); i++) {
+                    AddInventoryItemCommand singleCommand = AddInventoryItemCommand.of(
+                        CharacterId.of(command.characterId()),
+                        ItemId.of(command.itemId())
+                    );
+                    inventoryCommandService.addInventoryItem(singleCommand);
+                }
+                return; // 일반 아이템은 여기서 처리 완료
             }
 
             inventoryCommandService.addInventoryItem(addCommand);
@@ -295,6 +299,7 @@ public class ShopCommandService {
                 .characterId(command.characterId())
                 .itemId(selectedItem.itemId())
                 .paymentMethod(command.paymentMethod())
+                .count(1)  // 가챠는 항상 1개
                 .build();
 
             // 가챠풀 가격으로 구매 처리 (실제 아이템 가격 무시)

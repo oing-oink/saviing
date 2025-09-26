@@ -9,6 +9,13 @@ import lombok.Builder;
 public record PurchaseItemRequest(
     Long characterId,
     Long itemId,
-    String paymentMethod
+    String paymentMethod,
+    Integer count
 ) {
+    public PurchaseItemRequest {
+        // count가 null이거나 0 이하면 기본값 1로 설정
+        if (count == null || count <= 0) {
+            count = 1;
+        }
+    }
 }

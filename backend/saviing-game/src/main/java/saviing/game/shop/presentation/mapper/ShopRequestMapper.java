@@ -24,6 +24,7 @@ public class ShopRequestMapper {
             .characterId(request.characterId())
             .itemId(request.itemId())
             .paymentMethod(parsePaymentMethod(request.paymentMethod()))
+            .count(request.count())
             .build();
     }
 
