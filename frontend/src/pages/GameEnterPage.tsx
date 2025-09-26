@@ -13,7 +13,6 @@ import { useDecoStore } from '@/features/game/deco/store/useDecoStore';
 import { useRoomSnapshotQuery } from '@/features/game/room/query/useRoomSnapshotQuery';
 import { RoomCanvas } from '@/features/game/deco/components/roomCanvas';
 import { ROOM_INITIAL_SCALE } from '@/features/game/room/constants';
-import ElevatorButton from '@/features/game/shared/components/ElevatorButton';
 
 const ROOM_RISE_DURATION = 700;
 
@@ -74,6 +73,7 @@ const GameEnterPage = () => {
     let raf1: number | undefined;
     let raf2: number | undefined;
 
+    // eslint-disable-next-line prefer-const
     raf1 = window.requestAnimationFrame(() => {
       raf2 = window.requestAnimationFrame(() => {
         setRoomRise(true);

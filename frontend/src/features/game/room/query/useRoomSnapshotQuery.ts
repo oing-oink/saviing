@@ -1,13 +1,20 @@
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
-import { fetchRoomSnapshot, type RoomSnapshotResult } from '@/features/game/deco/api/fetchRoomSnapshot';
+import {
+  fetchRoomSnapshot,
+  type RoomSnapshotResult,
+} from '@/features/game/deco/api/fetchRoomSnapshot';
 import { roomSnapshotKeys } from './roomSnapshotKeys';
 
 export const useRoomSnapshotQuery = (
   roomId?: number,
   characterId?: number,
-  options?: Pick<UseQueryOptions<RoomSnapshotResult, Error>, 'enabled' | 'retry' | 'staleTime' | 'gcTime'>,
+  options?: Pick<
+    UseQueryOptions<RoomSnapshotResult, Error>,
+    'enabled' | 'retry' | 'staleTime' | 'gcTime'
+  >,
 ) => {
-  const canFetch = typeof roomId === 'number' && typeof characterId === 'number';
+  const canFetch =
+    typeof roomId === 'number' && typeof characterId === 'number';
   const enabled = (options?.enabled ?? true) && canFetch;
 
   return useQuery<RoomSnapshotResult, Error>({

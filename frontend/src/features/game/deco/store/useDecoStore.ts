@@ -492,10 +492,15 @@ const centerPrimaryCatPlacement = (items: PlacedItem[]): PlacedItem[] => {
   }
 
   const target = items[catIndex];
-  const normalizedLayer =
-    normalizePlacementArea(target.layer) ?? 'BOTTOM';
-  const safeXLength = Math.max(target.xLength ?? MIN_PET_X_LENGTH, MIN_PET_X_LENGTH);
-  const safeYLength = Math.max(target.yLength ?? MIN_PET_Y_LENGTH, MIN_PET_Y_LENGTH);
+  const normalizedLayer = normalizePlacementArea(target.layer) ?? 'BOTTOM';
+  const safeXLength = Math.max(
+    target.xLength ?? MIN_PET_X_LENGTH,
+    MIN_PET_X_LENGTH,
+  );
+  const safeYLength = Math.max(
+    target.yLength ?? MIN_PET_Y_LENGTH,
+    MIN_PET_Y_LENGTH,
+  );
 
   const computeCenter = (length: number) => {
     if (length >= GRID_DIVISIONS) {

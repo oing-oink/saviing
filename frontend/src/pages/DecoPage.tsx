@@ -41,7 +41,6 @@ const DecoPage = () => {
   const cancelDrag = useDecoStore(state => state.cancelDrag);
   const resetToLastSaved = useDecoStore(state => state.resetToLastSaved);
 
-
   useEffect(() => {
     return () => {
       cancelDrag();

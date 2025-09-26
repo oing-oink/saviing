@@ -2,7 +2,10 @@ import { useMutation } from '@tanstack/react-query';
 // import { saveDecoRoom } from '@/features/game/deco/api/decoApi';
 import { saveRoomPlacements } from '@/features/game/room/api/roomApi';
 import type { SaveRoomPlacementsRequest } from '@/features/game/room/api/roomApi';
-import { decoStore, useDecoStore } from '@/features/game/deco/store/useDecoStore';
+import {
+  decoStore,
+  useDecoStore,
+} from '@/features/game/deco/store/useDecoStore';
 // import type { PlacementArea } from '@/features/game/room/hooks/useGrid';
 
 /** 현재 드래프트 상태를 기존 API 저장 포맷으로 변환한다. */
