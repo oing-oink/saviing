@@ -40,9 +40,13 @@ const ShopPage = () => {
     setActiveTab(tab);
     if (tab.id === 'CAT') {
       setPlacementArea(null);
-    } else {
-      setPlacementArea(tab.id);
+      return;
     }
+    if (tab.id === 'LEFT' || tab.id === 'RIGHT' || tab.id === 'BOTTOM' || tab.id === 'ROOM_COLOR') {
+      setPlacementArea(tab.id);
+      return;
+    }
+    setPlacementArea(null);
   };
 
   useEffect(() => {

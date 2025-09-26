@@ -15,7 +15,7 @@ import { getItemImage } from '@/features/game/shop/utils/getItemImage';
 /**
  * 게임 아이템 전체 목록을 조회한다.
  * @param type 아이템 타입 (예: PET, DECORATION)
- * @param category 아이템 카테고리 (예: CAT, LEFT, RIGHT, BOTTOM)
+ * @param category 아이템 카테고리 (예: CAT, LEFT, RIGHT, BOTTOM, TOY, FOOD)
  * @returns 아이템 목록과 총 개수
  */
 export const getGameItems = async (
@@ -112,7 +112,7 @@ const convertInventoryItemToItem = (inventoryItem: InventoryItem): Item => {
  * 캐릭터의 인벤토리 아이템 목록을 조회한다.
  * @param characterId 캐릭터 ID
  * @param type 인벤토리 타입 (PET, ACCESSORY, DECORATION, CONSUMPTION)
- * @param category 아이템 카테고리 (CAT, LEFT, RIGHT, BOTTOM, ROOM_COLOR)
+ * @param category 아이템 카테고리 (CAT, LEFT, RIGHT, BOTTOM, ROOM_COLOR, TOY, FOOD)
  * @param isUsed 사용 여부 (추후 사용 예정)
  * @returns 인벤토리 아이템 목록과 총 개수
  */

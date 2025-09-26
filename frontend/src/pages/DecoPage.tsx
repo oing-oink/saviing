@@ -29,6 +29,12 @@ const DecoPage = () => {
   const { activeTab, setActiveTab } = useTabs(TABS[3]);
   const [placementArea, setPlacementArea] = useState<TabId | null>('BOTTOM');
 
+  useEffect(() => {
+    if (activeTab.id === 'TOY' || activeTab.id === 'FOOD') {
+      setActiveTab(TABS[3]);
+    }
+  }, [activeTab.id, setActiveTab]);
+
   const { items, isLoading, isError, error } = useDecoInventory(activeTab);
   const saveMutation = useDecoSaveMutation();
 
@@ -137,9 +143,13 @@ const DecoPage = () => {
     setActiveTab(tab);
     if (tab.id === 'CAT') {
       setPlacementArea('BOTTOM');
-    } else {
-      setPlacementArea(tab.id);
+      return;
     }
+    if (tab.id === 'LEFT' || tab.id === 'RIGHT' || tab.id === 'BOTTOM' || tab.id === 'ROOM_COLOR') {
+      setPlacementArea(tab.id);
+      return;
+    }
+    setPlacementArea(null);
   };
 
   const handlePlacementBlocked = () => {

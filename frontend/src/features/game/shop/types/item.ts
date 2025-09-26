@@ -47,7 +47,7 @@ export interface PurchaseResponse {
 }
 
 /** API 표준 아이템 카테고리 기반 탭 식별자. */
-export type TabId = PlacementArea | 'CAT';
+export type TabId = PlacementArea | 'CAT' | 'TOY' | 'FOOD';
 
 /** 탭 UI에서 사용하는 메타 정보. */
 export interface TabInfo {
@@ -61,7 +61,8 @@ export const TABS: readonly TabInfo[] = [
   { id: 'LEFT', name: '왼쪽벽' },
   { id: 'RIGHT', name: '오른쪽벽' },
   { id: 'BOTTOM', name: '바닥' },
-  { id: 'ROOM_COLOR', name: '배경' },
+  { id: 'TOY', name: '장남감' },
+  { id: 'FOOD', name: '사료' },
 ] as const;
 
 /** TABS 배열에서 파생되는 탭 타입. */
@@ -88,6 +89,8 @@ export const TAB_TO_CATEGORY: Record<TabId, ItemCategory> = {
   RIGHT: 'RIGHT',
   BOTTOM: 'BOTTOM',
   ROOM_COLOR: 'ROOM_COLOR',
+  TOY: 'TOY',
+  FOOD: 'FOOD',
 } as const;
 
 /** 아이템 타입에서 카테고리 매핑. */
