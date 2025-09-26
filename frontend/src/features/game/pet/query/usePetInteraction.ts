@@ -6,6 +6,7 @@ import type {
   PetInteractionRequest,
   PetInteractionType,
 } from '@/features/game/pet/types/petTypes';
+import { itemsKeys } from '@/features/game/shop/query/itemsKeys';
 
 /**
  * 펫 상호작용(사료 주기, 놀아주기) 기능을 제공하는 커스텀 훅
@@ -24,6 +25,7 @@ export const usePetInteraction = (petId: number) => {
     onSuccess: (data, variables) => {
       // 펫 데이터 캐시 업데이트
       queryClient.setQueryData(petKeys.detail(petId), data.pet);
+      queryClient.invalidateQueries({ queryKey: itemsKeys.inventory() });
 
       const currentInventory = usePetStore.getState().inventory;
       const nextInventory = {
@@ -74,7 +76,7 @@ export const usePetInteraction = (petId: number) => {
         apiError.response?.data?.code || apiError.code || apiError.response?.code;
 
       if (errorCode === 'PET_INSUFFICIENT_ENERGY') {
-        message = '배고파서 놀 수 없어요.';
+        message = '펫이 배고파서 놀 수 없습니다.';
       } else if (apiError.response?.data?.message) {
         message = apiError.response.data.message;
       } else if (apiError.message) {
