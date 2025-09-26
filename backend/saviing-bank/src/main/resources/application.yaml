@@ -58,6 +58,7 @@ app:
     blockMillis: 2000
     maxReadCount: 100
 
+
 # OAuth2 설정
 oauth2:
   google:
