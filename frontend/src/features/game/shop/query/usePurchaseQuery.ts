@@ -2,6 +2,10 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { purchaseItem } from '@/features/game/shop/api/itemsApi';
 import type { PurchaseRequest } from '@/features/game/shop/types/item';
 import { gameKeys } from '@/features/game/shared/query/gameKeys';
+import { itemsKeys } from '@/features/game/shop/query/itemsKeys';
+import { roomSnapshotKeys } from '@/features/game/room/query/roomSnapshotKeys';
+import { decoStore } from '@/features/game/deco/store/useDecoStore';
+import { fetchRoomSnapshot } from '@/features/game/deco/api/fetchRoomSnapshot';
 
 /**
  * 아이템 구매를 처리하는 React Query Mutation 훅.
@@ -20,6 +24,33 @@ export const usePurchase = () => {
       queryClient.invalidateQueries({
         queryKey: gameKeys.characterData(variables.characterId),
       });
+      queryClient.invalidateQueries({
+        queryKey: itemsKeys.inventory(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: itemsKeys.list(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: roomSnapshotKeys.all,
+      });
+
+      const roomContext = decoStore.getState().roomContext;
+      if (
+        roomContext &&
+        typeof roomContext.roomId === 'number' &&
+        typeof roomContext.characterId === 'number'
+      ) {
+        void fetchRoomSnapshot({
+          roomId: roomContext.roomId,
+          characterId: roomContext.characterId,
+        })
+          .then(snapshot => {
+            decoStore.getState().loadRoomSnapshot(snapshot);
+          })
+          .catch(error => {
+            console.error('방 스냅샷 갱신 실패:', error);
+          });
+      }
 
       console.log('구매 성공:', data.message);
     },
