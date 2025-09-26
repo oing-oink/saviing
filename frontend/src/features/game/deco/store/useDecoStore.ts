@@ -456,6 +456,8 @@ const createEmptyInventoryByCategory = (): Record<TabId, Item[]> => ({
   RIGHT: [],
   BOTTOM: [],
   ROOM_COLOR: [],
+  TOY: [],
+  FOOD: [],
 });
 
 const resolveTabIdForItem = (item: Item): TabId | null => {
@@ -468,6 +470,8 @@ const resolveTabIdForItem = (item: Item): TabId | null => {
     case 'RIGHT':
     case 'BOTTOM':
     case 'ROOM_COLOR':
+    case 'TOY':
+    case 'FOOD':
       return item.itemCategory as TabId;
     default:
       return null;
@@ -477,6 +481,9 @@ const resolveTabIdForItem = (item: Item): TabId | null => {
 const groupInventoryByCategory = (items: Item[]): Record<TabId, Item[]> => {
   const grouped = createEmptyInventoryByCategory();
   items.forEach(item => {
+    if (item.itemType === 'CONSUMPTION') {
+      return;
+    }
     const tabId = resolveTabIdForItem(item);
     if (tabId) {
       grouped[tabId].push(item);
@@ -547,7 +554,11 @@ const buildPlacedItemsFromServer = (
     const baseCellId = `${normalizedLayer}-${placement.positionX + 1}-${placement.positionY + 1}`;
     const itemType =
       inventoryItem?.itemType ||
-      (placement.category === 'PET' ? 'PET' : 'DECORATION');
+      (placement.category === 'PET'
+        ? 'PET'
+        : placement.category === 'TOY' || placement.category === 'FOOD'
+          ? 'CONSUMPTION'
+          : 'DECORATION');
     const imageUrl = resolveItemImageUrl(
       inventoryItem?.itemId ?? placement.itemId,
       itemType,

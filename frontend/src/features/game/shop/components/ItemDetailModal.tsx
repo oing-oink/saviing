@@ -6,7 +6,7 @@ import itemHeader from '@/assets/game_etc/itemHeader.png';
 import type { Item, PaymentMethod } from '@/features/game/shop/types/item';
 import { CAT_SPRITE_PATHS } from '@/features/game/pet/data/catAnimations';
 import CatSprite from '@/features/game/pet/components/CatSprite';
-import { useState } from 'react';
+import { useEffect, useState, type ChangeEvent } from 'react';
 import toast from 'react-hot-toast';
 import { useGameEntryQuery } from '@/features/game/entry/query/useGameEntryQuery';
 import InsufficientFundsModal from '@/features/game/shop/components/InsufficientFundsModal';
@@ -37,10 +37,39 @@ const ItemDetailModal = ({
   const { data: item, isLoading, error } = useGameItemDetail(itemId);
   const { mutate: purchase, isPending: isPurchasing } = usePurchase();
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>('COIN');
+  const [purchaseCount, setPurchaseCount] = useState(1);
   const { data: gameEntry } = useGameEntryQuery();
   const characterId = gameEntry?.characterId;
   const [showInsufficientFundsModal, setShowInsufficientFundsModal] =
     useState(false);
+
+  useEffect(() => {
+    setPurchaseCount(1);
+    if (!item) {
+      return;
+    }
+    const hasCoinPrice = (item.coin ?? 0) > 0;
+    const hasFishCoinPrice = (item.fishCoin ?? 0) > 0;
+
+    if (hasCoinPrice) {
+      setSelectedPayment('COIN');
+      return;
+    }
+    if (hasFishCoinPrice) {
+      setSelectedPayment('FISH_COIN');
+      return;
+    }
+    setSelectedPayment('COIN');
+  }, [item]);
+
+  const handleCountChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const nextValue = Number(event.target.value);
+    if (Number.isNaN(nextValue)) {
+      setPurchaseCount(1);
+      return;
+    }
+    setPurchaseCount(Math.max(1, Math.floor(nextValue)));
+  };
 
   const handlePurchase = () => {
     if (!item) {
@@ -54,11 +83,26 @@ const ItemDetailModal = ({
       return;
     }
 
+    const requiresCount =
+      item.itemCategory === 'TOY' || item.itemCategory === 'FOOD';
+    const normalizedCount = requiresCount ? Math.max(1, purchaseCount) : 1;
+
+    if (
+      requiresCount &&
+      (!Number.isFinite(normalizedCount) || normalizedCount < 1)
+    ) {
+      toast.error('구매 수량은 1 이상이어야 합니다.', {
+        className: 'game font-galmuri',
+      });
+      return;
+    }
+
     purchase(
       {
         characterId,
         itemId: item.itemId,
         paymentMethod: selectedPayment,
+        count: requiresCount ? normalizedCount : undefined,
       },
       {
         onSuccess: () => {
@@ -133,6 +177,15 @@ const ItemDetailModal = ({
 
   const isCatItem = item.itemType === 'PET' && item.itemCategory === 'CAT';
   const canUseCatSprite = isCatItem && hasCatSprite(item.itemId);
+  const requiresCountInput =
+    !hideActions &&
+    (item.itemCategory === 'TOY' || item.itemCategory === 'FOOD');
+  const coinPrice = item.coin ?? 0;
+  const fishCoinPrice = item.fishCoin ?? 0;
+  const totalCoinPrice = coinPrice * purchaseCount;
+  const totalFishCoinPrice = fishCoinPrice * purchaseCount;
+
+  const formatPrice = (value: number) => value.toLocaleString();
 
   return (
     <div className="game fixed inset-0 z-50 flex items-center justify-center bg-white/50">
@@ -174,7 +227,7 @@ const ItemDetailModal = ({
               {item.itemDescription}
             </p>
 
-            {!hideActions && (
+            {!hideActions && !requiresCountInput && (
               <button
                 type="button"
                 onClick={handlePreview}
@@ -182,6 +235,21 @@ const ItemDetailModal = ({
               >
                 방에 미리 배치하기
               </button>
+            )}
+
+            {!hideActions && requiresCountInput && (
+              <div className="mt-5 mb-2 flex w-full flex-col items-center gap-2 px-8">
+                <label className="text-sm font-semibold text-gray-700">
+                  구매 수량을 입력하세요
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  value={purchaseCount}
+                  onChange={handleCountChange}
+                  className="w-full rounded-3xl border-2 border-primary bg-white px-4 py-2 text-center text-lg font-semibold text-primary focus:ring-2 focus:ring-primary/40 focus:outline-none"
+                />
+              </div>
             )}
 
             {!hideActions && (
@@ -194,23 +262,37 @@ const ItemDetailModal = ({
                   <div className="flex justify-center gap-2">
                     <button
                       onClick={() => setSelectedPayment('COIN')}
-                      className={`flex-1 rounded-lg px-4 py-2 text-xs ${
+                      disabled={coinPrice <= 0}
+                      className={`min-h-[60px] flex-1 rounded-lg px-4 py-2 text-xs leading-tight ${
                         selectedPayment === 'COIN'
                           ? 'bg-primary text-white'
                           : 'bg-gray-200 text-gray-700'
+                      } ${
+                        coinPrice <= 0 ? 'cursor-not-allowed opacity-50' : ''
                       }`}
                     >
-                      코인으로 결제 ({item.coin})
+                      <span>코인으로 결제</span>
+                      <span className="text-[11px] whitespace-nowrap">
+                        (총 {formatPrice(totalCoinPrice)} 코인)
+                      </span>
                     </button>
                     <button
                       onClick={() => setSelectedPayment('FISH_COIN')}
-                      className={`flex-1 rounded-lg px-4 py-2 text-xs ${
+                      disabled={fishCoinPrice <= 0}
+                      className={`min-h-[60px] flex-1 rounded-lg px-4 py-2 text-xs leading-tight ${
                         selectedPayment === 'FISH_COIN'
                           ? 'bg-primary text-white'
                           : 'bg-gray-200 text-gray-700'
+                      } ${
+                        fishCoinPrice <= 0
+                          ? 'cursor-not-allowed opacity-50'
+                          : ''
                       }`}
                     >
-                      피시코인으로 결제 ({item.fishCoin})
+                      <span>피시코인으로 결제</span>
+                      <span className="text-[11px] whitespace-nowrap">
+                        (총 {formatPrice(totalFishCoinPrice)} 피시코인)
+                      </span>
                     </button>
                   </div>
                 </div>

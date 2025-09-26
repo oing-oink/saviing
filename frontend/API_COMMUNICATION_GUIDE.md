@@ -151,6 +151,95 @@ export const getSavingsAccount = async (
 };
 ```
 
+### Game Shop - 아이템 구매 요청
+
+- **엔드포인트**: `POST /v1/game/shop/purchase`
+- **설명**: 캐릭터가 상점에서 아이템을 구매할 때 사용합니다.
+- **요청 본문**:
+
+```json
+{
+  "characterId": 1001,
+  "itemId": 501,
+  "paymentMethod": "COIN",
+  "count": 3
+}
+```
+
+- `count`는 선택 값이며, 전달하지 않으면 서버에서 기본값(1)으로 처리됩니다.
+
+```typescript
+// src/features/game/shop/types/item.ts
+export interface PurchaseRequest {
+  characterId: number;
+  itemId: number;
+  paymentMethod: PaymentMethod;
+  /** 구매 수량 (미지정 시 1로 처리). */
+  count?: number;
+}
+```
+
+### Game Pet - 펫 상호작용
+
+- **엔드포인트**: `POST /v1/game/pets/{petId}/interaction`
+- **설명**: 지정한 펫에게 사료를 주거나 놀아줄 때 사용합니다.
+- **요청 본문**:
+
+```json
+{
+  "type": "FEED"
+}
+```
+
+- `type` 값은 `FEED` 또는 `PLAY` 중 하나입니다.
+- **응답 본문**:
+
+```json
+{
+  "pet": {
+    "petId": 406,
+    "itemId": 1001,
+    "name": "갈색 냥이",
+    "level": 1,
+    "exp": 0,
+    "requiredExp": 100,
+    "affection": 55,
+    "maxAffection": 100,
+    "energy": 100,
+    "maxEnergy": 100
+  },
+  "consumption": [
+    {
+      "inventoryItemId": 370,
+      "itemId": 96,
+      "type": "FOOD",
+      "remaining": 21
+    }
+  ]
+}
+```
+
+```typescript
+// src/features/game/pet/types/petTypes.ts
+export type PetInteractionType = 'FEED' | 'PLAY';
+
+export interface PetInteractionRequest {
+  type: PetInteractionType;
+}
+
+export interface ConsumptionItem {
+  inventoryItemId: number;
+  itemId: number;
+  type: 'FOOD' | 'TOY';
+  remaining: number;
+}
+
+export interface PetInteractionResponse {
+  pet: PetData;
+  consumption: ConsumptionItem[];
+}
+```
+
 ## 🔄 React Query 통합
 
 ### Query Key 팩토리

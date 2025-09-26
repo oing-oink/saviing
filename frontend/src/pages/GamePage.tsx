@@ -1,14 +1,17 @@
 import GameHeader from '@/features/game/shared/components/GameHeader';
 import ElevatorButton from '@/features/game/shared/components/ElevatorButton';
 import PetStatusCard from '@/features/game/pet/components/PetStatusCard';
+import PetErrorModal from '@/features/game/pet/components/PetErrorModal';
 import Room from '@/features/game/room/Room';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePetStore } from '@/features/game/pet/store/usePetStore';
+import type { PetConsumableCategory } from '@/features/game/pet/types/petTypes';
 import { useEnterTransitionStore } from '@/features/game/shared/store/useEnterTransitionStore';
 import GameBackgroundLayout from '@/features/game/shared/layouts/GameBackgroundLayout';
 import { Loader2 } from 'lucide-react';
 import { useDecoStore } from '@/features/game/deco/store/useDecoStore';
 import type { PlacedItem } from '@/features/game/deco/types/decoTypes';
+import type { Item } from '@/features/game/shop/types/item';
 import { RoomCanvas } from '@/features/game/deco/components/roomCanvas';
 import { cn } from '@/lib/utils';
 import { useGameEntryQuery } from '@/features/game/entry/query/useGameEntryQuery';
@@ -20,6 +23,7 @@ const GamePage = () => {
   const [currentPetId, setCurrentPetId] = useState<number | null>(null);
   const behavior = usePetStore(state => state.behavior);
   const setBehavior = usePetStore(state => state.setBehavior);
+  const setPetInventory = usePetStore(state => state.setInventory);
   const isTransitioningToGame = useEnterTransitionStore(
     state => state.isTransitioningToGame,
   );
@@ -32,6 +36,7 @@ const GamePage = () => {
   const roomContext = useDecoStore(state => state.roomContext);
   const loadRoomSnapshot = useDecoStore(state => state.loadRoomSnapshot);
   const setHydrationError = useDecoStore(state => state.setHydrationError);
+  const decoInventoryItems = useDecoStore(state => state.inventoryItems);
 
   const shouldHydrate = !isHydrated;
   const { data: gameEntry } = useGameEntryQuery({
@@ -61,12 +66,59 @@ const GamePage = () => {
     setHydrationError(null);
   }, [setHydrationError, snapshotQuery.isFetching]);
 
+  const syncPetInventory = useCallback(
+    (items: Item[] | undefined) => {
+      const sourceItems = items ?? [];
+
+      const consumableItems = sourceItems
+        .filter(
+          item =>
+            item.itemType === 'CONSUMPTION' &&
+            (item.itemCategory === 'FOOD' || item.itemCategory === 'TOY'),
+        )
+        .filter(item => typeof item.inventoryItemId === 'number')
+        .map(item => {
+          const category = item.itemCategory as PetConsumableCategory;
+          return {
+            inventoryItemId: item.inventoryItemId as number,
+            itemId: item.itemId,
+            category,
+            name: item.itemName,
+            description: item.itemDescription,
+            imageUrl: item.imageUrl,
+            rarity: item.rarity,
+            count: item.count ?? 0,
+          };
+        });
+
+      const feed = consumableItems
+        .filter(item => item.category === 'FOOD')
+        .reduce((sum, item) => sum + item.count, 0);
+      const toy = consumableItems
+        .filter(item => item.category === 'TOY')
+        .reduce((sum, item) => sum + item.count, 0);
+
+      setPetInventory({
+        feed,
+        toy,
+        items: consumableItems,
+      });
+    },
+    [setPetInventory],
+  );
+
   useEffect(() => {
-    if (!snapshotQuery.data) {
+    const snapshot = snapshotQuery.data;
+    if (!snapshot) {
       return;
     }
-    loadRoomSnapshot(snapshotQuery.data);
-  }, [loadRoomSnapshot, snapshotQuery.data]);
+    loadRoomSnapshot(snapshot);
+    syncPetInventory(snapshot.inventoryItems);
+  }, [loadRoomSnapshot, snapshotQuery.data, syncPetInventory]);
+
+  useEffect(() => {
+    syncPetInventory(decoInventoryItems);
+  }, [decoInventoryItems, syncPetInventory]);
 
   useEffect(() => {
     if (!snapshotQuery.error) {
@@ -381,6 +433,7 @@ const GamePage = () => {
           </div>
         </div>
       </div>
+      <PetErrorModal />
     </GameBackgroundLayout>
   );
 };

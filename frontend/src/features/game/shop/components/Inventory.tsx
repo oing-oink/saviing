@@ -70,6 +70,13 @@ const Inventory = ({
   const { selectedItemId, isModalOpen, handleItemClick, handleCloseModal } =
     useItemModal();
 
+  const tabs = useMemo(() => {
+    if (mode === 'deco') {
+      return TABS.filter(tab => tab.id !== 'TOY' && tab.id !== 'FOOD');
+    }
+    return TABS;
+  }, [mode]);
+
   // 데코 모드에서 배치된 아이템들 추적
   const draftItems = useDecoStore(state => state.draftItems);
 
@@ -165,7 +172,7 @@ const Inventory = ({
     <div className="game w-full font-galmuri">
       {/* 탭 영역 */}
       <div className="flex border-b">
-        {TABS.map(tab => (
+        {tabs.map(tab => (
           <button
             key={tab.id}
             onClick={() => handleTabClick(tab)}
