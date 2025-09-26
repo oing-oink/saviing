@@ -58,9 +58,6 @@ app:
     blockMillis: 2000
     maxReadCount: 100
 
-# JWT 설정 (개발용 - 1주일)
-jwt:
-  token-expiry: P7D
 
 # OAuth2 설정
 oauth2:

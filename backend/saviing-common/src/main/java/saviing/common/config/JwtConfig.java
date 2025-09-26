@@ -24,7 +24,7 @@ public class JwtConfig {
 
     public JwtConfig(
             @Value("${jwt.secret:default-secret-key-for-development-only-please-change-in-production-minimum-32-characters}") String secret,
-            @Value("${jwt.token-expiry:PT15M}") Duration tokenExpiry,
+            @Value("${jwt.token-expiry:P7D}") Duration tokenExpiry,
             @Value("${jwt.refresh-token-cookie-name:refresh_token}") String refreshTokenCookieName) {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes());
         this.tokenExpiry = tokenExpiry;
