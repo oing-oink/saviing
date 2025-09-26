@@ -89,9 +89,11 @@ export interface PetBehaviorState {
 /**
  * 펫 상호작용 요청 타입
  */
+export type PetInteractionType = 'FEED' | 'PLAY';
+
 export interface PetInteractionRequest {
   /** 상호작용 타입 */
-  type: 'feed' | 'play';
+  type: PetInteractionType;
 }
 
 /**
@@ -101,13 +103,11 @@ export interface ConsumptionItem {
   /** 인벤토리 아이템 ID */
   inventoryItemId: number;
   /** 아이템 ID */
-  item_id: number;
-  /** 아이템 이름 */
-  name: string;
-  /** 아이템 타입 */
+  itemId: number;
+  /** 아이템 타입 (FOOD, TOY 등) */
   type: string;
-  /** 소모된 개수 */
-  count: number;
+  /** 소모 후 남은 수량 */
+  remaining: number;
 }
 
 /**

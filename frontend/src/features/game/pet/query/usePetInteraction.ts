@@ -2,7 +2,10 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { interactWithPet } from '@/features/game/pet/api/petApi';
 import { petKeys } from '@/features/game/pet/query/petKeys';
 import { usePetStore } from '@/features/game/pet/store/usePetStore';
-import type { PetInteractionRequest } from '@/features/game/pet/types/petTypes';
+import type {
+  PetInteractionRequest,
+  PetInteractionType,
+} from '@/features/game/pet/types/petTypes';
 
 /**
  * 펫 상호작용(사료 주기, 놀아주기) 기능을 제공하는 커스텀 훅
@@ -22,30 +25,53 @@ export const usePetInteraction = (petId: number) => {
       // 펫 데이터 캐시 업데이트
       queryClient.setQueryData(petKeys.detail(petId), data.pet);
 
-      // consumption 배열에서 인벤토리 정보 추출 (서버 진실 기반)
-      const feedItem = data.consumption.find(item => item.type === 'feed');
-      const toyItem = data.consumption.find(item => item.type === 'play');
-
-      setInventory({
-        feed: feedItem?.count || 0,
-        toy: toyItem?.count || 0,
+      const currentInventory = usePetStore.getState().inventory;
+      const nextInventory = { ...currentInventory };
+      (data.consumption ?? []).forEach(item => {
+        if (item.type === 'FOOD') {
+          nextInventory.feed = item.remaining;
+        }
+        if (item.type === 'TOY') {
+          nextInventory.toy = item.remaining;
+        }
       });
+      setInventory(nextInventory);
 
       // 상호작용 타입에 따른 애니메이션 설정
-      if (variables.type === 'feed') {
-        // 사료를 주면 sitting 애니메이션
-        setBehavior({
-          currentAnimation: 'sitting',
-        });
-      } else if (variables.type === 'play') {
-        // 놀아주면 jump 애니메이션
-        setBehavior({
-          currentAnimation: 'jump',
-        });
+      const interactionType = variables.type as PetInteractionType;
+      if (interactionType === 'FEED') {
+        setBehavior({ currentAnimation: 'sitting' });
+      } else if (interactionType === 'PLAY') {
+        setBehavior({ currentAnimation: 'jump' });
       }
     },
     onError: error => {
-      console.error('펫 상호작용 실패:', error);
+      let message = '펫 상호작용에 실패했습니다.';
+
+      const apiError = error as {
+        response?: {
+          data?: { code?: string; message?: string };
+          code?: string;
+          message?: string;
+        };
+        code?: string;
+        message?: string;
+      };
+
+      const errorCode =
+        apiError.response?.data?.code || apiError.code || apiError.response?.code;
+
+      if (errorCode === 'PET_INSUFFICIENT_ENERGY') {
+        message = '배고파서 놀 수 없어요.';
+      } else if (apiError.response?.data?.message) {
+        message = apiError.response.data.message;
+      } else if (apiError.message) {
+        message = apiError.message;
+      }
+
+      const { setBehavior, showErrorDialog } = usePetStore.getState();
+      setBehavior({ currentAnimation: 'idle' });
+      showErrorDialog(message);
     },
   });
 };

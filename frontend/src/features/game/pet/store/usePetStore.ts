@@ -15,10 +15,18 @@ interface PetStoreState {
   inventory: PetInventory;
   /** 펫의 행동 상태 */
   behavior: PetBehaviorState;
+  /** 에러 다이얼로그 상태 */
+  errorDialog: {
+    isOpen: boolean;
+    message: string;
+  };
   /** 인벤토리 전체를 설정하는 액션 */
   setInventory: (inventory: PetInventory) => void;
   /** 펫의 행동 상태를 설정하는 액션 */
   setBehavior: (behavior: PetBehaviorState) => void;
+  /** 에러 다이얼로그를 갱신한다. */
+  showErrorDialog: (message: string) => void;
+  hideErrorDialog: () => void;
 }
 
 /**
@@ -36,6 +44,11 @@ export const usePetStore = create<PetStoreState>(set => ({
     currentAnimation: 'idle',
   },
 
+  errorDialog: {
+    isOpen: false,
+    message: '',
+  },
+
   // 인벤토리 전체 설정 (서버 응답 기반)
   setInventory: (inventory: PetInventory) =>
     set(() => ({
@@ -46,5 +59,21 @@ export const usePetStore = create<PetStoreState>(set => ({
   setBehavior: (behavior: PetBehaviorState) =>
     set(() => ({
       behavior,
+    })),
+
+  showErrorDialog: (message: string) =>
+    set(() => ({
+      errorDialog: {
+        isOpen: true,
+        message,
+      },
+    })),
+
+  hideErrorDialog: () =>
+    set(state => ({
+      errorDialog: {
+        ...state.errorDialog,
+        isOpen: false,
+      },
     })),
 }));

@@ -179,6 +179,67 @@ export interface PurchaseRequest {
 }
 ```
 
+### Game Pet - 펫 상호작용
+
+- **엔드포인트**: `POST /v1/game/pets/{petId}/interaction`
+- **설명**: 지정한 펫에게 사료를 주거나 놀아줄 때 사용합니다.
+- **요청 본문**:
+
+```json
+{
+  "type": "FEED"
+}
+```
+
+- `type` 값은 `FEED` 또는 `PLAY` 중 하나입니다.
+- **응답 본문**:
+
+```json
+{
+  "pet": {
+    "petId": 406,
+    "itemId": 1001,
+    "name": "갈색 냥이",
+    "level": 1,
+    "exp": 0,
+    "requiredExp": 100,
+    "affection": 55,
+    "maxAffection": 100,
+    "energy": 100,
+    "maxEnergy": 100
+  },
+  "consumption": [
+    {
+      "inventoryItemId": 370,
+      "itemId": 96,
+      "type": "FOOD",
+      "remaining": 21
+    }
+  ]
+}
+```
+
+```typescript
+// src/features/game/pet/types/petTypes.ts
+export type PetInteractionType = 'FEED' | 'PLAY';
+
+export interface PetInteractionRequest {
+  type: PetInteractionType;
+}
+
+export interface ConsumptionItem {
+  inventoryItemId: number;
+  itemId: number;
+  type: string; // e.g. 'FOOD', 'TOY'
+  remaining: number;
+}
+
+export interface PetInteractionResponse {
+  pet: PetData;
+  consumption: ConsumptionItem[];
+}
+```
+
 ## 🔄 React Query 통합
 
 ### Query Key 팩토리
