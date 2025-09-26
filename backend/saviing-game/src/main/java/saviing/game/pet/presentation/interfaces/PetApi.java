@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import saviing.common.response.ApiResult;
 import saviing.common.response.ErrorResult;
+import saviing.game.pet.presentation.dto.request.ChangePetNameRequest;
 import saviing.game.pet.presentation.dto.request.PetInteractionRequest;
 import saviing.game.pet.presentation.dto.response.PetInfoResponse;
 import saviing.game.pet.presentation.dto.response.PetInteractionResponse;
@@ -96,5 +97,65 @@ public interface PetApi {
 
         @Parameter(description = "상호작용 요청 정보")
         PetInteractionRequest request
+    );
+
+    @Operation(
+        summary = "펫 이름 변경",
+        description = "펫의 이름을 변경합니다."
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "이름 변경 성공"),
+        @ApiResponse(
+            responseCode = "400",
+            description = "잘못된 요청 (잘못된 펫 ID, 유효하지 않은 이름)",
+            content = @Content(
+                schema = @Schema(implementation = ErrorResult.class),
+                examples = @ExampleObject(
+                    name = "INVALID_NAME",
+                    summary = "유효하지 않은 펫 이름",
+                    value = """
+                        {
+                          "success": false,
+                          "status": 400,
+                          "code": "PET_INVALID_NAME",
+                          "message": "펫 이름은 1자 이상 20자 이하여야 합니다",
+                          "timestamp": "2025-01-15T10:30:00"
+                        }
+                        """
+                )
+            )
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "펫을 찾을 수 없음",
+            content = @Content(
+                schema = @Schema(implementation = ErrorResult.class),
+                examples = @ExampleObject(
+                    name = "PET_NOT_FOUND",
+                    summary = "펫을 찾을 수 없는 경우",
+                    value = """
+                        {
+                          "success": false,
+                          "status": 404,
+                          "code": "PET_NOT_FOUND",
+                          "message": "펫을 찾을 수 없습니다",
+                          "timestamp": "2025-01-15T10:30:00"
+                        }
+                        """
+                )
+            )
+        ),
+        @ApiResponse(
+            responseCode = "500",
+            description = "서버 내부 오류",
+            content = @Content(schema = @Schema(implementation = ErrorResult.class))
+        )
+    })
+    ApiResult<PetInfoResponse> changePetName(
+        @Parameter(description = "펫 ID", example = "1")
+        Long petId,
+
+        @Parameter(description = "펫 이름 변경 요청 정보")
+        ChangePetNameRequest request
     );
 }

@@ -12,6 +12,7 @@ import saviing.game.inventory.domain.repository.InventoryRepository;
 import saviing.game.inventory.application.service.InventoryCommandService;
 import saviing.game.inventory.application.dto.command.ConsumeInventoryItemCommand;
 import saviing.game.pet.application.dto.command.ApplyAffectionDecayCommand;
+import saviing.game.pet.application.dto.command.ChangePetNameCommand;
 import saviing.game.pet.application.dto.command.CreatePetCommand;
 import saviing.game.pet.application.dto.command.InteractWithPetCommand;
 import saviing.game.pet.application.dto.result.PetResult;
@@ -25,6 +26,7 @@ import saviing.game.pet.domain.model.aggregate.Pet;
 import saviing.game.pet.domain.model.vo.Affection;
 import saviing.game.pet.domain.model.vo.Energy;
 import saviing.game.pet.domain.model.vo.Experience;
+import saviing.game.pet.domain.model.vo.PetName;
 import saviing.game.pet.domain.repository.PetRepository;
 
 /**
@@ -165,6 +167,32 @@ public class PetCommandService {
 
         log.debug("애정도 감소 적용 완료: inventoryItemId={}, affection={}",
             command.inventoryItemId().value(), savedPet.getAffection().value());
+
+        return petResultMapper.toResult(savedPet);
+    }
+
+    /**
+     * 펫의 이름을 변경합니다.
+     *
+     * @param command 펫 이름 변경 명령
+     * @return 이름 변경 후 펫 정보
+     */
+    public PetResult changePetName(ChangePetNameCommand command) {
+        log.info("펫 이름 변경 시작: inventoryItemId={}, newName={}",
+            command.inventoryItemId().value(), command.newName());
+
+        Pet pet = petRepository.findById(command.inventoryItemId())
+            .orElseThrow(() -> new PetNotFoundException(command.inventoryItemId().value()));
+
+        // 이름 변경 (PetName VO에서 유효성 검증)
+        PetName newPetName = PetName.of(command.newName());
+        pet.changePetName(newPetName);
+
+        // 저장
+        Pet savedPet = petRepository.save(pet);
+
+        log.info("펫 이름 변경 완료: inventoryItemId={}, oldName={}, newName={}",
+            command.inventoryItemId().value(), pet.getPetName().value(), savedPet.getPetName().value());
 
         return petResultMapper.toResult(savedPet);
     }

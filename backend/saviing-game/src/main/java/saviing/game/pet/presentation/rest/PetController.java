@@ -7,12 +7,14 @@ import org.springframework.web.bind.annotation.*;
 import saviing.common.response.ApiResult;
 import saviing.game.character.domain.model.vo.CharacterId;
 import saviing.game.inventory.domain.model.vo.InventoryItemId;
+import saviing.game.pet.application.dto.command.ChangePetNameCommand;
 import saviing.game.pet.application.dto.command.InteractWithPetCommand;
 import saviing.game.pet.application.dto.query.GetPetInfoQuery;
 import saviing.game.pet.application.dto.result.PetResult;
 import saviing.game.pet.application.dto.result.PetInteractionResult;
 import saviing.game.pet.application.service.PetCommandService;
 import saviing.game.pet.application.service.PetQueryService;
+import saviing.game.pet.presentation.dto.request.ChangePetNameRequest;
 import saviing.game.pet.presentation.dto.request.PetInteractionRequest;
 import saviing.game.pet.presentation.dto.response.PetInfoResponse;
 import saviing.game.pet.presentation.dto.response.PetInteractionResponse;
@@ -74,6 +76,24 @@ public class PetController implements PetApi {
         );
 
         log.info("펫 상호작용 완료: petId={}, interactionType={}", petId, request.type());
+        return ApiResult.ok(response);
+    }
+
+    @Override
+    @PatchMapping("/pets/{petId}/name")
+    public ApiResult<PetInfoResponse> changePetName(
+        @PathVariable Long petId,
+        @Valid @RequestBody ChangePetNameRequest request
+    ) {
+        log.info("펫 이름 변경 요청: petId={}, newName={}", petId, request.name());
+
+        InventoryItemId inventoryItemId = InventoryItemId.of(petId);
+        ChangePetNameCommand command = ChangePetNameCommand.of(inventoryItemId, request.name());
+
+        PetResult result = petCommandService.changePetName(command);
+        PetInfoResponse response = petResponseMapper.toResponse(result);
+
+        log.info("펫 이름 변경 완료: petId={}, newName={}", petId, response.name());
         return ApiResult.ok(response);
     }
 }
