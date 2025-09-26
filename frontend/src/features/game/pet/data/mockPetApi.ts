@@ -3,6 +3,7 @@ import type {
   PetData,
   PetInteractionResponse,
   PetInteractionRequest,
+  PetConsumableCategory,
 } from '@/features/game/pet/types/petTypes';
 
 /**
