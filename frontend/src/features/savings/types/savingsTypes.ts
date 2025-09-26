@@ -40,7 +40,7 @@ export interface SavingsAccountData {
   interestAccrued: number;
   baseRate: number;
   bonusRate: number;
-  savings: SavingsInfo;
+  savings?: SavingsInfo;
 }
 
 /**

@@ -6,6 +6,7 @@ import { PAGE_PATH, changeSavingsSettingsPath } from '@/shared/constants/path';
 import type { SavingsDisplayData } from '@/features/savings/types/savingsTypes';
 import { Card, CardContent } from '@/shared/components/ui/card';
 import type { ScrollDirection } from '@/shared/types/scroll.types';
+import { useConnectedCharacterRate } from '@/features/game/shared/hooks/useConnectedCharacterRate';
 
 interface StickyBalanceProps {
   data: SavingsDisplayData;
@@ -26,6 +27,25 @@ const StickyBalance = ({
   // 현재 페이지의 entryPoint를 가져옴
   const entryPoint = location.state?.entryPoint ?? PAGE_PATH.HOME;
 
+  // 연결된 캐릭터의 계산된 이자율 조회
+  const { calculatedRate, isConnected } = useConnectedCharacterRate(
+    accountId ? Number(accountId) : undefined,
+  );
+
+  // 표시할 이자율 결정 (연결된 캐릭터가 있으면 계산된 이자율, 없으면 기본 이자율)
+  const displayInterestRate = calculatedRate ?? data.interestRate;
+
+  // 디버깅용 로그 (개발 환경에서만)
+  if (process.env.NODE_ENV === 'development') {
+    console.log('StickyBalance Debug:', {
+      accountId,
+      isConnected,
+      calculatedRate,
+      originalRate: data.interestRate,
+      displayRate: displayInterestRate,
+    });
+  }
+
   // 달성률 계산
   const progressPercentage = Math.round(
     (data.balance / data.targetAmount) * 100,
@@ -45,7 +65,7 @@ const StickyBalance = ({
             </p>
             <div className="flex gap-2">
               <Badge className="bg-gray/50 text-gray-600">
-                연 {data.interestRate}%
+                연 {displayInterestRate}%
               </Badge>
               <Badge className="bg-primary/50">
                 달성 {progressPercentage}%

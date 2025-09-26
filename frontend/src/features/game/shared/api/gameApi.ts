@@ -39,3 +39,24 @@ export const getCharacterStatistics = async (
   );
   return response.body!;
 };
+
+/**
+ * 게임 캐릭터와 적금 계좌를 연결하는 API 함수
+ *
+ * 선택한 적금 계좌를 게임 캐릭터와 연결하여 게임 혜택을 적용할 수 있도록 합니다.
+ *
+ * @param characterId - 연결할 캐릭터의 고유 식별자
+ * @param accountId - 연결할 적금 계좌의 고유 식별자
+ * @returns 연결 성공 메시지
+ * @throws API 호출 실패 시 네트워크 오류 또는 HTTP 오류 발생
+ */
+export const connectCharacterToAccount = async (
+  characterId: number,
+  accountId: number,
+): Promise<string> => {
+  const response = await http.put<string>(
+    `/v1/game/characters/${characterId}/account`,
+    { accountId },
+  );
+  return response.body!;
+};

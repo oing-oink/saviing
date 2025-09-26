@@ -1,6 +1,12 @@
 import closeButton from '@/assets/game_button/closeButton.png';
 import infoHeader from '@/assets/game_etc/infoHeader.png';
-import { useCharacterStatistics } from '@/features/game/shared/query/useGameQuery';
+import {
+  useCharacterStatistics,
+  useGameQuery,
+} from '@/features/game/shared/query/useGameQuery';
+import { useNavigate } from 'react-router-dom';
+import { createSavingsDetailPath } from '@/shared/constants/path';
+import { useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -22,15 +28,44 @@ const InterestRateModal = ({
   onClose,
   characterId,
 }: InterestRateModalProps) => {
+  const navigate = useNavigate();
   const {
     data: statisticsData,
     isLoading,
     error,
   } = useCharacterStatistics(characterId);
 
+  // 캐릭터의 게임 데이터 조회 (연결된 적금 계좌 정보)
+  const { data: gameData, refetch: refetchGameData } =
+    useGameQuery(characterId);
+
   const handleOpenChange = (open: boolean) => {
     if (!open) {
       onClose();
+    }
+  };
+
+  // 모달이 열릴 때마다 최신 게임 데이터를 다시 가져옴
+  useEffect(() => {
+    if (isOpen) {
+      console.log('InterestRateModal opened with characterId:', characterId);
+      refetchGameData();
+    }
+  }, [isOpen, refetchGameData, characterId]);
+
+  // 연결된 적금 계좌로 이동
+  const handleGoToSavings = () => {
+    if (gameData?.accountId) {
+      // 디버깅용 로그
+      console.log('InterestRateModal - handleGoToSavings:', {
+        characterId,
+        gameData,
+        accountId: gameData.accountId,
+        accountIdType: typeof gameData.accountId,
+      });
+
+      onClose(); // 모달 닫기
+      navigate(createSavingsDetailPath(gameData.accountId));
     }
   };
 
@@ -241,11 +276,26 @@ const InterestRateModal = ({
                   </div>
                 </div>
 
-                {/* 닫기 버튼 */}
-                <div className="mt-4 flex justify-center">
+                {/* 버튼 영역 */}
+                <div className="mt-4 flex gap-2">
+                  {/* 연결된 적금이 있으면 적금으로 이동 버튼 표시 */}
+                  {gameData?.connectionStatus === 'CONNECTED' &&
+                    gameData?.accountId && (
+                      <button
+                        onClick={handleGoToSavings}
+                        className="hover:bg-white-600 flex-1 rounded-lg bg-white px-4 py-2 text-center font-medium text-primary active:scale-95 active:brightness-90"
+                      >
+                        적금 보기
+                      </button>
+                    )}
                   <button
                     onClick={onClose}
-                    className="rounded-lg bg-primary px-8 py-2 text-center font-medium text-white hover:bg-primary/80 active:scale-95 active:brightness-90"
+                    className={`rounded-lg bg-primary px-4 py-2 text-center font-medium text-white hover:bg-primary/80 active:scale-95 active:brightness-90 ${
+                      gameData?.connectionStatus === 'CONNECTED' &&
+                      gameData?.accountId
+                        ? 'flex-1'
+                        : 'px-8'
+                    }`}
                   >
                     확인
                   </button>

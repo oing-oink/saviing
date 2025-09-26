@@ -1,8 +1,13 @@
 import { useNavigate } from 'react-router-dom';
 import { Progress } from '@/shared/components/ui/progress';
-import { useAccountsList } from '@/features/savings/query/useSavingsQuery';
+import {
+  useAccountsList,
+  useSavingsDisplayData,
+} from '@/features/savings/query/useSavingsQuery';
+import { useConnectedCharacterRate } from '@/features/game/shared/hooks/useConnectedCharacterRate';
+import { useGameQuery } from '@/features/game/shared/query/useGameQuery';
+import { useGameEntryQuery } from '@/features/game/entry/query/useGameEntryQuery';
 import saving from '@/assets/saving/saving.png';
-import freeSaving from '@/assets/saving/freeSaving.png';
 import {
   createSavingsDetailPath,
   createDepositPath,
@@ -12,13 +17,62 @@ const SavingCard = () => {
   const { data: accounts, isLoading, error } = useAccountsList();
   const navigate = useNavigate();
 
+  // 게임 데이터 조회
+  const { data: gameEntry } = useGameEntryQuery();
+  const { data: gameData } = useGameQuery(gameEntry?.characterId);
+
   // 계좌 유형별로 분리
-  const savingsAccount = accounts?.find(
+  const allSavingsAccounts = accounts?.filter(
     account => account.product.productCategory === 'INSTALLMENT_SAVINGS',
   );
-  const demandAccount = accounts?.find(
-    account => account.product.productCategory === 'DEMAND_DEPOSIT',
+
+  // 게임과 연결된 적금 계좌만 찾기
+  const savingsAccount = allSavingsAccounts?.find(
+    account =>
+      gameData?.connectionStatus === 'CONNECTED' &&
+      gameData?.accountId === account.accountId,
   );
+
+  // 입출금 계좌는 게임 연동 카드에서 표시하지 않음
+
+  // 적금 계좌가 있으면 SavingsDisplayData 조회 (기본 데이터용)
+  const { data: savingsDisplayData } = useSavingsDisplayData(
+    savingsAccount?.accountId ? savingsAccount.accountId.toString() : '',
+  );
+
+  // 게임 연결 상태 및 계산된 이자율 조회
+  const { calculatedRate, isConnected } = useConnectedCharacterRate(
+    savingsAccount?.accountId,
+  );
+
+  // 실제 표시할 이자율 계산 (게임 보너스 포함)
+  const displayInterestRate = (() => {
+    if (savingsDisplayData) {
+      // 게임 연결 시 계산된 이자율 사용, 아니면 기본 이자율 사용
+      return calculatedRate ?? savingsDisplayData.interestRate;
+    }
+    // fallback: savingsAccount의 기본 이자율
+    return savingsAccount
+      ? (savingsAccount.baseRate + savingsAccount.bonusRate) / 100
+      : 0;
+  })();
+
+  // 디버깅용 로그 (개발 환경에서만) - 항상 출력하도록 수정
+  console.log('🎯 SavingCard Debug - GAME CONNECTED ONLY:', {
+    allSavingsAccountsCount: allSavingsAccounts?.length || 0,
+    gameConnectionStatus: gameData?.connectionStatus,
+    gameConnectedAccountId: gameData?.accountId,
+    connectedSavingsAccount: savingsAccount
+      ? {
+          accountId: savingsAccount.accountId,
+          productName: savingsAccount.product.productName,
+        }
+      : null,
+    isConnected,
+    calculatedRate,
+    displayInterestRate,
+    savingsDisplayData: Boolean(savingsDisplayData),
+  });
 
   // 저축 상세 페이지로 이동
   const handleSavingsManagement = () => {
@@ -67,8 +121,10 @@ const SavingCard = () => {
 
   return (
     <div className="saving w-full max-w-md rounded-2xl bg-white p-6 font-pretendard shadow">
-      {/* 타이틀 */}
-      <h2 className="mb-4 font-medium text-gray-500">내 적금 계좌</h2>
+      {/* 제목 */}
+      <h2 className="mb-4 text-lg font-medium text-gray-500">
+        게임과 연동한 내 적금
+      </h2>
 
       {/* 자유적금 */}
       {savingsAccount && (
@@ -76,7 +132,10 @@ const SavingCard = () => {
           <img src={saving} alt="자유적금" className="h-10 w-10" />
           <div className="flex-1">
             <p className="text-xl font-bold text-primary">
-              {savingsAccount.balance.toLocaleString()}원
+              {savingsDisplayData
+                ? savingsDisplayData.balance.toLocaleString()
+                : savingsAccount.balance.toLocaleString()}
+              원
             </p>
             <p className="text-sm text-gray-500">
               {savingsAccount.product.productName}
@@ -84,51 +143,42 @@ const SavingCard = () => {
             <div className="mt-3">
               <Progress
                 value={
-                  (savingsAccount.balance /
-                    savingsAccount.savings!.targetAmount) *
-                  100
+                  savingsDisplayData
+                    ? (savingsDisplayData.balance /
+                        savingsDisplayData.targetAmount) *
+                      100
+                    : (savingsAccount.balance /
+                        savingsAccount.savings!.targetAmount) *
+                      100
                 }
                 className="h-3 bg-gray-200"
               />
               <div className="mt-1 flex justify-between text-xs text-gray-400">
                 <span>
-                  목표 금액{' '}
-                  {savingsAccount.savings!.targetAmount.toLocaleString()}원
+                  만기 금액{' '}
+                  {savingsDisplayData
+                    ? savingsDisplayData.targetAmount.toLocaleString()
+                    : savingsAccount.savings!.targetAmount.toLocaleString()}
+                  원
                 </span>
-                <span>
-                  연이율{' '}
-                  {(
-                    (savingsAccount.baseRate + savingsAccount.bonusRate) /
-                    100
-                  ).toFixed(1)}
-                  %
-                </span>
+                <span>연이율 {displayInterestRate.toFixed(2)}%</span>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* 입출금 */}
-      {demandAccount && (
-        <div className="mb-4 flex items-start gap-3">
-          <img src={freeSaving} alt="입출금" className="h-10 w-10" />
-          <div>
-            <p className="text-xl font-bold text-primary">
-              {demandAccount.balance.toLocaleString()}원
-            </p>
-            <p className="text-sm text-gray-500">
-              {demandAccount.product.productName}
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* 계좌가 없는 경우 */}
-      {!savingsAccount && !demandAccount && (
-        <div className="mb-6 text-center text-gray-500">
-          <p>등록된 계좌가 없습니다.</p>
-          <p className="mt-1 text-sm">새 계좌를 개설해보세요.</p>
+      {/* 게임 연동 안내 메시지 */}
+      {!savingsAccount && (
+        <div className="text-md mb-6 text-center text-gray-400">
+          {allSavingsAccounts && allSavingsAccounts.length > 0 ? (
+            <div>
+              적금을 게임과 연동해
+              <br />더 높은 이자율 혜택을 받아보세요!
+            </div>
+          ) : (
+            <p>지금 적금을 만들어 게임과 연동해보세요!</p>
+          )}
         </div>
       )}
 
@@ -142,13 +192,13 @@ const SavingCard = () => {
           저축 관리
         </button>
         <button
-          className="font-lg flex-1 border-l border-gray-200 py-1 text-center font-bold text-primary"
           onClick={() => {
             if (savingsAccount?.accountId) {
               navigate(createDepositPath(savingsAccount.accountId));
             }
           }}
           disabled={!savingsAccount?.accountId}
+          className="font-lg flex-1 border-l border-gray-200 py-1 text-center font-bold text-primary disabled:text-gray-400"
         >
           입금
         </button>

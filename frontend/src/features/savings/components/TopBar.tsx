@@ -12,13 +12,17 @@ const TopBar = () => {
   };
 
   return (
-    <header className="saving sticky top-0 z-50 flex w-full items-center justify-between bg-violet-50 px-6 py-4">
+    <header className="saving sticky top-0 z-50 flex w-full items-center justify-between bg-violet-50 px-6 pt-6 pb-4">
       {/* 왼쪽 로고 */}
       <button
         onClick={handleLogoClick}
         className="text-2xl font-bold text-primary transition-colors hover:text-primary/90 focus:ring-2 focus:ring-violet-50 focus:ring-offset-0 focus:outline-none"
       >
-        Saviing
+        <img
+          src="src/assets/saviing_logo.png"
+          alt="saviing_logo.png"
+          className="h-7 px-0"
+        />
       </button>
 
       {/* 오른쪽 사용자 정보 + 알림 */}
