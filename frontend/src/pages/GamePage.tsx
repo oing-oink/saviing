@@ -27,6 +27,7 @@ const GamePage = () => {
   const selectedPetId = usePetStore(state => state.selectedPetId);
   const setPlacedPetIds = usePetStore(state => state.setPlacedPetIds);
   const setSelectedPetId = usePetStore(state => state.setSelectedPetId);
+  const setInventory = usePetStore(state => state.setInventory);
   const isTransitioningToGame = useEnterTransitionStore(
     state => state.isTransitioningToGame,
   );
@@ -54,8 +55,10 @@ const GamePage = () => {
     const loadRoomPlacements = async () => {
       try {
         // 배치 정보와 인벤토리 정보를 병렬로 조회
-        const [placementsResponse, ...inventoryResponses] = await Promise.all([
+        const [placementsResponse, consumptionResponse, ...inventoryResponses] = await Promise.all([
           getRoomPlacements(roomId),
+          // 소모품(사료, 장난감) 인벤토리 조회
+          getInventoryItems(characterId, 'CONSUMPTION', ''),
           // 모든 카테고리의 인벤토리 조회
           getInventoryItems(characterId, 'DECORATION', 'LEFT'),
           getInventoryItems(characterId, 'DECORATION', 'RIGHT'),
@@ -116,6 +119,21 @@ const GamePage = () => {
           .map(placement => placement.inventoryItemId);
 
         setPlacedPetIds(petIds);
+
+        // 소모품 인벤토리에서 FOOD, TOY 타입별로 개수 합산
+        let feedCount = 0;
+        let toyCount = 0;
+
+        consumptionResponse.items.forEach((item) => {
+          if (item.itemType === 'FOOD') {
+            feedCount += 1; // 각 아이템은 1개로 카운트
+          } else if (item.itemType === 'TOY') {
+            toyCount += 1; // 각 아이템은 1개로 카운트
+          }
+        });
+
+        // 소모품 인벤토리를 전역 상태에 설정
+        setInventory({ feed: feedCount, toy: toyCount });
       } catch (error) {
         console.error('GamePage - 방 배치 정보 로드 실패:', error);
       }

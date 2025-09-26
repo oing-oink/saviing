@@ -36,8 +36,8 @@ interface PetStoreState {
  * 현재 선택된 펫을 관리하고, 서버 기반 인벤토리 동기화를 제공합니다.
  */
 export const usePetStore = create<PetStoreState>(set => ({
-  // TODO: 사용자 데이터로 변경 필요
-  inventory: { feed: 3, toy: 2 },
+  // 서버에서 로드되는 실제 인벤토리 데이터
+  inventory: { feed: 0, toy: 0 },
 
   // 펫의 초기 행동 상태
   behavior: {
