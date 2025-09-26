@@ -120,6 +120,23 @@ public class Character {
     }
 
     /**
+     * 계좌를 직접 연결 완료 처리합니다 (연결 중 단계 없이 바로 연결됨).
+     *
+     * @param accountId 연결할 계좌 ID
+     * @throws IllegalStateException 이미 연결되어 있는 경우
+     */
+    public void connectAccountDirectly(Long accountId) {
+        if (accountConnection.isConnected()) {
+            throw InvalidAccountConnectionException.accountAlreadyConnected();
+        }
+
+        this.accountConnection = AccountConnection.connected(accountId);
+        updateLifecycle();
+
+        addDomainEvent(AccountConnectedEvent.of(this.characterId, this.customerId, accountId));
+    }
+
+    /**
      * 외부에서 전달받은 계좌 해지 정보를 처리합니다.
      * 계좌 해지는 외부 도메인에서 처리되고, 그 결과를 이 메서드로 전달받습니다.
      *

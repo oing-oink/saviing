@@ -110,15 +110,15 @@ public class CharacterCommandService {
      */
     @Transactional
     public VoidResult connectAccount(ConnectAccountCommand command) {
-        log.info("Starting account connection for character: {}, account: {}",
+        log.info("Connecting account directly for character: {}, account: {}",
                 command.characterId().value(), command.accountId());
 
         Character character = findCharacterById(command.characterId());
-        character.startConnectingAccount(command.accountId());
+        character.connectAccountDirectly(command.accountId());
         Character savedCharacter = characterRepository.save(character);
         publishDomainEvents(savedCharacter);
 
-        log.info("Account connection started for character: {}", command.characterId().value());
+        log.info("Account connected directly for character: {}", command.characterId().value());
         return VoidResult.success();
     }
 
