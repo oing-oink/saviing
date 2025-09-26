@@ -16,11 +16,8 @@ import saviing.game.character.application.dto.query.GetGameEntryQuery;
 import saviing.game.character.application.dto.query.GetCharacterStatisticsQuery;
 import saviing.game.character.domain.model.vo.CharacterId;
 import saviing.game.character.domain.model.vo.CustomerId;
-import saviing.game.character.presentation.dto.request.AddCoinsRequest;
-import saviing.game.character.presentation.dto.request.CompleteAccountConnectionRequest;
 import saviing.game.character.presentation.dto.request.ConnectAccountRequest;
 import saviing.game.character.presentation.dto.request.CreateCharacterRequest;
-import saviing.game.character.presentation.dto.request.HandleAccountTerminatedRequest;
 
 /**
  * Presentation layer Request를 Application layer Command/Query로 변환하는 Mapper
@@ -57,48 +54,6 @@ public class CharacterRequestMapper {
             .build();
     }
 
-    /**
-     * CompleteAccountConnectionRequest를 CompleteAccountConnectionCommand로 변환합니다.
-     *
-     * @param characterId 캐릭터 ID
-     * @param request CompleteAccountConnectionRequest
-     * @return CompleteAccountConnectionCommand
-     */
-    public CompleteAccountConnectionCommand toCommand(Long characterId, CompleteAccountConnectionRequest request) {
-        return CompleteAccountConnectionCommand.builder()
-            .characterId(CharacterId.of(characterId))
-            .accountId(request.accountId())
-            .build();
-    }
-
-    /**
-     * AddCoinsRequest를 AddCoinsCommand로 변환합니다.
-     *
-     * @param characterId 캐릭터 ID
-     * @param request AddCoinsRequest
-     * @return AddCoinsCommand
-     */
-    public AddCoinsCommand toCommand(Long characterId, AddCoinsRequest request) {
-        return AddCoinsCommand.builder()
-            .characterId(CharacterId.of(characterId))
-            .coinAmount(request.coinAmount())
-            .fishCoinAmount(request.fishCoinAmount())
-            .build();
-    }
-
-    /**
-     * HandleAccountTerminatedRequest를 HandleAccountTerminatedCommand로 변환합니다.
-     *
-     * @param characterId 캐릭터 ID
-     * @param request HandleAccountTerminatedRequest
-     * @return HandleAccountTerminatedCommand
-     */
-    public HandleAccountTerminatedCommand toCommand(Long characterId, HandleAccountTerminatedRequest request) {
-        return HandleAccountTerminatedCommand.builder()
-            .characterId(CharacterId.of(characterId))
-            .terminationReason(request.terminationReason())
-            .build();
-    }
 
     /**
      * 캐릭터 ID를 IncreaseRoomCountCommand로 변환합니다.
