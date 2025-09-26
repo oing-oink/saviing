@@ -4,10 +4,7 @@ import type {
   PetInteractionRequest,
   PetInteractionResponse,
 } from '@/features/game/pet/types/petTypes';
-import {
-  mockPetInteraction,
-  mockRenamePetName,
-} from '@/features/game/pet/data/mockPetApi';
+import { mockRenamePetName } from '@/features/game/pet/data/mockPetApi';
 
 /**
  * 개발 환경에서 mock 데이터 사용 여부를 결정하는 플래그
@@ -53,11 +50,11 @@ export const interactWithPet = async (
   petId: number,
   request: PetInteractionRequest,
 ): Promise<PetInteractionResponse> => {
-  if (USE_MOCK) {
-    // Mock 데이터 사용
-    const mockResponse = await mockPetInteraction(petId, request);
-    return mockResponse.body!;
-  }
+  // if (USE_MOCK) {
+  //   // Mock 데이터 사용
+  //   const mockResponse = await mockPetInteraction(petId, request);
+  //   return mockResponse.body!;
+  // }
 
   // 실제 API 호출
   const response = await http.post<PetInteractionResponse>(

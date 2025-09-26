@@ -187,11 +187,11 @@ export interface PurchaseRequest {
 
 ```json
 {
-  "type": "FOOD"
+  "type": "FEED"
 }
 ```
 
-- `type` 값은 `FOOD` 또는 `TOY` 중 하나입니다.
+- `type` 값은 `FEED` 또는 `PLAY` 중 하나입니다.
 - **응답 본문**:
 
 ```json
