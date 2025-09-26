@@ -28,13 +28,13 @@ const PetStatusCard = ({ petId }: PetStatusCardProps) => {
 
   const handleFeedClick = () => {
     if (inventory.feed > 0 && !petInteraction.isPending) {
-      petInteraction.mutate({ type: 'feed' });
+      petInteraction.mutate({ type: 'FEED' });
     }
   };
 
   const handlePlayClick = () => {
     if (inventory.toy > 0 && !petInteraction.isPending) {
-      petInteraction.mutate({ type: 'play' });
+      petInteraction.mutate({ type: 'PLAY' });
     }
   };
 

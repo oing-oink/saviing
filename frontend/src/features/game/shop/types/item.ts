@@ -18,6 +18,8 @@ export interface Item {
   updatedAt: string;
   /** 인벤토리 아이템인 경우 인벤토리 ID (선택적). */
   inventoryItemId?: number;
+  /** 소모품 재고 수량 (인벤토리 한정). */
+  count?: number | null;
 }
 
 /** 아이템 목록 조회 응답. */

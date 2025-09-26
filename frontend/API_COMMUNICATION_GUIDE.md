@@ -187,11 +187,11 @@ export interface PurchaseRequest {
 
 ```json
 {
-  "type": "FEED"
+  "type": "FOOD"
 }
 ```
 
-- `type` 값은 `FEED` 또는 `PLAY` 중 하나입니다.
+- `type` 값은 `FOOD` 또는 `TOY` 중 하나입니다.
 - **응답 본문**:
 
 ```json
@@ -230,7 +230,7 @@ export interface PetInteractionRequest {
 export interface ConsumptionItem {
   inventoryItemId: number;
   itemId: number;
-  type: string; // e.g. 'FOOD', 'TOY'
+  type: 'FOOD' | 'TOY';
   remaining: number;
 }
 

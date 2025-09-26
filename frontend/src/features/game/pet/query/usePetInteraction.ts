@@ -26,7 +26,10 @@ export const usePetInteraction = (petId: number) => {
       queryClient.setQueryData(petKeys.detail(petId), data.pet);
 
       const currentInventory = usePetStore.getState().inventory;
-      const nextInventory = { ...currentInventory };
+      const nextInventory = {
+        ...currentInventory,
+        items: currentInventory.items.map(item => ({ ...item })),
+      };
       (data.consumption ?? []).forEach(item => {
         if (item.type === 'FOOD') {
           nextInventory.feed = item.remaining;
@@ -34,11 +37,20 @@ export const usePetInteraction = (petId: number) => {
         if (item.type === 'TOY') {
           nextInventory.toy = item.remaining;
         }
+        const targetIndex = nextInventory.items.findIndex(
+          consumable => consumable.inventoryItemId === item.inventoryItemId,
+        );
+        if (targetIndex !== -1) {
+          nextInventory.items[targetIndex] = {
+            ...nextInventory.items[targetIndex],
+            count: item.remaining,
+          };
+        }
       });
       setInventory(nextInventory);
 
       // 상호작용 타입에 따른 애니메이션 설정
-      const interactionType = variables.type as PetInteractionType;
+      const interactionType: PetInteractionType = variables.type;
       if (interactionType === 'FEED') {
         setBehavior({ currentAnimation: 'sitting' });
       } else if (interactionType === 'PLAY') {

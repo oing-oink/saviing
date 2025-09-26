@@ -1,3 +1,5 @@
+import type { ItemCategory } from '@/features/game/shop/types/item';
+
 /**
  * 펫의 기본 정보와 상태를 나타내는 데이터 타입
  *
@@ -35,12 +37,35 @@ export interface PetData {
  *
  * 펫에게 먹이를 주거나 놀아줄 때 사용하는 아이템들의 수량을 관리합니다.
  */
-//TODO: 사용자 아이템에서 feed와 toy 추출해서 사용
+// GamePage에서 사용자 인벤토리를 주입해 feed/toy 수량을 채운다.
+export type PetConsumableCategory = Extract<ItemCategory, 'FOOD' | 'TOY'>;
+
+export interface PetInventoryItem {
+  /** 인벤토리 식별자 */
+  inventoryItemId: number;
+  /** 아이템 고유 식별자 */
+  itemId: number;
+  /** 소모품 카테고리 */
+  category: PetConsumableCategory;
+  /** 아이템 이름 */
+  name: string;
+  /** 아이템 설명 */
+  description: string;
+  /** 이미지 URL */
+  imageUrl: string;
+  /** 레어리티 */
+  rarity: string;
+  /** 현재 보유 수량 */
+  count: number;
+}
+
 export interface PetInventory {
   /** 사료 개수 */
   feed: number;
   /** 장난감 개수 */
   toy: number;
+  /** 펫 관련 소모품 상세 목록 */
+  items: PetInventoryItem[];
 }
 
 /**
@@ -104,8 +129,8 @@ export interface ConsumptionItem {
   inventoryItemId: number;
   /** 아이템 ID */
   itemId: number;
-  /** 아이템 타입 (FOOD, TOY 등) */
-  type: string;
+  /** 아이템 타입 (FOOD | TOY) */
+  type: PetConsumableCategory;
   /** 소모 후 남은 수량 */
   remaining: number;
 }

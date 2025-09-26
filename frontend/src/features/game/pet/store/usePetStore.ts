@@ -36,8 +36,8 @@ interface PetStoreState {
  * 서버 기반 인벤토리 동기화를 제공합니다.
  */
 export const usePetStore = create<PetStoreState>(set => ({
-  // TODO: 사용자 데이터로 변경 필요
-  inventory: { feed: 3, toy: 2 },
+  // 초기값은 0이며 GamePage에서 서버 인벤토리로 덮어쓴다.
+  inventory: { feed: 0, toy: 0, items: [] },
 
   // 펫의 초기 행동 상태
   behavior: {
