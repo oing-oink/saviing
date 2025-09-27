@@ -53,9 +53,9 @@ export const usePetInteraction = (petId: number) => {
 
       // 상호작용 타입에 따른 애니메이션 설정
       const interactionType: PetInteractionType = variables.type;
-      if (interactionType === 'FEED') {
+      if (interactionType === 'FOOD') {
         setBehavior({ currentAnimation: 'sitting' });
-      } else if (interactionType === 'PLAY') {
+      } else if (interactionType === 'TOY') {
         setBehavior({ currentAnimation: 'jump' });
       }
     },
