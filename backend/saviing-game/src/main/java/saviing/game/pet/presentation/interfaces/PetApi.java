@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.security.core.Authentication;
 import saviing.common.response.ApiResult;
 import saviing.common.response.ErrorResult;
 import saviing.game.pet.presentation.dto.request.ChangePetNameRequest;
@@ -96,7 +97,9 @@ public interface PetApi {
         Long petId,
 
         @Parameter(description = "상호작용 요청 정보")
-        PetInteractionRequest request
+        PetInteractionRequest request,
+
+        Authentication authentication
     );
 
     @Operation(

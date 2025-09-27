@@ -3,8 +3,13 @@ package saviing.game.pet.presentation.rest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import saviing.common.response.ApiResult;
+import saviing.game.character.application.dto.query.GetActiveCharacterQuery;
+import saviing.game.character.application.dto.result.CharacterResult;
+import saviing.game.character.application.service.CharacterQueryService;
+import saviing.game.character.domain.exception.CharacterNotFoundException;
 import saviing.game.character.domain.model.vo.CharacterId;
 import saviing.game.inventory.domain.model.vo.InventoryItemId;
 import saviing.game.pet.application.dto.command.ChangePetNameCommand;
@@ -34,6 +39,7 @@ public class PetController implements PetApi {
     private final PetQueryService petQueryService;
     private final PetCommandService petCommandService;
     private final PetResponseMapper petResponseMapper;
+    private final CharacterQueryService characterQueryService;
 
     @Override
     @GetMapping("/pets/{petId}")
@@ -54,12 +60,24 @@ public class PetController implements PetApi {
     @PostMapping("/pets/{petId}/interaction")
     public ApiResult<PetInteractionResponse> interactWithPet(
         @PathVariable Long petId,
-        @Valid @RequestBody PetInteractionRequest request
+        @Valid @RequestBody PetInteractionRequest request,
+        Authentication authentication
     ) {
         log.info("펫 상호작용 요청: petId={}, interactionType={}", petId, request.type());
 
-        // TODO: 실제로는 Authentication에서 characterId를 가져와야 함
-        CharacterId characterId = CharacterId.of(1L); // 임시값
+        Long customerId = Long.valueOf(authentication.getName());
+        log.info("펫 상호작용 - 사용자 인증: customerId={}", customerId);
+
+        CharacterId characterId;
+        try {
+            GetActiveCharacterQuery query = GetActiveCharacterQuery.of(customerId);
+            CharacterResult characterResult = characterQueryService.getActiveCharacter(query);
+            characterId = CharacterId.of(characterResult.characterId());
+            log.info("펫 상호작용 - 활성 캐릭터 조회 성공: characterId={}", characterId.value());
+        } catch (Exception e) {
+            log.error("펫 상호작용 - 활성 캐릭터 조회 실패: customerId={}, error={}", customerId, e.getMessage());
+            throw new CharacterNotFoundException("활성 캐릭터를 찾을 수 없습니다. 캐릭터를 생성하거나 활성화해주세요.");
+        }
 
         InventoryItemId inventoryItemId = InventoryItemId.of(petId);
         InteractWithPetCommand command = InteractWithPetCommand.of(

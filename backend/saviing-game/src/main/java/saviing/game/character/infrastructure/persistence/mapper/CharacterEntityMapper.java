@@ -112,9 +112,17 @@ public class CharacterEntityMapper {
             );
         }
 
+        // 데이터 무결성 보장: CONNECTED/CONNECTING 상태인데 accountId가 없으면 NO_ACCOUNT로 처리
+        ConnectionStatus status = entity.getConnectionStatus();
+        Long accountId = entity.getAccountId();
+
+        if ((status == ConnectionStatus.CONNECTED || status == ConnectionStatus.CONNECTING) && accountId == null) {
+            status = ConnectionStatus.NO_ACCOUNT;
+        }
+
         return new AccountConnection(
-            entity.getAccountId(),
-            entity.getConnectionStatus(),
+            accountId,
+            status,
             entity.getConnectionDate(),
             termination
         );

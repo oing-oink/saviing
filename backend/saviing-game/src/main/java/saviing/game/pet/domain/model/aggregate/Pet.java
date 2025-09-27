@@ -197,7 +197,7 @@ public class Pet {
      * 에너지를 회복하고 애정도를 증가시킵니다.
      */
     public void feed(Experience requiredExpForNextLevel) {
-        interactWithType(InteractionType.FEED, requiredExpForNextLevel);
+        interactWithType(InteractionType.FOOD, requiredExpForNextLevel);
     }
 
     /**
@@ -205,7 +205,7 @@ public class Pet {
      * 에너지를 소모하고 애정도와 경험치를 증가시킵니다.
      */
     public void play(Experience requiredExpForNextLevel) {
-        interactWithType(InteractionType.PLAY, requiredExpForNextLevel);
+        interactWithType(InteractionType.TOY, requiredExpForNextLevel);
     }
 
     /**
