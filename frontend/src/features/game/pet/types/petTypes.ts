@@ -114,7 +114,7 @@ export interface PetBehaviorState {
 /**
  * 펫 상호작용 요청 타입
  */
-export type PetInteractionType = 'FEED' | 'PLAY';
+export type PetInteractionType = 'FOOD' | 'TOY';
 
 export interface PetInteractionRequest {
   /** 상호작용 타입 */

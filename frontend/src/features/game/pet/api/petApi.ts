@@ -42,7 +42,7 @@ export const getPet = async (petId: number): Promise<PetData> => {
  * 사료 주기(feed) 또는 놀아주기(play) 상호작용을 수행합니다.
  *
  * @param petId - 상호작용할 펫의 고유 식별자
- * @param request - 상호작용 요청 데이터 (type: 'FEED' | 'PLAY')
+ * @param request - 상호작용 요청 데이터 (type: 'FOOD' | 'TOY')
  * @returns 업데이트된 펫 정보와 소모된 아이템 정보
  * @throws API 호출 실패 시 네트워크 오류 또는 HTTP 오류 발생
  */
