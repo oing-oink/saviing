@@ -63,7 +63,7 @@ const DepositPage = () => {
 
   // 적금 계좌 데이터 변환
   const savingAccountData = useMemo(() => {
-    if (!savingsAccountData) {
+    if (!savingsAccountData || !savingsAccountData.savings) {
       return undefined;
     }
     return {

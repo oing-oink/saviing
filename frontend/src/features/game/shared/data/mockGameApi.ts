@@ -9,11 +9,15 @@ import type { CharacterGameData } from '@/features/game/shared/types/gameTypes';
 export const mockCharacterGameData: CharacterGameData = {
   characterId: 5,
   customerId: 11,
+  connectionStatus: 'CONNECTED',
+  connectionDate: '2025-09-10T21:00:00+09:00',
   coin: 500,
   fishCoin: 600,
   isActive: true,
   roomCount: 3,
-  lastAccessAt: '2025-09-10T21:00:00+09:00',
+  roomId: 1,
+  createdAt: '2025-09-10T21:00:00+09:00',
+  updatedAt: '2025-09-10T21:00:00+09:00',
 };
 
 /**

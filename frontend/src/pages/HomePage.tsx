@@ -76,8 +76,10 @@ const HomePage = () => {
           <div className="flex flex-col items-center gap-4">
             <PromoCarousel />
             <Card className="game relative flex w-full flex-col items-center gap-4 overflow-hidden rounded-2xl bg-transparent py-6 font-galmuri shadow">
-              <span className="text-sm text-muted-foreground">
-                아직 활성 캐릭터가 없어요. 새로운 게임을 시작해보세요!
+              <span className="text-md text-center text-muted-foreground">
+                아직 활성 캐릭터가 없어요.
+                <br />
+                새로운 게임을 시작해보세요!
               </span>
               <button
                 type="button"
