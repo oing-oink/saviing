@@ -142,7 +142,7 @@ const SavingsDetailCard = ({
               className="my-1 bg-gray"
             />
             <div className="flex justify-end text-sm text-gray-600">
-              <p>목표 {savingsData.targetAmount.toLocaleString()}원</p>
+              <p>만기금액 {savingsData.targetAmount.toLocaleString()}원</p>
             </div>
           </div>
 

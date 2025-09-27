@@ -86,17 +86,18 @@ export const useSavingsAccountDetail = (accountId: string) => {
 export const useSavingsDisplayData = (accountId: string) => {
   const query = useSavingsAccount(accountId);
 
-  const displayData: SavingsDisplayData | undefined = query.data
-    ? {
-        accountNumber: query.data.accountNumber,
-        productName: query.data.product.productName,
-        interestRate: (query.data.baseRate + query.data.bonusRate) / 100.0,
-        targetAmount: query.data.savings.targetAmount,
-        maturityDate: query.data.savings.maturityDate,
-        createdAt: query.data.createdAt,
-        balance: query.data.balance,
-      }
-    : undefined;
+  const displayData: SavingsDisplayData | undefined =
+    query.data && query.data.savings
+      ? {
+          accountNumber: query.data.accountNumber,
+          productName: query.data.product.productName,
+          interestRate: (query.data.baseRate + query.data.bonusRate) / 100.0,
+          targetAmount: query.data.savings.targetAmount,
+          maturityDate: query.data.savings.maturityDate,
+          createdAt: query.data.createdAt,
+          balance: query.data.balance,
+        }
+      : undefined;
 
   return {
     ...query,

@@ -1,4 +1,9 @@
 /**
+ * 연결 상태 타입
+ */
+export type ConnectionStatus = 'CONNECTED' | 'NO_ACCOUNT';
+
+/**
  * 캐릭터 게임 정보 데이터 타입
  *
  * 게임 내에서 사용되는 캐릭터의 기본 정보와 보유 재화 정보를 포함합니다.
@@ -8,16 +13,32 @@ export interface CharacterGameData {
   characterId: number;
   /** 고객 ID */
   customerId: number;
+  /** 계좌 ID */
+  accountId?: number;
+  /** 게임-금융 도메인 연결 상태 */
+  connectionStatus: ConnectionStatus;
+  /** 연결 일시 */
+  connectionDate?: string;
+  /** 연결 해제 사유 */
+  terminationReason?: string;
+  /** 연결 해제 일시 */
+  terminatedAt?: string;
   /** 보유 코인 */
   coin: number;
   /** 보유 피시 코인 */
   fishCoin: number;
-  /** 계정 활성화 여부 */
-  isActive: boolean;
   /** 보유 방 개수 */
   roomCount: number;
-  /** 마지막 접속 시간 */
-  lastAccessAt: string;
+  /** 현재 방 ID */
+  roomId: number;
+  /** 계정 활성화 여부 */
+  isActive: boolean;
+  /** 비활성화 일시 */
+  deactivatedAt?: string;
+  /** 생성 일시 */
+  createdAt: string;
+  /** 수정 일시 */
+  updatedAt: string;
 }
 
 /**

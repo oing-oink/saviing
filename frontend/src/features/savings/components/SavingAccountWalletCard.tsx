@@ -9,6 +9,8 @@ import {
 } from '@/shared/constants/path';
 import type { SavingsAccountData } from '@/features/savings/types/savingsTypes';
 import { Badge } from '@/shared/components/ui/badge';
+import { useConnectedCharacterRate } from '@/features/game/shared/hooks/useConnectedCharacterRate';
+import { useSavingsDisplayData } from '@/features/savings/query/useSavingsQuery';
 
 interface SavingsAccountWalletCardProps {
   account: SavingsAccountData;
@@ -18,12 +20,46 @@ const SavingsAccountWalletCard = ({
   account,
 }: SavingsAccountWalletCardProps) => {
   const navigate = useNavigate();
-  const target = account.savings.targetAmount;
+  const target = account.savings?.targetAmount || 0;
   const current = account.balance;
-  const percent = (current / target) * 100;
-  const interestRate = ((account.baseRate + account.bonusRate) / 100).toFixed(
-    1,
+  const percent = target > 0 ? (current / target) * 100 : 0;
+
+  // 적금 계좌 표시 데이터 조회 (게임 보너스 포함)
+  const { data: savingsDisplayData } = useSavingsDisplayData(
+    account.accountId.toString(),
   );
+
+  // 연결된 캐릭터의 계산된 이자율 조회
+  const { calculatedRate, isConnected } = useConnectedCharacterRate(
+    account.accountId,
+  );
+
+  // 실제 표시할 이자율 계산 (SavingsDetailCard와 동일한 로직)
+  const displayInterestRate = (() => {
+    if (savingsDisplayData) {
+      // 게임 연결 시 계산된 이자율 사용, 아니면 기본 이자율 사용
+      return calculatedRate ?? savingsDisplayData.interestRate;
+    }
+    // fallback: account의 기본 이자율
+    return (account.baseRate + account.bonusRate) / 100;
+  })();
+
+  const interestRate = displayInterestRate.toFixed(2);
+
+  // 디버깅용 로그 (개발 환경에서만)
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🎯 SavingsAccountWalletCard Debug:', {
+      accountId: account.accountId,
+      isConnected,
+      calculatedRate,
+      savingsDisplayDataRate: savingsDisplayData?.interestRate,
+      displayInterestRate,
+      finalDisplayRate: interestRate,
+      savingsDisplayData: Boolean(savingsDisplayData),
+      baseRate: account.baseRate,
+      bonusRate: account.bonusRate,
+    });
+  }
 
   const isAccountClosed = account.status === 'CLOSED';
   const isAccountActive = account.status === 'ACTIVE';

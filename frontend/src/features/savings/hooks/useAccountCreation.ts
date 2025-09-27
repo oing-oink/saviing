@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useErrorBoundary } from 'react-error-boundary';
@@ -29,6 +29,7 @@ export const useAccountCreation = () => {
   const { form } = useAccountCreationStore();
   const customerId = useCustomerStore(state => state.customerId);
   const { showBoundary } = useErrorBoundary();
+  const queryClient = useQueryClient();
 
   // 기존 계좌 확인 (Query: 데이터 읽어오기)
   const {
@@ -61,7 +62,13 @@ export const useAccountCreation = () => {
     mutationFn: (request: CreateCheckingAccountRequest) =>
       createCheckingAccount(request),
     // 성공 시 실행될 코드
-    onSuccess: () => {
+    onSuccess: data => {
+      // 계좌 목록 캐시 무효화
+      queryClient.invalidateQueries({
+        queryKey: ['accounts'],
+      });
+
+      console.log('입출금 계좌 개설 성공, 캐시 무효화 완료:', data);
       navigate(`${PAGE_PATH.ACCOUNT_CREATION}?step=COMPLETE`);
     },
     // 실패 시 실행될 코드
@@ -76,7 +83,21 @@ export const useAccountCreation = () => {
     mutationFn: (request: CreateSavingsAccountRequest) =>
       createSavingsAccount(request),
     // 성공 시 실행될 코드
-    onSuccess: () => {
+    onSuccess: data => {
+      // 모든 계좌 관련 캐시 무효화
+      queryClient.invalidateQueries({
+        queryKey: ['accounts'],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ['existingAccounts'],
+      });
+
+      console.log('적금 계좌 개설 성공, 캐시 무효화 완료:', {
+        createdAccount: data,
+        invalidatedCacheKeys: ['accounts', 'existingAccounts'],
+      });
+
       navigate(`${PAGE_PATH.ACCOUNT_CREATION}?step=COMPLETE`);
     },
     // 실패 시 실행될 코드
