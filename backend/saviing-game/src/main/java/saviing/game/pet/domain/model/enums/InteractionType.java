@@ -12,14 +12,14 @@ public enum InteractionType {
      * FOOD 타입 소모품을 사용합니다.
      * 에너지를 회복시키고 애정도를 증가시킵니다.
      */
-    FEED(Consumption.FOOD, 20, 5, 0),
+    FOOD(Consumption.FOOD, 20, 5, 0),
 
     /**
      * 놀아주기
      * TOY 타입 소모품을 사용합니다.
      * 에너지를 소모하고 애정도와 경험치를 증가시킵니다.
      */
-    PLAY(Consumption.TOY, -15, 10, 25);
+    TOY(Consumption.TOY, -15, 10, 25);
 
     private final Consumption requiredConsumption;
     private final int energyChange;
