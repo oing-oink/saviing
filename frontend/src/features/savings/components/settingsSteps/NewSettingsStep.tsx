@@ -93,6 +93,33 @@ const NewSettingsStep = () => {
     account => account.accountId === currentAutoAccountId,
   );
 
+  const selectedAutoAccount =
+    formData.newAutoAccount && accounts
+      ? accounts.find(
+          account =>
+            account.accountId.toString() === formData.newAutoAccount,
+        ) ?? null
+      : null;
+
+  const autoAccountLabel = (() => {
+    if (!formData.newAutoAccount) {
+      return '자동이체 계좌를 선택해주세요';
+    }
+
+    const accountToShow =
+      selectedAutoAccount ??
+      (currentAutoAccountId?.toString() === formData.newAutoAccount
+        ? currentAutoAccount
+        : null);
+
+    if (accountToShow) {
+      const accountSuffix = accountToShow.accountNumber?.slice(-4) ?? '****';
+      return `${accountToShow.product.productName} (*${accountSuffix})`;
+    }
+
+    return '자동이체 계좌 정보를 불러올 수 없습니다';
+  })();
+
   // 납입 주기 표시 변환
   const getCycleDisplay = (cycle: string) => {
     switch (cycle) {
@@ -406,22 +433,7 @@ const NewSettingsStep = () => {
               >
                 <AccordionItem value="auto-account-selection">
                   <AccordionTrigger className="text-left text-gray-700">
-                    {formData.newAutoAccount
-                      ? checkingAccounts.find(
-                          acc =>
-                            acc.accountId.toString() ===
-                            formData.newAutoAccount,
-                        )?.product.productName +
-                        ' (*' +
-                        checkingAccounts
-                          .find(
-                            acc =>
-                              acc.accountId.toString() ===
-                              formData.newAutoAccount,
-                          )
-                          ?.accountNumber.slice(-4) +
-                        ')'
-                      : '자동이체 계좌를 선택해주세요'}
+                    {autoAccountLabel}
                   </AccordionTrigger>
                   <AccordionContent>
                     <div className="space-y-2 pt-2">
