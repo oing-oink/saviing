@@ -135,7 +135,7 @@ const CurrentInfoStep = () => {
   return (
     <>
       {/* 메인 컨텐츠 */}
-      <div className="flex flex-1 flex-col px-6 py-8 pb-24">
+      <div className="flex flex-1 flex-col px-6 py-8 pb-40">
         <h1 className="mb-2 text-xl font-bold text-gray-900">현재 적금 정보</h1>
         <p className="mb-6 text-gray-600">현재 설정된 적금 정보를 확인하세요</p>
 
