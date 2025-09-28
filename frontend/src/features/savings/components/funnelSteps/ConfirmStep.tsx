@@ -80,9 +80,7 @@ const ConfirmStep = () => {
     }
     return periodValue;
   })();
-  const interestRateBps =
-    (selectedAccount?.baseRate ?? 0) + (selectedAccount?.bonusRate ?? 0);
-  const interestRateDecimal = interestRateBps / 10000;
+  const interestRateDecimal = 0.015; // 적금 만기 예상 금액은 고정 1.5% 이자율로 계산
   const hasMaturityData = depositAmountValue > 0 && normalizedPeriodValue > 0;
   const totalContribution = hasMaturityData
     ? depositAmountValue * normalizedPeriodValue
