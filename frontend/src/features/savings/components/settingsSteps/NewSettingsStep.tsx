@@ -95,10 +95,9 @@ const NewSettingsStep = () => {
 
   const selectedAutoAccount =
     formData.newAutoAccount && accounts
-      ? accounts.find(
-          account =>
-            account.accountId.toString() === formData.newAutoAccount,
-        ) ?? null
+      ? (accounts.find(
+          account => account.accountId.toString() === formData.newAutoAccount,
+        ) ?? null)
       : null;
 
   const autoAccountLabel = (() => {

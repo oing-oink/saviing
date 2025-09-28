@@ -29,9 +29,7 @@ const RARITY_NAMES = {
   COMMON: '일반',
 } as const;
 
-const hasCatSprite = (
-  petId: number,
-): petId is keyof typeof CAT_SPRITE_PATHS =>
+const hasCatSprite = (petId: number): petId is keyof typeof CAT_SPRITE_PATHS =>
   Object.prototype.hasOwnProperty.call(CAT_SPRITE_PATHS, petId);
 
 const GachaInfoPage = () => {
@@ -134,8 +132,12 @@ const GachaInfoPage = () => {
                 {items.map((item: GachaItem) => {
                   const itemId = item.itemId;
                   const catSpriteAvailable = hasCatSprite(itemId);
-                  const modalItemType = catSpriteAvailable ? 'PET' : 'DECORATION';
-                  const modalItemCategory = catSpriteAvailable ? 'CAT' : 'BOTTOM';
+                  const modalItemType = catSpriteAvailable
+                    ? 'PET'
+                    : 'DECORATION';
+                  const modalItemCategory = catSpriteAvailable
+                    ? 'CAT'
+                    : 'BOTTOM';
 
                   return (
                     <div

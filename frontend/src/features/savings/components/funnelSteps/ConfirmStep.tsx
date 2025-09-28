@@ -48,7 +48,9 @@ const ConfirmStep = () => {
       return null;
     }
     const targetProductId = form.productType === ACCOUNT_TYPES.CHECKING ? 1 : 2;
-    return accounts.find(acc => acc.product?.productId === targetProductId) ?? null;
+    return (
+      accounts.find(acc => acc.product?.productId === targetProductId) ?? null
+    );
   };
 
   const selectedAccount = getSelectedAccount();
@@ -61,14 +63,14 @@ const ConfirmStep = () => {
 
   // 납입 주기에 따른 단위 라벨 (주/개월)
   const transferCycle =
-    'transferCycle' in form ? form.transferCycle ?? 'WEEKLY' : 'WEEKLY';
+    'transferCycle' in form ? (form.transferCycle ?? 'WEEKLY') : 'WEEKLY';
   const periodUnitLabel = transferCycle === 'MONTHLY' ? '개월' : '주';
 
   // 예상 만기 금액 계산 (이자율 반영)
   const depositAmountValue =
-    isSavingsAccount && 'depositAmount' in form ? form.depositAmount ?? 0 : 0;
+    isSavingsAccount && 'depositAmount' in form ? (form.depositAmount ?? 0) : 0;
   const periodValue =
-    isSavingsAccount && 'period' in form ? form.period ?? 0 : 0;
+    isSavingsAccount && 'period' in form ? (form.period ?? 0) : 0;
   const normalizedPeriodValue = (() => {
     if (!periodValue) {
       return 0;
