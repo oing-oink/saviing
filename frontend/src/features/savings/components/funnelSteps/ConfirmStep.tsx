@@ -43,29 +43,42 @@ const ConfirmStep = () => {
   }, [accountsError, showBoundary]);
 
   // 현재 선택된 계좌 타입에 맞는 상품 정보 찾기
-  const getProductInfo = () => {
+  const getSelectedAccount = () => {
     if (!accounts) {
       return null;
     }
     const targetProductId = form.productType === ACCOUNT_TYPES.CHECKING ? 1 : 2;
-    const account = accounts.find(
-      acc => acc.product?.productId === targetProductId,
-    );
-    return account?.product;
+    return accounts.find(acc => acc.product?.productId === targetProductId) ?? null;
   };
 
-  const productInfo = getProductInfo();
+  const selectedAccount = getSelectedAccount();
+  const productInfo = selectedAccount?.product;
 
   // 적금인지 확인하는 타입 가드 (period가 있으면 적금으로 판단)
   const isSavingsAccount =
     form.productType === ACCOUNT_TYPES.SAVINGS ||
     ('period' in form && form.period);
 
-  // 예상 만기 금액 간단 계산 (적금만)
-  const maturityAmount =
-    isSavingsAccount && 'depositAmount' in form && 'period' in form
-      ? (form.depositAmount || 0) * (form.period || 0)
-      : 0;
+  // 납입 주기에 따른 단위 라벨 (주/개월)
+  const transferCycle =
+    'transferCycle' in form ? form.transferCycle ?? 'WEEKLY' : 'WEEKLY';
+  const periodUnitLabel = transferCycle === 'MONTHLY' ? '개월' : '주';
+
+  // 예상 만기 금액 계산 (이자율 반영)
+  const depositAmountValue =
+    isSavingsAccount && 'depositAmount' in form ? form.depositAmount ?? 0 : 0;
+  const periodValue =
+    isSavingsAccount && 'period' in form ? form.period ?? 0 : 0;
+  const interestRateBps =
+    (selectedAccount?.baseRate ?? 0) + (selectedAccount?.bonusRate ?? 0);
+  const interestRateDecimal = interestRateBps / 10000;
+  const hasMaturityData = depositAmountValue > 0 && periodValue > 0;
+  const totalContribution = hasMaturityData
+    ? depositAmountValue * periodValue
+    : 0;
+  const maturityAmount = hasMaturityData
+    ? Math.round(totalContribution * (1 + interestRateDecimal))
+    : 0;
 
   // 로딩 상태 확인
   const isLoading = isCreatingChecking || isCreatingSavings;
@@ -138,7 +151,7 @@ const ConfirmStep = () => {
                       <span className="text-gray-700">적금 기간</span>
                       <span className="font-medium text-primary">
                         {'period' in form && form.period
-                          ? `${form.period}주`
+                          ? `${form.period}${periodUnitLabel}`
                           : '-'}
                       </span>
                     </div>
@@ -147,7 +160,9 @@ const ConfirmStep = () => {
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-700">예상 만기금액</span>
                       <span className="font-medium text-primary">
-                        {maturityAmount.toLocaleString()}원
+                        {hasMaturityData
+                          ? `${maturityAmount.toLocaleString()}원`
+                          : '-'}
                       </span>
                     </div>
                   </div>
