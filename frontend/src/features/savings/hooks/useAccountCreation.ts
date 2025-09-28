@@ -189,16 +189,17 @@ export const useAccountCreation = () => {
 
       // 적금 계좌 생성 요청
       const cycle = form.transferCycle;
-      const normalizedPeriod =
-        cycle === 'MONTHLY' ? Math.ceil(form.period / 4) : form.period;
+      const weeksTerm = form.period;
+      const contributionCount =
+        cycle === 'MONTHLY' ? Math.max(1, Math.ceil(weeksTerm / 4)) : weeksTerm;
 
       const request: CreateSavingsAccountRequest = {
         customerId,
         productId: 2, // 자유적금 상품 ID
-        targetAmount: form.depositAmount * normalizedPeriod, // 납입액 * 회차수 (주/개월)
+        targetAmount: form.depositAmount * contributionCount, // 납입액 * 회차수 (주/개월)
         termPeriod: {
-          value: normalizedPeriod,
-          unit: cycle === 'MONTHLY' ? 'MONTHS' : 'WEEKS',
+          value: weeksTerm,
+          unit: 'WEEKS',
         },
         maturityWithdrawalAccount: form.autoAccount,
         autoTransfer: {
