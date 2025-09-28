@@ -188,6 +188,7 @@ const SetConditionStep = () => {
               onClick={() => {
                 setTransferCycle('WEEKLY');
                 setTransferDate(''); // 주기 변경 시 이체일 초기화
+                setPeriod('');
                 setAccordionValue('transfer-date-selection'); // 이체일 선택 자동 열기
               }}
               className={`flex-1 rounded-lg border px-4 py-2 text-sm ${
@@ -203,6 +204,7 @@ const SetConditionStep = () => {
               onClick={() => {
                 setTransferCycle('MONTHLY');
                 setTransferDate(''); // 주기 변경 시 이체일 초기화
+                setPeriod('');
                 setAccordionValue('transfer-date-selection'); // 이체일 선택 자동 열기
               }}
               className={`flex-1 rounded-lg border px-4 py-2 text-sm ${
@@ -299,28 +301,62 @@ const SetConditionStep = () => {
           >
             <AccordionItem value="period-selection">
               <AccordionTrigger className="text-left text-gray-700">
-                {period ? `${period}주 설정` : '적금 기간을 선택해주세요'}
+                {(() => {
+                  if (!period) {
+                    return '적금 기간을 선택해주세요';
+                  }
+                  if (transferCycle === 'MONTHLY') {
+                    const months = Math.ceil(Number(period) / 4);
+                    return `${months}개월 설정`;
+                  }
+                  return `${period}주 설정`;
+                })()}
               </AccordionTrigger>
               <AccordionContent>
-                <div className="grid grid-cols-5 gap-2 pt-2">
-                  {Array.from({ length: 21 }, (_, i) => i + 4).map(weeks => (
-                    <button
-                      key={weeks}
-                      type="button"
-                      onClick={() => {
-                        setPeriod(String(weeks));
-                        setAccordionValue('account-selection'); // 자동이체 계좌 선택 자동 열기
-                      }}
-                      className={`rounded-md border px-3 py-2 text-sm ${
-                        period === String(weeks)
-                          ? 'bg-violet-500 text-white'
-                          : 'bg-white text-gray-700 hover:bg-gray-100'
-                      }`}
-                    >
-                      {weeks}주
-                    </button>
-                  ))}
-                </div>
+                {transferCycle === 'MONTHLY' ? (
+                  <div className="grid grid-cols-3 gap-2 pt-2">
+                    {Array.from({ length: 6 }, (_, i) => i + 1).map(months => {
+                      const weeksValue = months * 4;
+                      return (
+                        <button
+                          key={months}
+                          type="button"
+                          onClick={() => {
+                            setPeriod(String(weeksValue));
+                            setAccordionValue('account-selection'); // 자동이체 계좌 선택 자동 열기
+                          }}
+                          className={`rounded-md border px-3 py-2 text-sm ${
+                            period === String(weeksValue)
+                              ? 'bg-violet-500 text-white'
+                              : 'bg-white text-gray-700 hover:bg-gray-100'
+                          }`}
+                        >
+                          {months}개월
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-5 gap-2 pt-2">
+                    {Array.from({ length: 21 }, (_, i) => i + 4).map(weeks => (
+                      <button
+                        key={weeks}
+                        type="button"
+                        onClick={() => {
+                          setPeriod(String(weeks));
+                          setAccordionValue('account-selection'); // 자동이체 계좌 선택 자동 열기
+                        }}
+                        className={`rounded-md border px-3 py-2 text-sm ${
+                          period === String(weeks)
+                            ? 'bg-violet-500 text-white'
+                            : 'bg-white text-gray-700 hover:bg-gray-100'
+                        }`}
+                      >
+                        {weeks}주
+                      </button>
+                    ))}
+                  </div>
+                )}
               </AccordionContent>
             </AccordionItem>
           </Accordion>

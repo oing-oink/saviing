@@ -2,6 +2,7 @@ import { Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { PAGE_PATH } from '@/shared/constants/path';
 import { useCustomerStore } from '@/features/auth/store/useCustomerStore';
+import saviingLogo from '@/assets/saviing_logo.png';
 
 const TopBar = () => {
   const navigate = useNavigate();
@@ -18,11 +19,7 @@ const TopBar = () => {
         onClick={handleLogoClick}
         className="text-2xl font-bold text-primary transition-colors hover:text-primary/90 focus:ring-2 focus:ring-violet-50 focus:ring-offset-0 focus:outline-none"
       >
-        <img
-          src="src/assets/saviing_logo.png"
-          alt="saviing_logo.png"
-          className="h-7 px-0"
-        />
+        <img src={saviingLogo} alt="saviing_logo" className="h-7 px-0" />
       </button>
 
       {/* 오른쪽 사용자 정보 + 알림 */}

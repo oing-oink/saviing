@@ -37,14 +37,14 @@ const ItemDetailModal = ({
   const { data: item, isLoading, error } = useGameItemDetail(itemId);
   const { mutate: purchase, isPending: isPurchasing } = usePurchase();
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>('COIN');
-  const [purchaseCount, setPurchaseCount] = useState(1);
+  const [purchaseCountInput, setPurchaseCountInput] = useState('1');
   const { data: gameEntry } = useGameEntryQuery();
   const characterId = gameEntry?.characterId;
   const [showInsufficientFundsModal, setShowInsufficientFundsModal] =
     useState(false);
 
   useEffect(() => {
-    setPurchaseCount(1);
+    setPurchaseCountInput('1');
     if (!item) {
       return;
     }
@@ -63,12 +63,22 @@ const ItemDetailModal = ({
   }, [item]);
 
   const handleCountChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const nextValue = Number(event.target.value);
-    if (Number.isNaN(nextValue)) {
-      setPurchaseCount(1);
+    const rawValue = event.target.value;
+
+    if (rawValue === '') {
+      setPurchaseCountInput('');
       return;
     }
-    setPurchaseCount(Math.max(1, Math.floor(nextValue)));
+
+    const digitsOnly = rawValue.replace(/\D/g, '');
+    const normalized = digitsOnly.replace(/^0+/, '');
+    setPurchaseCountInput(normalized);
+  };
+
+  const handleCountBlur = () => {
+    if (purchaseCountInput === '' || Number(purchaseCountInput) < 1) {
+      setPurchaseCountInput('1');
+    }
   };
 
   const handlePurchase = () => {
@@ -95,6 +105,10 @@ const ItemDetailModal = ({
         className: 'game font-galmuri',
       });
       return;
+    }
+
+    if (requiresCount && purchaseCountInput === '') {
+      setPurchaseCountInput(String(normalizedCount));
     }
 
     purchase(
@@ -180,10 +194,15 @@ const ItemDetailModal = ({
   const requiresCountInput =
     !hideActions &&
     (item.itemCategory === 'TOY' || item.itemCategory === 'FOOD');
+  const rawCount = purchaseCountInput === '' ? NaN : Number(purchaseCountInput);
+  const purchaseCount = Number.isFinite(rawCount)
+    ? Math.max(1, Math.floor(rawCount))
+    : 0;
   const coinPrice = item.coin ?? 0;
   const fishCoinPrice = item.fishCoin ?? 0;
-  const totalCoinPrice = coinPrice * purchaseCount;
-  const totalFishCoinPrice = fishCoinPrice * purchaseCount;
+  const effectiveCountForPrice = purchaseCount > 0 ? purchaseCount : 0;
+  const totalCoinPrice = coinPrice * effectiveCountForPrice;
+  const totalFishCoinPrice = fishCoinPrice * effectiveCountForPrice;
 
   const formatPrice = (value: number) => value.toLocaleString();
 
@@ -245,8 +264,9 @@ const ItemDetailModal = ({
                 <input
                   type="number"
                   min={1}
-                  value={purchaseCount}
+                  value={purchaseCountInput}
                   onChange={handleCountChange}
+                  onBlur={handleCountBlur}
                   className="w-full rounded-3xl border-2 border-primary bg-white px-4 py-2 text-center text-lg font-semibold text-primary focus:ring-2 focus:ring-primary/40 focus:outline-none"
                 />
               </div>
