@@ -7,6 +7,8 @@ import ItemDetailModal from '@/features/game/shop/components/ItemDetailModal';
 import backButton from '@/assets/game_button/backButton.png';
 import { PAGE_PATH } from '@/shared/constants/path';
 import { useNavigate } from 'react-router-dom';
+import CatSprite from '@/features/game/pet/components/CatSprite';
+import { CAT_SPRITE_PATHS } from '@/features/game/pet/data/catAnimations';
 
 /** 등급 순서 정의 */
 const RARITY_ORDER = ['LEGENDARY', 'EPIC', 'RARE', 'COMMON'] as const;
@@ -26,6 +28,11 @@ const RARITY_NAMES = {
   RARE: '희귀',
   COMMON: '일반',
 } as const;
+
+const hasCatSprite = (
+  petId: number,
+): petId is keyof typeof CAT_SPRITE_PATHS =>
+  Object.prototype.hasOwnProperty.call(CAT_SPRITE_PATHS, petId);
 
 const GachaInfoPage = () => {
   const navigate = useNavigate();
@@ -124,45 +131,61 @@ const GachaInfoPage = () => {
 
               {/* 아이템 그리드 */}
               <div className="grid grid-cols-3 gap-1">
-                {items.map((item: GachaItem) => (
-                  <div
-                    key={item.itemId}
-                    className="relative -mb-6 flex aspect-square items-center justify-center"
-                  >
-                    <img
-                      src={inventory_square}
-                      alt="slot"
-                      className="absolute inset-0 h-full w-full object-contain"
-                    />
-                    <button
-                      onClick={() =>
-                        handleItemClick({
-                          itemId: item.itemId,
-                          itemName: item.itemName,
-                          itemDescription: '',
-                          itemType: 'DECORATION',
-                          itemCategory: 'DECORATION',
-                          rarity: rarity,
-                          xLength: 1,
-                          yLength: 1,
-                          coin: 0,
-                          fishCoin: 0,
-                          imageUrl: '',
-                          isAvailable: true,
-                          createdAt: '',
-                          updatedAt: '',
-                        })
-                      }
-                      className="relative flex h-[70%] w-[70%] items-center justify-center hover:opacity-80"
+                {items.map((item: GachaItem) => {
+                  const itemId = item.itemId;
+                  const catSpriteAvailable = hasCatSprite(itemId);
+                  const modalItemType = catSpriteAvailable ? 'PET' : 'DECORATION';
+                  const modalItemCategory = catSpriteAvailable ? 'CAT' : 'BOTTOM';
+
+                  return (
+                    <div
+                      key={itemId}
+                      className="relative -mb-6 flex aspect-square items-center justify-center"
                     >
                       <img
-                        src={getItemImage(item.itemId)}
-                        alt={item.itemName}
-                        className="h-[80%] w-[80%] object-contain"
+                        src={inventory_square}
+                        alt="slot"
+                        className="absolute inset-0 h-full w-full object-contain"
                       />
-                    </button>
-                  </div>
-                ))}
+                      <button
+                        onClick={() =>
+                          handleItemClick({
+                            itemId,
+                            itemName: item.itemName,
+                            itemDescription: '',
+                            itemType: modalItemType,
+                            itemCategory: modalItemCategory,
+                            rarity: rarity,
+                            xLength: 1,
+                            yLength: 1,
+                            coin: 0,
+                            fishCoin: 0,
+                            imageUrl: '',
+                            isAvailable: true,
+                            createdAt: '',
+                            updatedAt: '',
+                          })
+                        }
+                        className="relative flex h-[70%] w-[70%] items-center justify-center hover:opacity-80"
+                      >
+                        {catSpriteAvailable ? (
+                          <CatSprite
+                            itemId={itemId}
+                            currentAnimation="idle"
+                            targetWidth={60}
+                            className="origin-bottom"
+                          />
+                        ) : (
+                          <img
+                            src={getItemImage(itemId)}
+                            alt={item.itemName}
+                            className="h-[80%] w-[80%] object-contain"
+                          />
+                        )}
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           );
