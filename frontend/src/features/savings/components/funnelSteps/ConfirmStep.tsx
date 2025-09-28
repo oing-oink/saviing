@@ -69,12 +69,21 @@ const ConfirmStep = () => {
     isSavingsAccount && 'depositAmount' in form ? form.depositAmount ?? 0 : 0;
   const periodValue =
     isSavingsAccount && 'period' in form ? form.period ?? 0 : 0;
+  const normalizedPeriodValue = (() => {
+    if (!periodValue) {
+      return 0;
+    }
+    if (transferCycle === 'MONTHLY') {
+      return Math.ceil(periodValue / 4);
+    }
+    return periodValue;
+  })();
   const interestRateBps =
     (selectedAccount?.baseRate ?? 0) + (selectedAccount?.bonusRate ?? 0);
   const interestRateDecimal = interestRateBps / 10000;
-  const hasMaturityData = depositAmountValue > 0 && periodValue > 0;
+  const hasMaturityData = depositAmountValue > 0 && normalizedPeriodValue > 0;
   const totalContribution = hasMaturityData
-    ? depositAmountValue * periodValue
+    ? depositAmountValue * normalizedPeriodValue
     : 0;
   const maturityAmount = hasMaturityData
     ? Math.round(totalContribution * (1 + interestRateDecimal))
@@ -151,7 +160,7 @@ const ConfirmStep = () => {
                       <span className="text-gray-700">적금 기간</span>
                       <span className="font-medium text-primary">
                         {'period' in form && form.period
-                          ? `${form.period}${periodUnitLabel}`
+                          ? `${normalizedPeriodValue}${periodUnitLabel}`
                           : '-'}
                       </span>
                     </div>
