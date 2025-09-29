@@ -1,0 +1,48 @@
+import { useStepProgress } from '@/features/savings/hooks/useStepProgress';
+import { Landmark } from 'lucide-react';
+import { Button } from '@/shared/components/ui/button';
+
+const StartStep = () => {
+  const { goToNextStep } = useStepProgress();
+
+  const handleNext = () => {
+    goToNextStep();
+  };
+
+  return (
+    <>
+      {/* 메인 컨텐츠 */}
+      <div className="flex flex-1 flex-col items-center justify-center px-6 pt-16 text-center">
+        <h1 className="mb-2 text-xl font-bold text-gray-900">
+          적금 가입을 시작해볼까요?
+        </h1>
+        <p className="mb-6 text-gray-600">간편하게 목돈을 모아보세요</p>
+
+        {/* 일러스트 */}
+        <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-blue-50 text-primary">
+          <Landmark className="h-12 w-12" />
+        </div>
+
+        <p className="text-sm text-gray-600">
+          매월 일정 금액을 저축하여 <br />
+          목표 금액을 달성해보세요
+        </p>
+      </div>
+
+      {/* 하단 고정 버튼 */}
+      <div
+        className="fixed right-0 bottom-0 left-0 z-10 bg-white p-4"
+        style={{ borderTop: 'none' }}
+      >
+        <Button
+          onClick={handleNext}
+          className="h-12 w-full rounded-lg bg-primary text-white hover:bg-primary/90"
+        >
+          시작하기
+        </Button>
+      </div>
+    </>
+  );
+};
+
+export default StartStep;

@@ -1,0 +1,287 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-gray: var(--gray);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sky-bg: var(--sky-bg);
+  --color-store-bg: var(--store-bg);
+  --color-saving-bg: var(--bg);
+  --color-level-01: var(--level-01);
+  --color-level-02: var(--level-02);
+  --color-level-03: var(--level-03);
+  --color-level-04: var(--level-04);
+  --color-level-05: var(--level-05);
+  --color-level-06: var(--level-06);
+  --color-level-07: var(--level-07);
+  --color-level-08: var(--level-08);
+  --color-level-09: var(--level-09);
+  --color-level-10: var(--level-10);
+}
+
+:root {
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+/* 게임 테마 */
+.game {
+  --primary: oklch(0.9002 0.052 18.16);
+  --secondary: oklch(0.9852 0.0417 102.74);
+  --white: oklch(0.9919 0.003956 286.3273);
+  --gray: oklch(0.8853 0 0);
+  --sky-bg: oklch(0.9321 0.0493 202.63);
+  --store-bg: oklch(0.9566 0.0155 27.28);
+
+  /* 라벨 */
+  --level-01: oklch(0.7552 0.1524 163.35);
+  --level-02: oklch(0.7552 0.1524 199.35);
+  --level-03: oklch(0.7552 0.1524 235.35);
+  --level-04: oklch(0.7552 0.1524 271.35);
+  --level-05: oklch(0.7552 0.1524 307.35);
+  --level-06: oklch(0.7552 0.1524 343.35);
+  --level-07: oklch(0.7552 0.1524 19.35);
+  --level-08: oklch(0.7552 0.1524 55.35);
+  --level-09: oklch(0.7552 0.1524 91.35);
+  --level-10: oklch(0.7552 0.1524 127.35);
+
+  .level-label-01 {
+    background-color: var(--level-01);
+  }
+  .level-label-02 {
+    background-color: var(--level-02);
+  }
+  .level-label-03 {
+    background-color: var(--level-03);
+  }
+  .level-label-04 {
+    background-color: var(--level-04);
+  }
+  .level-label-05 {
+    background-color: var(--level-05);
+  }
+  .level-label-06 {
+    background-color: var(--level-06);
+  }
+  .level-label-07 {
+    background-color: var(--level-07);
+  }
+  .level-label-08 {
+    background-color: var(--level-08);
+  }
+  .level-label-09 {
+    background-color: var(--level-09);
+  }
+  .level-label-10 {
+    background-color: var(--level-10);
+  }
+
+  /* 프로그레스바 */
+  --energy: oklch(0.9751 0.11 112.13);
+  --affection: oklch(0.8806 0.0631 22.04);
+  --experience: oklch(0.9134 0.1629 145.57);
+
+  .progress-underlayer {
+    background-color: oklch(0.9363 0.0032 17.22); /* 연한 회색 */
+  }
+
+  .progress-energy [data-slot='progress-indicator'] {
+    background-color: var(--energy);
+  }
+  .progress-affection [data-slot='progress-indicator'] {
+    background-color: var(--affection);
+  }
+  .progress-experience [data-slot='progress-indicator'] {
+    background-color: var(--experience);
+  }
+}
+
+/* 금융 테마 */
+.saving {
+  --primary: oklch(0.5181 0.2408 283.43);
+  --secondary: var(--color-violet-50);
+  --white: oklch(0.9919 0.003956 286.3273);
+  --gray: oklch(0.8853 0 0);
+  --dark-gray: oklch(0.619 0.0038 247.89);
+
+  --success: oklch(0.6396 0.1308 143.33);
+  --fail: oklch(0.5452 0.172 27.72);
+  --warning-bg: oklch(0.9783 0.0135 78.26);
+  --warning-text: oklch(0.5294 0.1377 40.83);
+}
+
+/* safeArea 유틸리티 */
+.safeArea {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* 폰트 */
+@font-face {
+  font-family: 'Galmuri';
+  src: url('/fonts/galmuri/Galmuri9.woff2') format('woff2');
+  font-display: swap;
+  font-style: normal;
+  font-weight: 400;
+}
+@font-face {
+  font-family: 'Pretendard';
+  src: url('/fonts/pretendard/Pretendard-Regular.woff2') format('woff2');
+  font-display: swap;
+  font-style: normal;
+  font-weight: 400;
+}
+
+/* 구름 애니메이션 */
+@keyframes cloud-scroll {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes gacha-shake {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(2deg);
+  }
+  75% {
+    transform: rotate(-2deg);
+  }
+}
+
+.animate-gacha-shake {
+  animation: gacha-shake 0.5s infinite;
+}
+
+@utility font-galmuri {
+  font-family: 'Galmuri', monospace;
+}
+
+@utility font-pretendard {
+  font-family: 'Pretendard', system-ui, sans-serif;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html,
+  body {
+    height: 100%;
+    overflow: hidden;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Pretendard', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}

@@ -1,0 +1,117 @@
+import { Button } from '@/shared/components/ui/button';
+import { Badge } from '@/shared/components/ui/badge';
+import { Progress } from '@/shared/components/ui/progress';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { PAGE_PATH, changeSavingsSettingsPath } from '@/shared/constants/path';
+import type { SavingsDisplayData } from '@/features/savings/types/savingsTypes';
+import { Card, CardContent } from '@/shared/components/ui/card';
+import type { ScrollDirection } from '@/shared/types/scroll.types';
+import { useConnectedCharacterRate } from '@/features/game/shared/hooks/useConnectedCharacterRate';
+
+interface StickyBalanceProps {
+  data: SavingsDisplayData;
+  isVisible: boolean;
+  scrollDirection?: ScrollDirection;
+  accountId?: string;
+}
+
+const StickyBalance = ({
+  data,
+  isVisible,
+  scrollDirection,
+  accountId,
+}: StickyBalanceProps) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // 현재 페이지의 entryPoint를 가져옴
+  const entryPoint = location.state?.entryPoint ?? PAGE_PATH.HOME;
+
+  // 연결된 캐릭터의 계산된 이자율 조회
+  const { calculatedRate, isConnected } = useConnectedCharacterRate(
+    accountId ? Number(accountId) : undefined,
+  );
+
+  // 표시할 이자율 결정 (연결된 캐릭터가 있으면 계산된 이자율, 없으면 기본 이자율)
+  const displayInterestRate = calculatedRate ?? data.interestRate;
+
+  // 디버깅용 로그 (개발 환경에서만)
+  if (process.env.NODE_ENV === 'development') {
+    console.log('StickyBalance Debug:', {
+      accountId,
+      isConnected,
+      calculatedRate,
+      originalRate: data.interestRate,
+      displayRate: displayInterestRate,
+    });
+  }
+
+  // 달성률 계산
+  const progressPercentage = Math.round(
+    (data.balance / data.targetAmount) * 100,
+  );
+
+  if (!isVisible) {
+    return null;
+  }
+
+  return (
+    <Card className="fixed top-13 right-0 left-0 z-50 mx-auto max-w-md gap-5 rounded-t-none rounded-b-xl px-3 pt-2 pb-6">
+      <CardContent>
+        <div>
+          <div className="flex items-center justify-between gap-1">
+            <p className="text-2xl font-bold text-primary">
+              {data.balance.toLocaleString()}원
+            </p>
+            <div className="flex gap-2">
+              <Badge className="bg-gray/50 text-gray-600">
+                연 {displayInterestRate}%
+              </Badge>
+              <Badge className="bg-primary/50">
+                달성 {progressPercentage}%
+              </Badge>
+            </div>
+          </div>
+          <Progress
+            value={(data.balance / data.targetAmount) * 100}
+            className="my-1 bg-gray"
+          />
+          <div className="flex justify-end text-sm text-gray-600">
+            <p>목표 {data.targetAmount.toLocaleString()}원</p>
+          </div>
+        </div>
+
+        {/* 버튼 영역 - 카드 하단에 추가, 스크롤 업 시에만 표시 */}
+        <div
+          className={`overflow-hidden transition-all duration-500 ease-in-out ${
+            scrollDirection === 'up'
+              ? 'max-h-20 translate-y-0 transform opacity-100'
+              : 'max-h-0 translate-y-2 transform opacity-0'
+          }`}
+        >
+          <div className="flex justify-center gap-3 pt-3">
+            <Button
+              className="text-black-900 flex-1 bg-secondary"
+              onClick={() => {
+                if (accountId) {
+                  navigate(changeSavingsSettingsPath(accountId), {
+                    state: { entryPoint },
+                  });
+                } else {
+                  // accountId가 없어서 설정 변경 페이지로 이동할 수 없음
+                }
+              }}
+            >
+              설정 변경
+            </Button>
+            <Button className="flex-1" onClick={() => navigate(PAGE_PATH.HOME)}>
+              입금
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default StickyBalance;

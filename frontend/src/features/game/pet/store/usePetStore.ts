@@ -1,0 +1,79 @@
+import { create } from 'zustand';
+import type {
+  PetInventory,
+  PetBehaviorState,
+} from '@/features/game/pet/types/petTypes';
+
+/**
+ * 펫 관련 상태를 관리하는 Zustand 스토어 인터페이스
+ *
+ * 펫에게 주는 사료과 장난감의 개수, 펫의 행동 상태를 추적하고,
+ * 서버 기반 인벤토리 동기화를 제공합니다.
+ */
+interface PetStoreState {
+  /** 현재 인벤토리 상태 (사료, 장난감 개수) */
+  inventory: PetInventory;
+  /** 펫의 행동 상태 */
+  behavior: PetBehaviorState;
+  /** 에러 다이얼로그 상태 */
+  errorDialog: {
+    isOpen: boolean;
+    message: string;
+  };
+  /** 인벤토리 전체를 설정하는 액션 */
+  setInventory: (inventory: PetInventory) => void;
+  /** 펫의 행동 상태를 설정하는 액션 */
+  setBehavior: (behavior: PetBehaviorState) => void;
+  /** 에러 다이얼로그를 갱신한다. */
+  showErrorDialog: (message: string) => void;
+  hideErrorDialog: () => void;
+}
+
+/**
+ * 펫 관련 상태를 전역 상태로 관리하는 Zustand 스토어
+ *
+ * 펫에게 주는 사료과 장난감의 수량, 펫의 행동 상태를 관리하고,
+ * 서버 기반 인벤토리 동기화를 제공합니다.
+ */
+export const usePetStore = create<PetStoreState>(set => ({
+  // 초기값은 0이며 GamePage에서 서버 인벤토리로 덮어쓴다.
+  inventory: { feed: 0, toy: 0, items: [] },
+
+  // 펫의 초기 행동 상태
+  behavior: {
+    currentAnimation: 'idle',
+  },
+
+  errorDialog: {
+    isOpen: false,
+    message: '',
+  },
+
+  // 인벤토리 전체 설정 (서버 응답 기반)
+  setInventory: (inventory: PetInventory) =>
+    set(() => ({
+      inventory,
+    })),
+
+  // 펫의 행동 상태 설정
+  setBehavior: (behavior: PetBehaviorState) =>
+    set(() => ({
+      behavior,
+    })),
+
+  showErrorDialog: (message: string) =>
+    set(() => ({
+      errorDialog: {
+        isOpen: true,
+        message,
+      },
+    })),
+
+  hideErrorDialog: () =>
+    set(state => ({
+      errorDialog: {
+        ...state.errorDialog,
+        isOpen: false,
+      },
+    })),
+}));
