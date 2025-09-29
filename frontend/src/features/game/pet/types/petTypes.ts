@@ -122,6 +122,14 @@ export interface PetInteractionRequest {
 }
 
 /**
+ * 펫 이름 변경 요청 타입
+ */
+export interface PetRenameRequest {
+  /** 변경할 펫 이름 */
+  name: string;
+}
+
+/**
  * 소모된 아이템 정보
  */
 export interface ConsumptionItem {

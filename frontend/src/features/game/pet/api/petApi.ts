@@ -3,6 +3,7 @@ import type {
   PetData,
   PetInteractionRequest,
   PetInteractionResponse,
+  PetRenameRequest,
 } from '@/features/game/pet/types/petTypes';
 import { mockRenamePetName } from '@/features/game/pet/data/mockPetApi';
 
@@ -67,20 +68,20 @@ export const interactWithPet = async (
 /**
  * 펫 이름 변경 API
  * @param petId - 펫 ID
- * @param name - 변경할 이름
+ * @param payload - 변경할 이름이 담긴 요청 본문
  * @returns 업데이트된 펫 정보
  */
 export const renamePetName = async (
   petId: number,
-  name: string,
+  payload: PetRenameRequest,
 ): Promise<PetData> => {
   if (USE_MOCK) {
-    const mockResponse = await mockRenamePetName(petId, name);
+    const mockResponse = await mockRenamePetName(petId, payload);
     return mockResponse.body!;
   }
 
   const response = await http.patch<PetData>(`/v1/game/pets/${petId}/name`, {
-    name,
+    name: payload.name,
   });
   return response.body!;
 };
