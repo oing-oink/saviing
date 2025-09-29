@@ -21,7 +21,7 @@ interface ProfileMenuItem {
 
 const ProfilePage = () => {
   const navigate = useNavigate();
-  const { customer, clearAuth } = useCustomerStore();
+  const { customer, name, clearAuth } = useCustomerStore();
   const { hideGameBackground } = useGlobalGameBackground();
 
   useEffect(() => {
@@ -30,7 +30,7 @@ const ProfilePage = () => {
 
   // 사용자 정보 (스토어에서 가져오거나 기본값 사용)
   const userInfo = {
-    name: customer?.name || '오익준',
+    name: customer?.name ?? name ?? '오익준',
     email: 'kim.ssafy@example.com',
     phone: '010-1234-5678',
   };

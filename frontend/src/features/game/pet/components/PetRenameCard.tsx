@@ -21,7 +21,7 @@ const PetRenameCard = ({ petId, onClose }: PetRenameCardProps) => {
     if (!newName.trim()) {
       return;
     }
-    await renameMutation.mutateAsync(newName.trim());
+    await renameMutation.mutateAsync({ name: newName.trim() });
     if (onClose) {
       onClose();
     } else {
