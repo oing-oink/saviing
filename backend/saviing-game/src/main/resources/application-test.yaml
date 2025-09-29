@@ -1,0 +1,42 @@
+server:
+  address: 127.0.0.1
+  port: 8081
+
+spring:
+    config:
+      import: ""
+
+    devtools:
+      livereload:
+        enabled: false
+      restart:
+        enabled: false
+
+    datasource:
+      url: jdbc:h2:mem:saviing-game-inmem-db;DATABASE_TO_UPPER=FALSE;mode=mysql
+      username: sa
+      password:
+      driver-class-name: org.h2.Driver
+
+    h2:
+      console:
+        enabled: true
+        path: /h2-console
+
+    jpa:
+      database-platform: org.hibernate.dialect.H2Dialect
+      hibernate:
+        ddl-auto: create-drop
+        naming:
+          physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      show-sql: true
+      properties:
+        hibernate:
+          format_sql: true
+
+# Swagger Configuration - Test (Disabled)
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false

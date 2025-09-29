@@ -1,0 +1,71 @@
+server:
+  address: ${SERVER_HOST:0.0.0.0}
+  port: ${SERVER_PORT:8080}
+
+# API Documentation - Production
+api:
+  version: ${API_VERSION:v1.0}
+  versionPath: ${API_VERSION_PATH:v1}
+
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        highlight_sql: false
+        use_sql_comments: false
+
+  devtools:
+    livereload:
+      enabled: false
+    restart:
+      enabled: false
+  # Redis Configuration
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
+      timeout: 3s
+
+app:
+  streams:
+    key: stream:bank.savings.deposited.v1
+    group: game-coin-service
+    consumerName: ${HOSTNAME}-${random.uuid}
+    blockMillis: 2000
+    maxReadCount: 100
+
+
+# OAuth2 설정
+oauth2:
+  google:
+    client-id: ${OAUTH2_GOOGLE_CLIENT_ID}
+    client-secret: ${OAUTH2_GOOGLE_CLIENT_SECRET}
+    redirect-uri: ${OAUTH2_GOOGLE_REDIRECT_URI}
+
+logging:
+  level:
+    root: INFO
+    saviing: INFO
+
+springdoc:
+  api-docs:
+    enabled: ${SWAGGER_ENABLED:false}
+  swagger-ui:
+    title: SAVIING ${spring.application.name} API (Production)
+    enabled: ${SWAGGER_UI_ENABLED:false}
+    try-it-out-enabled: false
+    supported-submit-methods: []
+  servers:
+    - url: https://api.bank.saviing.life
+      description: Production Server

@@ -1,0 +1,24 @@
+bootJar {
+	enabled = true
+	mainClass = 'saviing.game.GameApplication'
+}
+
+jar {
+	enabled = false
+}
+
+dependencies {
+	implementation project(':saviing-common')
+	
+	// Swagger
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.13'
+	
+	// JPA and Database
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	runtimeOnly 'com.mysql:mysql-connector-j'
+	runtimeOnly 'com.h2database:h2'
+	
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	testImplementation 'org.springframework.security:spring-security-test'
+}

@@ -1,0 +1,66 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.5.5'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+bootJar {
+	enabled = false
+}
+
+jar {
+	enabled = false
+}
+
+allprojects {
+	group = 'saviing'
+	version = '0.0.1'
+	
+	repositories {
+		mavenCentral()
+	}
+}
+
+subprojects {
+	apply plugin: 'java'
+	apply plugin: 'org.springframework.boot'
+	apply plugin: 'io.spring.dependency-management'
+	
+	java {
+		toolchain {
+			languageVersion = JavaLanguageVersion.of(21)
+		}
+	}
+	
+	configurations {
+		compileOnly {
+			extendsFrom annotationProcessor
+		}
+	}
+	
+	dependencies {
+		// Spring Boot
+		implementation 'org.springframework.boot:spring-boot-starter-aop'
+		implementation 'org.springframework.boot:spring-boot-starter-validation'
+		implementation 'org.springframework.boot:spring-boot-starter-web'
+		implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+		// Jackson
+		implementation 'com.fasterxml.jackson.core:jackson-databind'
+		
+		// JSON Logging
+		implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
+
+		// Lombok
+		compileOnly 'org.projectlombok:lombok'
+		annotationProcessor 'org.projectlombok:lombok'
+
+		// Test
+		testImplementation 'org.springframework.boot:spring-boot-starter-test'
+		testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	}
+	
+	tasks.named('test') {
+		useJUnitPlatform()
+	}
+}

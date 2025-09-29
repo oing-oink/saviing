@@ -6,9 +6,18 @@ workflow:
 
 stages:
   - start
+  - build
 
 start:
   stage: start
   image: alpine:latest
   script:
     - echo "백엔드 파이프라인 시작"
+
+build:
+  stage: build
+  image: gradle:8.14.3-jdk21
+  script:
+    - cd backend
+    - chmod +x ./gradlew
+    - ./gradlew clean build --refresh-dependencies --no-build-cache --rerun-tasks

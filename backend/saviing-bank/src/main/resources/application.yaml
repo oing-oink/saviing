@@ -1,0 +1,107 @@
+server:
+  address: ${SERVER_HOST:127.0.0.1}
+  port: ${SERVER_PORT:8080}
+
+# API Documentation
+api:
+  version: ${API_VERSION:v1.0-dev}
+  versionPath: ${API_VERSION_PATH:v1}
+
+spring:
+  application:
+    name: BANK
+  config:
+    import:
+      - optional:file:../config/bank/.env[.properties]
+    
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/bank}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:update}
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: ${JPA_SHOW_SQL:true}
+    properties:
+      hibernate:
+        format_sql: true
+        highlight_sql: true
+        use_sql_comments: true
+        dialect: org.hibernate.dialect.MySQLDialect
+    open-in-view: false
+
+  devtools:
+    livereload:
+      enabled: true
+    restart:
+      enabled: true
+      additional-paths:
+        - src/main/resources
+
+  # Redis Configuration
+  data:
+    redis:
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6380}
+      password: ${REDIS_PASSWORD:super_strong_pw}
+      timeout: 3s
+
+app:
+  streams:
+    key: stream:bank.savings.deposited.v1
+    group: game-coin-service
+    consumerName: ${HOSTNAME:local}-${random.uuid}
+    blockMillis: 2000
+    maxReadCount: 100
+
+
+# OAuth2 설정
+oauth2:
+  google:
+    client-id: ${OAUTH2_GOOGLE_CLIENT_ID}
+    client-secret: ${OAUTH2_GOOGLE_CLIENT_SECRET}
+    redirect-uri: ${OAUTH2_GOOGLE_REDIRECT_URI}
+
+logging:
+  config: file:${LOGGING_CONFIG_PATH:../config/common/logback-spring.xml}
+  level:
+    saviing: DEBUG
+
+springdoc:
+  api-docs:
+    path: /${api.versionPath}/api-docs
+    enabled: true
+  swagger-ui:
+    path: /${api.versionPath}/swagger-ui.html
+    title: SAVIING ${spring.application.name} API (Development)
+    description: ${spring.application.name} 도메인 API 문서
+    enabled: true
+    tags-sorter: alpha
+    operations-sorter: method
+    doc-expansion: none
+    disable-swagger-default-url: true
+  servers:
+    - url: http://localhost:${server.port}
+      description: Local Development Server
+    - url: https://api.bank-dev.saviing.life
+      description: Development Server
+
+# Spring Boot Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: when-authorized
+
+# Auto Transfer Scheduler
+auto-transfer:
+  scheduler:
+    cron: ${AUTO_TRANSFER_SCHEDULER_CRON:0 0 17 * * *}
+    demo-reset-enabled: ${AUTO_TRANSFER_SCHEDULER_DEMO_RESET_ENABLED:false}

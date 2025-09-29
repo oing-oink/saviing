@@ -1,0 +1,86 @@
+package saviing.game.item.infrastructure.persistence.repository;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
+import saviing.game.item.domain.model.aggregate.Item;
+import saviing.game.item.domain.model.enums.ItemType;
+import saviing.game.item.domain.model.enums.Rarity;
+import saviing.game.item.domain.model.enums.category.Category;
+import saviing.game.item.domain.model.vo.ItemId;
+import saviing.game.item.domain.repository.ItemRepository;
+import saviing.game.item.infrastructure.persistence.entity.ItemEntity;
+import saviing.game.item.infrastructure.persistence.mapper.ItemEntityMapper;
+
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * ItemRepository 도메인 인터페이스의 구현체
+ * JPA를 사용하여 아이템 데이터의 영속성을 관리합니다.
+ */
+@Repository
+@RequiredArgsConstructor
+public class ItemRepositoryImpl implements ItemRepository {
+
+    private final ItemJpaRepository itemJpaRepository;
+    private final ItemEntityMapper itemEntityMapper;
+
+    @Override
+    public Item save(Item item) {
+        ItemEntity entity = itemEntityMapper.toEntity(item);
+        ItemEntity savedEntity = itemJpaRepository.save(entity);
+        return itemEntityMapper.toDomain(savedEntity);
+    }
+
+    @Override
+    public Optional<Item> findById(ItemId itemId) {
+        return itemJpaRepository.findById(itemId.value())
+            .map(itemEntityMapper::toDomain);
+    }
+
+    @Override
+    public boolean existsById(ItemId itemId) {
+        return itemJpaRepository.existsById(itemId.value());
+    }
+
+    @Override
+    public void deleteById(ItemId itemId) {
+        itemJpaRepository.deleteById(itemId.value());
+    }
+
+    @Override
+    public List<Item> findItemsWithConditions(
+        ItemType itemType,
+        Category category,
+        Rarity rarity,
+        String keyword,
+        Boolean available,
+        String sortField,
+        String sortDirection,
+        String coinType
+    ) {
+        String categoryString = category != null ? formatCategoryForQuery(category) : null;
+        String itemTypeString = itemType != null ? itemType.name() : null;
+        String rarityString = rarity != null ? rarity.name() : null;
+
+        // 단일 동적 쿼리로 모든 경우의 수 처리
+        List<ItemEntity> entities = itemJpaRepository.findItemsWithDynamicQuery(
+            itemTypeString, categoryString, rarityString, keyword, available,
+            sortField, sortDirection, coinType
+        );
+
+        return entities.stream()
+            .map(itemEntityMapper::toDomain)
+            .toList();
+    }
+
+    /**
+     * Category를 데이터베이스 쿼리용 문자열로 변환합니다.
+     *
+     * @param category Category 객체
+     * @return 쿼리용 문자열 (enum 상수명)
+     */
+    private String formatCategoryForQuery(Category category) {
+        return category.name();
+    }
+}

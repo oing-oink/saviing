@@ -1,0 +1,60 @@
+server:
+  address: ${SERVER_HOST:0.0.0.0}
+  port: ${SERVER_PORT:8081}
+
+# API Documentation - Production
+api:
+  version: ${API_VERSION:v1.0}
+  versionPath: ${API_VERSION_PATH:v1}
+
+spring:
+  # Database Configuration - Production
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  # Redis Configuration
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
+      timeout: 10s
+
+app:
+  streams:
+    key: stream:bank.savings.deposited.v1
+    group: game-coin-service
+    consumerName: coin-${HOSTNAME}-${random.uuid}
+    blockMillis: 2000
+    maxReadCount: 100
+
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+  devtools:
+    livereload:
+      enabled: false
+    restart:
+      enabled: false
+
+logging:
+  level:
+    root: INFO
+    saviing: INFO
+
+springdoc:
+  api-docs:
+    enabled: ${SWAGGER_ENABLED:false}
+  swagger-ui:
+    title: SAVIING ${spring.application.name} API (Production)
+    enabled: ${SWAGGER_UI_ENABLED:false}
+    try-it-out-enabled: false
+    supported-submit-methods: []
+  servers:
+    - url: https://api.game.saviing.life
+      description: Production Server
