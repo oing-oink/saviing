@@ -4,6 +4,7 @@ import type {
   PetInteractionResponse,
   PetInteractionRequest,
   PetConsumableCategory,
+  PetRenameRequest,
 } from '@/features/game/pet/types/petTypes';
 
 /**
@@ -110,12 +111,12 @@ export const mockPetInteraction = async (
  */
 export const mockRenamePetName = async (
   _petId: number,
-  name: string,
+  payload: PetRenameRequest,
 ): Promise<ApiSuccessResponse<PetData>> => {
   await new Promise(resolve => setTimeout(resolve, 300));
 
   // mock 상태 업데이트
-  Object.assign(mockPetData, { name });
+  Object.assign(mockPetData, { name: payload.name });
 
   return {
     success: true,

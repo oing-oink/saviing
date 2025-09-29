@@ -65,7 +65,7 @@ export const TABS: readonly TabInfo[] = [
   { id: 'LEFT', name: '왼쪽벽' },
   { id: 'RIGHT', name: '오른쪽벽' },
   { id: 'BOTTOM', name: '바닥' },
-  { id: 'TOY', name: '장남감' },
+  { id: 'TOY', name: '장난감' },
   { id: 'FOOD', name: '사료' },
 ] as const;
 
